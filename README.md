@@ -6,7 +6,7 @@ file|description
 ----|----
 [bn.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/bn.md) | original Bengali text
 [en.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/en.md) | English translation from Bengali by [Google Translate](https://translate.google.com/)
-[ja.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/ja.md) | Japanese translation from English by Google Translate
+[ja.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/ja.md) | Japanese translation from English by [Google Translate](https://translate.google.com/)
 [hi-1.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/hi-1.md) | Hindi translation (Chapter 1)
 [claude-log.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/claude-log.md) | Summary from English by [Anthropic Claude](https://claude.ai/)
 
