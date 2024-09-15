@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queries count="3">
+<query>
+<info>[Chapter 1] 1/49</info>
+<prompt>
+Please translate each line literally into English.
+
+# বৌ-ঠাকুরাণীর হাট
+</prompt>
+<result>
+# Bou-Thakurani's Market
+</result>
+</query>
+<query>
+<info>[Chapter 1] 2/49</info>
+<prompt>
+Please translate each line literally into English.
+
+## প্রথম পরিচ্ছেদ।
+</prompt>
+<result>
+## Chapter 1
+</result>
+</query>
+<query>
+<info>Proper nouns</info>
+<prompt>
+Please translate each line literally into English.
+
+যশােহর, প্রতাপাদিত্য, উদয়াদিত্য, সুরমা, রায়গড়, দাদা মহাশয, বসন্তরায, রুক্মিণী, বিভা।
+</prompt>
+<result>
+Jashore, Pratapaditya, Udayaditya, Surma, Raigarh, granduncle, Basanta Ray, Rukmini, Bibha.
+</result>
+</query>
+<query>
+<info>[Chapter 1] 3/49</info>
+<prompt>
+Please translate each line literally into English.
+
+রাত্রি অনেক হইয়াছে। গ্রীষ্মকাল। বাতাস বন্ধ হইয়া গিয়াছে। গাছের পাতাটিও নড়িতেছে না। যশােহরের যুবরাজ, প্রতাপাদিত্যের জ্যেষ্ঠ পুত্র, উদয়াদিত্য তাঁহার শয়ন-গৃহের বাতায়নে বসিয়া আছেন। তাঁহার পার্শ্বে তাঁহার স্ত্রী সুরমা।
+</prompt>
+<result>
+It is very late at night. Summer season. The wind has stopped blowing. Even the leaves of the trees are not moving. Jashore's crown prince, Pratapaditya's eldest son, Udayaditya is sitting in the balcony of his bedroom. His wife Surma is beside him.
+</result>
+</query>
+</queries>

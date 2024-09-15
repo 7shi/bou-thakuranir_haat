@@ -1,0 +1,784 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queries count="71">
+<query>
+<info>[Chapter 6] 1/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+## ষষ্ঠ পরিচ্ছেদ।
+</prompt>
+<result>
+## 第6章
+</result>
+</query>
+<query>
+<info>[Chapter 6] 2/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভার ম্লানমুখ দেখিয়া সুরমা আর থাকিতে পারিল না; তাহার গলা ধরিয়া কহিল, “বিভা তুই চুপ করিয়া থাকিস্ কেন? তাের মনে যখন যাহা হয়, বলিস্ না কেন?”
+</prompt>
+<result>
+ビバのやつれた顔を見て、スルマは我慢できなくなった。彼女の首を掴んで言った。「ビバ、なぜ黙っているの？あなたの心にあることは何でも言いなさい。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 3/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা ধীরে ধীরে কহিল, “আমার আর কি বলিবার আছে?”
+</prompt>
+<result>
+ビバはゆっくりと言った。「私はもう何を言えばいいのでしょうか？」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 4/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা কহিল, “অনেক দিন তাঁহাকে দেখিস্ নাই, তাের মন কেমন করিবেই ত! তুই তাঁহাকে আসিবার জন্য একখানা চিঠি লেখ্ না। আমি তাের দাদাকে দিয়া পাঠাইবার সুবিধা করিয়া দিব।”
+</prompt>
+<result>
+スルマは言った。「長い間彼に会っていない。あなたの心は落ち着かないでしょう！あなたは彼に来るように手紙を書いてください。私はあなたの兄にそれを送る手配をします。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 5/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভার স্বামী চন্দ্রদ্বীপপতি রামচন্দ্র রায়ের সম্বন্ধে কথা হইতেছে।
+</prompt>
+<result>
+ビバの夫、チャンドラドウィープの王、ラムチャンドラ・ライについて話している。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 6/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা ঘাড় হেঁট করিয়া কহিতে লাগিল,—“এখানে কেহ যদি তাঁহাকে গ্রাহ্য না করে, কেহ যদি তাঁহাকে ডাকিবার আবশ্যক বিবেচনা না করে, তবে এখানে তিনি না আসিলেই ভাল। তিনি যদি আপনি আসেন তবে আমি বারণ করিব। তিনি রাজা, যেখানে তাঁহার আদর নাই, সেখানে তিনি কেন আসিবেন? আমাদের চেয়ে তিনি কিসে ছােট যে, পিতা তাঁহাকে অপমান করিবেন?” বলিতে বলিতে বিভা আর সামলাইতে পারিল না, তাহার মুখখানি লাল হইয়া উঠিল ও সে কাঁদিয়া ফেলিল।
+</prompt>
+<result>
+ビバは首をかしげて言った、「ここで誰も彼を気にかけず、誰も彼を呼ぶ必要がないと考えるなら、彼は来ないほうがいい。彼が勝手に来たら、私は止めるわ。彼は王よ。敬意を払われない場所に、なぜ彼は来る必要があるの？私たちより彼が劣っているわけじゃないのに、なぜ父は彼を侮辱するの？」と言いながら、ビバは堪えきれなくなり、顔は赤くなり、泣き出した。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 7/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা বিভার মুখ বুকে রাখিয়া তাহার চোখের জল মুছাইয়া কহিল, “আচ্ছা, বিভা, তুই যদি পুরুষ হইতিস্ ত কি করিতিস্? নিমন্ত্রণ পত্র পাস্ নাই বলিয়া কি শ্বশুর বাড়ি যাইতিস্ না?”
+</prompt>
+<result>
+スルマはビバの顔と胸に顔をうずめて、彼女の涙を拭いながら言った。「わかったわ、ビバ。もしあなたが男だったらどうする？招待状が届かなかったからといって、義実家に行かない？」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 8/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা বলিয়া উঠিল, “না, তাহা পারিতাম না। আমি যদি পুরুষ হইতাম ত এখনি চলিয়া যাইতাম; মান অপমান কিছুই ভাবিতাম না। কিন্তু তাহা বলিয়া তাঁহাকে আদর করিয়া না ডাকিয়া আনিলে তিনি কেন আসিবেন?”
+</prompt>
+<result>
+ビバは言った、「いいえ、それはできません。もし私が男だったら、すぐにそこに行って、名誉も恥も考えなかったでしょう。でも、彼を優しく呼ばずに連れてこなければ、なぜ彼が来るでしょうか？」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 9/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা এত কথা কখন কহে নাই। আজ আবেগের মাথায় অনেক কথা বলিয়াছে। এতক্ষণে একটু লজ্জা করিতে লাগিল। মনে হইল, বড় অধিক কথা বলিয়া ফেলিয়াছি। আবার, যে রকম করিয়া বলিয়াছি, বড় লজ্জা করিতেছে? ক্রমে তাহার মনের উত্তেজনা হ্রাস হইয়া আসিল ও মনের মধ্যে একটা গুরুভার অবসাদ আস্তে আস্তে চাপিয়া পড়িতে লাগিল। বিভা বাহুতে মুখ ঢাকিয়া সুরমার কোলে মাথা দিয়া শুইয়া পড়িল; সুরমা মাথা নত করিয়া কোমল হস্তে তাহার ঘন কেশভার পৃথক্ করিয়া দিতে লাগিল! এমন কতক্ষণ গেল। উভয়ের মুখে একটি কথা নাই। বিভার চোখ দিয়া এক এক বিন্দু করিয়া জল পড়িতেছে ও সুরমা আস্তে আস্তে মুছাইয়া দিতেছে।
+</prompt>
+<result>
+ビバはこれほど多くのことを話したことがない。今日は感情が高ぶって多くのことを話してしまった。今頃になって少し恥ずかしくなってきた。考えれば考えるほど、あまりにも多くのことを話してしまった。それに、あんな風に話してしまったなんて、とても恥ずかしい。だんだんと心の高ぶりが収まり、心の奥に重苦しい疲労感がゆっくりと押し寄せてきた。ビバは腕で顔を覆い、スルマの膝に頭を乗せて横になった。スルマは頭を下げ、柔らかな手でビバの豊かな髪をとかし始めた。しばらくそんな時間が流れた。二人の口からは一言も発せられない。ビバの目からは一滴一滴と涙が流れ落ち、スルマはそれをそっと拭き取っている。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 10/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+অনেকক্ষণ বাদে যখন সন্ধ্যা হইয়া আসিল তখন বিভা ধীরে ধীরে উঠিয়া বসিল ও চোখের জল মুছিয়া ঈষৎ হাসিল! সে হাসির অর্থ— “আজ কি ছেলেমানুষিই করিয়াছি!” ক্রমে মুখ ফিরাইয়া সরিয়া গিয়া পালাইয়া যাইবার উদ্যোগ করিতে লাগিল। সুরমা কিছু না বলিয়া তাহার হাত ধরিয়া রহিল। পূর্ব্বকার কথা আর কিছু উত্থাপন না করিয়া কহিল, “বিভা শুনিয়াছিস্, দাদামহাশয় আসিয়াছেন?”
+</prompt>
+<result>
+しばらくして夕暮れが近づくと、ビバはゆっくりと起き上がり、涙を拭って少し微笑んだ。その笑顔の意味は「今日は子供っぽいことをしてしまった」というものだった。やがて顔を背けて立ち去り、逃げ出そうとした。スルマは何も言わずに彼女の腕を掴んだ。以前のことを蒸し返さずに、「ビバ、聞いたか、大叔父が来たって？」と言った。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 11/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা। “দাদামহাশয় আসিয়াছেন?”
+</prompt>
+<result>
+ビバ。「おじいさまがおいでになりましたか？」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 12/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা। “হাঁ।”
+</prompt>
+<result>
+スルマ。「はい。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 13/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা আগ্রহের সহিত জিজ্ঞাসা করিল “কখন্ আসিয়াছেন?”
+</prompt>
+<result>
+ビバは興味深そうに尋ねた。「いつ来たのですか？」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 14/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা। “প্রায় চার প্রহর বেলার সময়।”
+</prompt>
+<result>
+スルマ。「もうすぐ夜明けね。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 15/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা। “এখনো যে আমাদের দেখিতে আসিলেন না।”
+</prompt>
+<result>
+ビバ。「まだ私たちに会いに来ないのね。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 16/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভার মনে ঈষৎ অভিমানের উদয় হইল। দাদা মহাশয়ের দখল লইয়া বিভা অতিশয় সতর্ক। এমন কি, এক দিন বসন্তরায় উদয়াদিত্যের সহিত অনেকক্ষণ কথােপকথন করিয়া বিভাকে অন্তঃপুরে তিন দণ্ড অপেক্ষা করাইয়াছিলেন, একবারেই তাহার সহিত দেখা করিতে যান নাই, এই জন্য বিভার এমন কষ্ট হইয়াছিল যে, যদিও সে বিষয়ে সে কিছু বলে নাই বটে তবু প্রসন্ন মুখে দাদামহাশয়ের সঙ্গে কথা কহিতে পারে নাই।
+</prompt>
+<result>
+ビバの心にはわずかな憤りが湧いてきた。大叔父が占有しているため、ビバは非常に用心深い。ある日、バサンタライがウダヤディティヤと長時間話をして、ビバを内宮で3時間待たせたが、一度も会いに来なかった。そのため、ビバは非常に苦しみ、そのことについては何も言わなかったが、それでも大叔父と笑顔で話すことはできなかった。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 17/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বসন্তরায় ঘরে প্রবেশ করিয়াই হাসিতে হাসিতে গান ধরিলেন;—
+</prompt>
+<result>
+バサンタライは部屋に入るとすぐに笑いながら歌い始めた。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 18/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+“আজ তােমারে দেখ্‌তে এলেম অনেক দিনের পরে!
+</prompt>
+<result>
+「今日は何日ぶりかにあなたに会いにおいでました！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 19/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+ভয় নাইক, সুখে থাক,
+</prompt>
+<result>
+心配しないで、幸せに暮らして、
+</result>
+</query>
+<query>
+<info>[Chapter 6] 20/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+অধিক ক্ষণ থাক্‌ব নাক’
+</prompt>
+<result>
+長くは滞在しません
+</result>
+</query>
+<query>
+<info>[Chapter 6] 21/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+আসিয়াছি দুদণ্ডেরি তরে!
+</prompt>
+<result>
+2、3分だけ来ました！
+</result>
+</query>
+<query>
+<info>[Chapter 6] 22/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+দেখ্‌ব শুধু মুখ খানি
+</prompt>
+<result>
+ただ顔だけ見せてくれ
+</result>
+</query>
+<query>
+<info>[Chapter 6] 23/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+শুন্‌ব দুটি মধুর বাণী
+</prompt>
+<result>
+シュンブ、二つの甘い言葉
+</result>
+</query>
+<query>
+<info>[Chapter 6] 24/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+আড়াল থেকে হাসি দেখে চলে যাব দেশান্তরে!”
+</prompt>
+<result>
+隠れ場所から笑うのを見て、私は異国に去ってしまうだろう！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 25/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+গান শুনিয়া বিভা মুখ নত করিয়া হাসিল। তাহার বড় আহ্লাদ হইয়াছে। অতটা আহ্লাদ পাছে ধরা পড়ে বলিয়া বিব্রত হইয়া পড়িয়াছে।
+</prompt>
+<result>
+歌を聞いてビバは口元を覆って笑った。彼女はとても嬉しそうだった。あまりに嬉しそうにしてはばれるのではないかと心配して、当惑してしまった。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 26/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা বিভার মুখ তুলিয়া ধরিয়া কহিল, “দাদা মহাশয়, বিভার হাসি দেখিবার জন্য ত আড়ালে যাইতে হইল না?”
+</prompt>
+<result>
+スルマはビバの顔を上げて言い、「おじいさん、ビバの笑顔を見るために隠れる必要はなかったの？」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 27/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বসন্তরায়। “না। বিভা মনে করিল, নিতান্তই না হাসিলে যদি বুড়া বিদায় না হয়, তবে না হয় একটু হাসি। ও ডাকিনীর মৎলব আমি বেশ বুঝি, আমাকে তাড়াইবার ফন্দি! কিন্তু শীঘ্র তাহা হইতেছে না। আসিলাম যদি ত ভাল করিয়া জ্বালাইয়া যাইব, আবার যত দিন না দেখা হয় মনে থাকিবে!”
+</prompt>
+<result>
+バサンタライ。「いや。ビバは思った、どうしても笑わなければあの老人が帰らないなら、少し笑ってもいい。あの魔女の考えはよくわかる、私を追い払うための策略だ！でも、そう簡単にはいかない。来たからには、思いっきり嫌がらせをしてやる、そうすればまた会うまでずっと覚えていてくれるだろう！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 28/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা হাসিয়া কহিল, “দেখ দাদা মহাশয়, বিভা আমার কানে কানে বলিল যে মনে রাখানই যদি অভিপ্রায় হয়, তবে যা’ জ্বালাইয়াছ তাহাই যথেষ্ট হইয়াছে, আর নূতন করিয়া জ্বালাইতে হইবে না।”
+</prompt>
+<result>
+スルマは笑って言った。「ねえ、おじいさん、ビバが私の耳元でささやいたのよ。もし何か企んでいるなら、もう十分に火をつけたから、もう新しい火をつける必要はないって。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 29/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+কথাটা শুনিয়া বসন্তরায়ের বড়ই আমােদ বােধ হইল। তিনি হাসিতে লাগিলেন।
+</prompt>
+<result>
+その話を聞いてバサンタライは非常に喜んだ。彼は笑い出した。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 30/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা অপ্রতিভ হইয়া বলিয়া উঠিল, “না, আমি কখনাে ও কথা বলি নাই। আমি কোন কথাই কই নাই।”
+</prompt>
+<result>
+ビバは狼狽して言った。「いいえ、私はそんなことは決して言いませんでした。私は何も言いませんでした。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 31/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা কহিল, “দাদা মহাশয়, তােমার মনস্কামনা ত পূর্ণ হইল! তুমি হাসি দেখিতে চাহিলে তাহা দেখিলে, কথা শুনিতে চাহিয়াছিলে তাহাও শুনাইলাম, তবে এখন দেশান্তরে যাও।”
+</prompt>
+<result>
+スルマは言った。「おじいさん、あなたの願いは叶いましたね！あなたは笑顔が見たいと言いましたが、それは見ましたし、話を聞きたいと言いましたが、それも聞かせました。だから、もうこの国を離れてください。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 32/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বসন্তরায়। “না ভাই, তাহা পারিলাম না! আমি গােটা-পােনেরো গান ও এক মাথা পাকা চুল আনিয়াছি, সে গুলি সমস্ত নিকাশ না করিয়া যাইতে পারিতেছি না!”
+</prompt>
+<result>
+バサンタライ。「いや、兄さん、それはできません！私は15曲の歌と白髪を1本持ってきて、それらをすべて使い果たさずに帰れません！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 33/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা আর থাকিতে পারিল না, হাসিয়া উঠিল, কহিল,—“তােমার আধ মাথা বই চুল নাই যে দাদামহাশয়!”
+</prompt>
+<result>
+ビバは我慢できずに笑い出し、「おじいさま、あなたの頭半分は禿げてますよ！」と言った。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 34/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+দাদামহাশয়ের অভিসন্ধি সিদ্ধ হইল। অনেক দিনের পর প্রথম আলাপে বিভার মুখ খুলিতে কিছু আয়ােজনের আবশ্যক করে, কিন্তু দাদা মহাশয়ের কাছে বিভার মুখ একবার খুলিলে তাহা বন্ধ করিতে আবার ততােধিক আয়ােজনের আবশ্যক হয়। কিন্তু দাদা মহাশয় ব্যতীত আর কাহারাে কাছে কোন অবস্থাতেই বিভার মুখ খুলে না।
+</prompt>
+<result>
+大叔父の思惑は成功した。久しぶりで初めて話すのだから、ビバが口を開くには多少の準備が必要だったが、大叔父の前ではビバが一度口を開くと、それを閉ざすにはさらに多くの準備が必要だった。しかし、大叔父以外の人に対しては、ビバはどんな状況でも口を開かなかった。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 35/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বসন্তরায় টাকে হাত বুলাইতে বুলাইতে বলিলেন, “সে এক দিন গিয়াছেরে ভাই! যে দিন বসন্তরায়ের মাথায় এক মাথা চুল ছিল, সে দিন কি আর এত রাস্তা হাঁটিয়া তোমাদের খোষামোদ করিতে আসিতাম? একগাছি চুল পাকিলে তোমাদের মত পাঁচটা রূপসী চুল তুলিবার জন্য উমেদার হইত ও মনের আগ্রহে দশটা কাঁচা চুল তুলিয়া ফেলিত!”
+</prompt>
+<result>
+バサンタライはタケの頭を撫でながら言った、「あれは昔のことだ、兄貴！バサンタライの頭に髪の毛が1本あった頃、こんなに長い道を歩いてお前の機嫌を取ろうとしただろうか？髪の毛が1本白くなったら、お前たちのような5人の美女の髪の毛をむしってやろうと期待して、10本の髪の毛をむしってやっただろう！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 36/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা গম্ভীর স্বরে জিজ্ঞাসা করিল, “আচ্ছা দাদামহাশয়, তোমার যখন একমাথা চুল ছিল, তখন কি তোমাকে এখনকার চেয়ে ভাল দেখিতে ছিল?”
+</prompt>
+<result>
+ビバは深刻な声で尋ねた。「おじいさん、あなたが髪の毛が1本もなかったとき、今のあなたよりもよく見えましたか？」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 37/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+মনে মনে বিভার সে বিষয়ে বিষম সন্দেহ ছিল। দাদা মহাশয়ের টাক্‌টি, তাঁহার গুম্ফসম্পর্কশূন্য অধরের প্রশস্ত হাসিটি, তাঁহার পাকা আম্রের ন্যায় ভাবটি, সে মনে মনে পরিবর্ত্তন করিতে চেষ্টা করিল, কোন মতেই ভাল ঠেকিল না। সে দেখিল, সে টাক্‌টি না দিলে তাহার দাদামহাশয়কে কিছুতে মানায় না। আর গোঁফ জুড়িয়া দিলে দাদা মহাশয়ের মুখখানি একেবারে খারাপ দেখিতে হইয়া যায়। এত খারাপ হইয়া যায় যে, সে তাহা কল্পনা করিলে হাসি রাখিতে পারে না। দাদামহাশয়ের অবার গোঁফ! দাদা মহাশয়ের আবার টাক্ নাই!
+</prompt>
+<result>
+ビバは心の中でそのことについてひどく疑っていた。おじいさんの禿頭、口ひげのない広い笑顔、熟したマンゴーのような表情を心の中で変えようとしたが、どうにもうまくいかなかった。彼女は、おじいさんに禿頭でなければ似合わないことに気づいた。そして、口ひげをつけるとおじいさんの顔はひどく見苦しくなる。あまりにも見苦しくなるので、彼女はそれを想像すると笑いをこらえられなかった。おじいさんの口ひげ！おじいさんは禿頭じゃない！
+</result>
+</query>
+<query>
+<info>[Chapter 6] 38/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বসন্তরায় কহিলেন, “সে বিষয়ে অনেক মতভেদ আছে। আমার নাতনীরা আমার টাক্ দেখিয়া মোহিত হয়, তাহারা আমার চুল দেখে নাই। আমার দিদিমারা অপার চুল দেখিয়া মোহিত হইতেন, তাঁহারা আমার টাক্ দেখেন নাই। যাহারা উভয়ই দেখিয়াছে, তাহারা এখনো একটা মত স্থির করিতে পারে নাই।”
+</prompt>
+<result>
+バサンタライは言った、「そのことについては多くの意見がある。私の孫娘たちは私の財産を見て夢中になるが、私の髪は見ていない。私の祖母たちは私の長い髪を見て夢中になったが、私の財産は見ていない。両方を見た人たちは、まだ意見を決めかねている。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 39/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা কহিল, “কিন্তু তা বলিয়া দাদা মহাশয় যতটা টাক্ পড়িয়াছে তাহার অধিক পড়িলে আর ভাল দেখাইবে না!”
+</prompt>
+<result>
+ビバは言った、「でも、おじいさんがいくらお金を落としても、それ以上はよく見えないでしょう！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 40/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা কহিল, “দাদামহাশয় টাকের আলোচনা পরে হইবে। এখন বিভার একটা যাহা হয় উপায় করিয়া দাও!”
+</prompt>
+<result>
+スルマは言った。「大叔父さん、お金の話は後にして。今はビバのなんとか方法を考えて！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 41/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা তাড়াতাড়ি বসন্তরায়ের কাছে গিয়া বলিয়া উঠিল, “দাদামহাশয় —আমি তোমার পাকাচুল তুলিয়া দিই।”
+</prompt>
+<result>
+ビバは急いでバサンタライのところへ行き、こう言った。「大叔父様、あなたの白い髪を抜いてあげます。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 42/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা। “আমি বলি কি”—
+</prompt>
+<result>
+スルマ。 「私が言いたいのは」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 43/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা। “শোননা দাদামহাশয়, তোমার—”
+</prompt>
+<result>
+ビバ。 「聞いて、大叔父さん、あなたの—」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 44/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা। “বিভা চুপ কর্। আমি বলি কি, তুমি গিয়ে একবার—”
+</prompt>
+<result>
+スルマ。 「ビバ、黙りなさい。私が言っているのは、あなたが一度行って——」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 45/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা। “দাদামহাশয়, তোমার মাথায় পাকাচুল ছাড়া যে আর কিছুই নেই, তুলে দিলে সমস্ত মাথায় টাক্ পড়্‌বে!”
+</prompt>
+<result>
+ビバ。 「大叔父さん、あなたの頭には白髪以外何もないわよ。剃ったら頭全体が禿げちゃうわよ！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 46/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বসন্তরায়। “আমাকে যদি কথা শুনতে না দিস্ দিদি, আমাকে যদি বিরক্ত করিস্‌ তবে আমি রাগ হিন্দোল আলাপ করিব।”
+</prompt>
+<result>
+バサンタライ。「姉さん、俺の話を聞かせてくれなかったら、俺を邪魔したら、俺は怒ってヒンドール・アラップを歌うぞ。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 47/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বলিয়া তাঁহার ক্ষুদ্রায়তন সেতারটির কান মোচ্‌ড়াইতে আরম্ভ করিলেন। হিন্দোল রাগের উপর বিভার বিশেষ বিদ্বেষ ছিল।
+</prompt>
+<result>
+そう言って、彼は小さなシタールのペグを回した。ビバはヒンドール・ラーガを特に嫌っていた。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 48/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা বলিল, “কি সর্ব্বনাশ। তবে আমি পালাই বলিয়া ঘর হইতে বাহির হইয়া গেল।”
+</prompt>
+<result>
+ビバは言った。「なんてひどい。それで私は逃げ出して家から出て行った。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 49/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+তখন সুরমা গম্ভীর হইয়া কহিল, “বিভা নীরব হইয়া দিনরাত্রি যে কষ্ট প্রাণের মধ্যে বহন করে তাহা জানিতে পারিলে বোধ করি মহারাজারও মনে দয়া হয়!”
+</prompt>
+<result>
+するとスルマは真面目な顔をして言った。「ビバが昼も夜も耐えている苦しみを知ったら、きっとマハラジャも同情するでしょう！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 50/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+“কেন! কেন! তাহার কি হয়েছে!” বলিয়া নিতান্ত আগ্রহের সহিত বসন্তরায় সুরমার কাছে গিয়া বসিলেন।
+</prompt>
+<result>
+「どうした！どうした！彼女に何が起こったのか！」と言って、バサンタライは非常に心配そうにスルマの隣に座った。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 51/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা কহিল, “বৎসরের মধ্যে একটি দিন ঠাকুরজামাইকে নিমন্ত্রণ করিয়া পাঠাইতেও কাহারো মনে পড়ে না?”
+</prompt>
+<result>
+スルマは言った。「1年の間に一度でも、婿殿を招待して送ろうと思う人はいないのか？」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 52/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বসন্তরায় চিন্তা করিয়া কহিবেন, “ঠিক্ কথাই ত!”
+</prompt>
+<result>
+バサンタライは考えてから言った。「その通りだ！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 53/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা কহিল, “স্বামীর প্রতি এ অনাদর কয়জন মেয়ে সহিতে পারে বল ত? বিভা ভাল মানুষ, তাই কাহাকেও কিছু বলে না, আপনার মনে লুকাইয়া কাঁদে।”
+</prompt>
+<result>
+スルマは言った。「夫に対してこんな無礼を耐えられる女性はどれだけいるでしょうか？ビバはいい人だから、誰にも何も言わず、あなたの心の中で泣いています。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 54/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বসন্তরায় ব্যাকুল হইয়া বলিয়া উঠিলেন “আপনার মনে লুকাইয়া কাঁদে?”
+</prompt>
+<result>
+バサンタライはせっかちに言い放った。「あなたは心の中で泣いているのですか？」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 55/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা। “আজ বিকালে আমার কাছে কত কাঁদিতে ছিল।”
+</prompt>
+<result>
+スルマ。「今日は午後、私のところに来てたくさん泣いていました。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 56/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বসন্তরায়। “বিভা আজ বিকালে কাঁদিতেছিল?”
+</prompt>
+<result>
+バサンタライ。「ビバは今日、午後泣いていたのか？」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 57/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা। “হাঁ!”
+</prompt>
+<result>
+スルマ。 「はい！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 58/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বসন্তরায়। “আহা, তাহাকে একবার ডাকিয়া আন, আমি দেখি!”
+</prompt>
+<result>
+バサンタライ。「ああ、彼を一度呼んで来い、私が見てやる！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 59/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+সুরমা বিভাকে ধরিয়া আনিল। বসন্তরায় তাহার চিবুক ধরিয়া কহিলেন, “তুই কাঁদিস কেন দিদি? যখন তাের যা’ কষ্ট হয় তাের দাদা মহাশয়কে বলিস্ না কেন? তা হ’লে আমি আমার যথাসাধ্য করি? আমি এখনই যাই, প্রতাপকে বলিয়া আসি গে!”
+</prompt>
+<result>
+スルマはビバを連れてきた。バサンタライは彼女の顎をつかんで言った。「姉さん、なぜ泣いているのか？そんなに苦しいときは、おじいさんに言わないのか？そうすれば、私はできる限りのことをするのに。今すぐに行って、プラタパに言ってくるよ！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 60/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা বলিয়া উঠিল, “দাদামহাশয়, তােমার দুটি পায়ে পড়ি আমার বিষয়ে বাবাকে কিছু বলিও না। দাদামহাশয়, তােমার পায়ে পড়ি যাইও না!”
+</prompt>
+<result>
+ビバは叫んだ。「大叔父さん、あなたの足元にひれ伏して頼みます。私について父に何も言わないでください。大叔父さん、あなたの足元にひれ伏して頼みます。行かないでください！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 61/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+রলিতে বলিতে বসন্তরায় বাহির হইয়া গেলেন; প্রতাপাদিত্যকে গিয়া বলিলেন, “তােমার জামাতাকে অনেক দিন নিমন্ত্রণ কর নাই ইহাতে তাহার প্রতি নিতান্ত অবহেলা প্রকাশ করা হইতেছে। যশােহর-পতির জামাতাকে যতখানি সমাদর করা উচিত, ততখানি সমাদর যদি তাহাকে না করা হয়, তবে তাহাতে তোমারই অপমান। তাহাতে গৌরবের কথা কিছুই নাই।”
+</prompt>
+<result>
+バサンタライは言い終わると外に出て行き、プラタパディティヤに言った。「あなたの娘婿を長い間招待していないのは、彼に対してひどい軽蔑を示していることになります。ジョソールの王の娘婿を敬うべき敬意を払わないのは、あなた自身への侮辱です。それには誇るべきことは何もありません。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 62/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+প্রতাপাদিত্য পিতৃব্যের কথায় কিছু মাত্র দ্বিরুক্তি করিলেন না। লােকসহ নিমন্ত্রণ-পত্র চন্দ্রদ্বীপে পাঠাইবার হুকুম হইল।
+</prompt>
+<result>
+プラタパディティヤは叔父の言葉に少しも反論しなかった。人々と招待状をチャンドラドヴィープに送るよう命じた。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 63/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+অন্তঃপুরে বিভা ও সুরমার কাছে আসিয়া বসন্তরায়ের সেতার বাজাইবার ধুম পড়িয়া গেল।
+</prompt>
+<result>
+宮殿で、ビバとスルマのところにやってきて、バサンタライのシタールの演奏が始まった。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 64/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+“মলিন মুখে ফুটুক হাসি জুড়াক্ দু নয়ন!”
+</prompt>
+<result>
+「くすんだ顔に微笑みが浮かび、両目が輝きますように！」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 65/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা লজ্জিত হইয়া কহিল, “দাদামহাশয়, বাবার কাছে আমার কথা সমস্ত বলিয়াছ?” বসন্তরায় গান গাহিতে লাগিলেন,
+</prompt>
+<result>
+ビバは恥ずかしそうに言った。「大叔父さん、父に私のことを全部話しましたか？」バサンタライは歌い始めた。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 66/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+“মলিন মুখে ফুটুক্ হাসি, জুড়াক দু নয়ন।
+</prompt>
+<result>
+「くすんだ顔に浮かぶ微笑み、潤む両目。」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 67/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+মলিন বসন ছাড় সখি, পর আভরণ।”
+</prompt>
+<result>
+汚れた服を脱いで、お嬢さん、着飾って。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 68/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+বিভা সেতারের তারে হাত দিয়া সেতার বন্ধ করিয়া আবার কহিল, “বাবার কাছে আমার কথা বলিয়াছ?”
+</prompt>
+<result>
+ビバはシタールの弦に触れてシタールを止め、再び言った。「お父さんに私のことを話したの？」
+</result>
+</query>
+<query>
+<info>[Chapter 6] 69/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+এমন সময়ে উদয়াদিত্যের কনিষ্ঠ অষ্টমবর্ষীয় সমরাদিত্য ঘরের মধ্যে উঁকি মারিয়া বলিয়া উঠিল, “অ্যাঁ, দিদি! দাদামহাশয়ের সহিত গল্প করিতেছ! আমি মাকে বলিয়া দিয়া আসিতেছি।”
+</prompt>
+<result>
+その時、ウダヤディティヤの末っ子の8歳のサマラーディティヤが部屋を覗いて、「あら、姉さん！おじいさんと話してるの！お母さんに言いつけに行くよ。」と言った。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 70/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+“এস, এস, ভাই এস!” বলিয়া বসন্তরায় তাহাকে পাক্‌ড়া করিলেন।
+</prompt>
+<result>
+「いらっしゃい、いらっしゃい、兄さんいらっしゃい！」と言ってバサンタライは彼を捕まえた。
+</result>
+</query>
+<query>
+<info>[Chapter 6] 71/71</info>
+<prompt>
+Please translate each line literally into Japanese.
+
+রাজ-পরিবারের বিশ্বাস এই যে, বসন্তরায় ও সুরমায় মিলিয়া উদয়াদিত্যের সর্ব্বনাশ করিয়াছে। এই নিমিত্ত বসন্তরায় আসিলে সামাল্ সামাল্ পড়িয়া যায়। সমরাদিত্য বসন্তরায়ের হাত ছাড়াইবার জন্য, টানা-হেঁচ্‌ড়া আরম্ভ করিল। বসন্তরায় তাহাকে সেতার দিয়া, তাহাকে কাঁধে চড়াইয়া, তাহাকে চস্‌মা পড়াইয়া, দুই দণ্ডের মধ্যে এমনি বশ করিয়া লইলেন যে, সে সমস্ত দিন দাদা মহাশয়ের পশ্চাৎ পশ্চাৎ ফিরিতে লাগিল ও অনবরত সেতার বাজাইয়া তাঁহার সেতারের পাঁচটা তার ছিড়িয়া দিল ও মেজরাপ কাড়িয়া লইয়া আর দিল না!
+</prompt>
+<result>
+王室では、バサンタライとスルマが結託してウダヤディティヤを滅ぼしたと信じられていた。そのため、バサンタライが来ると、皆が慌てふためいた。サマラディティヤはバサンタライの手から逃れるために、もみ合いを始めた。バサンタライは彼にシタールを与え、肩車をして、眼鏡をかけさせ、2本の弦を切るなどして、わずか2本の弦で彼を完全に服従させた。そして、メジャラップを奪い取って返さなかった。
+</result>
+</query>
+</queries>

@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queries count="53">
+<query>
+<info>[Chapter 5] 1/53</info>
+<prompt>
+Please translate each line literally into English.
+
+## পঞ্চম পরিচ্ছেদ।
+</prompt>
+<result>
+## Chapter 5.
+</result>
+</query>
+<query>
+<info>[Chapter 5] 2/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য কহিলেন “দেখ দেখি মন্ত্রী, সে পাঠান দুটা এখনও আসিল না!”
+</prompt>
+<result>
+Pratapaditya said, "Look, minister, those two Pathans haven't arrived yet!"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 3/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মন্ত্রী ধীরে ধীরে কহিলেন, “সেটা ত আর আমার দোষ নয় মহারাজ!”
+</prompt>
+<result>
+The minister said slowly, "That's not my fault, Your Majesty!"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 4/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য বিরক্ত হইয়া কহিলেন, “দোষের কথা হইতেছে না। দেরী যে হইতেছে তাহার ত একটা কারণ আছে? তুমি কি অনুমান কর, তাহাই জিজ্ঞাসা করিতেছি।”
+</prompt>
+<result>
+Pratapaditya said in annoyance, "Let's not talk about the blame. There must be a reason for the delay, right? I am asking you to guess it."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 5/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মন্ত্রী। “শিমুলতলী এখান হইতে বিস্তর দূর। যাইতে, কাজ সমাধা করিতে ও ফিরিয়া আসিতে বিলম্ব হইবার কথা।”
+</prompt>
+<result>
+Minister: "Shimultali is quite far from here. It will take time to go there, get the work done, and return."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 6/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য মন্ত্রীর কথায় অসন্তুষ্ট হইলেন। তিনি চান, তিনিও যাহা অনুমান করিতেছেন, মন্ত্রীও তাহাই অনুমান করেন। কিন্তু মন্ত্রী সে দিক্‌ দিয়া গেলেন না। প্রতাপাদিত্য কহিলেন, “উদয়াদিত্য কাল রাত্রে বাহির হইয়া গেছে?”
+</prompt>
+<result>
+Pratapaditya was displeased with the minister's words. He wanted the minister to guess what he was thinking. But the minister didn't go in that direction. Pratapaditya said, "Udayaditya went out last night?"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 7/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মন্ত্রী। “আজ্ঞা হাঁ, সে ত পূর্ব্বেই জানাইয়াছি।”
+</prompt>
+<result>
+Minister: "Yes, your highness, I have already informed him."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 8/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য। “পূর্ব্বেই জানাইয়াছি! কি উপযুক্ত সময়েই জানাইয়াছ। যে সময়ে হউক্ জানাইলেই বুঝি তােমার কাজ শেষ হইল? উদয়াদিত্য ত পূর্ব্বে এমনতর ছিল না। শ্রীপুরের জমিদারের মেয়ে বােধ করি তাহাকে কুপরামর্শ দিয়া থাকিবে। কি বােধ হয়?”
+</prompt>
+<result>
+Pratapaditya: "I told you before! Why did you tell me at such an opportune moment? Do you think your job is done just by telling me whenever you feel like it? Udayaditya wasn't like this before. I think the daughter of the landlord of Shreepur must have given him some bad advice. What do you think?"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 9/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মন্ত্রী। “কেমন করিয়া বলিব মহারাজ?”
+</prompt>
+<result>
+Minister: "How do I say it, Your Majesty?"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 10/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য বলিয়া উঠিলেন “তােমার কাছে কি আমি বেদবাক্য শুনিতে চাহিতেছি? তুমি কি আন্দাজ কর, তাই বল না!”
+</prompt>
+<result>
+Pratapaditya exclaimed, "Do you want me to listen to the words of the Vedas from you? Don't you just say whatever comes to your mind!"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 11/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মন্ত্রী। “আপনি মহিষীর কাছে বধূমাতাঠাকুরাণীর কথা সমস্তই শুনিতে পান, এ বিষয়ে আপনিই অনুমান করিতে পারেন, আমি কেমন করিয়া অনুমান করিব?”
+</prompt>
+<result>
+Minister: "You hear everything about Bou-Thakurani from your wife, so you can guess how I would know?"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 12/53</info>
+<prompt>
+Please translate each line literally into English.
+
+একজন পাঠান গৃহে প্রবেশ করিল।
+</prompt>
+<result>
+A Pathan entered the house.
+</result>
+</query>
+<query>
+<info>[Chapter 5] 13/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য বলিয়া উঠিলেন—“কি হইল? কাজ নিকাশ করিয়াছ?”
+</prompt>
+<result>
+Pratapaditya said, "What happened? Have you finished your work?"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 14/53</info>
+<prompt>
+Please translate each line literally into English.
+
+পাঠান। “হাঁ মহারাজ, এতক্ষণে নিকাশ হইয়া গেছে।”
+</prompt>
+<result>
+Pathan. "Yes, Your Majesty, it has been cleared by now."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 15/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য। “সে কি রকম কথা। তবে তুমি জান না?”
+</prompt>
+<result>
+Pratapaditya: "What kind of talk is that? Don't you know?"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 16/53</info>
+<prompt>
+Please translate each line literally into English.
+
+পাঠান। “আজ্ঞা হাঁ, জানি। কাজ নিকাশ হইয়াছে, তাহাতে আর ভুল নাই, তবে আমি সে সময়ে উপস্থিত ছিলাম না।”
+</prompt>
+<result>
+Pathan: "Yes sir, I know. The work is done, there is no mistake in that, but I was not present at that time."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 17/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য। “তবে কি করিয়া কাজ নিকাশ হইল?”
+</prompt>
+<result>
+Pratapaditya: "Then how did the work get done?"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 18/53</info>
+<prompt>
+Please translate each line literally into English.
+
+পাঠান। “আপনার পরামর্শ মতে আমি তাঁহার লােকজনদের তফাৎ করিয়াই চলিয়া আসিতেছি, হােসেন খাঁ কাজ শেষ করিয়াছে।”
+</prompt>
+<result>
+Pathan. "According to your advice, I have been keeping his people separate, and Husain Khan has finished the job."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 19/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য! “ঘদি না করিয়া থাকে?”
+</prompt>
+<result>
+Pratapaditya! "Why don't you sleep?"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 20/53</info>
+<prompt>
+Please translate each line literally into English.
+
+পাঠান। “মহারাজ, আমার শির জামিন রাখিলাম।”
+</prompt>
+<result>
+Pathan. "Your Majesty, I pledge my head."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 21/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য। “আচ্ছা ঐখানে হাজির থাক। তোমার ভাই ফিরিয়া আসিলে পুরস্কার মিলিবে।”
+</prompt>
+<result>
+Pratapaditya: "Alright, stay there. You will be rewarded when your brother returns."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 22/53</info>
+<prompt>
+Please translate each line literally into English.
+
+পাঠান দূরে দ্বারের নিকট প্রহরীদের জিম্মায় দাঁড়াইয়া রহিল।
+</prompt>
+<result>
+The Pathan stood at a distance near the door, in the custody of the guards.
+</result>
+</query>
+<query>
+<info>[Chapter 5] 23/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য অনেকক্ষণ চুপ করিয়া থাকিয়া মন্ত্রীকে ধীরে ধীরে কহিলেন,—“এটা যাহাতে প্রজারা কোন মতে না জানিতে পায় তাহার চেষ্টা করিতে হইবে।”
+</prompt>
+<result>
+Pratapaditya remained silent for a long time and then slowly said to the minister, "We must try to ensure that the subjects do not know about this in any way."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 24/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মন্ত্রী কহিলেন—“মহারাজ, অসন্তুষ্ট না হন যদি ত বলি ইহা প্রকাশ হইবেই।”
+</prompt>
+<result>
+The minister said - "Your Majesty, please do not be displeased if I say that this will be revealed anyway."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 25/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতপাদিত্য। “কিসে তুমি জানিতে পারিলে?”
+</prompt>
+<result>
+Pratapaditya: "How did you come to know?"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 26/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মন্ত্রী। ইতিপূর্ব্বে আপনি প্রকাশ্য ভাবে আপনার পিতৃব্যের প্রতি দ্বেষ প্রকাশ করিয়াছেন। আপনার কন্যার বিবাহের সময় আপনি বসন্তরায়কে নিমন্ত্রণ করেন নাই, তিনি স্বয়ং অনিমন্ত্রিত আসিয়া উপস্থিত হইয়াছিলেন। আজ আপনি সহসা বিনা কারণে তাঁহাকে নিমন্ত্রণ করিলেন ও পথের মধ্যে কে তাঁহাকে হত্যা করিল। এমন অবস্থায় প্রজারা আপনাকেই এই ঘটনাটির মূল বলিয়া জানিবে।”
+</prompt>
+<result>
+Minister: Previously, you have openly expressed your hatred towards your paternal uncle. You did not invite Basanta Ray to your daughter's wedding, he came uninvited and attended the wedding. Today, you suddenly invited him without any reason and someone killed him on the way. In such a situation, the subjects will consider you as the main culprit of this incident."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 27/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য রুষ্ট হইয়া কহিলেন—“তােমার ভাব আমি কিছুই বুঝিতে পারি না মন্ত্রী! এই কথাটা প্রকাশ হইলেই তুমি যেন খুসী হও, আমার নিন্দা রটিলেই তােমার যেন মনস্কামনা পূর্ণ হয়। নহিলে দিন রাত্রি তুমি কেন বলিতেছ যে, কথাটা প্রকাশ হইবেই। প্রকাশ হইবার আমি ত কোন কারণ দেখিতেছি না। বােধ করি, আর কিছুতেই সংবাদটা রাষ্ট্র না হইলে তুমি নিজে গিয়া দ্বারে দ্বারে প্রকাশ করিয়া বেড়াইবে!”
+</prompt>
+<result>
+Pratapaditya said angrily, "Minister, I can't understand your attitude at all! It seems you'll be happy only when this news is out, your desire will be fulfilled only when my reputation is tarnished. Otherwise, why do you keep saying day and night that the news will come out? I don't see any reason why it should. I feel, if somehow the news doesn't become public, you yourself will go from door to door and spread it!"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 28/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মন্ত্রী কহিলেন—“মহারাজ, মার্জ্জনা করিবেন। আপনি আমার অপেক্ষা সকল বিষয়েই অনেক ভাল বুঝেন। আপনাকে মন্ত্রণা দেওয়া আমাদের মত ক্ষুদ্র-বুদ্ধি লােকের পক্ষে অত্যন্ত স্পর্ধার বিষয়। তবে, আপনিই না কি আমাকে বাছিয়া মন্ত্রী রাখিয়াছেন, এই সাহসেই ক্ষুদ্রবুদ্ধিতে যাহা মনে হয়, আপনাকে মাঝে মাঝে বলিয়া থাকি। মন্ত্রণায় রুষ্ট হন যদি তবে এ দাসকে এ কার্য্যভার হইতে অব্যাহতি দিন।”
+</prompt>
+<result>
+The minister said, "Your Majesty, please forgive me. You understand everything much better than I do. It is very presumptuous of a simpleton like me to offer you advice. However, you chose me to be your minister, so I occasionally share my humble thoughts with you. If my advice angers you, then please relieve me of this responsibility."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 29/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য সিধা হইলেন। মাঝে মাঝে মন্ত্রী যখন তাঁহাকে দুই একটা শক্ত কথা শুনাইয়া দেন, তখন প্রতাপাদিত্য মনে মনে সন্তুষ্ট হন।”
+</prompt>
+<result>
+Pratapaditya straightened up. Whenever the minister spoke a few harsh words to him, Pratapaditya felt satisfied in his mind.
+</result>
+</query>
+<query>
+<info>[Chapter 5] 30/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য কহিলেন, “আমি বিবেচনা করিতেছি, ঐ পাঠান দুটাকে মারিয়া ফেলিলে এ বিষয়ে আর কোন ভয়ের কারণ থাকিবে না।”
+</prompt>
+<result>
+Pratapaditya said, "I am thinking, if we kill those two Pathans, there will be no more reason to fear in this matter."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 31/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মন্ত্রী কহিলেন “একটা খুন চাপিয়া রাখাই দায়, তিনটা খুন সামলান অসম্ভব। প্রজারা জানিতেই পারিবে।” মন্ত্রী বরাবর নিজের কথা বজায় রাখিলেন।
+</prompt>
+<result>
+The minister said, "It is difficult to suppress one murder, it is impossible to handle three murders. The subjects will come to know about it." The minister stuck to his words.
+</result>
+</query>
+<query>
+<info>[Chapter 5] 32/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য বলিয়া উঠিলেন, “তবে ত আমি ভয়ে সারা হইলাম! প্রজারা জানিতে পারিবে! যশােহর রায়গড় নহে; এখানে প্রজাদের রাজত্ব নাই। এখানে রাজা ছাড়া আর বাকী সকলেই রাজা নহে। অতএব আমাকে তুমি প্রজার ভয় দেখাইও না। যদি কোন প্রজা এ বিষয়ে আমার বিরুদ্ধে কোন কথা কহে, তবে তাহার জিহ্বা তপ্ত লৌহ দিয়া পুড়াইব।”
+</prompt>
+<result>
+Pratapaditya exclaimed, "Then I am relieved! The subjects will come to know! Jashore is not Raigarh; here the subjects do not rule. Here, except for the king, everyone else is a subject. Therefore, do not scare me with the fear of the subjects. If any subject speaks against me in this matter, I will burn his tongue with hot iron."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 33/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মন্ত্রী মনে মনে হাসিলেন। মনে মনে কহিলেন, “প্রজার জিহ্বাকে এত ভয়। তথাপি মনকে প্রবোধ দিয়া থাকেন যে, কোন প্রজাকে ডরাই না!”
+</prompt>
+<result>
+The minister smiled to himself. He thought to himself, "He is so afraid of his subjects' tongues. Yet he keeps telling his mind that he doesn't fear any of his subjects!"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 34/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য। “শ্রাদ্ধ শান্তি শেষ করিয়া লোক জন লইয়া একবার রায়গড়ে যাইতে হইবে। আমি ছাড়া সেখানকার সিংহাসনের উত্তরাধিকারী আর ত কাহাকেও দেখিতেছি না।”
+</prompt>
+<result>
+Pratapaditya: "After the shraddha and peace ceremonies are over, I must go to Raigarh once with my men. I don't see anyone else as the heir to the throne there except me."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 35/53</info>
+<prompt>
+Please translate each line literally into English.
+
+বৃদ্ধ বসন্তরায় ধীরে ধীরে গৃহমধ্যে প্রবেশ করিলেন—প্রতাপাদিত্য চমকিয়া পিছু হটিয়া গেলেন। সহসা তাঁহার মনে হইল, বুঝি উপদেবতা। অবাক্ হইয়া একটি কথাও বলিতে পারিলেন না। বসন্তরায় নিকটে গিয়া তাঁহার গায়ে হাত বুলাইয়া মৃদুস্বরে কহিলেন—“আমাকে কিসের ভয় প্রতাপ? আমি তোমার পিতৃব্য। তাহাতেও যদি বিশ্বাস না হয়, আমি বৃদ্ধ, তোমার অনিষ্ট করিতে পারি এমন শক্তি আমার নাই।”
+</prompt>
+<result>
+Old BasantaRay slowly entered the house—Pratapaditya was startled and stepped back. Suddenly he thought, perhaps it is a demigod. He was so surprised that he couldn't say a word. BasantaRay went near him and gently caressed his body and said in a soft voice—"Why are you afraid of me, Pratap? I am your paternal uncle. Even if you don't believe that, I am old, I don't have the strength to harm you."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 36/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্যের চৈতন্য হইয়াছে, কিন্তু কথা বানাইয়া বলিতে তিনি নিতান্ত অপটু। নিরুত্তর হইয়া অবাক হইয়া দাঁড়াইয়া রহিলেন। পিতৃব্যকে প্রণাম করা পর্য্যন্ত হইল না।
+</prompt>
+<result>
+Pratapaditya came to his senses, but he was utterly inept at making up stories. He stood there dumbfounded, without uttering a word. He didn't even bow down to his paternal uncle.
+</result>
+</query>
+<query>
+<info>[Chapter 5] 37/53</info>
+<prompt>
+Please translate each line literally into English.
+
+বসন্তরায় আবার ধীরে ধীরে কহিলেন—“প্রতাপ, একটা যাহা হয়, কথা কও। যদি দৈবাৎ এমন একটা কাজ করিয়া থাক, যাহাতে আমাকে দেখিয়া তোমার লজ্জা ও সঙ্কোচ উপস্থিত হয়, তবে তাহার জন্য ভাবিও না। আমি কোন কথা উত্থাপন করিব না। এস বৎস; দুই জনে একবার কোলাকুলি করি। আজ অনেক দিনের পর দেখা হইয়াছে; আর ত অধিক দিন দেখা হইবে না।”
+</prompt>
+<result>
+Basanta Ray again slowly said, "Pratap, whatever it is, say something. If by chance you have done something that makes you feel ashamed or embarrassed to see me, then don't worry about it. I will not bring up the matter. Come, my son; let us embrace each other once. We have met after a long time today; and we may not meet again for a long time."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 38/53</info>
+<prompt>
+Please translate each line literally into English.
+
+এতক্ষণের পর প্রতাপাদিত্য প্রণাম করিলেন ও উঠিয়া পিতৃব্যের সহিত কোলাকুলি করিলেন। ইতিমধ্যে মন্ত্রী আস্তে আস্তে গৃহ হইতে বাহির হইয়া গেছেন। বসন্তরায় ঈষৎ কোমল হাস্য হাসিয়া প্রতাপাদিত্যের গায়ে হাত দিয়া কহিলেন, “বসন্তরায় অনেক দিন বাঁচিয়া আছে— না প্রতাপ? সময় হইয়া আসিয়াছে, এখনাে যে কেন ডাক পড়িল না বিধাতা জানেন। কিন্তু আর অধিক বিলম্ব নাই।”
+</prompt>
+<result>
+After a while, Pratapaditya paid his respects and got up to embrace his paternal uncle. In the meantime, the minister quietly left the house. BasantaRay put his hand on Pratapaditya's shoulder and said with a gentle smile, "BasantaRay has lived for a long time—haven't I, Pratap? The time has come, God knows why the call hasn't come yet. But there will be no more delay."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 39/53</info>
+<prompt>
+Please translate each line literally into English.
+
+বসন্তরায় কিয়ৎক্ষণ চুপ করিয়া রহিলেন, প্রতাপাদিত্য কোন উত্তর করিলেন না। বসন্তরায় আবার কহিলেন, “তবে স্পষ্ট করিয়া সমস্ত বলি। তুমি যে আমাকে ছুরি তুলিয়াছ, তাহাতে আমাকে ছুরির অপেক্ষা অধিক বাজিয়াছে। (বলিতে বলিতে তাহার চক্ষে জল আসিল) কিন্তু আমি কিছুমাত্র রাগ করি নাই। আমি কেবল তােমাকে দুটি কথা বলিব। আমাকে বধ করিও না প্রতাপ! তাহাতে তােমার ইহকাল পরকালের ভাল হইবে না। এত দিন পর্য্যন্ত যদি আমার মৃত্যুর জন্য অপেক্ষা করিয়া থাকিতে পারিলে, তবে আর দুটা দিন পারিবে না? এই টুকুর জন্য পাপের ভাগী হইবে?”
+</prompt>
+<result>
+Basanta Ray remained silent for a while, Pratapaditya did not reply. Basanta Ray spoke again, "Then I will say everything clearly. You have hurt me more than the knife you raised against me. (Tears welled up in his eyes as he spoke) But I am not angry at all. I will only tell you two things. Do not kill me, Pratap! It will not be good for your present and future life. If you have been able to wait for my death for so long, can't you wait for two more days? Will you become a sinner for this small piece of land?"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 40/53</info>
+<prompt>
+Please translate each line literally into English.
+
+বসন্তরায় দেখিলেন, প্রতাপাদিত্য কোন উত্তর দিলেন না; দোষ অস্বীকার করিলেন না, বা অনুতাপের কথা কহিলেন না; তৎক্ষণাৎ তিনি অন্য কথা পাড়িলেন, কহিলেন,—“প্রতাপ, একবার রায়গড়ে চল। অনেক দিন সেখানে যাও নাই। অনেক পরিবর্ত্তন দেখিবে। সৈন্যেরা এখন তলােয়ার ছাড়িয়া লাঙল ধরিয়াছে; যেখানে সৈন্যদের বাসস্থান ছিল সেখানে অতিথিশালা—”
+</prompt>
+<result>
+Basanta Ray noticed that Pratapaditya did not give any reply; he did not deny the accusation or express any regret; he immediately changed the topic and said, "Pratap, let's go to Raigarh once. It's been a long time since you've been there. You'll see many changes. The soldiers have now left their swords and taken up the plough; where the soldiers used to live, there are now guest houses—"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 41/53</info>
+<prompt>
+Please translate each line literally into English.
+
+এমন সময়ে প্রতাপাদিত্য দূর হইতে দেখিলেন পাঠানটা পালাইবার উদ্যোগ করিতেছে। আর থাকিতে পারিলেন না। মনের মধ্যে যে নিরুদ্ধ রােষ ফুটিতেছিল, তাহা অগ্নি-উৎসের ন্যায় উচ্ছ্বসিত হইয়া উঠিল। বজ্রস্বরে বলিয়া উঠিলেন—“খবরদার উহাকে ছাড়িস্ না। পাক্‌ড়া করিয়া রাখ্।” বলিয়া ঘর হইতে দ্রুতপদে বাহির হইয়া গেলেন।
+</prompt>
+<result>
+At that moment Pratapaditya saw from a distance that the Pathan was trying to escape. He could not hold himself back any longer. The pent-up anger that was seething inside him erupted like a volcano. He thundered, "Don't you dare let him go. Catch him and hold him." Saying this, he rushed out of the room.
+</result>
+</query>
+<query>
+<info>[Chapter 5] 42/53</info>
+<prompt>
+Please translate each line literally into English.
+
+রাজা মন্ত্রীকে ডাকাইয়া কহিলেন,—“রাজকার্য্যে তােমার অত্যন্ত অমনােযােগ লক্ষিত হইতেছে।”
+</prompt>
+<result>
+The king called the minister and said, "Your great negligence in the affairs of the state has been noticed."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 43/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মন্ত্রী আস্তে আস্তে কহিলেন,—“মহারাজ, এ বিষয়ে আমার কোন দোষ নাই।”
+</prompt>
+<result>
+The minister said slowly, "Your Majesty, I am not at fault in this matter."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 44/53</info>
+<prompt>
+Please translate each line literally into English.
+
+প্রতাপাদিত্য তারস্বরে বলিয়া উঠিলেন “আমি কি কোন বিষয়ের উল্লেখ করিতেছি! আমি বলিতেছি, রাজকার্য্যে তােমার অত্যন্ত অমনােযােগ লক্ষিত হইতেছে। সে দিন তােমার কাছে এক চিঠি রাখিতে দিলাম, তুমি হারাইয়া ফেলিলে!”
+</prompt>
+<result>
+Pratapaditya exclaimed, "Am I talking about something else! I am saying that your extreme negligence in state affairs has been noticed. The other day I gave you a letter to keep, and you lost it!"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 45/53</info>
+<prompt>
+Please translate each line literally into English.
+
+দেড় মাস পূর্ব্বে এইরূপ একটা ঘটিয়াছিল বটে, কিন্তু তখন মহারাজ মন্ত্রীকে একটি কথাও বলেন নাই।
+</prompt>
+<result>
+A similar incident had happened about one and a half months ago, but at that time the king did not say anything to the minister.
+</result>
+</query>
+<query>
+<info>[Chapter 5] 46/53</info>
+<prompt>
+Please translate each line literally into English.
+
+“আর একদিন উমেশ রায়ের নিকট তোমাকে যাইতে আদেশ করিলাম, তুমি লােক পাঠাইয়া কাজ সারিলে! চুপ কর! দোষ কাটাইবার জন্য মিছামিছি চেষ্টা করিও না! যাহা হউক, তােমাকে জানাইয়া রাখিলাম, রাজকার্য্যে তুমি কিছুমাত্র মনােযােগ দিতেছ না।”
+</prompt>
+<result>
+"The other day I ordered you to go to Umesh Rai, but you sent someone else to do the job! Be quiet! Don't try to cover up your mistakes! Anyway, I am telling you, you are not paying any attention to the affairs of the state."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 47/53</info>
+<prompt>
+Please translate each line literally into English.
+
+রাজা প্রহরীদের ডাকাইলেন। পূর্ব্বে রাত্রের প্রহরীদের বেতন কাটিয়াছিলেন, এখন তাহাদের প্রতি কারাবাসের আদেশ হইল।
+</prompt>
+<result>
+The king summoned the guards. Earlier, he had deducted the salary of the night guards, now he ordered their imprisonment.
+</result>
+</query>
+<query>
+<info>[Chapter 5] 48/53</info>
+<prompt>
+Please translate each line literally into English.
+
+অন্তঃপুরে গিয়া মহিষীকে ডাকাইয়া কহিলেন,—“মহিষি! রাজপরিবারের মধ্যে অত্যন্ত বিশৃঙ্খলা দেখিতেছি! উদয়াদিত্য পূর্ব্বে ত এমনতর ছিল না। এখন সে যখন তখন বাহির হইয়া যায়। প্রজাদের কাজে যােগ দেয়। আমার বিরুদ্ধাচরণ করে। এ সকলের অর্থ কি?”
+</prompt>
+<result>
+Going inside the palace, he called his queen and said, "Oh queen! I see a lot of indiscipline within the royal family! Udayaditya wasn't like this before. Now he goes out whenever he wants. He engages with the subjects' work. He acts against me. What is the meaning of all this?"
+</result>
+</query>
+<query>
+<info>[Chapter 5] 49/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মহিষী ভীত হইয়া কহিলেন, “মহারাজ, তাহার কোন দোষ নাই! এ সমস্ত অনর্থের মূল ঐ বড় বৌ! বাছা আমার ত আগে এমন ছিল না। যে দিন হইতে শ্রীপুরের ঘরে তাহার বিয়ে হইল, সে দিনই হইতে উদয় কেমন যে হইল কিছু বুঝিতে পারিতেছি না।”
+</prompt>
+<result>
+The queen said fearfully, "Maharaj, it's not his fault! The root of all this trouble is that elder daughter-in-law! My son wasn't like this before. I can't understand what happened to Uday since the day he got married to the girl from Shreepur."
+</result>
+</query>
+<query>
+<info>[Chapter 5] 50/53</info>
+<prompt>
+Please translate each line literally into English.
+
+মহারাজ সুরমাকে শাসনে রাখিতে আদেশ করিয়া বাহিরে গেলেন। মহিষী উদয়াদিত্যকে ডাকাইয়া পাঠাইলেন। উদয়াদিত্য আসিলে তাঁহার মুখের দিকে চাহিয়া কহিলেন, “আহা, বাছা আমার রােগা, কালো হইয়া গিয়াছে! বিয়ের আগে বাছার রং কেমন ছিল! যেন তপ্ত-সােনার মত! তাের এমন দশা কে করিল? বাবা, বড় বৌ তোকে যা বলে তা’ শুনিস্ না। তার কথা শুনিয়াই তাের এমন দশা হইয়াছে।” সুরমা ঘোমটা দিয়া চুপ করিয়া এক পাশে দাঁড়াইয়াছিল। মহিষী বলিতে লাগিলেন “ওর ছােট বংশে জন্ম, ও কি তাের যােগ্য? ও কি তােক পরামর্শ দিতে জানে? আমি যথার্থ কথা বলিতেছি ও কখন তােকে ভাল পরামর্শ দেয় না তাের মন্দ হইলেই ও যেন বাঁচে! এমন রাক্ষসীর সঙ্গেও মহারাজ তাের বিবাহ দিয়াছিলেন!” মহিষী অশ্রুবর্ষণ করিতে আরম্ভ করিলেন।
+</prompt>
+<result>
+The queen ordered Surma to behave and went outside. The queen sent for Udayaditya. When Udayaditya arrived, she looked at his face and said, "Alas, my dear son, you have become so thin and dark! How fair you were before your marriage! You were like molten gold! Who has done this to you? My son, don't listen to what your elder wife tells you. Your condition has become like this only by listening to her." Surma stood silently to one side with her veil covering her face. The queen continued, "She was born in a lowly family, how can she be your equal? Does she know how to advise you? I am telling you the truth, she never gives you good advice. She only thrives when you suffer! The king married you to such a demoness!" The queen started shedding tears.
+</result>
+</query>
+<query>
+<info>[Chapter 5] 51/53</info>
+<prompt>
+Please translate each line literally into English.
+
+উদয়াদিত্যের প্রশান্ত ললাটে ঘর্মবিন্দু দেখা দিল। তাঁহার মনের অধীরতা পাছে প্রকাশ হইয়া পড়ে, এই নিমিত্ত তাঁহার আয়তনেত্র অন্য দিকে ফিরাইলেন।
+</prompt>
+<result>
+Beads of sweat appeared on Udayaditya's calm forehead. He turned his oblong eyes away, lest his impatience be revealed.
+</result>
+</query>
+<query>
+<info>[Chapter 5] 52/53</info>
+<prompt>
+Please translate each line literally into English.
+
+একজন পুরানো, বৃদ্ধ দাসী বসিয়াছিল, সে হাত নাড়িয়া বলিয়া উঠিল, —“শ্রীপুরের মেয়েরা যাদু জানে। নিশ্চয় বাছাকে ওষুধ করিয়াছে।” এই বলিয়া, উঠিয়া উদয়াদিত্যের কাছে গিয়া বলিল, “বাবা, ও তােমাকে ওষুধ করিয়াছে। ঐ যে মেয়েটি দেখিতেছ, উনি বড় সামান্য মেয়ে নন! শ্রীপুরের ঘরের মেয়ে। ওরা ডাইনি! আহা বাছার শরীরে আর কিছু রাখিল না?” এই বলিয়া সে সুরমার দিকে তীরের মত এক কটাক্ষ বর্ষণ করিল ও আঁচল দিয়া দুই হস্তে দুই শুষ্ক চক্ষু রগ্‌ড়াইয়া লাল করিয়া তুলিল। তাহা দেখিয়া আবার মহিষীর দুঃখ একেবারে উথলিয়া উঠিল। অন্তঃপুরে বৃদ্ধাদের মধ্যে ক্রন্দনের সংক্রামক ব্যাপ্ত হইয়া পড়িল। কাঁদিবার অভিপ্রায়ে সকলে রাণীর ঘরে আসিয়া সমবেত হইল। উদয়াদিত্য করুণনেত্রে একবার সুরমার মুখের দিকে চাহিলেন। ঘােমটার মধ্য হইতে সুরমা তাহা দেখিতে পাইল, ও চোখ মুছিয়া একটি কথা না কহিয়া ধীরে ধীরে ঘরে চলিয়া গেল।
+</prompt>
+<result>
+An old, elderly maidservant was sitting there, she waved her hand and exclaimed, "The women of Shreepur know magic. They must have given your son some potion." Saying this, she got up and went to Udayaditya and said, "Son, she has given you some potion. That girl you see, she is no ordinary girl! She is from a Shreepur household. They are witches! Alas, what is left of your son's body?" Saying this, she cast a sharp glance at Surma and rubbed her two dry eyes with her veil, turning them red. Seeing this, the queen's grief welled up again. Among the elderly women of the harem, the contagion of crying spread. With the intention of crying, everyone came to the queen's chamber and gathered. Udayaditya looked at Surma's face once with compassionate eyes. Surma saw it from under her veil, and wiping her eyes, she slowly walked into the room without saying a word.
+</result>
+</query>
+<query>
+<info>[Chapter 5] 53/53</info>
+<prompt>
+Please translate each line literally into English.
+
+সন্ধ্যাবেলা মহিষী প্রতাপাদিত্যকে কহিলেন, আজ উদয়কে সমস্ত বুঝাইয়া বলিলাম। বাছা আমার তেমন নহে। বুঝাইয়া বলিলে বুঝে। আজ তাহার চোখ ফুটিয়াছে।
+</prompt>
+<result>
+In the evening, the queen said to Pratapaditya, "Today I explained everything to Uday. My son is not like that. If you explain things to him, he understands. Today he has realized his mistake."
+</result>
+</query>
+</queries>

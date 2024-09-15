@@ -1,0 +1,5 @@
+__pycache__/
+*.mw
+*.bz2
+*.db
+db-*.tsv
