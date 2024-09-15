@@ -5,7 +5,7 @@ TITLE   = "বৌ-ঠাকুরাণীর হাট"
 
 all:
 
-.PHONY: download db-make extract convert
+.PHONY: download db-make extract convert text
 
 download:
 	wget https://dumps.wikimedia.org/$(TARGET1)/$(TARGET2)/$(TARGET)
@@ -27,3 +27,9 @@ extract: extract.py dump.db index.mw
 
 convert:
 	python convert.py chapters/*.mw
+
+text:
+	python concat.py -p en/chapters/*.xml > ../all-bn.md
+	python concat.py en/chapters/*.xml > ../all-en-gemini.md
+	python concat.py hi/chapters/*.xml > ../all-hi-gemini.md
+	python concat.py ja/chapters/*.xml > ../all-ja-gemini.md
