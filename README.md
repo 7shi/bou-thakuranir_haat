@@ -10,12 +10,12 @@ file|description
 [all-en-gemini.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/all-en-gemini.md) | English translation from Bengali by Gemini 1.0 Pro
 [all-hi-gemini.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/all-hi-gemini.md) | Hindi translation from Bengali by Gemini 1.0 Pro
 [all-ja-gemini.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/all-ja-gemini.md) | Japanese translation from Bengali by Gemini 1.0 Pro
-[preface-bn.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/preface-bn.md) | original Bengali preface from [tagoreweb.in](https://tagoreweb.in/Novels/bou-thakuranir-hat-12/bou-thakuranir-hat-3717)
 [all-en-google.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/all-en-google.md) | English translation from Bengali by [Google Translate](https://translate.google.com/)
 [all-ja-google.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/all-ja-google.md) | Japanese translation from English by [Google Translate](https://translate.google.com/)
 [claude-log.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/claude-log.md) | Summary from English by [Anthropic Claude](https://claude.ai/)
 xx-hi.md   | Hindi translation (Chapter xx) from [archive.org](https://archive.org/details/dli.ernet.526165)
 xx-tts.txt | Text with translation juxtaposed for TTS (Chapter xx)
+[preface/bn.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/preface/bn.md) | original Bengali preface from [tagoreweb.in](https://tagoreweb.in/Novels/bou-thakuranir-hat-12/bou-thakuranir-hat-3717)
 
 ## Warning
 
