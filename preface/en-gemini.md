@@ -1,0 +1,11 @@
+# Introduction
+
+When the mind once entered the external world of imagination from the closed world of abstract thought, it began to falter, perhaps out of curiosity.
+
+The mind that had been enclosed by walls came outside and began to traverse the diverse roads of life. During this time, its writing wanted to seek out new pictures and new experiences in the realm of prose. Its first attempt came in the story Bou-Thakuraniir Haat - concerning the subject of human play acting in a romantic setting- this too was a play of youth. Whatever signs of life were apparent in the characters failed to transcend the character of a doll. They were not driven by the inevitability of their own character; they were merely ornaments within a specific framework. One can perhaps still turn to that story today. It is like a painting by an untutored hand- the sign of the certain mind’s maturity is not apparent in it. However, there is a certain value to childishness in the playhouse of art. In the unhampered paths of wisdom, when it starts acting like a fool, something of the primal mind emerges.
+
+If this writing has some evidence of the spontaneous freedom of life, then I received an unsolicited letter of praise from Bankim, written in English, after the story was published. That letter was lost through the careless actions of a friend. Bankim expressed the view that although the book was the raw, early writing of youth, there were signs of talent within it- he did not scorn the book. He saw something within the childishness that gave him joy, such that it moved him to suddenly write a letter to an unknown boy. The unknown future seemed to give him some promise of hope. His encouragement was very valuable to me.
+
+On this occasion, I must say something here. In the heat of patriotic enthusiasm, the attempt was made to erect Pratapaditya as the ideal heroic character of Bengal. That has not yet ceased. From the information I collected from history on him at that time, I was convinced that he was an unjust, cruel oppressor, without the power but with the rash arrogance to ignore the Delhi emperor. The historians of that time were not subject to the patriotism of later times. I wrote that book openly at a time when his worship was not yet fashionable.
+
+Udayan, 29. 1. 40
