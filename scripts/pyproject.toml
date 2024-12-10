@@ -1,0 +1,15 @@
+[project]
+name = "spacy-test"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.10"
+dependencies = [
+    "pip>=24.3.1",
+    "spacy>=3.8.2",
+    "taskipy>=1.14.1",
+    "tqdm>=4.67.1",
+]
+
+[tool.taskipy.tasks]
+download-en = "uv run spacy download en_core_web_sm"
+download-ja = "uv run spacy download ja_core_news_sm"
