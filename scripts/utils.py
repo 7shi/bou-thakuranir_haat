@@ -1,19 +1,21 @@
 import json
 import re
-from typing import List
+from typing import List, Dict, Any
 
 
-def load_chapter_blocks(jsonl_path: str, md_path: str) -> List[List[str]]:
+def load_chapter_blocks(jsonl_path: str, md_path: str) -> Dict[str, Any]:
     """
-    Load JSONL segmentation data and source markdown file, returning chapter blocks.
+    Load JSONL segmentation data and source markdown file, returning title and chapter blocks.
     
     Args:
         jsonl_path: Path to JSONL file with segmentation data
         md_path: Path to source markdown file
         
     Returns:
-        List[List[str]]: List of chapters, each containing list of segment strings
-        Format: [["segment1", "segment2", ...], ["segment1", "segment2", ...], ...]
+        Dict[str, Any]: Dictionary containing title and chapters
+        - "title": The main title from the first line of the markdown (without #)
+        - "chapters": List of chapters, each containing list of segment strings
+        Format: {"title": "Title", "chapters": [["segment1", "segment2", ...], ...]}
         
     Note:
         - Chapters found in JSONL are segmented according to boundaries
@@ -22,6 +24,13 @@ def load_chapter_blocks(jsonl_path: str, md_path: str) -> List[List[str]]:
     # Load source markdown file
     with open(md_path, 'r', encoding='utf-8') as f:
         md_lines = f.readlines()
+    
+    # Extract title from first line (remove # and strip)
+    title = ""
+    if md_lines:
+        first_line = md_lines[0].strip()
+        if first_line.startswith('#'):
+            title = first_line.lstrip('#').strip()
     
     # Extract all chapters from markdown file
     all_chapters = {}
@@ -123,15 +132,16 @@ def load_chapter_blocks(jsonl_path: str, md_path: str) -> List[List[str]]:
                 chapter_text = '\n'.join(chapter_lines)
                 result.append([chapter_text])  # Single segment in a list
     
-    return result
+    return {"title": title, "chapters": result}
 
 
 if __name__ == "__main__":
     # Test the function
-    blocks = load_chapter_blocks("segmentation_results.jsonl", "all-bn.md")
+    data = load_chapter_blocks("segmentation_results.jsonl", "all-bn.md")
     
-    print(f"Loaded {len(blocks)} chapters")
-    for i, chapter in enumerate(blocks, 1):
+    print(f"Title: {data['title']}")
+    print(f"Loaded {len(data['chapters'])} chapters")
+    for i, chapter in enumerate(data['chapters'], 1):
         print(f"Chapter {i}: {len(chapter)} segments")
         for j, segment in enumerate(chapter, 1):
             print(f"  Segment {j}: {len(segment)} characters")
