@@ -100,12 +100,12 @@ def process_proper_nouns_from_result(extraction_result: Dict) -> Dict[str, str]:
     return proper_nouns_dict
 
 
-def load_existing_proper_nouns(output_file: str) -> Dict[str, str]:
-    """Load existing proper nouns from output file to support resume functionality"""
+def load_existing_proper_nouns(work_file: str) -> Dict[str, str]:
+    """Load existing proper nouns from work file to support resume functionality"""
     existing_proper_nouns = {}
     
-    if os.path.exists(output_file):
-        with open(output_file, 'r', encoding='utf-8') as f:
+    if os.path.exists(work_file):
+        with open(work_file, 'r', encoding='utf-8') as f:
             for line in f:
                 if line.strip():
                     data = json.loads(line)
@@ -117,14 +117,14 @@ def load_existing_proper_nouns(output_file: str) -> Dict[str, str]:
 
 
 def save_proper_nouns_result(
-    output_file: str,
+    work_file: str,
     chapter: int,
     segment: int,
     source_lang: str,
     target_lang: str,
     extraction_result: Dict
 ) -> None:
-    """Save proper nouns extraction result to JSONL file"""
+    """Save proper nouns extraction result to JSONL work file"""
     proper_nouns_dict = process_proper_nouns_from_result(extraction_result)
     
     record = {
@@ -135,16 +135,16 @@ def save_proper_nouns_result(
         "proper_nouns": proper_nouns_dict
     }
     
-    with open(output_file, 'a', encoding='utf-8') as f:
+    with open(work_file, 'a', encoding='utf-8') as f:
         f.write(json.dumps(record, ensure_ascii=False) + '\n')
 
 
-def create_consolidated_dictionary(output_file: str) -> str:
+def create_consolidated_dictionary(work_file: str, output_file: str) -> str:
     """Create a consolidated proper nouns dictionary file"""
     all_proper_nouns = {}
     
-    if os.path.exists(output_file):
-        with open(output_file, 'r', encoding='utf-8') as f:
+    if os.path.exists(work_file):
+        with open(work_file, 'r', encoding='utf-8') as f:
             for line in f:
                 if line.strip():
                     data = json.loads(line)
@@ -152,11 +152,10 @@ def create_consolidated_dictionary(output_file: str) -> str:
                     all_proper_nouns.update(segment_proper_nouns)
     
     # Create dictionary file
-    dict_file = output_file.replace('.jsonl', '_dictionary.json')
-    with open(dict_file, 'w', encoding='utf-8') as f:
+    with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(all_proper_nouns, f, ensure_ascii=False, indent=2)
     
-    return dict_file
+    return output_file
 
 
 def main():
@@ -169,15 +168,18 @@ def main():
     parser.add_argument('-m', '--model', required=True,
                        help='LLM model to use (e.g., openai:gpt-4o-mini, anthropic:claude-3-haiku-20240307)')
     parser.add_argument('-o', '--output', required=True,
-                       help='Output JSONL file for proper nouns extraction results')
-    parser.add_argument('--segmentation', default='segmentation_results.jsonl',
-                       help='Segmentation JSONL file (default: segmentation_results.jsonl)')
+                       help='Output JSON file for final proper nouns dictionary')
+    parser.add_argument('--segmentation', default='segmentations.jsonl',
+                       help='Segmentation JSONL file (default: segmentations.jsonl)')
     parser.add_argument('--limit', type=int,
                        help='Limit number of chapters to process (for debugging)')
     
     args = parser.parse_args()
     
     try:
+        # Create work file name from output file
+        work_file = args.output.replace('.json', '-work.jsonl')
+        
         # Load segments from markdown and segmentation data
         print(f"Loading segments from {args.source_md} using {args.segmentation}")
         data = load_chapter_blocks(args.segmentation, args.source_md)
@@ -185,7 +187,7 @@ def main():
         chapter_blocks = data["chapters"]
         
         # Load existing proper nouns for resume capability
-        existing_proper_nouns = load_existing_proper_nouns(args.output)
+        existing_proper_nouns = load_existing_proper_nouns(work_file)
         
         # Initialize accumulated proper nouns
         accumulated_proper_nouns = existing_proper_nouns.copy()
@@ -232,7 +234,7 @@ def main():
                         
                         # Save result
                         save_proper_nouns_result(
-                            args.output,
+                            work_file,
                             chapter_num,
                             segment_num,
                             args.from_lang,
@@ -255,11 +257,11 @@ def main():
                     print(f"  Progress: {processed_segments}/{total_segments} segments")
         
         # Create consolidated dictionary
-        dict_file = create_consolidated_dictionary(args.output)
+        create_consolidated_dictionary(work_file, args.output)
         
         print(f"\nProper nouns extraction completed!")
-        print(f"Output saved to: {args.output}")
-        print(f"Consolidated dictionary saved to: {dict_file}")
+        print(f"Working data saved to: {work_file}")
+        print(f"Final dictionary saved to: {args.output}")
         print(f"Total proper nouns found: {len(accumulated_proper_nouns)}")
         print(f"New proper nouns in this run: {new_proper_nouns_found}")
         

@@ -242,10 +242,10 @@ def main():
                        help='LLM model to use (e.g., openai:gpt-4o-mini, anthropic:claude-3-haiku-20240307)')
     parser.add_argument('-o', '--output', required=True,
                        help='Output JSONL file for translation results')
-    parser.add_argument('--segmentation', default='segmentation_results.jsonl',
-                       help='Segmentation JSONL file (default: segmentation_results.jsonl)')
-    parser.add_argument('--proper-nouns', default='proper_nouns_dictionary.json',
-                       help='Proper nouns dictionary JSON file (default: proper_nouns_dictionary.json)')
+    parser.add_argument('--segmentation', default='segmentations.jsonl',
+                       help='Segmentation JSONL file (default: segmentations.jsonl)')
+    parser.add_argument('--proper-nouns', required=True,
+                       help='Proper nouns dictionary JSON file')
     parser.add_argument('--limit', type=int,
                        help='Limit number of chapters to process (for debugging)')
     
