@@ -1,0 +1,12 @@
+[project]
+name = "bou-thakuranir-haat"
+version = "0.1.0"
+description = "Tagore's Bengali novel 'Bou-Thakuranir Haat' and its translations."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "llm7shi",
+]
+
+[tool.uv.sources]
+llm7shi = { git = "https://github.com/7shi/llm7shi.git" }
