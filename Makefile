@@ -21,5 +21,8 @@ convert:
 	uv run scripts/jsonl_to_md.py --mode full all-en-gemini.jsonl -o all-en-gemini-full.md
 	uv run scripts/jsonl_to_md.py --mode full all-ja-gemini.jsonl -o all-ja-gemini-full.md
 	uv run scripts/jsonl_to_md.py --mode full all-hi-gemini.jsonl -o all-hi-gemini-full.md
+	uv run scripts/jsonl_to_md.py --mode summary all-en-gemini.jsonl -o all-en-gemini-summary.md
+	uv run scripts/jsonl_to_md.py --mode summary all-ja-gemini.jsonl -o all-ja-gemini-summary.md
+	uv run scripts/jsonl_to_md.py --mode summary all-hi-gemini.jsonl -o all-hi-gemini-summary.md
 	uv run scripts/split-line.py -o all-en-gemini-lines.md -l en all-en-gemini.md
 	uv run scripts/split-line.py -o all-ja-gemini-lines.md -l ja all-ja-gemini.md

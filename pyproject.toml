@@ -15,5 +15,4 @@ dependencies = [
 llm7shi = { git = "https://github.com/7shi/llm7shi.git" }
 
 [tool.taskipy.tasks]
-download-en = "spacy download en_core_web_sm"
-download-ja = "spacy download ja_core_news_sm"
+download = "spacy download en_core_web_sm ja_core_news_sm"
