@@ -101,7 +101,8 @@ def translate_segment(
     previous_summaries: List[str],
     source_lang: str,
     target_lang: str,
-    model: str
+    model: str,
+    show_params: bool
 ) -> Optional[Dict]:
     """Translate a single segment with proper noun consistency and story context"""
     
@@ -114,7 +115,7 @@ def translate_segment(
     
     prompt = f"""Please translate the following {source_lang} text segment into {target_lang}.
 
-{context}[{source_lang.title()} Text to Translate]
+[{source_lang.title()} Text to Translate]
 {segment_text}
 
 [Translation Instructions]
@@ -127,10 +128,10 @@ def translate_segment(
     
     try:
         result = generate_with_schema(
-            [prompt, json_descriptions],
+            [context, prompt, json_descriptions],
             schema=SegmentTranslation,
             model=model,
-            show_params=False,
+            show_params=show_params,
         )
         
         if result and hasattr(result, 'text'):
@@ -154,7 +155,8 @@ def translate_title(
     all_summaries: List[str],
     source_lang: str,
     target_lang: str,
-    model: str
+    model: str,
+    show_params: bool
 ) -> Optional[Dict]:
     """Translate the title with full story context"""
     
@@ -167,7 +169,7 @@ def translate_title(
     
     prompt = f"""Please translate the following {source_lang} title into {target_lang}.
 
-{context}[{source_lang.title()} Title to Translate]
+[{source_lang.title()} Title to Translate]
 {title}
 
 [Translation Instructions]
@@ -181,9 +183,10 @@ def translate_title(
     
     try:
         result = generate_with_schema(
-            [prompt, json_descriptions],
+            [context, prompt, json_descriptions],
             schema=TitleTranslation,
             model=model,
+            show_params=show_params,
         )
         
         if result and hasattr(result, 'text'):
@@ -382,7 +385,8 @@ def main():
                     previous_summaries,
                     args.from_lang,
                     args.to_lang,
-                    args.model
+                    args.model,
+                    bool(args.limit)
                 )
                 
                 if translation_result:
@@ -444,7 +448,8 @@ def main():
                 previous_summaries,
                 args.from_lang,
                 args.to_lang,
-                args.model
+                args.model,
+                bool(args.limit)
             )
             
             if title_result:

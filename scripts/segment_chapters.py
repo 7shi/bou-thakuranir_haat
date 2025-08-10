@@ -71,7 +71,7 @@ def save_segmentation_to_jsonl(chapter_num, result, content_lines, line_mapping,
     with open(output_file, 'a', encoding='utf-8') as f:
         f.write(json.dumps(record, ensure_ascii=False) + '\n')
 
-def segment_chapter(chapter_num, content_lines, model, threshold=25, line_mapping=None, output_file=None):
+def segment_chapter(chapter_num, content_lines, model, threshold, line_mapping, output_file, show_params):
     """Segment chapter using LLM"""
     
     if len(content_lines) < threshold:
@@ -114,6 +114,7 @@ Example: To split at line 15, specify 15 as boundary (line 15 becomes start of n
             [content_text, prompt, json_descriptions],
             schema=ChapterSegmentation,
             model=model,
+            show_params=show_params,
         )
         
         # Extract JSON from result.text and parse it
@@ -212,7 +213,7 @@ def create_translation_chunks(filename, model, output_file, limit=None):
             print("→ segmenting...", end="")
             chunk_content, line_mapping = extract_chapter_content(filename, i, start_line, end_line)
             
-            segmentation = segment_chapter(i, chunk_content, model, threshold, line_mapping, output_file)
+            segmentation = segment_chapter(i, chunk_content, model, threshold, line_mapping, output_file, bool(limit))
             
             if segmentation and 'segment_boundaries' in segmentation and segmentation['segment_boundaries']:
                 # split into segments

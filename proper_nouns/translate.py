@@ -104,7 +104,8 @@ def translate_proper_nouns_batch(
     model: str,
     output_tsv: str,
     batch_size: int = 50,
-    limit: int = None
+    limit: int = None,
+    show_params: bool
 ) -> Dict[str, str]:
     """Translate proper nouns in batches to target language"""
     
@@ -183,7 +184,7 @@ Examples of good translations:
                 [batch_dict, prompt, json_descriptions],
                 schema=ProperNounsTranslation,
                 model=model,
-                show_params=True,
+                show_params=show_params,
             )
             
             if result and hasattr(result, 'text'):
@@ -267,7 +268,8 @@ def main():
             args.model,
             args.output,
             args.batch_size,
-            args.limit
+            args.limit,
+            bool(args.limit)
         )
         
         print(f"\nTranslation completed!")

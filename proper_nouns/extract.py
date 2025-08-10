@@ -47,7 +47,8 @@ def extract_proper_nouns_from_segment(
     accumulated_proper_nouns: Dict[str, str],
     source_lang: str,
     target_lang: str,
-    model: str
+    model: str,
+    show_params: bool
 ) -> Optional[Dict]:
     """Extract proper nouns from a single segment"""
     
@@ -79,7 +80,7 @@ Examples:
             [prompt, json_descriptions],
             schema=ProperNounsExtraction,
             model=model,
-            show_params=False,
+            show_params=show_params,
         )
         
         if result and hasattr(result, 'text'):
@@ -184,7 +185,8 @@ def main():
                     accumulated_proper_nouns,
                     args.from_lang,
                     args.to_lang,
-                    args.model
+                    args.model,
+                    bool(args.limit)
                 )
                 
                 if extraction_result:
