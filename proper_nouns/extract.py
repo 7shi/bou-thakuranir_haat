@@ -5,7 +5,17 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 from llm7shi.compat import generate_with_schema
 from llm7shi import create_json_descriptions_prompt
-from utils import load_chapter_blocks
+import sys
+import os
+
+from utils import (
+    load_existing_proper_nouns,
+    create_consolidated_dictionary,
+    save_extraction_result
+)
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from scripts.utils import load_chapter_blocks
 
 
 class ProperNounsExtraction(BaseModel):
@@ -100,62 +110,6 @@ def process_proper_nouns_from_result(extraction_result: Dict) -> Dict[str, str]:
     return proper_nouns_dict
 
 
-def load_existing_proper_nouns(work_file: str) -> Dict[str, str]:
-    """Load existing proper nouns from work file to support resume functionality"""
-    existing_proper_nouns = {}
-    
-    if os.path.exists(work_file):
-        with open(work_file, 'r', encoding='utf-8') as f:
-            for line in f:
-                if line.strip():
-                    data = json.loads(line)
-                    # Load proper nouns from each segment
-                    segment_proper_nouns = data.get("proper_nouns", {})
-                    existing_proper_nouns.update(segment_proper_nouns)
-    
-    return existing_proper_nouns
-
-
-def save_proper_nouns_result(
-    work_file: str,
-    chapter: int,
-    segment: int,
-    source_lang: str,
-    target_lang: str,
-    extraction_result: Dict
-) -> None:
-    """Save proper nouns extraction result to JSONL work file"""
-    proper_nouns_dict = process_proper_nouns_from_result(extraction_result)
-    
-    record = {
-        "chapter": chapter,
-        "segment": segment,
-        "source_lang": source_lang,
-        "target_lang": target_lang,
-        "proper_nouns": proper_nouns_dict
-    }
-    
-    with open(work_file, 'a', encoding='utf-8') as f:
-        f.write(json.dumps(record, ensure_ascii=False) + '\n')
-
-
-def create_consolidated_dictionary(work_file: str, output_file: str) -> str:
-    """Create a consolidated proper nouns dictionary file"""
-    all_proper_nouns = {}
-    
-    if os.path.exists(work_file):
-        with open(work_file, 'r', encoding='utf-8') as f:
-            for line in f:
-                if line.strip():
-                    data = json.loads(line)
-                    segment_proper_nouns = data.get("proper_nouns", {})
-                    all_proper_nouns.update(segment_proper_nouns)
-    
-    # Create dictionary file
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(all_proper_nouns, f, ensure_ascii=False, indent=2)
-    
-    return output_file
 
 
 def main():
@@ -233,13 +187,13 @@ def main():
                         new_proper_nouns_found += len(new_proper_nouns)
                         
                         # Save result
-                        save_proper_nouns_result(
+                        save_extraction_result(
                             work_file,
                             chapter_num,
                             segment_num,
                             args.from_lang,
                             args.to_lang,
-                            extraction_result
+                            new_proper_nouns
                         )
                         
                         print(f" completed ({len(new_proper_nouns)} new)")
@@ -257,7 +211,7 @@ def main():
                     print(f"  Progress: {processed_segments}/{total_segments} segments")
         
         # Create consolidated dictionary
-        create_consolidated_dictionary(work_file, args.output)
+        create_consolidated_dictionary(work_file, args.output, "proper_nouns")
         
         print(f"\nProper nouns extraction completed!")
         print(f"Working data saved to: {work_file}")
