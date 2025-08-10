@@ -7,13 +7,18 @@
 {"chapter": 3, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"সুগ্রীব": "Sugriva", "রতন": "Ratan"}}
 {"chapter": 4, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"খাঁ সাহেব": "Khan Saheb", "লক্ষ্মী": "Lakshmi", "ভগবান": "Bhagavan", "বেহাগ": "Behag", "বিধাতা": "Bidhata"}}
 {"chapter": 4, "segment": 2, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"চন্দ্রাবলী": "Chandrabali", "রাধিকা": "Radhika", "রাম": "Ram"}}
+{"chapter": 4, "segment": 3, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 5, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"হােসেন খাঁ": "Hosen Khan"}}
+{"chapter": 5, "segment": 2, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 5, "segment": 3, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"মহারাজ": "Maharaj", "উমেশ": "Umesh", "মহিষী": "Mahishi", "উদয়": "Uday"}}
 {"chapter": 6, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"চন্দ্রদ্বীপ": "Chandradwip", "রামচন্দ্র রায়": "Ramchandra Roy"}}
+{"chapter": 6, "segment": 2, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 6, "segment": 3, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"হিন্দোল": "Hindol"}}
 {"chapter": 6, "segment": 4, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"সমরাদিত্য": "Samaraditya"}}
 {"chapter": 7, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"গণেশ": "Ganesh", "শ্রীকৃষ্ণ": "Sri Krishna", "বটকৃষ্ণ কুম্ভকার": "Batakrishna Kumbhakar", "হরিশঙ্কর": "Harishankar", "রমাই ভাঁড়": "Ramai Bhand", "ফর্ণাণ্ডিজ্": "Fernandez", "রমাই": "Ramai", "মান্ধাতা": "Mandhata"}}
+{"chapter": 7, "segment": 2, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 7, "segment": 3, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"রামদাস": "Ramdas", "রামমোহন মাল": "Rammohan Mal", "ভীম": "Bhim", "রামমোহন": "Rammohan", "রমাই ঠাকুর": "Ramai Thakur"}}
+{"chapter": 8, "segment": 1, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 8, "segment": 2, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"চকদিহি": "Chakdihi", "বামনহাটি": "Bamanhati", "দেওয়ানজি": "Dewanji"}}
 {"chapter": 8, "segment": 3, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"রামচন্দ্র": "Ramchandra", "ভাঙামাথী": "Bhangamathi", "আশ্বিন": "Ashwin"}}
 {"chapter": 9, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"মোহন": "Mohan", "আগমনী": "Agamani", "বিজয়া": "Bijoya", "থাকদিদি": "Thakdidi", "বিমলা": "Bimala", "ভূতো": "Bhuto"}}
@@ -27,25 +32,51 @@
 {"chapter": 11, "segment": 4, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"দুর্গা": "Durga", "হরিমুদী": "Harimudi", "রামশঙ্কর": "Ramshankar", "ভৈরব": "Bhairab"}}
 {"chapter": 12, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"জাম্বুবান": "Jambuban"}}
 {"chapter": 12, "segment": 2, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"ভাগবত": "Bhagabat"}}
+{"chapter": 12, "segment": 3, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 13, "segment": 1, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 13, "segment": 2, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 13, "segment": 3, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 14, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"মঙ্গলা": "Mangala", "মাতঙ্গিনী": "Matangini", "মাতঙ্গ": "Matanga"}}
+{"chapter": 15, "segment": 1, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 16, "segment": 1, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 17, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"রাজমহিষী": "Rajmahishi"}}
 {"chapter": 18, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"মহারাজা": "Maharaja"}}
 {"chapter": 19, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"দেওয়ান": "Dewan", "বিক্রমাদিত্য": "Vikramaditya"}}
+{"chapter": 19, "segment": 2, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 19, "segment": 3, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"রাজপুর": "Rajpur"}}
 {"chapter": 20, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"ছাপরা": "Chhapra"}}
 {"chapter": 21, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"রাই": "Rai", "যােড়াঘাটা": "Joraghata"}}
 {"chapter": 21, "segment": 2, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"হনুমানপ্রসাদ তেওয়ারি": "Hanumanprasad Tewari", "সুভদ্রাহরণ": "Subhadraharan"}}
+{"chapter": 21, "segment": 3, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 22, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"দিল্লী": "Delhi"}}
+{"chapter": 23, "segment": 1, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 23, "segment": 2, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 24, "segment": 1, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 24, "segment": 2, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"মাই": "Mai"}}
+{"chapter": 24, "segment": 3, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 25, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"শিব": "Shiva", "সূর্য্য": "Surya", "মহাভারত": "Mahabharata", "ঊষা": "Usha", "শনি": "Shani"}}
 {"chapter": 26, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"নয়ানচাঁদ": "Nayanchand"}}
+{"chapter": 27, "segment": 1, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 27, "segment": 2, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 27, "segment": 3, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"তাজবে তাজ নওবে নও": "Tajbe Taj Naube Nau"}}
+{"chapter": 27, "segment": 4, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 28, "segment": 1, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 28, "segment": 2, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 28, "segment": 3, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"রাণী মা": "Rani Ma"}}
+{"chapter": 28, "segment": 4, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 29, "segment": 1, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 29, "segment": 2, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 29, "segment": 3, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"দয়াল সিং": "Dayal Singh"}}
+{"chapter": 30, "segment": 1, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 31, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"যমালয়": "Yamalaya", "ভাদ্র": "Bhadra", "জাহ্নবী": "Jahnavi", "ডালকুত্তা": "Dalkutta", "মুক্তিয়ার খাঁ": "Muktiyar Khan"}}
 {"chapter": 32, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"নন্দনকানন": "Nandan Kanan", "বিভু": "Bibhu"}}
 {"chapter": 33, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"গঙ্গাধর": "Gangadhar", "ফটিক": "Fatik", "হবিচাচা": "Habibchacha", "করিম্ উল্লা": "Karim Ullah", "মথুর": "Mathur", "পরাণ": "Paran", "হরি": "Hari", "শীতল সর্দ্দার": "Shital Sardar"}}
 {"chapter": 33, "segment": 2, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"বৃহস্পতিবার": "Thursday", "বারবেলা": "Barabela"}}
+{"chapter": 33, "segment": 3, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 33, "segment": 4, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"মুক্তিয়ার": "Muktiyar", "জনাব": "Janab", "সাহেব": "Saheb", "আবদুল": "Abdul"}}
 {"chapter": 34, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"মা-কালী": "Ma-Kali", "কাশী": "Kashi", "মহারাণী": "Maharani", "রাজলক্ষ্মী": "Rajlakshmi", "বিশ্বেশ্বর": "Bishweshwar"}}
+{"chapter": 35, "segment": 1, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 36, "segment": 1, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 36, "segment": 2, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
+{"chapter": 36, "segment": 3, "source_lang": "bengali", "target_lang": "english", "proper_nouns": {}}
 {"chapter": 37, "segment": 1, "source_lang": "Bengali", "target_lang": "English", "proper_nouns": {"বসুন্ধরা": "Basundhara", "রাজ্য-লক্ষ্মী": "Rajya-Lakshmi", "বৌ-ঠাকুরাণীর হাট": "Bou-Thakuranir Hat"}}

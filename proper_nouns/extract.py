@@ -9,8 +9,9 @@ import sys
 import os
 
 from utils import (
+    load_work_data,
     load_existing_proper_nouns,
-    create_consolidated_dictionary,
+    create_consolidated_tsv,
     save_extraction_result
 )
 
@@ -121,8 +122,10 @@ def main():
                        help='Target language (e.g., english, japanese, bengali)')
     parser.add_argument('-m', '--model', required=True,
                        help='LLM model to use (e.g., openai:gpt-4o-mini, anthropic:claude-3-haiku-20240307)')
+    parser.add_argument('-w', '--work-file', required=True,
+                       help='Work file (JSONL) for intermediate results')
     parser.add_argument('-o', '--output', required=True,
-                       help='Output JSON file for final proper nouns dictionary')
+                       help='Output TSV file for final proper nouns dictionary')
     parser.add_argument('--segmentation', default='segmentations.jsonl',
                        help='Segmentation JSONL file (default: segmentations.jsonl)')
     parser.add_argument('--limit', type=int,
@@ -131,8 +134,8 @@ def main():
     args = parser.parse_args()
     
     try:
-        # Create work file name from output file
-        work_file = args.output.replace('.json', '-work.jsonl')
+        # Use specified work file
+        work_file = args.work_file
         
         # Load segments from markdown and segmentation data
         print(f"Loading segments from {args.source_md} using {args.segmentation}")
@@ -140,7 +143,8 @@ def main():
         title = data["title"]
         chapter_blocks = data["chapters"]
         
-        # Load existing proper nouns for resume capability
+        # Load existing work data for resume capability
+        work_data = load_work_data(work_file)
         existing_proper_nouns = load_existing_proper_nouns(work_file)
         
         # Initialize accumulated proper nouns
@@ -167,6 +171,11 @@ def main():
             for segment_num, segment_text in enumerate(segments, 1):
                 processed_segments += 1
                 
+                # Skip if this segment is already processed
+                if chapter_num in work_data and segment_num in work_data[chapter_num]:
+                    print(f"  Segment {segment_num} → skipped (already processed)")
+                    continue
+                
                 print(f"  Segment {segment_num} → extracting...", end="")
                 
                 # Extract proper nouns from segment
@@ -185,17 +194,6 @@ def main():
                     if new_proper_nouns:
                         accumulated_proper_nouns.update(new_proper_nouns)
                         new_proper_nouns_found += len(new_proper_nouns)
-                        
-                        # Save result
-                        save_extraction_result(
-                            work_file,
-                            chapter_num,
-                            segment_num,
-                            args.from_lang,
-                            args.to_lang,
-                            new_proper_nouns
-                        )
-                        
                         print(f" completed ({len(new_proper_nouns)} new)")
                         
                         # Show new proper nouns found
@@ -203,15 +201,27 @@ def main():
                             print(f"    {source} → {target}")
                     else:
                         print(" completed (no new proper nouns)")
+                    
+                    # Save result to mark segment as processed (success or no results)
+                    save_extraction_result(
+                        work_file,
+                        chapter_num,
+                        segment_num,
+                        args.from_lang,
+                        args.to_lang,
+                        new_proper_nouns
+                    )
                 else:
                     print(" failed")
+                    # Don't save failed extractions - allow retry on next run
                 
                 # Progress indicator
                 if processed_segments % 10 == 0:
                     print(f"  Progress: {processed_segments}/{total_segments} segments")
         
-        # Create consolidated dictionary
-        create_consolidated_dictionary(work_file, args.output, "proper_nouns")
+        # Create consolidated TSV output
+        work_files = {args.to_lang: work_file}
+        create_consolidated_tsv(work_files, args.output, args.from_lang)
         
         print(f"\nProper nouns extraction completed!")
         print(f"Working data saved to: {work_file}")

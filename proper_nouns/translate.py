@@ -9,9 +9,8 @@ import sys
 import os
 
 from utils import (
-    load_existing_proper_nouns,
-    create_consolidated_dictionary,
-    save_translation_result
+    load_existing_tsv,
+    create_consolidated_tsv
 )
 
 
@@ -22,32 +21,108 @@ class ProperNounsTranslation(BaseModel):
     )
 
 
-def load_proper_nouns_dictionary(input_file: str) -> Dict[str, str]:
-    """Load existing proper nouns dictionary from JSON file"""
-    if not os.path.exists(input_file):
-        raise FileNotFoundError(f"Input file not found: {input_file}")
+def update_tsv_with_translations(tsv_file: str, new_translations: Dict[str, str], target_lang: str) -> None:
+    """Update TSV file with new translations"""
+    # Load existing TSV data
+    existing_data = load_existing_tsv(tsv_file)
     
-    with open(input_file, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    # Normalize target language
+    target_lang_normalized = target_lang.title()
+    
+    # Update with new translations
+    for source_term, translation in new_translations.items():
+        if source_term not in existing_data:
+            existing_data[source_term] = {}
+        existing_data[source_term][target_lang_normalized] = translation
+    
+    # Write back to TSV
+    if existing_data:
+        # Get all language codes
+        all_lang_codes = set()
+        for translations in existing_data.values():
+            all_lang_codes.update(translations.keys())
+        
+        lang_codes = sorted(all_lang_codes)
+        
+        # Write TSV file
+        with open(tsv_file, 'w', encoding='utf-8') as f:
+            # Write header
+            f.write('\t'.join(lang_codes) + '\n')
+            
+            # Write data rows
+            for source_term in sorted(existing_data.keys()):
+                row_data = []
+                for lang_code in lang_codes:
+                    translation = existing_data[source_term].get(lang_code, '')
+                    row_data.append(translation)
+                f.write('\t'.join(row_data) + '\n')
+
+
+def load_tsv_language_data(tsv_file: str, from_lang: str, intermediate_lang: str) -> Dict[str, str]:
+    """Load proper nouns dictionary from TSV file for specific language pair
+    
+    Args:
+        tsv_file: Path to TSV file
+        from_lang: Source language (normalized to Title case)
+        intermediate_lang: Intermediate language (normalized to Title case)
+    
+    Returns:
+        Dict mapping source terms to intermediate language translations
+    """
+    if not os.path.exists(tsv_file):
+        return {}
+    
+    # Normalize language names to Title case
+    from_lang_normalized = from_lang.title()
+    intermediate_lang_normalized = intermediate_lang.title()
+    
+    # Load TSV data
+    tsv_data = load_existing_tsv(tsv_file)
+    
+    # Extract source->intermediate mapping
+    result = {}
+    for source_term, translations in tsv_data.items():
+        source_value = translations.get(from_lang_normalized, '')
+        intermediate_value = translations.get(intermediate_lang_normalized, '')
+        
+        # Use source_value as key if available, otherwise use source_term
+        key = source_value if source_value else source_term
+        if intermediate_value:
+            result[key] = intermediate_value
+    
+    return result
 
 
 
 
 def translate_proper_nouns_batch(
     proper_nouns_dict: Dict[str, str],
-    existing_translations: Dict[str, str],
+    existing_tsv_data: Dict[str, Dict[str, str]],
     source_lang: str,
     intermediate_lang: str,
     target_lang: str,
     model: str,
-    work_file: str,
+    output_tsv: str,
     batch_size: int = 50,
     limit: int = None
 ) -> Dict[str, str]:
     """Translate proper nouns in batches to target language"""
     
-    # Filter out already translated items
-    remaining_nouns = {k: v for k, v in proper_nouns_dict.items() if k not in existing_translations}
+    # Normalize language names
+    target_lang_normalized = target_lang.title()
+    
+    # Filter out already translated items (check TSV data)
+    remaining_nouns = {}
+    existing_translations = {}
+    
+    for source_term, intermediate_translation in proper_nouns_dict.items():
+        if source_term in existing_tsv_data and target_lang_normalized in existing_tsv_data[source_term]:
+            # Already translated
+            existing_translations[source_term] = existing_tsv_data[source_term][target_lang_normalized]
+        else:
+            # Needs translation
+            remaining_nouns[source_term] = intermediate_translation
+    
     source_nouns = list(remaining_nouns.keys())
     
     if not source_nouns:
@@ -123,15 +198,8 @@ Examples of good translations:
                             translated_dict[source_noun] = translations_list[i]
                             batch_translations[source_noun] = translations_list[i]
                         
-                        # Save this batch result
-                        save_translation_result(
-                            work_file,
-                            api_calls_made,
-                            source_lang,
-                            intermediate_lang,
-                            target_lang,
-                            batch_translations
-                        )
+                        # Update TSV immediately after each successful batch
+                        update_tsv_with_translations(output_tsv, batch_translations, target_lang)
                         
                         print(f" completed ({len(translations_list)} translated)")
                     else:
@@ -148,7 +216,7 @@ Examples of good translations:
 
 def main():
     parser = argparse.ArgumentParser(description='Translate proper nouns dictionary to target language')
-    parser.add_argument('input_json', help='Input JSON file with proper nouns dictionary')
+    parser.add_argument('input_tsv', nargs='?', help='Input TSV file (optional, defaults to output file)')
     parser.add_argument('-f', '--from_lang', required=True,
                        help='Source language (e.g., bengali, english, japanese)')
     parser.add_argument('-i', '--intermediate-lang', required=True,
@@ -158,7 +226,7 @@ def main():
     parser.add_argument('-m', '--model', required=True,
                        help='LLM model to use (e.g., openai:gpt-4o-mini, anthropic:claude-3-haiku-20240307)')
     parser.add_argument('-o', '--output', required=True,
-                       help='Output JSON file for translated proper nouns dictionary')
+                       help='Output TSV file for translated proper nouns dictionary')
     parser.add_argument('--batch-size', type=int, default=30,
                        help='Number of proper nouns to translate in each batch (default: 30)')
     parser.add_argument('--limit', type=int,
@@ -167,21 +235,20 @@ def main():
     args = parser.parse_args()
     
     try:
-        # Create work file name from output file
-        work_file = args.output.replace('.json', '-work.jsonl')
+        # Determine input file (default to output file if not specified)
+        input_file = args.input_tsv if args.input_tsv else args.output
         
-        # Load source proper nouns dictionary
-        print(f"Loading proper nouns dictionary from {args.input_json}")
-        source_dict = load_proper_nouns_dictionary(args.input_json)
+        # Load source proper nouns dictionary from TSV
+        print(f"Loading proper nouns dictionary from {input_file}")
+        source_dict = load_tsv_language_data(input_file, args.from_lang, args.intermediate_lang)
         
-        # Load existing translations for resume capability
-        existing_translations = load_existing_proper_nouns(work_file)
+        # Load existing TSV data for skip logic
+        existing_tsv_data = load_existing_tsv(args.output)
         
         print(f"Translating proper nouns: {args.from_lang} -> {args.to_lang}")
         print(f"Input format: {args.from_lang} -> {args.intermediate_lang}")
         print(f"Output format: {args.from_lang} -> {args.to_lang}")
         print(f"Total proper nouns to translate: {len(source_dict)}")
-        print(f"Already translated: {len(existing_translations)}")
         print(f"Batch size: {args.batch_size}")
         
         # Apply limit information
@@ -193,25 +260,20 @@ def main():
         # Translate proper nouns
         translated_dict = translate_proper_nouns_batch(
             source_dict,
-            existing_translations,
+            existing_tsv_data,
             args.from_lang,
             args.intermediate_lang,
             args.to_lang,
             args.model,
-            work_file,
+            args.output,
             args.batch_size,
             args.limit
         )
         
-        # Create consolidated dictionary
-        create_consolidated_dictionary(work_file, args.output, "translations")
-        
         print(f"\nTranslation completed!")
-        print(f"Working data saved to: {work_file}")
-        print(f"Final dictionary saved to: {args.output}")
+        print(f"Final TSV saved to: {args.output}")
         print(f"Source proper nouns: {len(source_dict)}")
-        print(f"Translated proper nouns: {len(translated_dict)}")
-        print(f"New translations in this run: {len(translated_dict) - len(existing_translations)}")
+        print(f"Total translated proper nouns: {len(translated_dict)}")
         
         # Show sample translations
         if translated_dict:
