@@ -38,6 +38,15 @@ def extract_title_translation(records: List[Dict[str, Any]]) -> str:
     return "Untitled"
 
 
+def extract_language_info(records: List[Dict[str, Any]]) -> tuple[str, str]:
+    """Extract source and target language from JSONL records."""
+    for record in records:
+        if 'source_lang' in record and 'target_lang' in record:
+            return record['source_lang'].title(), record['target_lang'].title()
+    
+    raise ValueError("Language information (source_lang, target_lang) not found in JSONL records")
+
+
 def group_by_chapter(records: List[Dict[str, Any]]) -> Dict[int, List[Dict[str, Any]]]:
     """Group records by chapter number, excluding title (chapter 0)."""
     chapters = {}
@@ -71,11 +80,12 @@ def format_translation_text(text: str) -> str:
 
 def create_markdown_content(
     records: List[Dict[str, Any]], 
-    source_lang: str, 
-    target_lang: str,
     output_mode: str = 'translation'
 ) -> str:
     """Create formatted Markdown content from JSONL records."""
+    
+    # Extract language info
+    source_lang, target_lang = extract_language_info(records)
     
     # Extract title
     title = extract_title_translation(records)
@@ -151,8 +161,6 @@ def main():
     parser.add_argument('-o', '--output', help='Output Markdown file path (default: same name with .md extension)')
     parser.add_argument('--mode', choices=['translation', 'summary', 'full'], default='translation',
                        help='Output mode: translation (default, translation only), summary (summaries only), full (all content with headers)')
-    parser.add_argument('--source-lang', default='Bengali', help='Source language name (default: Bengali)')
-    parser.add_argument('--target-lang', default='English', help='Target language name (default: English)')
     
     args = parser.parse_args()
     
@@ -180,8 +188,6 @@ def main():
         # Create markdown content
         markdown_content = create_markdown_content(
             records,
-            args.source_lang,
-            args.target_lang,
             args.mode
         )
         
