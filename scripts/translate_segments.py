@@ -31,13 +31,43 @@ class TitleTranslation(BaseModel):
     )
 
 
-def load_proper_nouns_dictionary(dict_file: str) -> Dict[str, str]:
-    """Load proper nouns dictionary from JSON file"""
+def load_proper_nouns_dictionary(dict_file: str, source_lang: str = "Bengali", target_lang: str = "Japanese") -> Dict[str, str]:
+    """Load proper nouns dictionary from TSV file"""
     if not os.path.exists(dict_file):
         return {}
     
+    proper_nouns_dict = {}
     with open(dict_file, 'r', encoding='utf-8') as f:
-        return json.load(f)
+        lines = f.readlines()
+        if not lines:
+            return {}
+        
+        # Parse header line to find column indices
+        header = lines[0].strip().split('\t')
+        source_col = -1
+        target_col = -1
+        
+        for i, col_name in enumerate(header):
+            if col_name.lower() == source_lang.lower():
+                source_col = i
+            elif col_name.lower() == target_lang.lower():
+                target_col = i
+        
+        if source_col == -1 or target_col == -1:
+            print(f"Warning: Could not find columns for {source_lang} or {target_lang} in TSV header")
+            return {}
+        
+        # Parse data lines
+        for line in lines[1:]:
+            if line.strip():  # Skip empty lines
+                parts = line.strip().split('\t')
+                if len(parts) > max(source_col, target_col):
+                    source_term = parts[source_col].strip()
+                    target_term = parts[target_col].strip()
+                    if source_term and target_term:  # Only add non-empty entries
+                        proper_nouns_dict[source_term] = target_term
+    
+    return proper_nouns_dict
 
 
 def create_translation_context(
@@ -244,8 +274,8 @@ def main():
                        help='Output JSONL file for translation results')
     parser.add_argument('--segmentation', default='segmentations.jsonl',
                        help='Segmentation JSONL file (default: segmentations.jsonl)')
-    parser.add_argument('--proper-nouns', required=True,
-                       help='Proper nouns dictionary JSON file')
+    parser.add_argument('--proper-nouns', default='proper_nouns/all.tsv',
+                       help='Proper nouns dictionary TSV file (default: proper_nouns/all.tsv)')
     parser.add_argument('--limit', type=int,
                        help='Limit number of chapters to process (for debugging)')
     
@@ -259,7 +289,7 @@ def main():
         chapter_blocks = data["chapters"]
         
         # Load proper nouns dictionary
-        proper_nouns_dict = load_proper_nouns_dictionary(args.proper_nouns)
+        proper_nouns_dict = load_proper_nouns_dictionary(args.proper_nouns, args.from_lang, args.to_lang)
         
         # Load existing translations for resume capability
         existing_translations, title_already_translated = load_existing_translations(args.output)
