@@ -304,3 +304,11 @@ Title Image
 *   **Composition:** The final confrontation at the wedding. Vibha has collapsed after being publicly rejected by her husband. The loyal Rammohan Mal, his face a mask of fury and grief, renounces his service and gently lifts Vibha to carry her away. The king and his cruel jester look on from a decorated wedding pavilion (*mandap*).
 
 **Prompt:** Illustrate the final, tragic confrontation at a royal wedding in 17th-century Bengal. Inside a decorated wedding pavilion (mandap), Princess Vibha has collapsed to the ground in shock and heartbreak after being publicly rejected by her husband, King Ramchandra Ray. The king looks on with cruel indifference, goaded by his malicious jester, Ramai Bhand. In the center of the scene, the powerful warrior Rammohan Mal, his face a mask of fury and grief, has just renounced his service and is gently lifting the unconscious Vibha to carry her away with dignity.
+
+### Chapter 38
+
+Last Scene
+*   **Characters:** Market-goers, Villagers.
+*   **Composition:** A symbolic final scene. A simple, empty boat is moored at a rustic river landing in Chandradwip. In the background, the daily life of a bustling market continues at dusk. The focus is on a weathered wooden sign that reads "Bou-Thakurani's Market," signifying that Vibha's story has become a permanent part of the landscape and local legend. The mood is peaceful, nostalgic, and poetic.
+
+**Prompt:** Create a symbolic and atmospheric landscape of a riverside market in 17th-century Bengal at dusk. In the foreground, a simple, empty boat is moored at a rustic wooden landing, suggesting a journey just completed. In the background, the market is filled with the gentle activity of villagers and merchants closing their stalls. The warm, fading light of sunset bathes the scene in a soft, nostalgic glow. The central focus is a weathered wooden sign hanging prominently, which reads "Bou-Thakuranir Haat", indicating that a personal story has become a timeless legend. The overall mood should be peaceful and poetic, a quiet tribute to the novel's heroine.
