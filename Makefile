@@ -1,8 +1,9 @@
-MODEL=google:gemini-2.5-pro
+MODEL_ := gemini-2.5-pro
+MODEL  := google:$(MODEL_)
 
 all:
 
-.PHONY: proper_nouns translate convert
+.PHONY: proper_nouns translate convert questions
 
 proper_nouns:
 	time uv run proper_nouns/extract.py all-bn.md -f bengali -t english -m $(MODEL) -w proper_nouns/en.jsonl -o proper_nouns/all.tsv
@@ -26,3 +27,7 @@ convert:
 	uv run scripts/jsonl_to_md.py --mode summary all-hi-gemini.jsonl -o all-hi-gemini-summary.md
 	uv run scripts/split-line.py -o all-en-gemini-lines.md -l en all-en-gemini.md
 	uv run scripts/split-line.py -o all-ja-gemini-lines.md -l ja all-ja-gemini.md
+
+questions:
+	uv run scripts/create_rag_questions.py -m $(MODEL_) -c 100 -o questions-en.jsonl all-en-gemini.md -l English
+	uv run scripts/create_rag_questions.py -m $(MODEL_) -c 100 -o questions-ja.jsonl all-ja-gemini.md -l Japanese
