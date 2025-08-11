@@ -1,6 +1,7 @@
 import os
 import json
 import argparse
+import time
 from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 from llm7shi.compat import generate_with_schema
@@ -93,6 +94,19 @@ def create_translation_context(
     return "\n".join(context_parts)
 
 
+def generate(messages, **kwargs):
+    """Generate a response from the model based on the provided messages and parameters."""
+    for attempt in range(5, 0, -1):
+        response = generate_with_schema(messages, **kwargs)
+        try:
+            return json.loads(response.text)
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+        if attempt > 1:
+            for i in range(15, -1, -1):
+                print(f"\rRetrying... {i}s ", end="", flush=True)
+                time.sleep(1)
+            print()
 
 
 def translate_segment(
@@ -125,28 +139,12 @@ def translate_segment(
 4. Provide translation notes explaining key choices and cultural context"""
 
     json_descriptions = create_json_descriptions_prompt(SegmentTranslation)
-    
-    try:
-        result = generate_with_schema(
-            [context, prompt, json_descriptions],
-            schema=SegmentTranslation,
-            model=model,
-            show_params=show_params,
-        )
-        
-        if result and hasattr(result, 'text'):
-            try:
-                translation_data = json.loads(result.text)
-                return translation_data
-            except json.JSONDecodeError as e:
-                print(f"  DEBUG: Failed to parse JSON: {e}")
-                return None
-        else:
-            print(f"  DEBUG: No result.text found")
-            return None
-    except Exception as e:
-        print(f"Error translating segment: {e}")
-        return None
+    return generate(
+        [context, prompt, json_descriptions],
+        schema=SegmentTranslation,
+        model=model,
+        show_params=show_params,
+    )
 
 
 def translate_title(
@@ -180,28 +178,12 @@ def translate_title(
 5. The translation should be appropriate for the target language and culture"""
 
     json_descriptions = create_json_descriptions_prompt(TitleTranslation)
-    
-    try:
-        result = generate_with_schema(
-            [context, prompt, json_descriptions],
-            schema=TitleTranslation,
-            model=model,
-            show_params=show_params,
-        )
-        
-        if result and hasattr(result, 'text'):
-            try:
-                title_data = json.loads(result.text)
-                return title_data
-            except json.JSONDecodeError as e:
-                print(f"  DEBUG: Failed to parse title JSON: {e}")
-                return None
-        else:
-            print(f"  DEBUG: No title result.text found")
-            return None
-    except Exception as e:
-        print(f"Error translating title: {e}")
-        return None
+    return generate(
+        [context, prompt, json_descriptions],
+        schema=TitleTranslation,
+        model=model,
+        show_params=show_params,
+    )
 
 
 def load_existing_translations(output_file: str) -> tuple[Dict[tuple, Dict], bool]:
@@ -284,166 +266,102 @@ def main():
     
     args = parser.parse_args()
     
-    try:
-        # Load segments from markdown and segmentation data
-        print(f"Loading segments from {args.source_md} using {args.segmentation}")
-        data = load_chapter_blocks(args.segmentation, args.source_md)
-        title = data["title"]
-        chapter_blocks = data["chapters"]
-        
-        # Load proper nouns dictionary
-        proper_nouns_dict = load_proper_nouns_dictionary(args.proper_nouns, args.from_lang, args.to_lang)
-        
-        # Load existing translations for resume capability
-        existing_translations, title_already_translated = load_existing_translations(args.output)
-        
-        # Store total chapters count before applying limit
-        total_chapters_in_file = len(chapter_blocks)
-        
-        # Initialize context tracking - load summaries from all previously completed chapters
-        previous_summaries = []
-        if args.limit:
-            # Load context from all completed chapters before the ones we're processing
-            for chapter_num in range(1, total_chapters_in_file + 1):
-                if chapter_num <= len(chapter_blocks):
-                    chapter_segments = chapter_blocks[chapter_num - 1]
-                    chapter_complete = all(
-                        (chapter_num, seg_num) in existing_translations
-                        for seg_num in range(1, len(chapter_segments) + 1)
-                    )
-                    if chapter_complete:
-                        # Load all summaries from this completed chapter
-                        for seg_num in range(1, len(chapter_segments) + 1):
-                            existing = existing_translations.get((chapter_num, seg_num), {})
-                            if existing.get("summary"):
-                                previous_summaries.append(existing["summary"])
-                            elif existing.get("response", {}).get("summary"):
-                                previous_summaries.append(existing["response"]["summary"])
-                    else:
-                        # Stop when we reach the first incomplete chapter
-                        break
-        
-        # Apply chapter limit if specified - find next incomplete chapters
-        if args.limit:
-            incomplete_chapters = []
-            for chapter_num, segments in enumerate(chapter_blocks, 1):
-                # Check if this chapter is already complete
+    # Load segments from markdown and segmentation data
+    print(f"Loading segments from {args.source_md} using {args.segmentation}")
+    data = load_chapter_blocks(args.segmentation, args.source_md)
+    title = data["title"]
+    chapter_blocks = data["chapters"]
+    
+    # Load proper nouns dictionary
+    proper_nouns_dict = load_proper_nouns_dictionary(args.proper_nouns, args.from_lang, args.to_lang)
+    
+    # Load existing translations for resume capability
+    existing_translations, title_already_translated = load_existing_translations(args.output)
+    
+    # Store total chapters count before applying limit
+    total_chapters_in_file = len(chapter_blocks)
+    
+    # Initialize context tracking - load summaries from all previously completed chapters
+    previous_summaries = []
+    if args.limit:
+        # Load context from all completed chapters before the ones we're processing
+        for chapter_num in range(1, total_chapters_in_file + 1):
+            if chapter_num <= len(chapter_blocks):
+                chapter_segments = chapter_blocks[chapter_num - 1]
                 chapter_complete = all(
                     (chapter_num, seg_num) in existing_translations
-                    for seg_num in range(1, len(segments) + 1)
+                    for seg_num in range(1, len(chapter_segments) + 1)
                 )
-                if not chapter_complete:
-                    incomplete_chapters.append((chapter_num, segments))
-                    if len(incomplete_chapters) >= args.limit:
-                        break
-            
-            if incomplete_chapters:
-                # Replace chapter_blocks with only the incomplete chapters to process
-                chapter_blocks_to_process = [(num, segs) for num, segs in incomplete_chapters]
-                print(f"Processing {len(incomplete_chapters)} incomplete chapters (limit: {args.limit})")
-            else:
-                chapter_blocks_to_process = []
-                print(f"No incomplete chapters found (limit: {args.limit})")
-        else:
-            # Process all chapters with their original numbering
-            chapter_blocks_to_process = [(i+1, chapter_blocks[i]) for i in range(len(chapter_blocks))]
-        
-        print(f"Title: {title}")
-        print(f"Starting translation: {args.from_lang} -> {args.to_lang}")
-        print(f"Total chapters in file: {total_chapters_in_file}")
-        print("=" * 60)
-        
-        total_segments = sum(len(segments) for _, segments in chapter_blocks_to_process)
-        processed_segments = 0
-        completed_chapters = set()  # Track chapters that have been fully translated
-        
-        for chapter_num, segments in chapter_blocks_to_process:
-            print(f"Chapter {chapter_num:2d}: {len(segments)} segments")
-            
-            for segment_num, segment_text in enumerate(segments, 1):
-                processed_segments += 1
-                segment_key = (chapter_num, segment_num)
-                
-                # Check if already processed
-                if segment_key in existing_translations:
-                    print(f"  Segment {segment_num} → skipped (already processed)")
-                    # Load existing summary for context
-                    existing = existing_translations[segment_key]
-                    # Check both old format (summary field) and new format (response.summary)
-                    if existing.get("summary"):
-                        previous_summaries.append(existing["summary"])
-                    elif existing.get("response", {}).get("summary"):
-                        previous_summaries.append(existing["response"]["summary"])
-                    continue
-                
-                print(f"  Segment {segment_num} → translating...", end="")
-                
-                # Translate segment
-                translation_result = translate_segment(
-                    segment_text,
-                    proper_nouns_dict,
-                    previous_summaries,
-                    args.from_lang,
-                    args.to_lang,
-                    args.model,
-                    bool(args.limit)
-                )
-                
-                if translation_result:
-                    # Update context
-                    if translation_result.get("summary"):
-                        previous_summaries.append(translation_result["summary"])
-                    
-                    # Save result
-                    save_translation_result(
-                        args.output,
-                        chapter_num,
-                        segment_num,
-                        args.from_lang,
-                        args.to_lang,
-                        translation_result
-                    )
-                    
-                    # Update existing_translations for chapter completion tracking
-                    existing_translations[segment_key] = translation_result
-                    
-                    print(" completed")
+                if chapter_complete:
+                    # Load all summaries from this completed chapter
+                    for seg_num in range(1, len(chapter_segments) + 1):
+                        existing = existing_translations.get((chapter_num, seg_num), {})
+                        if existing.get("summary"):
+                            previous_summaries.append(existing["summary"])
+                        elif existing.get("response", {}).get("summary"):
+                            previous_summaries.append(existing["response"]["summary"])
                 else:
-                    print(" failed")
-                
-                # Progress indicator
-                if processed_segments % 10 == 0:
-                    print(f"  Progress: {processed_segments}/{total_segments} segments")
-            
-            # Check if this chapter is fully completed (all segments translated)
-            chapter_segments_completed = all(
+                    # Stop when we reach the first incomplete chapter
+                    break
+    
+    # Apply chapter limit if specified - find next incomplete chapters
+    if args.limit:
+        incomplete_chapters = []
+        for chapter_num, segments in enumerate(chapter_blocks, 1):
+            # Check if this chapter is already complete
+            chapter_complete = all(
                 (chapter_num, seg_num) in existing_translations
                 for seg_num in range(1, len(segments) + 1)
             )
-            if chapter_segments_completed:
-                completed_chapters.add(chapter_num)
+            if not chapter_complete:
+                incomplete_chapters.append((chapter_num, segments))
+                if len(incomplete_chapters) >= args.limit:
+                    break
         
-        # Count total completed chapters (including previously translated ones)
-        all_completed_chapters = set()
-        original_chapter_blocks = load_chapter_blocks(args.segmentation, args.source_md)["chapters"]
-        for chapter_num in range(1, total_chapters_in_file + 1):
-            if chapter_num <= len(original_chapter_blocks):
-                chapter_length = len(original_chapter_blocks[chapter_num - 1])
-                if all((chapter_num, seg_num) in existing_translations 
-                      for seg_num in range(1, chapter_length + 1)):
-                    all_completed_chapters.add(chapter_num)
+        if incomplete_chapters:
+            # Replace chapter_blocks with only the incomplete chapters to process
+            chapter_blocks_to_process = [(num, segs) for num, segs in incomplete_chapters]
+            print(f"Processing {len(incomplete_chapters)} incomplete chapters (limit: {args.limit})")
+        else:
+            chapter_blocks_to_process = []
+            print(f"No incomplete chapters found (limit: {args.limit})")
+    else:
+        # Process all chapters with their original numbering
+        chapter_blocks_to_process = [(i+1, chapter_blocks[i]) for i in range(len(chapter_blocks))]
+    
+    print(f"Title: {title}")
+    print(f"Starting translation: {args.from_lang} -> {args.to_lang}")
+    print(f"Total chapters in file: {total_chapters_in_file}")
+    print("=" * 60)
+    
+    total_segments = sum(len(segments) for _, segments in chapter_blocks_to_process)
+    processed_segments = 0
+    completed_chapters = set()  # Track chapters that have been fully translated
+    
+    for chapter_num, segments in chapter_blocks_to_process:
+        print(f"Chapter {chapter_num:2d}: {len(segments)} segments")
         
-        # Add currently completed chapters
-        all_completed_chapters.update(completed_chapters)
-        
-        # Translate title with full story context (only if all chapters are completed)
-        all_chapters_completed = len(all_completed_chapters) >= total_chapters_in_file
-        should_translate_title = not title_already_translated and all_chapters_completed
-        
-        if should_translate_title:
-            print(f"\nTranslating title: {title}")
-            title_result = translate_title(
-                title,
+        for segment_num, segment_text in enumerate(segments, 1):
+            processed_segments += 1
+            segment_key = (chapter_num, segment_num)
+            
+            # Check if already processed
+            if segment_key in existing_translations:
+                print(f"  Segment {segment_num} → skipped (already processed)")
+                # Load existing summary for context
+                existing = existing_translations[segment_key]
+                # Check both old format (summary field) and new format (response.summary)
+                if existing.get("summary"):
+                    previous_summaries.append(existing["summary"])
+                elif existing.get("response", {}).get("summary"):
+                    previous_summaries.append(existing["response"]["summary"])
+                continue
+            
+            print(f"  Segment {segment_num} → translating...\n")
+            
+            # Translate segment
+            translation_result = translate_segment(
+                segment_text,
                 proper_nouns_dict,
                 previous_summaries,
                 args.from_lang,
@@ -452,30 +370,88 @@ def main():
                 bool(args.limit)
             )
             
-            if title_result:
-                save_title_translation(
+            if translation_result:
+                # Update context
+                if translation_result.get("summary"):
+                    previous_summaries.append(translation_result["summary"])
+                
+                # Save result
+                save_translation_result(
                     args.output,
+                    chapter_num,
+                    segment_num,
                     args.from_lang,
                     args.to_lang,
-                    title_result
+                    translation_result
                 )
-                print(f"Title translated: {title_result.get('translated_title', '')}")
-                print(f"Reasoning: {title_result.get('reasoning', '')}")
+                
+                # Update existing_translations for chapter completion tracking
+                existing_translations[segment_key] = translation_result
+                
+                print(" completed")
             else:
-                print("Title translation failed")
-        elif title_already_translated:
-            print(f"\nTitle already translated (skipped)")
-        elif not all_chapters_completed:
-            print(f"\nTitle translation skipped (only {len(all_completed_chapters)}/{total_chapters_in_file} chapters completed)")
+                print(" failed")
+            
+            # Progress indicator
+            print(f"  Progress: {processed_segments}/{total_segments} segments")
         
-        print(f"\nTranslation completed!")
-        print(f"Output saved to: {args.output}")
-        print(f"Proper nouns dictionary loaded: {len(proper_nouns_dict)} entries")
-        print(f"Chapters completed: {len(all_completed_chapters)}/{total_chapters_in_file}")
+        # Check if this chapter is fully completed (all segments translated)
+        chapter_segments_completed = all(
+            (chapter_num, seg_num) in existing_translations
+            for seg_num in range(1, len(segments) + 1)
+        )
+        if chapter_segments_completed:
+            completed_chapters.add(chapter_num)
+    
+    # Count total completed chapters (including previously translated ones)
+    all_completed_chapters = set()
+    original_chapter_blocks = load_chapter_blocks(args.segmentation, args.source_md)["chapters"]
+    for chapter_num in range(1, total_chapters_in_file + 1):
+        if chapter_num <= len(original_chapter_blocks):
+            chapter_length = len(original_chapter_blocks[chapter_num - 1])
+            if all((chapter_num, seg_num) in existing_translations 
+                    for seg_num in range(1, chapter_length + 1)):
+                all_completed_chapters.add(chapter_num)
+    
+    # Add currently completed chapters
+    all_completed_chapters.update(completed_chapters)
+    
+    # Translate title with full story context (only if all chapters are completed)
+    all_chapters_completed = len(all_completed_chapters) >= total_chapters_in_file
+    should_translate_title = not title_already_translated and all_chapters_completed
+    
+    if should_translate_title:
+        print(f"\nTranslating title: {title}")
+        title_result = translate_title(
+            title,
+            proper_nouns_dict,
+            previous_summaries,
+            args.from_lang,
+            args.to_lang,
+            args.model,
+            bool(args.limit)
+        )
         
-    except Exception as e:
-        print(f"Error: {e}")
-        return 1
+        if title_result:
+            save_title_translation(
+                args.output,
+                args.from_lang,
+                args.to_lang,
+                title_result
+            )
+            print(f"Title translated: {title_result.get('translated_title', '')}")
+            print(f"Reasoning: {title_result.get('reasoning', '')}")
+        else:
+            print("Title translation failed")
+    elif title_already_translated:
+        print(f"\nTitle already translated (skipped)")
+    elif not all_chapters_completed:
+        print(f"\nTitle translation skipped (only {len(all_completed_chapters)}/{total_chapters_in_file} chapters completed)")
+    
+    print(f"\nTranslation completed!")
+    print(f"Output saved to: {args.output}")
+    print(f"Proper nouns dictionary loaded: {len(proper_nouns_dict)} entries")
+    print(f"Chapters completed: {len(all_completed_chapters)}/{total_chapters_in_file}")
     
     return 0
 
