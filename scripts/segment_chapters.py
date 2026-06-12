@@ -273,8 +273,8 @@ def main():
                        help='Output JSONL file to save segmentation results')
     parser.add_argument('--limit', type=int, 
                        help='Limit number of chapters to process (for debugging)')
-    parser.add_argument('filename', nargs='?', default='all-bn.md',
-                       help='Bengali markdown file to process (default: all-bn.md)')
+    parser.add_argument('filename', nargs='?', default='all/bn.md',
+                       help='Bengali markdown file to process (default: all/bn.md)')
     
     args = parser.parse_args()
     

@@ -29,7 +29,7 @@ convert:
 	python convert.py chapters/*.mw
 
 text:
-	python concat.py -p en/chapters/*.xml > ../all-bn.md
-	python concat.py en/chapters/*.xml > ../all-en-gemini.md
-	python concat.py hi/chapters/*.xml > ../all-hi-gemini.md
-	python concat.py ja/chapters/*.xml > ../all-ja-gemini.md
+	python concat.py -p en/chapters/*.xml > ../all/bn.md
+	python concat.py en/chapters/*.xml > ../all/en-gemini.md
+	python concat.py hi/chapters/*.xml > ../all/hi-gemini.md
+	python concat.py ja/chapters/*.xml > ../all/ja-gemini.md

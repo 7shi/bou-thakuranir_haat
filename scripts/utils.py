@@ -137,7 +137,7 @@ def load_chapter_blocks(jsonl_path: str, md_path: str) -> Dict[str, Any]:
 
 if __name__ == "__main__":
     # Test the function
-    data = load_chapter_blocks("segmentation_results.jsonl", "all-bn.md")
+    data = load_chapter_blocks("segmentation_results.jsonl", "all/bn.md")
     
     print(f"Title: {data['title']}")
     print(f"Loaded {len(data['chapters'])} chapters")

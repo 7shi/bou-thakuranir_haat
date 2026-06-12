@@ -106,7 +106,7 @@ def print_analysis(chapters):
     print(f"Long chapters (≥80 lines): {long_chapters} chapters")
 
 if __name__ == "__main__":
-    filename = "all-bn.md"
+    filename = "all/bn.md"
     
     try:
         chapters = analyze_chapters(filename)
