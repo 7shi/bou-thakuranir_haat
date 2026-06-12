@@ -31,11 +31,11 @@ Let's compare the opening of Tagore's novel, *Bou-thakuranir Haat*.
 
 | Type of Change | Shadhu Bhasha (Literary) | Cholito Bhasha (Colloquial) | Meaning |
 | :--- | :--- | :--- | :--- |
-| **Verb Conjugation** | হইয়াছে (`hoiyachhe`) | **হয়েছে** (`hoyechhe`) | has become |
-| **Verb Conjugation** | হইয়া গিয়াছে (`hoiya giyachhe`) | **হয়ে গেছে** (`hoye gechhe`) | has become (emphatic) |
-| **Verb Conjugation** | নড়িতেছে (`noritechhe`) | **নড়ছে** (`norchhe`) | is moving |
+| **Verb Conjugation** | হইয়াছে (`hoiyache`) | **হয়েছে** (`hoyeche`) | has become |
+| **Verb Conjugation** | হইয়া গিয়াছে (`hoiya giyache`) | **হয়ে গেছে** (`hoye geche`) | has become (emphatic) |
+| **Verb Conjugation** | নড়িতেছে (`noṛiteche`) | **নড়ছে** (`noṛche`) | is moving |
 | **Pronoun** | তাঁহার (`tãhar`) | **তাঁর** (`tãr`) | his/her |
-| **Vocabulary (Noun)** | শয়ন-গৃহ (`shoyon-griho`) | **শোবার ঘর** (`shobar ghor`) | bedroom |
+| **Vocabulary (Noun)** | শয়ন-গৃহ (`śoyon-griho`) | **শোবার ঘর** (`śobar ghor`) | bedroom |
 | **Vocabulary (Noun)** | রাত্রি (`ratri`) | **রাত** (`raat`) | night |
 
 ## 3. Learning Bengali and the Two Styles
@@ -57,7 +57,7 @@ In conclusion, **Shadhu Bhasha is closer to Hindi in terms of vocabulary, and ca
 
 | Meaning | Shadhu Bhasha (Bengali) | Hindi | Cholito Bhasha (Bengali) |
 | :--- | :--- | :--- | :--- |
-| **Moon** | **চন্দ্র (Chondro)** | **चंद्र (Chandra)** | **চাঁদ (Chãd)** |
+| **Moon** | **চন্দ্র (Condro)** | **चंद्र (Chandra)** | **চাঁদ (Cãd)** |
 | **Hand** | **হস্ত (Hosto)** | **हस्त (Hast)** | **হাত (Hat)** |
 | **Book** | **পুস্তক (Pustok)** | **पुस्तक (Pustak)** | **বই (Boi)** |
 | **Night** | **রাত্রি (Ratri)** | **रात्रि (Ratri)** | **রাত (Raat)** |
