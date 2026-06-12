@@ -87,8 +87,8 @@ file|description
 
 Scripts used to process and generate the files in this repository.
 
-file|description
-----|----
+directory|description
+---------|----
 [proper_nouns/](proper_nouns/) | proper noun extraction and translation scripts
 [scripts/](scripts/) | translation, segmentation, and conversion scripts
 [wikisource/](wikisource/) | Wikisource scraping and text extraction tools

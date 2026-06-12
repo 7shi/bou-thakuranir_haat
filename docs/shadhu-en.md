@@ -52,9 +52,10 @@ Shadhu third-person and relative pronouns contain an -হ- `-h-` that Cholito dr
 
 Example from the text (Surama, defending her husband):
 
-> তােমাকে **যাহারা** নির্ব্বোধ মনে করিত **তাহারাই** নির্ব্বোধ!
-> `tomake jahara nirbodh mone korito taharai nirbodh!`
-> Cholito: তোমাকে **যারা** নির্বোধ মনে করত **তারাই** নির্বোধ!
+> তােমাকে **যাহারা** নির্ব্বোধ মনে করিত **তাহারাই** নির্ব্বোধ!  
+> `tomake jahara nirbodh mone korito taharai nirbodh!`  
+> Cholito: তোমাকে **যারা** নির্বোধ মনে করত **তারাই** নির্বোধ!  
+> `tomake jara nirbodh mone korot tarai nirbodh!`  
 > "Those who thought you a fool are the fools themselves!"
 
 ## 3. Postpositions and Function Words
@@ -69,9 +70,10 @@ Example from the text (Surama, defending her husband):
 
 Example (the prince, on his father's scrutiny):
 
-> পিতা ছেলেবেলা **হইতেই** আমাকে প্রতি মুহূর্ত্তে পরখ করিয়া দেখিতেছেন
-> `pita chhelebela hoitei amake proti muhurte porokh koriya dekhitechhen`
-> Cholito: বাবা ছেলেবেলা **থেকেই** আমাকে প্রতি মুহূর্তে পরখ করে দেখছেন
+> পিতা ছেলেবেলা **হইতেই** আমাকে প্রতি মুহূর্ত্তে পরখ করিয়া দেখিতেছেন  
+> `pita chhelebela hoitei amake proti muhurte porokh koriya dekhitechhen`  
+> Cholito: বাবা ছেলেবেলা **থেকেই** আমাকে প্রতি মুহূর্তে পরখ করে দেখছেন  
+> `baba chhelebela thekei amake proti muhurte porokh kore dekhchhen`  
 > "Father has been testing me at every moment since my childhood."
 
 ## 4. Vocabulary — Tatsama vs. Tadbhava, with Hindi Cognates
@@ -111,27 +113,30 @@ Some differences are purely spelling reforms — the pronunciation never differe
 
 **A. Surama's consolation (the refrain of the chapter)**
 
-> Shadhu: সুরমা কহিলেন, "প্রিয়তম, সহ্য করিয়া থাক, ধৈর্য্য ধরিয়া থাক। এক দিন সুখের দিন আসিবে।"
-> `Surama kohilen, "priyotomo, shojjho koriya thako, dhoirjo dhoriya thako. ek din shukher din ashibe."`
-> Cholito: সুরমা বললেন, "প্রিয়তম, সহ্য করে থাকো, ধৈর্য ধরে থাকো। একদিন সুখের দিন আসবে।"
+> Shadhu: সুরমা কহিলেন, "প্রিয়তম, সহ্য করিয়া থাক, ধৈর্য্য ধরিয়া থাক। এক দিন সুখের দিন আসিবে।"  
+> `Surama kohilen, "priyotomo, shojjho koriya thako, dhoirjo dhoriya thako. ek din shukher din ashibe."`  
+> Cholito: সুরমা বললেন, "প্রিয়তম, সহ্য করে থাকো, ধৈর্য ধরে থাকো। একদিন সুখের দিন আসবে।"  
+> `Surama bollen, "priyotomo, shojjho kore thako, dhoirjo dhore thako. ekdin shukher din ashbe."`  
 > "Surama said: 'Beloved, keep enduring, keep your patience. One day, a day of happiness will come.'"
 
 One sentence shows four changes at once: the verb of saying (কহিলেন → বললেন), two conjunctive participles (করিয়া → করে, ধরিয়া → ধরে), the future (আসিবে → আসবে), and a spelling reform (ধৈর্য্য → ধৈর্য).
 
 **B. The prince on Rukmini**
 
-> Shadhu: রুক্মিণীর বয়স আমার অপেক্ষা তিন বৎসরের বড়। ... ইহার পূর্ব্বেও আমার এমন কখন হয় নাই।
-> `Rukminir boyosh amar opekkha tin botsorer boro. ... ihar purbeo amar emon kokhon hoy nai.`
-> Cholito: রুক্মিণীর বয়স আমার চেয়ে তিন বছরের বড়। ... এর আগেও আমার এমন কখনো হয়নি।
+> Shadhu: রুক্মিণীর বয়স আমার অপেক্ষা তিন বৎসরের বড়। ... ইহার পূর্ব্বেও আমার এমন কখন হয় নাই।  
+> `Rukminir boyosh amar opekkha tin botsorer boro. ... ihar purbeo amar emon kokhon hoy nai.`  
+> Cholito: রুক্মিণীর বয়স আমার চেয়ে তিন বছরের বড়। ... এর আগেও আমার এমন কখনো হয়নি।  
+> `Rukminir boyosh amar cheye tin bochorer boro. ... er ageo amar emon kokhono hoyni.`  
 > "Rukmini was three years older than I. ... Nothing like this had ever happened to me before."
 
 Here a comparative postposition (অপেক্ষা → চেয়ে), a tatsama noun (বৎসর → বছর), a pronoun (ইহার → এর), a tatsama adverbial (পূর্বে → আগে "before") and the negative perfect (হয় নাই → হয়নি) all change.
 
 **C. Bibha at the door**
 
-> Shadhu: বিভা বলিয়া উঠিল "না না তুমি যাইও না।" ... "পিতা যদি জানিতে পারেন? তােমার উপরে যদি রাগ করেন?"
-> `Bibha boliya uthilo "na na tumi jaio na." ... "pita jodi janite paren? tomar upore jodi rag koren?"`
-> Cholito: বিভা বলে উঠল "না না তুমি যেও না।" ... "বাবা যদি জানতে পারেন? তোমার ওপরে যদি রাগ করেন?"
+> Shadhu: বিভা বলিয়া উঠিল "না না তুমি যাইও না।" ... "পিতা যদি জানিতে পারেন? তােমার উপরে যদি রাগ করেন?"  
+> `Bibha boliya uthilo "na na tumi jaio na." ... "pita jodi janite paren? tomar upore jodi rag koren?"`  
+> Cholito: বিভা বলে উঠল "না না তুমি যেও না।" ... "বাবা যদি জানতে পারেন? তোমার ওপরে যদি রাগ করেন?"  
+> `Bibha bole uthlo "na na tumi jeo na." ... "baba jodi jante paren? tomar opore jodi rag koren?"`  
 > "Bibha burst out: 'No, no, don't go!' ... 'What if Father finds out? What if he is angry with you?'"
 
 ## 7. A Final Observation: Cholito Leaking into the Dialogue
