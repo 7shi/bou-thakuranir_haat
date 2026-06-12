@@ -65,6 +65,8 @@ file|description
 ----|----
 [docs/bhasha-en.md](docs/bhasha-en.md) | Bengali language (Sadhu bhasha) analysis in English
 [docs/bhasha-ja.md](docs/bhasha-ja.md) | Bengali language (Sadhu bhasha) analysis in Japanese
+[docs/shadhu-en.md](docs/shadhu-en.md) | Close reading of Shadhu Bhasha vs. modern Bengali (Chapter 1) in English
+[docs/shadhu-ja.md](docs/shadhu-ja.md) | Close reading of Shadhu Bhasha vs. modern Bengali (Chapter 1) in Japanese
 [docs/flow-en.md](docs/flow-en.md) | Story flow diagram in English
 [docs/flow-ja.md](docs/flow-ja.md) | Story flow diagram in Japanese
 
