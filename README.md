@@ -100,5 +100,6 @@ Scripts used to process and generate the files in this repository.
 directory|description
 ---------|----
 [proper_nouns/](proper_nouns/) | proper noun extraction and translation scripts
+[qa-eval/](qa-eval/) | QA evaluation: scene embedding/RAG vs. per-chapter extraction
 [scripts/](scripts/) | translation, segmentation, and conversion scripts
 [wikisource/](wikisource/) | Wikisource scraping and text extraction tools
