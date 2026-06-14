@@ -25,6 +25,7 @@ file|description
 ----|----
 [all/bn-gemini.md](all/bn-gemini.md) | modern Bengali translation from classical Bengali by Gemini 2.5 Pro
 [all/bn-gemini-summary.md](all/bn-gemini-summary.md) | modern Bengali translation summary by Gemini 2.5 Pro
+[all/bn-gemini.jsonl](all/bn-gemini.jsonl) | per-segment modern Bengali translation data (summary, notes, translation) by Gemini 2.5 Pro in JSONL
 
 ### English Translation
 
@@ -34,6 +35,10 @@ file|description
 [preface/en-google.md](preface/en-google.md) | English preface translation from Bengali by [Google Translate](https://translate.google.com/)
 [all/en-gemini.md](all/en-gemini.md) | English translation from Bengali by Gemini 2.5 Pro
 [all/en-gemini-full.md](all/en-gemini-full.md) | English translation with summaries and translation notes by Gemini 2.5 Pro
+[all/en-gemini-summary.md](all/en-gemini-summary.md) | per-segment English summaries by Gemini 2.5 Pro
+[all/en-gemini-lines.md](all/en-gemini-lines.md) | English translation with one sentence per line by Gemini 2.5 Pro
+[all/en-gemini.jsonl](all/en-gemini.jsonl) | per-segment English translation data (summary, notes, translation) by Gemini 2.5 Pro in JSONL
+[all/en-gemini.tsv](all/en-gemini.tsv) | per-segment English scene titles in TSV
 [all/en-google.md](all/en-google.md) | English translation from Bengali by [Google Translate](https://translate.google.com/)
 
 ### Japanese Translation
@@ -44,6 +49,9 @@ file|description
 [preface/ja-google.md](preface/ja-google.md) | Japanese preface translation from English by [Google Translate](https://translate.google.com/)
 [all/ja-gemini.md](all/ja-gemini.md) | Japanese translation from Bengali by Gemini 2.5 Pro
 [all/ja-gemini-full.md](all/ja-gemini-full.md) | Japanese translation with summaries and translation notes by Gemini 2.5 Pro
+[all/ja-gemini-summary.md](all/ja-gemini-summary.md) | per-segment Japanese summaries by Gemini 2.5 Pro
+[all/ja-gemini-lines.md](all/ja-gemini-lines.md) | Japanese translation with one sentence per line by Gemini 2.5 Pro
+[all/ja-gemini.jsonl](all/ja-gemini.jsonl) | per-segment Japanese translation data (summary, notes, translation) by Gemini 2.5 Pro in JSONL
 [all/ja-google.md](all/ja-google.md) | Japanese translation from English by [Google Translate](https://translate.google.com/)
 
 ### Hindi Translation
@@ -55,6 +63,8 @@ file|description
 ----|----
 [all/hi-gemini.md](all/hi-gemini.md) | Hindi translation from Bengali by Gemini 2.5 Pro
 [all/hi-gemini-full.md](all/hi-gemini-full.md) | Hindi translation with summaries and translation notes by Gemini 2.5 Pro
+[all/hi-gemini-summary.md](all/hi-gemini-summary.md) | per-segment Hindi summaries by Gemini 2.5 Pro
+[all/hi-gemini.jsonl](all/hi-gemini.jsonl) | per-segment Hindi translation data (summary, notes, translation) by Gemini 2.5 Pro in JSONL
 [chapters/01-hi.md](chapters/01-hi.md) | Hindi translation (Chapter 1) from [archive.org](https://archive.org/details/dli.ernet.526165)
 
 ## Docs

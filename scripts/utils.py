@@ -84,9 +84,9 @@ def load_chapter_blocks(jsonl_path: str, md_path: str) -> Dict[str, Any]:
     # Process all chapters
     result = []
     
-    for chapter_num in sorted(all_chapters.keys()):
-        chapter_info = all_chapters[chapter_num]
-        
+    for chapter_num in sorted(set(all_chapters.keys()) | set(segmentation_data.keys())):
+        chapter_info = all_chapters.get(chapter_num)
+
         if chapter_num in segmentation_data:
             # Chapter has segmentation data - use boundaries
             boundaries = segmentation_data[chapter_num]
@@ -113,7 +113,7 @@ def load_chapter_blocks(jsonl_path: str, md_path: str) -> Dict[str, Any]:
             if chapter_segments:  # Only add chapters with content
                 result.append(chapter_segments)
         
-        else:
+        elif chapter_info:
             # Chapter not in JSONL - create single block
             start_line = chapter_info['start_line']
             end_line = chapter_info['end_line']
