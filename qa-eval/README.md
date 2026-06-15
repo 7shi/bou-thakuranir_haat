@@ -9,13 +9,16 @@ The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 
 ## Status
 
-Answering pipeline complete (English prototype, `google:gemma-4-31b-it`):
+Answering and judging complete (English prototype; answers generated with
+`google:gemma-4-31b-it`, judged with `ollama:qwen3.6`):
 
 - `build_index.py` — scene embedding index → `index-en.safetensors`
 - `answer_rag.py` — Vector RAG answering → `results/rag.jsonl`
 - `answer_extract.py` — Per-chapter extraction answering → `results/extract.jsonl`
+- `judge.py` — LLM grading of answers vs. gold → `results/judge-<stem>.jsonl`
 
-See [PLAN.md](PLAN.md) for the remaining pipeline and next steps.
+Remaining: `report.py` (accuracy + chapter-recall comparison). See
+[PLAN.md](PLAN.md).
 
 ## `build_index.py`
 
@@ -159,6 +162,78 @@ uv run qa-eval/answer_extract.py
 | `-i`, `--input` | `../questions-en.jsonl` | questions JSONL |
 | `--scenes` | `../all/en-gemini.jsonl` | scenes JSONL |
 | `-o`, `--output` | `results/extract.jsonl` | output path (Phase 2 result) |
+
+## `judge.py`
+
+Grades the candidate answers in one or more result files against the gold
+standard, using a judge LLM. Retrieval quality (chapter recall) is computed
+mechanically by `report.py`, not here.
+
+**Algorithm**
+
+For each answer record, build a prompt containing the question, the gold
+`answer`, the gold `rationale` (as supporting evidence), and the candidate
+`answer`, then ask the judge to grade factual content overlap (not wording) as
+`correct` / `partial` / `incorrect` with a one-sentence reason.
+
+The structured-output schema declares `reason` **before** `verdict`, so the
+model writes its justification first and the verdict follows from it rather than
+being a post-hoc rationalization. The default judge model is `ollama:qwen3.6`,
+since Gemma 4 is weak at structured output.
+
+A too-short `reason` (< 20 chars — i.e. blank, or just echoing the verdict like
+`"correct"`) is retried up to 3 times (4 attempts total), printing a notice such
+as `retrying (1/3)` each time; after that the short result is kept.
+
+- **Inputs**: one or more `results/*.jsonl` files (positional), plus
+  `questions-en.jsonl` for the gold standard.
+- **Output**: `results/judge-<input-stem>.jsonl` (e.g. `results/rag.jsonl` →
+  `results/judge-rag.jsonl`), one record per question:
+  - `question_id` — 1-origin line number in the questions file
+  - `verdict` — `correct` / `partial` / `incorrect`
+  - `reason` — one-sentence justification
+
+Resume-safe: re-running skips question IDs already present in the output file.
+
+### Judge against the gold, not the source text
+
+The judge compares only against the gold `answer`/`rationale`, **not** the
+chapter source text. Feeding the source would give the judge two competing
+authorities and muddy the verdict. Keeping it a pure gold-agreement check is
+what makes the interpretation below valid.
+
+### Interpreting the scores (convergent validity)
+
+The gold answers are **not ground truth**: they were produced by Gemini 2.5 Pro
+with the *whole text* in context (`scripts/create_rag_questions.py`), and huge
+contexts can cause omissions ("lost in the middle"). So treat the metric as
+*agreement with the Gemini full-text baseline*, not absolute accuracy.
+
+This still yields a useful inference. RAG structurally **blocks** any context
+vector search deems irrelevant, whereas Extract reads every chapter — an
+independent thorough-reading path, like the gold's full-context reading. So if
+**Extract ≥ RAG**, two independent thorough readers agree with the gold, which
+is convergent evidence that the gold answers are sound. If Extract < RAG, that
+is a signal to suspect either the gold or the extraction.
+
+Because both methods are judged against the *same* gold, any systematic gold
+bias cancels in the relative comparison; it only distorts the rare case where a
+method surfaces a true fact the gold omitted. Spot-check the `partial` /
+`incorrect` verdicts (few in number) using the gold `rationale`'s chapter
+citations.
+
+### Usage
+
+```sh
+uv run qa-eval/judge.py qa-eval/results/rag.jsonl qa-eval/results/extract.jsonl
+uv run qa-eval/judge.py qa-eval/results/rag.jsonl -m ollama:qwen3:8b
+```
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `inputs` (positional) | — | result JSONL files to judge (one or more) |
+| `-m`, `--model` | `ollama:qwen3.6` | judge model (llm7shi string) |
+| `-i`, `--input` | `../questions-en.jsonl` | questions JSONL (gold standard) |
 
 ## `ref/`
 

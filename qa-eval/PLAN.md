@@ -9,14 +9,14 @@ Read this first to resume after a session reset.
 - `build_index.py` — scene embedding index (`index-en.safetensors`)
 - `answer_rag.py` — Vector RAG; run with `google:gemma-4-31b-it` on 2026-06-14 → `results/rag.jsonl`
 - `answer_extract.py` — Per-chapter extraction; run with `google:gemma-4-31b-it` on 2026-06-15 → `results/extract.jsonl`
+- `judge.py` — LLM grading of answers vs. gold (judge model `ollama:qwen3.6`) → `results/judge-<stem>.jsonl`
 
 **Next step**
 
-`judge.py` — evaluate answers from both methods against gold standard.
-
-**Then**: `report.py` — aggregate accuracy and chapter recall comparison
-between RAG and extraction. The Japanese path (`split_chapters.py` →
-`index-ja`) is deferred until the English prototype works end to end.
+`report.py` — aggregate accuracy (from `results/judge-*.jsonl`) and chapter
+recall comparison between RAG and extraction. The Japanese path
+(`split_chapters.py` → `index-ja`) is deferred until the English prototype
+works end to end.
 
 ## Goal
 
@@ -27,33 +27,28 @@ Compare two retrieval strategies for QA over the English translation of
 2. **Per-Chapter Extraction** — for each chapter, extract relevant passages,
    then answer from collected excerpts.
 
-## Evaluation
-
-### `judge.py`
-
-- Input: one or more result JSONL files (`results/*.jsonl`).
-- For each answer, compare against the gold `answer` and `rationale` from
-  `questions-en.jsonl` using a judge model.
-- Plain-text structured output per question: `correct / partial / incorrect`
-  plus a short reason.
-- Output: `results/judge-<source-slug>.jsonl`.
-
-### Retrieval metric: chapter recall
-
-Compute mechanically whether the chapters used (both methods: `expanded` field;
-RAG entries are `"chapter:segment"` strings, Extract entries are `"chapter"` strings)
-cover the gold `chapters` field.
-This isolates retrieval quality from answering quality.
+## Remaining work
 
 ### `report.py`
 
-Aggregate per method × model: accuracy counts and chapter recall. Print a
-comparison table.
+Aggregate per method (RAG vs. Extract): answer accuracy and chapter recall, and
+print a comparison table.
 
-## Workflow
+- **Accuracy** — count `correct` / `partial` / `incorrect` per method from
+  `results/judge-rag.jsonl` and `results/judge-extract.jsonl`. Decide how to
+  score `partial` (e.g. half credit or a separate column).
+- **Chapter recall** — compute mechanically whether the chapters used cover the
+  gold `chapters` field in `questions-en.jsonl`. Both methods expose an
+  `expanded` field: RAG entries are `"chapter:segment"` strings, Extract entries
+  are `"chapter"` strings — reduce both to chapter numbers. This isolates
+  retrieval quality from answering quality.
+
+Read accuracy alongside the convergent-validity caveat documented in
+[README.md](README.md#interpreting-the-scores-convergent-validity): the gold is
+the Gemini full-text baseline, not ground truth, so **Extract ≥ RAG** is
+evidence the gold is sound.
 
 ```sh
-uv run qa-eval/judge.py results/rag.jsonl results/extract.jsonl
 uv run qa-eval/report.py
 ```
 
