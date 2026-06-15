@@ -9,11 +9,11 @@ The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 
 ## Status
 
-Implemented scripts:
+Answering pipeline complete (English prototype, `google:gemma-4-31b-it`):
 
-- `build_index.py` — scene embedding index
-- `answer_rag.py` — Vector RAG answering
-- `answer_extract.py` — Per-chapter extraction answering
+- `build_index.py` — scene embedding index → `index-en.safetensors`
+- `answer_rag.py` — Vector RAG answering → `results/rag.jsonl`
+- `answer_extract.py` — Per-chapter extraction answering → `results/extract.jsonl`
 
 See [PLAN.md](PLAN.md) for the remaining pipeline and next steps.
 
