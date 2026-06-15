@@ -87,7 +87,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-l", "--lang", default="en", choices=sorted(LANGS),
                         help="evaluation language (selects default questions/scenes/output paths and answer language)")
-    parser.add_argument("-m", "--model", default="ollama:gemma4:31b", help="llm7shi model string")
+    parser.add_argument("-m", "--model", default="ollama:gemma4:31b-it-qat", help="llm7shi model string")
     parser.add_argument("-i", "--input", default=None, help="questions JSONL (default: questions-<lang>.jsonl)")
     parser.add_argument("--scenes", default=None, help="scenes JSONL (default: all/<lang>-gemini.jsonl)")
     parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/extract.jsonl)")

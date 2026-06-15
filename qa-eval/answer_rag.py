@@ -110,7 +110,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-l", "--lang", default="en", choices=sorted(LANGS),
                         help="evaluation language (selects default questions/index/output paths and answer language)")
-    parser.add_argument("-m", "--model", default="ollama:gemma4:31b", help="llm7shi model string")
+    parser.add_argument("-m", "--model", default="ollama:gemma4:31b-it-qat", help="llm7shi model string")
     parser.add_argument("-e", "--embed", default="embeddinggemma", help="embedding model")
     parser.add_argument("-k", type=int, default=5, help="top-k scenes to retrieve")
     parser.add_argument("-N", type=int, default=1, help="context expansion window ±N")

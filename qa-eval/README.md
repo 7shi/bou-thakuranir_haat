@@ -107,7 +107,7 @@ uv run qa-eval/answer_rag.py -m ollama:qwen3:8b   # different model
 | Option | Default | Description |
 | --- | --- | --- |
 | `-l`, `--lang` | `en` | evaluation language (`en`/`ja`); also sets the answer language |
-| `-m`, `--model` | `ollama:gemma4:31b` | llm7shi model string |
+| `-m`, `--model` | `ollama:gemma4:31b-it-qat` | llm7shi model string |
 | `-e`, `--embed` | `embeddinggemma` | ollama embedding model |
 | `-k` | `5` | number of top scenes to retrieve |
 | `-N` | `1` | context expansion window ±N scenes |
@@ -182,7 +182,7 @@ uv run qa-eval/answer_extract.py -l ja
 | Option | Default | Description |
 | --- | --- | --- |
 | `-l`, `--lang` | `en` | evaluation language (`en`/`ja`); also sets the answer language |
-| `-m`, `--model` | `ollama:gemma4:31b` | llm7shi model string |
+| `-m`, `--model` | `ollama:gemma4:31b-it-qat` | llm7shi model string |
 | `-p`, `--part` | — | chapter group(s): single (`2`) or range (`1-4`); omit for Phase 2 |
 | `-i`, `--input` | `../questions-<lang>.jsonl` | questions JSONL |
 | `--scenes` | `../all/<lang>-gemini.jsonl` | scenes JSONL |
