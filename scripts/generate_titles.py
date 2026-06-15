@@ -38,8 +38,9 @@ def generate_scene_title(
     segment_text: str,
     model: str,
     show_params: bool,
+    title_lang: str = "English",
 ) -> Optional[str]:
-    prompt = f"""Read the following text segment and output a single concise English title (5-10 words) that describes the main event or scene. Output the title only, with no explanation, commentary, or punctuation at the end.
+    prompt = f"""Read the following text segment and output a single concise {title_lang} title (5-10 words) that describes the main event or scene. Output the title only, with no explanation, commentary, or punctuation at the end.
 
 {segment_text}"""
     response = generate_with_schema(
@@ -79,6 +80,8 @@ def main():
                         help='LLM model string (e.g., ollama:qwen3:8b, google:gemini-2.5-flash)')
     parser.add_argument('-o', '--output',
                         help='Output TSV file (default: source path with .tsv extension)')
+    parser.add_argument('--title-lang', default='English',
+                        help='Language for the generated titles')
     parser.add_argument('--limit', type=int,
                         help='Limit number of chapters to process (for debugging)')
     args = parser.parse_args()
@@ -120,6 +123,7 @@ def main():
             segment_text,
             args.model,
             bool(args.limit),
+            args.title_lang,
         )
 
         if generated_title:

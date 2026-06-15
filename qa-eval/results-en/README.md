@@ -1,7 +1,7 @@
 # Disagreement case study: RAG vs. Extract
 
 A manual, per-question analysis of where the two methods **disagree**, to
-complement the aggregate table from [`report.py`](README.md#reportpy). The goal
+complement the aggregate table from [`report.py`](../README.md#reportpy). The goal
 is to attribute each disagreement to a concrete failure mode and, along the way,
 spot-check whether the gold answers are sound.
 
@@ -125,7 +125,7 @@ Vibha refused to go to Chandradwip (gold Ch23). RAG missed Ch23 on **all three**
 — it consistently retrieved chapters 9, 24, 36, 37 instead, with Ch23's
 segments (`23:1`, `23:2`) never breaking into the top-5. This is not random: the
 embedding for that content ranks ~6th or lower for this question phrasing.
-Exactly the case [`sweep_rag.py`](PLAN.md) is meant to diagnose — would a larger
+Exactly the case [`sweep_rag.py`](../PLAN.md) is meant to diagnose — would a larger
 `k` (or a recall-oriented threshold) recover Ch23?
 
 ### 3b. Empty generation despite correct retrieval (Q92)

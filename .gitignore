@@ -13,4 +13,4 @@ wheels/
 images/
 
 # QA evaluation artifacts
-qa-eval/index-en.safetensors
+qa-eval/index-*.safetensors

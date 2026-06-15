@@ -1,9 +1,10 @@
 MODEL_ := gemini-2.5-pro
 MODEL  := google:$(MODEL_)
+GEMMA  := google:gemma-4-31b-it
 
 all:
 
-.PHONY: proper_nouns translate convert split questions
+.PHONY: proper_nouns translate convert split questions titles
 
 proper_nouns:
 	uv run proper_nouns/extract.py all/bn.md -f Bengali -t English -m $(MODEL) -w proper_nouns/en.jsonl -o proper_nouns/all.tsv
@@ -36,3 +37,7 @@ split:
 questions:
 	uv run scripts/create_rag_questions.py -m $(MODEL_) -c 100 -o questions-en.jsonl all/en-gemini.md -l English
 	uv run scripts/create_rag_questions.py -m $(MODEL_) -c 100 -o questions-ja.jsonl all/ja-gemini.md -l Japanese
+
+titles:
+	uv run scripts/generate_titles.py all/en-gemini.jsonl -m $(GEMMA)
+	uv run scripts/generate_titles.py all/ja-gemini.jsonl -m $(GEMMA) --title-lang Japanese

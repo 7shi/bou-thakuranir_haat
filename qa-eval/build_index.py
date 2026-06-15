@@ -24,6 +24,8 @@ from tqdm import tqdm
 
 ROOT = Path(__file__).resolve().parent.parent
 
+LANGS = {"en": "English", "ja": "Japanese"}
+
 
 def load_titles(tsv_path):
     """Return {(chapter, segment): title} from a TSV with a header row."""
@@ -70,27 +72,28 @@ def load_scenes(jsonl_path, titles):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        "-l", "--lang", default="en", choices=sorted(LANGS),
+        help="evaluation language (selects default scenes/tsv/output paths)",
+    )
+    parser.add_argument(
         "-e", "--embed", default="embeddinggemma", help="embedding model"
     )
     parser.add_argument(
-        "-i",
-        "--input",
-        default=str(ROOT / "all" / "en-gemini.jsonl"),
-        help="scenes JSONL",
+        "-i", "--input", default=None, help="scenes JSONL (default: all/<lang>-gemini.jsonl)"
     )
     parser.add_argument(
-        "-t",
-        "--tsv",
-        default=str(ROOT / "all" / "en-gemini.tsv"),
-        help="scene titles TSV",
+        "-t", "--tsv", default=None, help="scene titles TSV (default: all/<lang>-gemini.tsv)"
     )
     parser.add_argument(
-        "-o",
-        "--output",
-        default=str(ROOT / "qa-eval" / "index-en.safetensors"),
-        help="output safetensors path",
+        "-o", "--output", default=None,
+        help="output safetensors path (default: qa-eval/index-<lang>.safetensors)",
     )
     args = parser.parse_args()
+
+    lang = args.lang
+    args.input = args.input or str(ROOT / "all" / f"{lang}-gemini.jsonl")
+    args.tsv = args.tsv or str(ROOT / "all" / f"{lang}-gemini.tsv")
+    args.output = args.output or str(ROOT / "qa-eval" / f"index-{lang}.safetensors")
 
     titles = load_titles(args.tsv)
     scenes = load_scenes(args.input, titles)

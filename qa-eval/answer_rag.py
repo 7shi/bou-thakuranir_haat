@@ -7,7 +7,7 @@ For each question in questions-en.jsonl:
   3. Expand each hit ±N scenes within the same chapter and merge overlapping ranges.
   4. Build a labeled context block and ask the model to answer the question.
 
-Output: results/rag-<model-slug>.jsonl, one record per question.
+Output: results-<lang>/rag.jsonl, one record per question.
 Resume-safe: skips question IDs already present in the output file.
 """
 
@@ -22,6 +22,8 @@ from safetensors import safe_open
 from llm7shi.compat import generate_with_schema
 
 ROOT = Path(__file__).resolve().parent.parent
+
+LANGS = {"en": "English", "ja": "Japanese"}
 
 
 def load_index(index_path: Path):
@@ -92,9 +94,9 @@ def build_context(expanded_indices: list, scenes: list) -> str:
     return "\n".join(parts).strip()
 
 
-def answer_question(question: str, context: str, model: str) -> str:
+def answer_question(question: str, context: str, model: str, lang_name: str) -> str:
     prompt = (
-        f"Answer the following question in English based ONLY on the context provided. "
+        f"Answer the following question in {lang_name} based ONLY on the context provided. "
         f"Do not use any outside knowledge. "
         f"Reply with the answer only — no preamble, no reasoning, no closing remarks.\n\n"
         f"Question: {question}\n\n"
@@ -106,24 +108,22 @@ def answer_question(question: str, context: str, model: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-l", "--lang", default="en", choices=sorted(LANGS),
+                        help="evaluation language (selects default questions/index/output paths and answer language)")
     parser.add_argument("-m", "--model", default="ollama:gemma4:31b", help="llm7shi model string")
     parser.add_argument("-e", "--embed", default="embeddinggemma", help="embedding model")
     parser.add_argument("-k", type=int, default=5, help="top-k scenes to retrieve")
     parser.add_argument("-N", type=int, default=1, help="context expansion window ±N")
-    parser.add_argument(
-        "-i", "--input",
-        default=str(ROOT / "questions-en.jsonl"),
-        help="questions JSONL",
-    )
-    parser.add_argument(
-        "--index",
-        default=str(ROOT / "qa-eval" / "index-en.safetensors"),
-        help="index safetensors",
-    )
-    parser.add_argument("-o", "--output", default=None, help="output JSONL path")
+    parser.add_argument("-i", "--input", default=None, help="questions JSONL (default: questions-<lang>.jsonl)")
+    parser.add_argument("--index", default=None, help="index safetensors (default: qa-eval/index-<lang>.safetensors)")
+    parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/rag.jsonl)")
     args = parser.parse_args()
 
-    output_path = Path(args.output) if args.output else ROOT / "qa-eval" / "results" / "rag.jsonl"
+    lang = args.lang
+    lang_name = LANGS[lang]
+    args.input = args.input or str(ROOT / f"questions-{lang}.jsonl")
+    args.index = args.index or str(ROOT / "qa-eval" / f"index-{lang}.safetensors")
+    output_path = Path(args.output) if args.output else ROOT / "qa-eval" / f"results-{lang}" / "rag.jsonl"
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Resume: collect already-done question IDs
@@ -169,7 +169,7 @@ def main():
             context = build_context(expanded, scenes)
 
             # Get answer
-            answer = answer_question(question_text, context, args.model)
+            answer = answer_question(question_text, context, args.model, lang_name)
 
             # Build hit metadata
             hit_records = {

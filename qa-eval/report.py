@@ -4,14 +4,14 @@
 Pure mechanical aggregation of existing files — no LLM calls. Prints one
 comparison table to the terminal (methods as rows). Two independent axes:
 
-1. Answer accuracy (from results/judge-<method>.jsonl): raw correct / partial /
+1. Answer accuracy (from results-<lang>/judge-<method>.jsonl): raw correct / partial /
    incorrect counts plus a weighted score = (correct + 0.5*partial) / total.
    `partial` stays visible as its own column so the half-credit weighting never
    hides the raw distribution. See the convergent-validity caveat in README.md:
    the gold is the Gemini full-text baseline, so Extract >= RAG is expected.
 
 2. Chapter retrieval (mechanical, from each method's `expanded` vs gold
-   `chapters` in questions-en.jsonl):
+   `chapters` in questions-<lang>.jsonl):
    - recall: per-question complete coverage — 1 if gold ⊆ used else 0, meaned.
    - precision: mean of |gold ∩ used| / |used| per question.
 
@@ -24,7 +24,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-RESULTS = Path(__file__).resolve().parent / "results"
+QA_EVAL = Path(__file__).resolve().parent
 
 
 def load_jsonl(path: Path) -> list[dict]:
@@ -75,9 +75,14 @@ def retrieval(answers: list[dict], gold: dict[int, set[int]]) -> dict:
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("-i", "--input", default=str(ROOT / "questions-en.jsonl"),
-                        help="questions JSONL (gold standard)")
+    parser.add_argument("-l", "--lang", default="en", choices=["en", "ja"],
+                        help="evaluation language (selects default gold questions and results-<lang> dir)")
+    parser.add_argument("-i", "--input", default=None,
+                        help="questions JSONL (gold standard; default: questions-<lang>.jsonl)")
     args = parser.parse_args()
+
+    args.input = args.input or str(ROOT / f"questions-{args.lang}.jsonl")
+    results = QA_EVAL / f"results-{args.lang}"
 
     gold = load_gold_chapters(Path(args.input))
 
@@ -88,8 +93,8 @@ def main():
 
     rows = {}
     for name, (ans_file, judge_file) in methods.items():
-        acc = accuracy(load_jsonl(RESULTS / judge_file))
-        ret = retrieval(load_jsonl(RESULTS / ans_file), gold)
+        acc = accuracy(load_jsonl(results / judge_file))
+        ret = retrieval(load_jsonl(results / ans_file), gold)
         rows[name] = {**acc, **ret}
 
     header = (f"{'method':<8} {'correct':>7} {'partial':>7} {'incorrect':>9} "

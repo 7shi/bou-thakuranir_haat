@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """Grade candidate answers against the gold standard with a judge LLM.
 
-For each result file (e.g. results/rag.jsonl, results/extract.jsonl), compare
-every candidate answer against the gold `answer` and `rationale` from
-questions-en.jsonl. The judge emits a one-sentence reason and a verdict of
+For each result file (e.g. results-<lang>/rag.jsonl, results-<lang>/extract.jsonl),
+compare every candidate answer against the gold `answer` and `rationale` from
+questions-<lang>.jsonl. The judge emits a one-sentence reason and a verdict of
 correct / partial / incorrect.
 
 The `reason` field is declared before `verdict` in the schema so the model
 writes its justification first and the verdict follows from it, rather than
 being a post-hoc rationalization.
 
-Output: results/judge-<input-stem>.jsonl (e.g. judge-rag.jsonl), one record per
-question. Resume-safe: skips question IDs already present in the output file.
+Output: judge-<input-stem>.jsonl next to each input (e.g. judge-rag.jsonl), one
+record per question. Resume-safe: skips question IDs already present in the
+output file.
 
 Retrieval quality (chapter recall) is computed mechanically by report.py, not
 here; this script only produces the LLM verdict.
@@ -81,11 +82,15 @@ def judge_answer(question: str, gold: str, rationale: str, candidate: str, model
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("inputs", nargs="+", help="result JSONL files to judge")
+    parser.add_argument("-l", "--lang", default="en", choices=["en", "ja"],
+                        help="evaluation language (selects default gold questions file)")
     parser.add_argument("-m", "--model", default="ollama:qwen3.6",
                         help="judge model (llm7shi string); Gemma 4 is weak at structured output")
-    parser.add_argument("-i", "--input", default=str(ROOT / "questions-en.jsonl"),
-                        help="questions JSONL (gold standard)")
+    parser.add_argument("-i", "--input", default=None,
+                        help="questions JSONL (gold standard; default: questions-<lang>.jsonl)")
     args = parser.parse_args()
+
+    args.input = args.input or str(ROOT / f"questions-{args.lang}.jsonl")
 
     questions = load_questions(Path(args.input))
     print(f"Gold questions: {len(questions)}")

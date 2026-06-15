@@ -7,16 +7,20 @@ Read this first to resume after a session reset.
 **Done** — see [README.md](README.md) for details.
 
 - `build_index.py` — scene embedding index (`index-en.safetensors`)
-- `answer_rag.py` — Vector RAG; run with `google:gemma-4-31b-it` on 2026-06-14 → `results/rag.jsonl`
-- `answer_extract.py` — Per-chapter extraction; run with `google:gemma-4-31b-it` on 2026-06-15 → `results/extract.jsonl`
-- `judge.py` — LLM grading of answers vs. gold (judge model `ollama:qwen3.6`) → `results/judge-<stem>.jsonl`
+- `answer_rag.py` — Vector RAG; run with `google:gemma-4-31b-it` on 2026-06-14 → `results-en/rag.jsonl`
+- `answer_extract.py` — Per-chapter extraction; run with `google:gemma-4-31b-it` on 2026-06-15 → `results-en/extract.jsonl`
+- `judge.py` — LLM grading of answers vs. gold (judge model `ollama:qwen3.6`) → `results-en/judge-<stem>.jsonl`
 - `report.py` — RAG-vs-Extract comparison table (accuracy + chapter retrieval)
 
 **Next step**
 
+The pipeline is now language-parameterized via `-l/--lang {en,ja}` (see
+[README.md](README.md#languages)); the Japanese run reuses the same scripts with
+`-l ja`. Remaining: generate `all/ja-gemini.tsv` (`make titles`), then run the
+ja pipeline (`build_index` → `answer_*` → `judge` → `report`, all with `-l ja`).
+
 `sweep_rag.py` (optional follow-up below) — tune RAG's retrieval depth from the
-gold chapter labels. The Japanese path (`split_chapters.py` → `index-ja`) is
-deferred until the English prototype works end to end.
+gold chapter labels.
 
 ## Goal
 
@@ -51,7 +55,7 @@ this whenever, after `report.py` or independently.
   most gold chapters are already covered tells us whether the current `k=5` is
   generous or tight.
 
-**Data note**: `results/rag.jsonl` currently holds only the top-5 hits per
+**Data note**: `results-en/rag.jsonl` currently holds only the top-5 hits per
 question (run with `k=5`), so a full recall-vs-threshold sweep needs the scores
 of lower-ranked scenes too. This is cheap to get: the embeddings already live in
 `index-en.safetensors`, so re-retrieving is just one matmul + argsort per
@@ -64,4 +68,3 @@ slice) per question to a separate file — reuse `load_index` / `embed_query` /
 
 - Whole-text-in-context baselines with cloud models.
 - Hybrid retrieval (BM25 + vectors).
-- Japanese-language evaluation (`split_chapters.py` → `index-ja`).

@@ -7,15 +7,25 @@ design.
 
 The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 
+## Languages
+
+Every script takes `-l/--lang {en,ja}` (default `en`), which selects the
+language-specific defaults in one switch: the gold questions
+(`questions-<lang>.jsonl`), scene sources (`all/<lang>-gemini.jsonl` /
+`all/<lang>-gemini.tsv`), the index (`index-<lang>.safetensors`), the output
+directory (`results-<lang>/`), and the answer language. The individual path
+options (`-i`/`-o`/`--index`/`--scenes`/`-t`) still override these defaults.
+
 ## Status
 
-Answering and judging complete (English prototype; answers generated with
-`google:gemma-4-31b-it`, judged with `ollama:qwen3.6`):
+Answering and judging complete for **English** (`google:gemma-4-31b-it`
+answers, judged with `ollama:qwen3.6`). The **Japanese** path runs the same
+pipeline with `-l ja`.
 
-- `build_index.py` — scene embedding index → `index-en.safetensors`
-- `answer_rag.py` — Vector RAG answering → `results/rag.jsonl`
-- `answer_extract.py` — Per-chapter extraction answering → `results/extract.jsonl`
-- `judge.py` — LLM grading of answers vs. gold → `results/judge-<stem>.jsonl`
+- `build_index.py` — scene embedding index → `index-<lang>.safetensors`
+- `answer_rag.py` — Vector RAG answering → `results-<lang>/rag.jsonl`
+- `answer_extract.py` — Per-chapter extraction answering → `results-<lang>/extract.jsonl`
+- `judge.py` — LLM grading of answers vs. gold → `results-<lang>/judge-<stem>.jsonl`
 - `report.py` — accuracy + chapter retrieval comparison (terminal table)
 
 Optional follow-up: `sweep_rag.py` (tune RAG's `-k`/`-N` from the gold chapter
@@ -33,7 +43,7 @@ single `safetensors` file.
   - `../all/en-gemini.tsv` — scene titles, keyed by `(chapter, segment)`.
 - **Embedding**: the `ollama` `embed()` API with the document prompt
   `title: {title} | text: {text}`. Default model `embeddinggemma` (768-dim).
-- **Output**: `index-en.safetensors` — a `[N, dim]` float32 tensor named
+- **Output**: `index-<lang>.safetensors` — a `[N, dim]` float32 tensor named
   `embeddings`, plus metadata (`str -> str` only):
   - `embed_model` — the model used.
   - `count` — number of scenes.
@@ -47,22 +57,24 @@ restored metadata.
 
 ```sh
 uv run qa-eval/build_index.py            # defaults: en-gemini sources, index-en.safetensors
+uv run qa-eval/build_index.py -l ja      # ja-gemini sources, index-ja.safetensors
 uv run qa-eval/build_index.py -e embeddinggemma
 ```
 
 | Option | Default | Description |
 | --- | --- | --- |
+| `-l`, `--lang` | `en` | evaluation language (`en`/`ja`); selects the defaults below |
 | `-e`, `--embed` | `embeddinggemma` | ollama embedding model |
-| `-i`, `--input` | `../all/en-gemini.jsonl` | scenes JSONL |
-| `-t`, `--tsv` | `../all/en-gemini.tsv` | scene titles TSV |
-| `-o`, `--output` | `index-en.safetensors` | output safetensors path |
+| `-i`, `--input` | `../all/<lang>-gemini.jsonl` | scenes JSONL |
+| `-t`, `--tsv` | `../all/<lang>-gemini.tsv` | scene titles TSV |
+| `-o`, `--output` | `index-<lang>.safetensors` | output safetensors path |
 
-The script is parameterized so the same code can later index the Japanese
-sources by pointing `-i`/`-t`/`-o` at the `ja` files.
+The `-l ja` titles TSV (`all/ja-gemini.tsv`) is produced by `make titles`
+(`scripts/generate_titles.py … --title-lang Japanese`).
 
 ## `answer_rag.py`
 
-For each question in `questions-en.jsonl`, retrieves relevant scenes from the
+For each question in `questions-<lang>.jsonl`, retrieves relevant scenes from the
 index and asks an LLM to answer based solely on that context.
 
 **Algorithm**
@@ -74,9 +86,9 @@ index and asks an LLM to answer based solely on that context.
 4. Build a context block with each scene labeled `[Chapter N, Scene M — Title]`.
 5. Prompt the answer model to answer in English using only the provided context.
 
-- **Input**: `questions-en.jsonl` (100 questions, ROOT-level)
-- **Index**: `index-en.safetensors` (built by `build_index.py`)
-- **Output**: `results/rag.jsonl` — one record per question:
+- **Input**: `questions-<lang>.jsonl` (100 questions, ROOT-level)
+- **Index**: `index-<lang>.safetensors` (built by `build_index.py`)
+- **Output**: `results-<lang>/rag.jsonl` — one record per question:
   - `question_id` — 1-origin line number in the input file
   - `hits` — top-k scenes as `{"chapter:segment": score}` dict
   - `expanded` — all scenes included in the context as `"chapter:segment"` strings
@@ -87,23 +99,25 @@ Resume-safe: re-running skips question IDs already present in the output file.
 ### Usage
 
 ```sh
-uv run qa-eval/answer_rag.py                      # defaults
+uv run qa-eval/answer_rag.py                      # defaults (en)
+uv run qa-eval/answer_rag.py -l ja                # Japanese
 uv run qa-eval/answer_rag.py -m ollama:qwen3:8b   # different model
 ```
 
 | Option | Default | Description |
 | --- | --- | --- |
+| `-l`, `--lang` | `en` | evaluation language (`en`/`ja`); also sets the answer language |
 | `-m`, `--model` | `ollama:gemma4:31b` | llm7shi model string |
 | `-e`, `--embed` | `embeddinggemma` | ollama embedding model |
 | `-k` | `5` | number of top scenes to retrieve |
 | `-N` | `1` | context expansion window ±N scenes |
-| `-i`, `--input` | `../questions-en.jsonl` | questions JSONL |
-| `--index` | `index-en.safetensors` | scene index |
-| `-o`, `--output` | `results/rag.jsonl` | output path |
+| `-i`, `--input` | `../questions-<lang>.jsonl` | questions JSONL |
+| `--index` | `index-<lang>.safetensors` | scene index |
+| `-o`, `--output` | `results-<lang>/rag.jsonl` | output path |
 
 ## `answer_extract.py`
 
-For each question in `questions-en.jsonl`, scans every chapter for relevant
+For each question in `questions-<lang>.jsonl`, scans every chapter for relevant
 content and synthesizes an answer from the collected excerpts.
 
 **Algorithm**
@@ -122,13 +136,13 @@ Phase 2 — Answer (100 calls):
 4. Collect all non-`None`, non-empty summaries for the question, labeled `[Chapter N]`.
 5. Prompt the model to answer in English using only those excerpts.
 
-- **Input**: `questions-en.jsonl` (100 questions, ROOT-level) and
-  `../all/en-gemini.jsonl` (scenes)
-- **Output**: `results/extract.jsonl` — one record per question:
+- **Input**: `questions-<lang>.jsonl` (100 questions, ROOT-level) and
+  `../all/<lang>-gemini.jsonl` (scenes)
+- **Output**: `results-<lang>/extract.jsonl` — one record per question:
   - `question_id` — 1-origin line number in the input file
   - `expanded` — chapter numbers with relevant content, as `["5", "10", ...]` strings
   - `answer` — the model's synthesized answer
-- **Part files**: `results/extract-{N}.jsonl` (N = 1–4) — one record per
+- **Part files**: `results-<lang>/extract-{N}.jsonl` (N = 1–4) — one record per
   completed `(chapter, question_id)` pair for each chapter group:
   - `chapter` — chapter number
   - `question_id` — 1-origin line number in the input file
@@ -141,8 +155,8 @@ in Phase 1.
 
 Its main failure mode is a Phase 1 false negative: a wrong `None` drops a gold
 chapter unrecoverably, so Phase 2 never sees it. See
-[report.md](report.md#2-rag-correct--extract-incorrect-5-questions) for worked
-examples and the RAG-vs-Extract disagreement analysis.
+[results-en/README.md](results-en/README.md#2-rag-correct--extract-incorrect-5-questions)
+for worked examples and the RAG-vs-Extract disagreement analysis.
 
 ### Usage
 
@@ -159,15 +173,20 @@ uv run qa-eval/answer_extract.py -p 1-4
 
 # Phase 2: synthesize answers from all 4 part files
 uv run qa-eval/answer_extract.py
+
+# Japanese: pass -l ja to every invocation above
+uv run qa-eval/answer_extract.py -l ja -p 1-4
+uv run qa-eval/answer_extract.py -l ja
 ```
 
 | Option | Default | Description |
 | --- | --- | --- |
+| `-l`, `--lang` | `en` | evaluation language (`en`/`ja`); also sets the answer language |
 | `-m`, `--model` | `ollama:gemma4:31b` | llm7shi model string |
 | `-p`, `--part` | — | chapter group(s): single (`2`) or range (`1-4`); omit for Phase 2 |
-| `-i`, `--input` | `../questions-en.jsonl` | questions JSONL |
-| `--scenes` | `../all/en-gemini.jsonl` | scenes JSONL |
-| `-o`, `--output` | `results/extract.jsonl` | output path (Phase 2 result) |
+| `-i`, `--input` | `../questions-<lang>.jsonl` | questions JSONL |
+| `--scenes` | `../all/<lang>-gemini.jsonl` | scenes JSONL |
+| `-o`, `--output` | `results-<lang>/extract.jsonl` | output path (Phase 2 result) |
 
 ## `judge.py`
 
@@ -191,10 +210,10 @@ A too-short `reason` (< 20 chars — i.e. blank, or just echoing the verdict lik
 `"correct"`) is retried up to 3 times (4 attempts total), printing a notice such
 as `retrying (1/3)` each time; after that the short result is kept.
 
-- **Inputs**: one or more `results/*.jsonl` files (positional), plus
-  `questions-en.jsonl` for the gold standard.
-- **Output**: `results/judge-<input-stem>.jsonl` (e.g. `results/rag.jsonl` →
-  `results/judge-rag.jsonl`), one record per question:
+- **Inputs**: one or more `results-<lang>/*.jsonl` files (positional), plus
+  `questions-<lang>.jsonl` for the gold standard.
+- **Output**: `judge-<input-stem>.jsonl` next to each input (e.g.
+  `results-en/rag.jsonl` → `results-en/judge-rag.jsonl`), one record per question:
   - `question_id` — 1-origin line number in the questions file
   - `verdict` — `correct` / `partial` / `incorrect`
   - `reason` — one-sentence justification
@@ -231,15 +250,17 @@ citations.
 ### Usage
 
 ```sh
-uv run qa-eval/judge.py qa-eval/results/rag.jsonl qa-eval/results/extract.jsonl
-uv run qa-eval/judge.py qa-eval/results/rag.jsonl -m ollama:qwen3:8b
+uv run qa-eval/judge.py qa-eval/results-en/rag.jsonl qa-eval/results-en/extract.jsonl
+uv run qa-eval/judge.py -l ja qa-eval/results-ja/rag.jsonl qa-eval/results-ja/extract.jsonl
+uv run qa-eval/judge.py qa-eval/results-en/rag.jsonl -m ollama:qwen3:8b
 ```
 
 | Option | Default | Description |
 | --- | --- | --- |
 | `inputs` (positional) | — | result JSONL files to judge (one or more) |
+| `-l`, `--lang` | `en` | evaluation language (`en`/`ja`); selects the gold questions file |
 | `-m`, `--model` | `ollama:qwen3.6` | judge model (llm7shi string) |
-| `-i`, `--input` | `../questions-en.jsonl` | questions JSONL (gold standard) |
+| `-i`, `--input` | `../questions-<lang>.jsonl` | questions JSONL (gold standard) |
 
 ## `report.py`
 
@@ -248,12 +269,12 @@ Pure mechanical aggregation — no LLM calls, no output file.
 
 **Two independent axes**, methods (RAG / Extract) as rows:
 
-1. **Answer accuracy** (from `results/judge-<method>.jsonl`): raw `correct` /
+1. **Answer accuracy** (from `results-<lang>/judge-<method>.jsonl`): raw `correct` /
    `partial` / `incorrect` counts plus a weighted score =
    `(correct + 0.5*partial) / total`. `partial` stays its own column so the
    half-credit weighting never hides the raw distribution.
 2. **Chapter retrieval** (mechanical, each method's `expanded` vs the gold
-   `chapters` in `questions-en.jsonl`):
+   `chapters` in `questions-<lang>.jsonl`):
    - **recall** — per-question complete coverage: 1 if `gold ⊆ used` else 0,
      meaned over the 100 questions.
    - **precision** — mean of `|gold ∩ used| / |used|` per question.
@@ -265,7 +286,7 @@ Read the accuracy axis alongside the convergent-validity caveat above: the gold
 is the Gemini full-text baseline, so **Extract ≥ RAG** is evidence the gold is
 sound.
 
-**Current run** (answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`):
+**Current run** (English; answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`):
 
 | method | correct | partial | incorrect | weighted | ch.recall | ch.prec |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -277,17 +298,19 @@ quantifies RAG's "broad but noisy" retrieval: RAG pulls extra chapters per
 question, while Extract only emits chapters it judged relevant.
 
 For a per-question breakdown of where the two methods disagree (and why), see the
-[disagreement case study](report.md).
+[disagreement case study](results-en/README.md).
 
 ### Usage
 
 ```sh
-uv run qa-eval/report.py
+uv run qa-eval/report.py          # English (results-en)
+uv run qa-eval/report.py -l ja    # Japanese (results-ja)
 ```
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `-i`, `--input` | `../questions-en.jsonl` | questions JSONL (gold standard) |
+| `-l`, `--lang` | `en` | evaluation language (`en`/`ja`); selects the gold questions and `results-<lang>` dir |
+| `-i`, `--input` | `../questions-<lang>.jsonl` | questions JSONL (gold standard) |
 
 ## `ref/`
 

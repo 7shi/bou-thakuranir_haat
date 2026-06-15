@@ -4,9 +4,9 @@
 For each question in questions-en.jsonl:
   Phase 1 (--part 1-4): For chapters in the given range, ask the model to
            summarize relevant content or output "None" if there is none.
-           Output saved to results/extract-{N}.jsonl.
+           Output saved to results-<lang>/extract-{N}.jsonl.
   Phase 2 (no --part): Concatenate relevant summaries from all 4 part files
-           and ask the model to answer. Output: results/extract.jsonl.
+           and ask the model to answer. Output: results-<lang>/extract.jsonl.
 
 Chapter groups:
   Part 1: chapters 1-10
@@ -25,6 +25,8 @@ from pathlib import Path
 from llm7shi.compat import generate_with_schema
 
 ROOT = Path(__file__).resolve().parent.parent
+
+LANGS = {"en": "English", "ja": "Japanese"}
 
 PART_RANGES = {1: (1, 10), 2: (11, 20), 3: (21, 30), 4: (31, 37)}
 
@@ -58,10 +60,10 @@ def load_questions(path: Path) -> list[dict]:
     return questions
 
 
-def extract_chapter(question: str, chapter: int, chapter_text: str, model: str) -> str:
+def extract_chapter(question: str, chapter: int, chapter_text: str, model: str, lang_name: str) -> str:
     context = f"Chapter {chapter} text:\n{chapter_text}"
     prompt = (
-        f"Read the chapter text provided above and summarize any content relevant to the question below.\n"
+        f"Read the chapter text provided above and summarize in {lang_name} any content relevant to the question below.\n"
         f"If there is no relevant content, output exactly: None\n\n"
         f"Question: {question}"
     )
@@ -69,9 +71,9 @@ def extract_chapter(question: str, chapter: int, chapter_text: str, model: str) 
     return result.text.strip()
 
 
-def answer_question(question: str, context: str, model: str) -> str:
+def answer_question(question: str, context: str, model: str, lang_name: str) -> str:
     prompt = (
-        f"Answer the following question in English based ONLY on the chapter excerpts below.\n"
+        f"Answer the following question in {lang_name} based ONLY on the chapter excerpts below.\n"
         f"Do not use any outside knowledge.\n"
         f"Reply with the answer only — no preamble, no reasoning, no closing remarks.\n\n"
         f"Question: {question}\n\n"
@@ -83,13 +85,20 @@ def answer_question(question: str, context: str, model: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-l", "--lang", default="en", choices=sorted(LANGS),
+                        help="evaluation language (selects default questions/scenes/output paths and answer language)")
     parser.add_argument("-m", "--model", default="ollama:gemma4:31b", help="llm7shi model string")
-    parser.add_argument("-i", "--input", default=str(ROOT / "questions-en.jsonl"), help="questions JSONL")
-    parser.add_argument("--scenes", default=str(ROOT / "all" / "en-gemini.jsonl"), help="scenes JSONL")
-    parser.add_argument("-o", "--output", default=None, help="output JSONL path (Phase 2 result)")
+    parser.add_argument("-i", "--input", default=None, help="questions JSONL (default: questions-<lang>.jsonl)")
+    parser.add_argument("--scenes", default=None, help="scenes JSONL (default: all/<lang>-gemini.jsonl)")
+    parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/extract.jsonl)")
     parser.add_argument("-p", "--part", default=None,
                         help="chapter group(s) to process: single (e.g. 2) or range (e.g. 1-4); omit to run Phase 2 only")
     args = parser.parse_args()
+
+    lang = args.lang
+    lang_name = LANGS[lang]
+    args.input = args.input or str(ROOT / f"questions-{lang}.jsonl")
+    args.scenes = args.scenes or str(ROOT / "all" / f"{lang}-gemini.jsonl")
 
     parts: list[int] = []
     if args.part is not None:
@@ -103,7 +112,7 @@ def main():
         if invalid:
             parser.error(f"part values out of range (1-4): {invalid}")
 
-    output_path = Path(args.output) if args.output else ROOT / "qa-eval" / "results" / "extract.jsonl"
+    output_path = Path(args.output) if args.output else ROOT / "qa-eval" / f"results-{lang}" / "extract.jsonl"
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     questions = load_questions(Path(args.input))
@@ -145,7 +154,7 @@ def main():
                         print(f"[Q{qid}/{total} Ch{ch}] {question_text[:80]}")
                         print('='*60)
 
-                        text = extract_chapter(question_text, ch, chapter_text, args.model)
+                        text = extract_chapter(question_text, ch, chapter_text, args.model, lang_name)
                         done_extractions[(qid, ch)] = text
                         ckpt_f.write(json.dumps({"chapter": ch, "question_id": qid, "text": text}, ensure_ascii=False) + "\n")
                         ckpt_f.flush()
@@ -194,7 +203,7 @@ def main():
                     answer = "No relevant content found."
                 else:
                     context = "\n\n".join(f"[Chapter {ch}]\n{text}" for ch, text in sorted(relevant.items()))
-                    answer = answer_question(question_text, context, args.model)
+                    answer = answer_question(question_text, context, args.model, lang_name)
 
                 record = {
                     "question_id": qid,
