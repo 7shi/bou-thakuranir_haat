@@ -10,13 +10,13 @@ Read this first to resume after a session reset.
 - `answer_rag.py` — Vector RAG; run with `google:gemma-4-31b-it` on 2026-06-14 → `results/rag.jsonl`
 - `answer_extract.py` — Per-chapter extraction; run with `google:gemma-4-31b-it` on 2026-06-15 → `results/extract.jsonl`
 - `judge.py` — LLM grading of answers vs. gold (judge model `ollama:qwen3.6`) → `results/judge-<stem>.jsonl`
+- `report.py` — RAG-vs-Extract comparison table (accuracy + chapter retrieval)
 
 **Next step**
 
-`report.py` — aggregate accuracy (from `results/judge-*.jsonl`) and chapter
-recall comparison between RAG and extraction. The Japanese path
-(`split_chapters.py` → `index-ja`) is deferred until the English prototype
-works end to end.
+`sweep_rag.py` (optional follow-up below) — tune RAG's retrieval depth from the
+gold chapter labels. The Japanese path (`split_chapters.py` → `index-ja`) is
+deferred until the English prototype works end to end.
 
 ## Goal
 
@@ -29,28 +29,36 @@ Compare two retrieval strategies for QA over the English translation of
 
 ## Remaining work
 
-### `report.py`
+### `sweep_rag.py` (optional follow-up — separate script, does not block `report.py`)
 
-Aggregate per method (RAG vs. Extract): answer accuracy and chapter recall, and
-print a comparison table.
+A standalone analysis script, independent of `report.py`. It uses the gold
+`chapters` as a relevance label to *tune* RAG's retrieval depth, asking: **at
+what similarity score / rank do the gold chapters actually appear?**
 
-- **Accuracy** — count `correct` / `partial` / `incorrect` per method from
-  `results/judge-rag.jsonl` and `results/judge-extract.jsonl`. Decide how to
-  score `partial` (e.g. half credit or a separate column).
-- **Chapter recall** — compute mechanically whether the chapters used cover the
-  gold `chapters` field in `questions-en.jsonl`. Both methods expose an
-  `expanded` field: RAG entries are `"chapter:segment"` strings, Extract entries
-  are `"chapter"` strings — reduce both to chapter numbers. This isolates
-  retrieval quality from answering quality.
+This is a separate concern from the report table: `report.py` *reports* the
+RAG-vs-Extract results, while `sweep_rag.py` *tunes* RAG's `-k` / `-N` (and a
+possible score-threshold) knobs instead of guessing them. Order is free — do
+this whenever, after `report.py` or independently.
 
-Read accuracy alongside the convergent-validity caveat documented in
-[README.md](README.md#interpreting-the-scores-convergent-validity): the gold is
-the Gemini full-text baseline, not ground truth, so **Extract ≥ RAG** is
-evidence the gold is sound.
+**Analysis goals:**
 
-```sh
-uv run qa-eval/report.py
-```
+- For each question, find the best-scoring hit whose chapter is in the gold
+  `chapters` (a true positive) and the scores of the non-gold hits. Comparing
+  the score distributions of gold vs. non-gold hits shows whether a cosine
+  **threshold** could separate relevant from irrelevant scenes — and what cutoff
+  trades recall against precision.
+- Equivalently, plot **chapter recall vs. k** (1..k): the smallest k at which
+  most gold chapters are already covered tells us whether the current `k=5` is
+  generous or tight.
+
+**Data note**: `results/rag.jsonl` currently holds only the top-5 hits per
+question (run with `k=5`), so a full recall-vs-threshold sweep needs the scores
+of lower-ranked scenes too. This is cheap to get: the embeddings already live in
+`index-en.safetensors`, so re-retrieving is just one matmul + argsort per
+question (no LLM, no re-embedding). The simplest path is to load the index,
+re-embed the questions, and dump the **full** score vector (or a large-`k`
+slice) per question to a separate file — reuse `load_index` / `embed_query` /
+`top_k_search` from `answer_rag.py`.
 
 ## Out of Scope (for now)
 

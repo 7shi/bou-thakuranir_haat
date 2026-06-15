@@ -16,9 +16,10 @@ Answering and judging complete (English prototype; answers generated with
 - `answer_rag.py` — Vector RAG answering → `results/rag.jsonl`
 - `answer_extract.py` — Per-chapter extraction answering → `results/extract.jsonl`
 - `judge.py` — LLM grading of answers vs. gold → `results/judge-<stem>.jsonl`
+- `report.py` — accuracy + chapter retrieval comparison (terminal table)
 
-Remaining: `report.py` (accuracy + chapter-recall comparison). See
-[PLAN.md](PLAN.md).
+Optional follow-up: `sweep_rag.py` (tune RAG's `-k`/`-N` from the gold chapter
+labels). See [PLAN.md](PLAN.md).
 
 ## `build_index.py`
 
@@ -138,6 +139,11 @@ Resume-safe at two levels: question IDs already in the output file are skipped
 entirely; `(question_id, chapter)` pairs already in the part file are skipped
 in Phase 1.
 
+Its main failure mode is a Phase 1 false negative: a wrong `None` drops a gold
+chapter unrecoverably, so Phase 2 never sees it. See
+[report.md](report.md#2-rag-correct--extract-incorrect-5-questions) for worked
+examples and the RAG-vs-Extract disagreement analysis.
+
 ### Usage
 
 ```sh
@@ -233,6 +239,54 @@ uv run qa-eval/judge.py qa-eval/results/rag.jsonl -m ollama:qwen3:8b
 | --- | --- | --- |
 | `inputs` (positional) | — | result JSONL files to judge (one or more) |
 | `-m`, `--model` | `ollama:qwen3.6` | judge model (llm7shi string) |
+| `-i`, `--input` | `../questions-en.jsonl` | questions JSONL (gold standard) |
+
+## `report.py`
+
+Aggregates the existing result files into one comparison table on the terminal.
+Pure mechanical aggregation — no LLM calls, no output file.
+
+**Two independent axes**, methods (RAG / Extract) as rows:
+
+1. **Answer accuracy** (from `results/judge-<method>.jsonl`): raw `correct` /
+   `partial` / `incorrect` counts plus a weighted score =
+   `(correct + 0.5*partial) / total`. `partial` stays its own column so the
+   half-credit weighting never hides the raw distribution.
+2. **Chapter retrieval** (mechanical, each method's `expanded` vs the gold
+   `chapters` in `questions-en.jsonl`):
+   - **recall** — per-question complete coverage: 1 if `gold ⊆ used` else 0,
+     meaned over the 100 questions.
+   - **precision** — mean of `|gold ∩ used| / |used|` per question.
+
+   RAG `expanded` entries are `"chapter:segment"` (the part before `:` is the
+   chapter); Extract entries are bare `"chapter"` strings.
+
+Read the accuracy axis alongside the convergent-validity caveat above: the gold
+is the Gemini full-text baseline, so **Extract ≥ RAG** is evidence the gold is
+sound.
+
+**Current run** (answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`):
+
+| method | correct | partial | incorrect | weighted | ch.recall | ch.prec |
+| --- | --- | --- | --- | --- | --- | --- |
+| RAG | 81 | 8 | 11 | 0.850 | 0.760 | 0.251 |
+| Extract | 87 | 6 | 7 | 0.900 | 0.850 | 0.655 |
+
+Extract leads on every axis. Its low-vs-RAG precision gap (0.655 vs 0.251)
+quantifies RAG's "broad but noisy" retrieval: RAG pulls extra chapters per
+question, while Extract only emits chapters it judged relevant.
+
+For a per-question breakdown of where the two methods disagree (and why), see the
+[disagreement case study](report.md).
+
+### Usage
+
+```sh
+uv run qa-eval/report.py
+```
+
+| Option | Default | Description |
+| --- | --- | --- |
 | `-i`, `--input` | `../questions-en.jsonl` | questions JSONL (gold standard) |
 
 ## `ref/`
