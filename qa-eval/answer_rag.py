@@ -104,10 +104,6 @@ def answer_question(question: str, context: str, model: str) -> str:
     return result.text.strip()
 
 
-def model_slug(model: str) -> str:
-    return model.replace(":", "-").replace("/", "-").replace("@", "-")
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-m", "--model", default="ollama:gemma4:31b", help="llm7shi model string")
@@ -127,8 +123,7 @@ def main():
     parser.add_argument("-o", "--output", default=None, help="output JSONL path")
     args = parser.parse_args()
 
-    slug = model_slug(args.model)
-    output_path = Path(args.output) if args.output else ROOT / "qa-eval" / "results" / f"rag-{slug}.jsonl"
+    output_path = Path(args.output) if args.output else ROOT / "qa-eval" / "results" / "rag.jsonl"
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Resume: collect already-done question IDs
@@ -188,9 +183,8 @@ def main():
 
             record = {
                 "question_id": qid,
-                "question": question_text,
                 "hits": hit_records,
-                "expanded_scenes": expanded_scenes,
+                "expanded": expanded_scenes,
                 "answer": answer,
             }
             out_f.write(json.dumps(record, ensure_ascii=False) + "\n")

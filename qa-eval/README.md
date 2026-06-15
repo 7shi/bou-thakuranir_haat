@@ -13,6 +13,7 @@ Implemented scripts:
 
 - `build_index.py` — scene embedding index
 - `answer_rag.py` — Vector RAG answering
+- `answer_extract.py` — Per-chapter extraction answering
 
 See [PLAN.md](PLAN.md) for the remaining pipeline and next steps.
 
@@ -71,11 +72,10 @@ index and asks an LLM to answer based solely on that context.
 
 - **Input**: `questions-en.jsonl` (100 questions, ROOT-level)
 - **Index**: `index-en.safetensors` (built by `build_index.py`)
-- **Output**: `results/rag-<model-slug>.jsonl` — one record per question:
+- **Output**: `results/rag.jsonl` — one record per question:
   - `question_id` — 1-origin line number in the input file
-  - `question` — question text
   - `hits` — top-k scenes as `{"chapter:segment": score}` dict
-  - `expanded_scenes` — all scenes included in the context as `"chapter:segment"` strings
+  - `expanded` — all scenes included in the context as `"chapter:segment"` strings
   - `answer` — the model's answer
 
 Resume-safe: re-running skips question IDs already present in the output file.
@@ -95,7 +95,70 @@ uv run qa-eval/answer_rag.py -m ollama:qwen3:8b   # different model
 | `-N` | `1` | context expansion window ±N scenes |
 | `-i`, `--input` | `../questions-en.jsonl` | questions JSONL |
 | `--index` | `index-en.safetensors` | scene index |
-| `-o`, `--output` | `results/rag-<slug>.jsonl` | output path |
+| `-o`, `--output` | `results/rag.jsonl` | output path |
+
+## `answer_extract.py`
+
+For each question in `questions-en.jsonl`, scans every chapter for relevant
+content and synthesizes an answer from the collected excerpts.
+
+**Algorithm**
+
+Phase 1 — Extraction (37 chapters × 100 questions = 3,700 calls):
+
+1. Outer loop iterates over chapters; inner loop iterates over questions. This
+   keeps the same chapter text in the KV cache across all questions for that
+   chapter.
+2. For each (chapter, question) pair, pass the chapter text as context and ask
+   the model to summarize relevant content, or output `None` if there is none.
+3. Write the result immediately to the checkpoint file and flush.
+
+Phase 2 — Answer (100 calls):
+
+4. Collect all non-`None`, non-empty summaries for the question, labeled `[Chapter N]`.
+5. Prompt the model to answer in English using only those excerpts.
+
+- **Input**: `questions-en.jsonl` (100 questions, ROOT-level) and
+  `../all/en-gemini.jsonl` (scenes)
+- **Output**: `results/extract.jsonl` — one record per question:
+  - `question_id` — 1-origin line number in the input file
+  - `expanded` — chapter numbers with relevant content, as `["5", "10", ...]` strings
+  - `answer` — the model's synthesized answer
+- **Part files**: `results/extract-{N}.jsonl` (N = 1–4) — one record per
+  completed `(chapter, question_id)` pair for each chapter group:
+  - `chapter` — chapter number
+  - `question_id` — 1-origin line number in the input file
+  - `text` — extracted summary, or `"None"` if not relevant
+  - Part 1: chapters 1–10 · Part 2: chapters 11–20 · Part 3: chapters 21–30 · Part 4: chapters 31–37
+
+Resume-safe at two levels: question IDs already in the output file are skipped
+entirely; `(question_id, chapter)` pairs already in the part file are skipped
+in Phase 1.
+
+### Usage
+
+```sh
+# Phase 1: run parts in parallel (each writes its own extract-{N}.jsonl)
+uv run qa-eval/answer_extract.py -p 1 &
+uv run qa-eval/answer_extract.py -p 2 &
+uv run qa-eval/answer_extract.py -p 3 &
+uv run qa-eval/answer_extract.py -p 4 &
+wait
+
+# Or run all parts sequentially in one command:
+uv run qa-eval/answer_extract.py -p 1-4
+
+# Phase 2: synthesize answers from all 4 part files
+uv run qa-eval/answer_extract.py
+```
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `-m`, `--model` | `ollama:gemma4:31b` | llm7shi model string |
+| `-p`, `--part` | — | chapter group(s): single (`2`) or range (`1-4`); omit for Phase 2 |
+| `-i`, `--input` | `../questions-en.jsonl` | questions JSONL |
+| `--scenes` | `../all/en-gemini.jsonl` | scenes JSONL |
+| `-o`, `--output` | `results/extract.jsonl` | output path (Phase 2 result) |
 
 ## `ref/`
 
