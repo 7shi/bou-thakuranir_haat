@@ -43,13 +43,23 @@ def generate_scene_title(
     prompt = f"""Read the following text segment and output a single concise {title_lang} title (5-10 words) that describes the main event or scene. Output the title only, with no explanation, commentary, or punctuation at the end.
 
 {segment_text}"""
-    response = generate_with_schema(
-        [prompt],
-        model=model,
-        show_params=show_params,
-    )
-    if response and hasattr(response, 'text'):
-        return response.text.strip()
+    # The model occasionally returns an empty title; retry up to 3 times
+    # (4 attempts total), then give up rather than loop forever.
+    max_retries = 3
+    for attempt in range(max_retries + 1):
+        response = generate_with_schema(
+            [prompt],
+            model=model,
+            show_params=show_params,
+        )
+        if response and hasattr(response, 'text'):
+            title = response.text.strip()
+            if title:
+                return title
+        if attempt < max_retries:
+            print(f"  generation failed — retrying ({attempt + 1}/{max_retries})")
+        else:
+            print(f"  generation still failed after {max_retries} retries — giving up")
     return None
 
 
