@@ -14,16 +14,16 @@ Rows = RAG verdict, columns = Extract verdict.
 
 | | Ext correct | Ext partial | Ext incorrect | RAG total |
 | --- | --- | --- | --- | --- |
-| **RAG correct** | 72 | 4 | 5 | 81 |
+| **RAG correct** | 74 | 4 | 4 | 82 |
 | **RAG partial** | 7 | 1 | 0 | 8 |
-| **RAG incorrect** | 8 | 1 | 2 | 11 |
-| **Ext total** | 87 | 6 | 7 | 100 |
+| **RAG incorrect** | 7 | 1 | 2 | 10 |
+| **Ext total** | 88 | 6 | 6 | 100 |
 
 The two off-diagonal blocks analyzed below:
 
-- **RAG correct / Extract incorrect** — 5 questions (§2): mostly Extract Phase 1
+- **RAG correct / Extract incorrect** — 4 questions (§2): mostly Extract Phase 1
   retrieval misses.
-- **Extract correct / RAG incorrect** — 8 questions (§3): mostly RAG vector
+- **Extract correct / RAG incorrect** — 7 questions (§3): all RAG vector
   retrieval misses.
 
 Only **2** questions are wrong under *both* methods (40, 43); these are examined
@@ -50,21 +50,20 @@ love-potion request → Mangala's swap to poison), **not** the in-palace rumor
 that "Surma was dying by her own hand, having taken poison." The gold is sound;
 the disagreements on Q23 below are method failures.
 
-## 2. RAG correct / Extract incorrect (5 questions)
+## 2. RAG correct / Extract incorrect (4 questions)
 
 | Q | gold ch | Extract used | failure |
 | --- | --- | --- | --- |
 | 23 | 15,16,17 | 16 | Phase 1 miss (Ch17, the death, returned `None`) |
 | 46 | 15,16 | 12,16 | Phase 1 miss (Ch15) → answered a different incident |
-| 51 | 2 | 5 | Phase 1 miss (Ch2, the justification) |
 | 53 | 16,17 | — | Phase 1 miss (no chapter retained at all) |
 | 79 | 19 | **19** | **Phase 2** premise rejection (see below) |
 
-### 2a. Phase 1 false negatives (23, 46, 51, 53)
+### 2a. Phase 1 false negatives (23, 46, 53)
 
 Extract makes a per-chapter binary call in Phase 1: extract the relevant
 passage, or emit `None`. A wrong `None` is unrecoverable — that chapter never
-reaches Phase 2. In all four cases the gold chapter was dropped, so Phase 2
+reaches Phase 2. In all three cases the gold chapter was dropped, so Phase 2
 answered "the text does not mention this." RAG retrieved the same gold chapters
 by vector similarity and answered correctly. Vector retrieval is harder to make
 miss a relevant scene than a binary per-chapter judgment is.
@@ -95,7 +94,7 @@ were 10, 26, 37, 24, 6 — no Ch19), synthesizing the answer from the same theme
 recurring in other chapters. This also suggests the gold's single-chapter label
 `[19]` is narrower than where the relevant content actually lives.
 
-## 3. Extract correct / RAG incorrect (8 questions)
+## 3. Extract correct / RAG incorrect (7 questions)
 
 | Q | gold ch | RAG used (miss) | failure |
 | --- | --- | --- | --- |
@@ -104,13 +103,12 @@ recurring in other chapters. This also suggests the gold's single-chapter label
 | 57 | 23 | 6,9,24,36,37 (**23**) | retrieval miss → vague |
 | 77 | 33 | 2,4,5,10,28 (**33**) | retrieval miss → answered the wrong (earlier) part |
 | 82 | 1 | 2,29,33,34 (**1**) | retrieval miss → "context does not mention" |
-| 92 | 9 | 8,9,10,12,19 (none) | **empty answer** despite correct retrieval |
 | 95 | 16 | 2,12,15,19 (**16**) | retrieval miss → confident wrong answer from Ch15 |
 | 99 | 31,33 | 4,12,27,28,33 (**31**) | retrieval miss (Ch31) → "no information" |
 
 ### 3a. Vector retrieval misses (25, 49, 57, 77, 82, 95, 99)
 
-Seven of the eight are RAG retrieval misses: the gold chapter ranked outside the
+All seven are RAG retrieval misses: the gold chapter ranked outside the
 top-5, so the answerer never saw it. Two sub-flavors:
 
 - **Honest abstention** (25, 82, 99): RAG correctly says it cannot find the
@@ -127,15 +125,6 @@ segments (`23:1`, `23:2`) never breaking into the top-5. This is not random: the
 embedding for that content ranks ~6th or lower for this question phrasing.
 Exactly the case [`sweep_rag.py`](../PLAN.md) is meant to diagnose — would a larger
 `k` (or a recall-oriented threshold) recover Ch23?
-
-### 3b. Empty generation despite correct retrieval (Q92)
-
-Q92 retrieved the gold chapter (`9:2` at 0.623) — retrieval succeeded — but the
-answer field is the **empty string**. The judge even noted the candidate was
-blank. This is a pure generation failure (the answer model emitted nothing),
-unrelated to retrieval, and the mirror image of Q79's Phase 2 failure on the
-Extract side: both methods occasionally throw away good context at the
-answering step.
 
 ## 4. Both incorrect (Q40, Q43)
 
@@ -189,14 +178,14 @@ failure, the same two levers as §2/§3.
   real gold/grading issue (the chapter supports a both-motivations answer the
   gold and judge under-credit); Q43 is a shared retrieval miss.
 - **Extract's weakness is Phase 1 recall** — a `None` on a gold chapter is
-  unrecoverable (4 of its 5 unique losses). Lever: the Phase 1 extraction prompt
+  unrecoverable (3 of its 4 unique losses). Lever: the Phase 1 extraction prompt
   / `None` threshold. Plus one Phase 2 premise-rejection (Q79).
 - **RAG's weakness is top-5 retrieval recall** — the gold chapter ranking just
-  outside `k=5` (7 of its 8 unique losses), including a systematic miss on the
+  outside `k=5` (all 7 of its unique losses), including a systematic miss on the
   Ch23/Vibha cluster. Lever: `-k` / `-N` / a score threshold, the target of
   `sweep_rag.py`.
-- **Both share a rare answering failure** (Q79 Extract, Q92 RAG): good context
-  retrieved, then discarded or left blank by the answer model.
-- This is consistent with the aggregate result (`report.py`: Extract 87 vs RAG
-  81 correct): Extract's exhaustive reading beats vector top-5 on recall overall,
+- **One genuine answering failure remains** (Q79 Extract): good context
+  retrieved, then discarded when the answer model rejects the question's premise.
+- This is consistent with the aggregate result (`report.py`: Extract 88 vs RAG
+  82 correct): Extract's exhaustive reading beats vector top-5 on recall overall,
   but loses specific questions where Phase 1 misjudges relevance.

@@ -67,8 +67,20 @@ def extract_chapter(question: str, chapter: int, chapter_text: str, model: str, 
         f"If there is no relevant content, output exactly: None\n\n"
         f"Question: {question}"
     )
-    result = generate_with_schema([context, prompt], model=model, show_params=False)
-    return result.text.strip()
+    # An empty string means the model ignored the "output None" instruction;
+    # retry up to 3 times (4 attempts total) before keeping the empty result.
+    max_retries = 3
+    text = ""
+    for attempt in range(max_retries + 1):
+        result = generate_with_schema([context, prompt], model=model, show_params=False)
+        text = result.text.strip()
+        if text:
+            return text
+        if attempt < max_retries:
+            print(f"  empty extraction — retrying ({attempt + 1}/{max_retries})")
+        else:
+            print(f"  extraction still empty after {max_retries} retries — keeping as is")
+    return text
 
 
 def answer_question(question: str, context: str, model: str, lang_name: str) -> str:
@@ -79,8 +91,20 @@ def answer_question(question: str, context: str, model: str, lang_name: str) -> 
         f"Question: {question}\n\n"
         f"{context}"
     )
-    result = generate_with_schema([prompt], model=model, show_params=False)
-    return result.text.strip()
+    # The model occasionally returns an empty answer; retry up to 3 times
+    # (4 attempts total), then keep the empty result rather than loop forever.
+    max_retries = 3
+    answer = ""
+    for attempt in range(max_retries + 1):
+        result = generate_with_schema([prompt], model=model, show_params=False)
+        answer = result.text.strip()
+        if answer:
+            return answer
+        if attempt < max_retries:
+            print(f"  empty answer — retrying ({attempt + 1}/{max_retries})")
+        else:
+            print(f"  answer still empty after {max_retries} retries — keeping as is")
+    return answer
 
 
 def main():

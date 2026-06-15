@@ -290,10 +290,10 @@ sound.
 
 | method | correct | partial | incorrect | weighted | ch.recall | ch.prec |
 | --- | --- | --- | --- | --- | --- | --- |
-| RAG | 81 | 8 | 11 | 0.850 | 0.760 | 0.251 |
-| Extract | 87 | 6 | 7 | 0.900 | 0.850 | 0.655 |
+| RAG | 82 | 8 | 10 | 0.860 | 0.760 | 0.251 |
+| Extract | 88 | 6 | 6 | 0.910 | 0.860 | 0.645 |
 
-Extract leads on every axis. Its low-vs-RAG precision gap (0.655 vs 0.251)
+Extract leads on every axis. Its low-vs-RAG precision gap (0.645 vs 0.251)
 quantifies RAG's "broad but noisy" retrieval: RAG pulls extra chapters per
 question, while Extract only emits chapters it judged relevant.
 
