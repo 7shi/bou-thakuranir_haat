@@ -4,28 +4,49 @@
 
 Read this first to resume after a session reset.
 
-**Done** — see [README.md](README.md) for details.
+**Done (English, 50-question set)** — see [README.md](README.md) for details.
 
 - `build_index.py` — scene embedding index (`index-en.safetensors`)
-- `answer_rag.py` — Vector RAG; run with `google:gemma-4-31b-it` on 2026-06-14 → `results-en/rag.jsonl`
-- `answer_extract.py` — Per-chapter extraction; run with `google:gemma-4-31b-it` on 2026-06-15 → `results-en/extract.jsonl`
-- `judge.py` — LLM grading of answers vs. gold (judge model `ollama:qwen3.6`) → `results-en/judge-<stem>.jsonl`
-- `report.py` — RAG-vs-Extract comparison table (accuracy + chapter retrieval)
+- `answer_rag.py` — Vector RAG (`google:gemma-4-31b-it`) → `results-en/rag.jsonl`
+- `answer_extract.py` — Per-chapter extraction (`google:gemma-4-31b-it`) → `results-en/extract.jsonl`
+- `judge.py` — LLM grading vs. gold (judge `ollama:qwen3.6`) → `results-en/judge-<stem>.jsonl`
+- `report.py` — RAG-vs-Extract table; results + per-question case study in
+  [results-en/README.md](results-en/README.md). Headline: RAG and Extract tie at
+  39/50 correct; single-passage is solved (24/25 each), cross-reference is the
+  open problem (15/25 each); gold is sound.
 
-**Next step**
+**In progress: Japanese run.** `results-ja` is being generated in a separate
+session (started 2026-06-17). The pipeline is language-parameterized via
+`-l/--lang {en,ja}` (see [README.md](README.md#languages)) and driven by the
+[`Makefile`](Makefile) (`make LANG=ja report` or `make ja`); `all/ja-gemini.tsv`
+titles already exist.
 
-The pipeline is now language-parameterized via `-l/--lang {en,ja}` (see
-[README.md](README.md#languages)); the Japanese run reuses the same scripts with
-`-l ja`. Remaining: generate `all/ja-gemini.tsv` (`make titles`), then run the
-ja pipeline (`build_index` → `answer_*` → `judge` → `report`, all with `-l ja`).
+**Next step — after `results-ja` finishes, do this:**
 
-`sweep_rag.py` (optional follow-up below) — tune RAG's retrieval depth from the
-gold chapter labels.
+1. **Verify** the run: `uv run report.py -l ja` (or `make LANG=ja report`).
+   Confirm `results-ja/{rag,extract,judge-rag,judge-extract}.jsonl` are each 50
+   lines. Record the answer model actually used (Makefile leaves it at the script
+   default `ollama:gemma4:31b-it-qat` unless `-m` was passed).
+2. **Update [README.md](README.md) "Status"**: it currently describes the English
+   run only — add the Japanese run (answer + judge models) and its `report.py`
+   numbers.
+3. **Write `results-ja/README.md`**: a Japanese disagreement case study parallel
+   to [results-en/README.md](results-en/README.md) — reuse its structure (single
+   vs. cross framing, verdict-agreement matrix, gold spot-check, per-method
+   failure modes), but populate it from the `results-ja` data, not by translating
+   the English analysis (the specific questions that split will differ).
+4. **Cross-language comparison**: check whether EN and JA agree on the headline
+   findings — method tie, the single-vs-cross gap, gold soundness — and call out
+   any divergence (e.g. Japanese embeddings/answers behaving differently).
+
+After that, the optional retrieval follow-ups below (`sweep_rag.py`, then BM25
+hybrid) tune RAG using the gold chapter labels.
 
 ## Goal
 
-Compare two retrieval strategies for QA over the English translation of
-*Bou-Thakuranir Haat* (100 questions in `questions-en.jsonl`):
+Compare two retrieval strategies for QA over the translations of
+*Bou-Thakuranir Haat* (50 questions — 25 single-passage + 25 cross-reference —
+in `questions-<lang>.jsonl`, run per language via `-l/--lang {en,ja}`):
 
 1. **Vector RAG** — embed scenes, retrieve top-k, expand context, answer.
 2. **Per-Chapter Extraction** — for each chapter, extract relevant passages,
