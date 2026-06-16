@@ -64,7 +64,28 @@ re-embed the questions, and dump the **full** score vector (or a large-`k`
 slice) per question to a separate file — reuse `load_index` / `embed_query` /
 `top_k_search` from `answer_rag.py`.
 
+### BM25 hybrid retrieval (follow-up — complements `sweep_rag.py`)
+
+The 50-question English run ([results-en/README.md](results-en/README.md)) traces
+RAG's losses to top-5 **vector** recall: a gold chapter ranks just outside `k=5`,
+so the answerer never sees it. Several of those misses hinge on a rare proper noun
+or concrete object — the signet ring (Q31, gold 21–23 all missed), the Emperor of
+Delhi (Q49, Ch22 missed), Muktiyar Khan's assassination (Q27, Ch33 missed). Dense
+embeddings are weakest exactly here: a low-frequency named entity gets washed out
+in the embedding, whereas **BM25 matches it on the literal term**. Dense and sparse
+fail on orthogonal cases, so a hybrid (RRF or a weighted blend of cosine + BM25)
+should recover chapters dense retrieval drops.
+
+This is a different lever from `sweep_rag.py`: that script asks whether tuning
+`k`/`N`/a score threshold pulls the gold chapter into the existing dense ranking;
+hybrid retrieval instead adds a second retriever to surface chapters dense scoring
+never ranks. Run them together — sweep to characterize the dense recall curve,
+then measure how much BM25 closes the residual gap.
+
+Scope note: this only addresses the 6 RAG losses that are genuine retrieval
+misses. The 2 cases where RAG retrieved the gold chapter but still answered wrong
+(Q21, Q29) are answering failures that no retrieval change fixes.
+
 ## Out of Scope (for now)
 
 - Whole-text-in-context baselines with cloud models.
-- Hybrid retrieval (BM25 + vectors).
