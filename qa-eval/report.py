@@ -17,6 +17,10 @@ comparison table to the terminal (methods as rows). Two independent axes:
 
 RAG `expanded` entries are "chapter:segment" strings (take the part before ':');
 extract entries are bare "chapter" strings.
+
+Both axes are broken down by the gold `type` field (single / cross), with an
+`all` scope covering every question, so single-passage vs. cross-reference
+performance can be compared side by side.
 """
 
 import argparse
@@ -32,12 +36,14 @@ def load_jsonl(path: Path) -> list[dict]:
         return [json.loads(l) for l in f if l.strip()]
 
 
-def load_gold_chapters(path: Path) -> dict[int, set[int]]:
-    """1-origin line number = question_id → set of gold chapter numbers."""
-    gold: dict[int, set[int]] = {}
+def load_gold(path: Path) -> dict[int, dict]:
+    """1-origin line number = question_id → {"chapters": set[int], "type": str}."""
+    gold: dict[int, dict] = {}
     with open(path, encoding="utf-8") as f:
         for qid, line in enumerate((l for l in f if l.strip()), start=1):
-            gold[qid] = set(json.loads(line)["chapters"])
+            rec = json.loads(line)
+            gold[qid] = {"chapters": set(rec["chapters"]),
+                         "type": rec.get("type", "all")}
     return gold
 
 
@@ -50,24 +56,30 @@ def used_chapters(expanded: list[str]) -> set[int]:
     return {int(e.split(":")[0]) for e in expanded}
 
 
-def accuracy(judge: list[dict]) -> dict:
+def accuracy(judge: list[dict], subset: set[int] | None = None) -> dict:
     counts = {"correct": 0, "partial": 0, "incorrect": 0}
     for rec in judge:
+        if subset is not None and rec["question_id"] not in subset:
+            continue
         counts[rec["verdict"]] += 1
-    total = len(judge)
+    total = sum(counts.values())
     weighted = (counts["correct"] + 0.5 * counts["partial"]) / total if total else 0.0
     return {**counts, "total": total, "weighted": weighted}
 
 
-def retrieval(answers: list[dict], gold: dict[int, set[int]]) -> dict:
+def retrieval(answers: list[dict], gold: dict[int, dict],
+              subset: set[int] | None = None) -> dict:
     recall_sum = 0.0
     prec_sum = 0.0
-    n = len(answers)
+    n = 0
     for rec in answers:
-        g = gold[rec["question_id"]]
+        if subset is not None and rec["question_id"] not in subset:
+            continue
+        g = gold[rec["question_id"]]["chapters"]
         used = used_chapters(rec["expanded"])
         recall_sum += 1.0 if g <= used else 0.0
         prec_sum += (len(g & used) / len(used)) if used else 0.0
+        n += 1
     return {"recall": recall_sum / n if n else 0.0,
             "precision": prec_sum / n if n else 0.0}
 
@@ -84,26 +96,35 @@ def main():
     args.input = args.input or str(ROOT / f"questions-{args.lang}.jsonl")
     results = QA_EVAL / f"results-{args.lang}"
 
-    gold = load_gold_chapters(Path(args.input))
+    gold = load_gold(Path(args.input))
+
+    # Scopes: "all" plus each gold type, ordered by first appearance (single → cross).
+    types_present = sorted({g["type"] for g in gold.values()},
+                           key=lambda t: min(q for q, g in gold.items() if g["type"] == t))
+    scopes: list[tuple[str, set[int] | None]] = [("all", None)]
+    scopes += [(t, {qid for qid, g in gold.items() if g["type"] == t})
+               for t in types_present]
 
     methods = {
         "RAG": ("rag.jsonl", "judge-rag.jsonl"),
         "Extract": ("extract.jsonl", "judge-extract.jsonl"),
     }
 
-    rows = {}
-    for name, (ans_file, judge_file) in methods.items():
-        acc = accuracy(load_jsonl(results / judge_file))
-        ret = retrieval(load_jsonl(results / ans_file), gold)
-        rows[name] = {**acc, **ret}
+    loaded = {name: (load_jsonl(results / ans_file), load_jsonl(results / judge_file))
+              for name, (ans_file, judge_file) in methods.items()}
 
-    header = (f"{'method':<8} {'correct':>7} {'partial':>7} {'incorrect':>9} "
-              f"{'weighted':>9} {'ch.recall':>9} {'ch.prec':>8}")
+    header = (f"{'scope':<8} {'method':<8} {'n':>3} {'correct':>7} {'partial':>7} "
+              f"{'incorrect':>9} {'weighted':>9} {'ch.recall':>9} {'ch.prec':>8}")
     print(header)
     print("-" * len(header))
-    for name, r in rows.items():
-        print(f"{name:<8} {r['correct']:>7} {r['partial']:>7} {r['incorrect']:>9} "
-              f"{r['weighted']:>9.3f} {r['recall']:>9.3f} {r['precision']:>8.3f}")
+    for scope_name, subset in scopes:
+        for name, (answers, judge) in loaded.items():
+            acc = accuracy(judge, subset)
+            ret = retrieval(answers, gold, subset)
+            print(f"{scope_name:<8} {name:<8} {acc['total']:>3} "
+                  f"{acc['correct']:>7} {acc['partial']:>7} {acc['incorrect']:>9} "
+                  f"{acc['weighted']:>9.3f} {ret['recall']:>9.3f} {ret['precision']:>8.3f}")
+        print()
 
 
 if __name__ == "__main__":

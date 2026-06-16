@@ -31,6 +31,39 @@ pipeline with `-l ja`.
 Optional follow-up: `sweep_rag.py` (tune RAG's `-k`/`-N` from the gold chapter
 labels). See [PLAN.md](PLAN.md).
 
+## Pipeline (`Makefile`)
+
+The [`Makefile`](Makefile) wires the five scripts into one dependency chain so
+the whole evaluation runs with a single command. Models are left to each
+script's default. Run it from this directory:
+
+```sh
+make            # full English pipeline (LANG=en, the default goal)
+make ja         # full Japanese pipeline
+make all        # both languages
+make report     # build whatever is missing, then print the table
+make LANG=ja rag judge   # individual steps for one language
+make clean      # remove generated answers/judgements (keeps the index)
+```
+
+Each step's **output file is the real target**, with a `.PHONY` alias for
+convenience:
+
+| Alias | Output target | Depends on |
+| --- | --- | --- |
+| `index` | `index-<lang>.safetensors` | scenes, titles TSV |
+| `rag` | `results-<lang>/rag.jsonl` | index, questions |
+| `extract-parts` | `results-<lang>/extract-{1..4}.jsonl` | scenes, questions |
+| `extract` | `results-<lang>/extract.jsonl` | the four part files, questions |
+| `judge` | `results-<lang>/judge-{rag,extract}.jsonl` | the answer files, questions |
+| `report` | (terminal table only) | `judge` |
+
+Because the targets are real files, Make skips any step whose output is already
+up to date and rebuilds only what is missing or stale — re-running `make` after
+an interrupted run resumes from where it stopped (each script is also internally
+resume-safe). Phase 1 of extraction uses a pattern rule (`extract-%.jsonl`, one
+chapter group per part), so the parts can be built in parallel with `make -j`.
+
 ## `build_index.py`
 
 Embeds every scene of the English translation and stores the vectors in a
@@ -86,7 +119,7 @@ index and asks an LLM to answer based solely on that context.
 4. Build a context block with each scene labeled `[Chapter N, Scene M — Title]`.
 5. Prompt the answer model to answer in English using only the provided context.
 
-- **Input**: `questions-<lang>.jsonl` (100 questions, ROOT-level)
+- **Input**: `questions-<lang>.jsonl` (50 questions, ROOT-level)
 - **Index**: `index-<lang>.safetensors` (built by `build_index.py`)
 - **Output**: `results-<lang>/rag.jsonl` — one record per question:
   - `question_id` — 1-origin line number in the input file
@@ -122,7 +155,7 @@ content and synthesizes an answer from the collected excerpts.
 
 **Algorithm**
 
-Phase 1 — Extraction (37 chapters × 100 questions = 3,700 calls):
+Phase 1 — Extraction (37 chapters × 50 questions = 1,850 calls):
 
 1. Outer loop iterates over chapters; inner loop iterates over questions. This
    keeps the same chapter text in the KV cache across all questions for that
@@ -131,12 +164,12 @@ Phase 1 — Extraction (37 chapters × 100 questions = 3,700 calls):
    the model to summarize relevant content, or output `None` if there is none.
 3. Write the result immediately to the checkpoint file and flush.
 
-Phase 2 — Answer (100 calls):
+Phase 2 — Answer (50 calls):
 
 4. Collect all non-`None`, non-empty summaries for the question, labeled `[Chapter N]`.
 5. Prompt the model to answer in English using only those excerpts.
 
-- **Input**: `questions-<lang>.jsonl` (100 questions, ROOT-level) and
+- **Input**: `questions-<lang>.jsonl` (50 questions, ROOT-level) and
   `../all/<lang>-gemini.jsonl` (scenes)
 - **Output**: `results-<lang>/extract.jsonl` — one record per question:
   - `question_id` — 1-origin line number in the input file
@@ -155,7 +188,7 @@ in Phase 1.
 
 Its main failure mode is a Phase 1 false negative: a wrong `None` drops a gold
 chapter unrecoverably, so Phase 2 never sees it. See
-[results-en/README.md](results-en/README.md#2-rag-correct--extract-incorrect-5-questions)
+[results-en/README.md](results-en/README.md#2-rag-correct--extract-not-correct-8-questions)
 for worked examples and the RAG-vs-Extract disagreement analysis.
 
 ### Usage
@@ -267,7 +300,7 @@ uv run qa-eval/judge.py qa-eval/results-en/rag.jsonl -m ollama:qwen3:8b
 Aggregates the existing result files into one comparison table on the terminal.
 Pure mechanical aggregation — no LLM calls, no output file.
 
-**Two independent axes**, methods (RAG / Extract) as rows:
+**Two independent axes**, with one (method, scope) row each:
 
 1. **Answer accuracy** (from `results-<lang>/judge-<method>.jsonl`): raw `correct` /
    `partial` / `incorrect` counts plus a weighted score =
@@ -276,29 +309,43 @@ Pure mechanical aggregation — no LLM calls, no output file.
 2. **Chapter retrieval** (mechanical, each method's `expanded` vs the gold
    `chapters` in `questions-<lang>.jsonl`):
    - **recall** — per-question complete coverage: 1 if `gold ⊆ used` else 0,
-     meaned over the 100 questions.
+     meaned over the questions in scope.
    - **precision** — mean of `|gold ∩ used| / |used|` per question.
 
    RAG `expanded` entries are `"chapter:segment"` (the part before `:` is the
    chapter); Extract entries are bare `"chapter"` strings.
 
+Both axes are broken down by the gold `type` field: the `all` scope covers every
+question, then one scope per type (`single` / `cross`), so single-passage vs.
+cross-reference performance can be read side by side. The `n` column is the
+number of questions in each scope.
+
 Read the accuracy axis alongside the convergent-validity caveat above: the gold
 is the Gemini full-text baseline, so **Extract ≥ RAG** is evidence the gold is
 sound.
 
-**Current run** (English; answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`):
+**Output format** (one row per method × scope; `n` is the question count). The
+English run (answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`):
 
-| method | correct | partial | incorrect | weighted | ch.recall | ch.prec |
-| --- | --- | --- | --- | --- | --- | --- |
-| RAG | 82 | 8 | 10 | 0.860 | 0.760 | 0.251 |
-| Extract | 88 | 6 | 6 | 0.910 | 0.860 | 0.645 |
+```
+scope    method     n correct partial incorrect  weighted ch.recall  ch.prec
+----------------------------------------------------------------------------
+all      RAG       50      39       5         6     0.830     0.720    0.337
+all      Extract   50      39       5         6     0.830     0.740    0.843
+single   RAG       25      24       0         1     0.960     1.000    0.263
+single   Extract   25      24       0         1     0.960     1.000    1.000
+cross    RAG       25      15       5         5     0.700     0.440    0.411
+cross    Extract   25      15       5         5     0.700     0.480    0.686
+```
 
-Extract leads on every axis. Its low-vs-RAG precision gap (0.645 vs 0.251)
-quantifies RAG's "broad but noisy" retrieval: RAG pulls extra chapters per
-question, while Extract only emits chapters it judged relevant.
-
-For a per-question breakdown of where the two methods disagree (and why), see the
-[disagreement case study](results-en/README.md).
+The two methods tie on accuracy (39/50 correct, weighted 0.830) yet split sharply
+on the **single** vs. **cross** axis: both score 24/25 on single-passage questions
+but only 15/25 on cross-reference ones, so the cross set is where retrieval and
+synthesis actually get tested. Extract matches or beats RAG on chapter recall
+(0.740 vs 0.720) at far higher precision (it keeps only the chapters it judges
+relevant), so **Extract ≥ RAG** holds — convergent evidence the gold is sound. The
+per-question [disagreement case study](results-en/README.md) walks through every
+split verdict.
 
 ### Usage
 
