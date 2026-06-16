@@ -1,77 +1,104 @@
-# Question Set Deduplication & Cross-Lingual Alignment Plan
-
-## Background
-
-The evaluation question sets (`questions-en.jsonl`, `questions-ja.jsonl`, 100 each)
-were generated **independently per language** by `scripts/create_rag_questions.py`.
-This means the English and Japanese sets are not parallel, and within each language
-many questions are semantic duplicates (they cover the same central plot events,
-e.g. Udayaditya's prison escape, Pratapaditya's decision to kill Basanta Ray).
-
-Duplicate detection is done by `scripts/check_duplicates.py`:
-- Embed every question (`embeddinggemma`, no prefix), sort others by cosine similarity.
-- Every question acts as a **seed**; judge candidates top-down with an LLM
-  (`ollama:gemma4:31b-it-qat`, plain `same`/`different`), stop after `--stop` (default 5)
-  consecutive `different`. Judgments are cached symmetrically in a TSV
-  (`q1<TAB>q2<TAB>same<TAB>selected`, 1-based, y/n) and reused forward or reverse.
-- Aggregation phase: union-find over all `same` judgments → final groups.
-- Per group, the user is prompted (`input()`) for which question to keep; the choice
-  is stored in the `selected` column.
-
-### Result so far (Japanese)
-```
-13 group(s) found.
-Total: 100  Duplicates removed: 60  Unique: 40
-```
-Less than half the Japanese questions are semantically distinct.
+# RAG Question Set Rebuild Plan (anchor-based)
 
 ## Goal
 
-Build a single set of questions that is **identical across both languages**, so that
-evaluation differences reflect language rather than differing question content.
+Rebuild the evaluation question sets so they are **structurally non-duplicating**
+and **detail-oriented** (good for RAG: answerable only by closely reading specific
+passages, not by recalling the broad plot). Target **50 questions**, defined in
+English first, then translated to Japanese so both languages ask the same things.
+
+## Why a new algorithm
+
+The previous generator (`scripts/create_rag_questions.py`) uploaded the whole text
+and asked for N questions in independent batches of 10. With no memory across
+batches, every batch gravitated to the same salient events, so the 100-question
+sets were heavily duplicated (English: only ~36 unique by `check_duplicates.py`).
+
+The fix is to **anchor each question to a specific passage** instead of generating
+freely over the whole text. Distinct anchors give coverage and avoid duplication;
+grounding each question in the actual scene text (not a summary) keeps the
+questions detail-level ("nitpicky").
+
+## Data sources (all aligned by chapter / segment)
+
+| Use | File | Content |
+|---|---|---|
+| Anchor design (overview) | `all/en-gemini-summary.md` | 82 scene summaries — used only to *select and link* anchors |
+| Scene titles | `all/en-gemini.tsv` | 82 scene titles (`chapter`, `segment`, `title`) |
+| Question grounding (detail) | `all/en-gemini.jsonl` | 82 scene **full texts** in `response.translation` |
+| Japanese parallel text | `all/ja-gemini.jsonl`, `all/ja-gemini.tsv` | same structure, for reference |
+| Transliteration dictionary | `proper_nouns/all.tsv` | proper-noun consistency for EN↔JA |
+
+Summaries are only for the high-level *design* step. Question text must be grounded
+in the full scene text, never the summary.
 
 ## Pipeline
 
-1. **English grouping** — run `check_duplicates.py -l en`, dedup the English set the
-   same way as Japanese. *(STATUS: in progress — waiting on this result.)*
+1. **Anchor design** — feed the 82 summaries to the LLM in one pass; emit a coverage
+   plan of **50 anchors**, split:
+   - **(a) Single-passage — 25**: one scene each, chosen to cover all 37 chapters by
+     importance + coverage. Question must be answerable only by close reading of that
+     one passage.
+   - **(b) Cross-reference — 25**: 2–3 separated scenes each (command↔execution,
+     foreshadow↔payoff, consistency checks). Question must require synthesizing the
+     linked passages.
+   - Each anchor records its `chapter`/`segment` references and the question type.
 
-2. **Cross-lingual grouping** — translate `questions-ja.jsonl` into English, merge with
-   `questions-en.jsonl` into one file, and run grouping on the combined set. Groups that
-   span both halves reveal questions that exist in both languages. Provenance
-   (EN-i / JA-i origin per merged line) must be tracked so originals can be mapped back.
+2. **Question generation** — for each anchor, pass the actual scene **full text(s)**
+   (from `all/en-gemini.jsonl`) plus chapter numbers, and generate one question.
+   Output schema = existing `RagQuestion` (`question`, `answer`, `chapters`,
+   `rationale`). Model: Gemini via `llm7shi`.
 
-3. **Identify the truly-unique set** — what remains after cross-lingual dedup is the set
-   of genuinely distinct questions. Confirm the count.
+3. **Dedup validation** — run `scripts/check_duplicates.py -l en` on the 50 results
+   as a **QA check** (expect ≈0 duplicate groups), confirming the anchor approach
+   worked. Not a removal step.
 
-4. **Round + align** — adjust to a round number, define the canonical set **in English**
-   (a group's English representative; if the representative is JA-origin, use its English
-   translation), then **translate English → Japanese** so both languages ask the exact
-   same questions. This makes language differences measurable.
+4. **EN→JA translation** — new `scripts/translate_questions.py`: translate all fields
+   (`question`, `answer`, `rationale`) with Gemini + `proper_nouns/all.tsv`;
+   `chapters` is language-independent and copied as-is. Mirror the proper-noun
+   handling in `scripts/translate_segments.py`.
 
-## To build
+5. **Assemble** — write the final `questions-en.jsonl` / `questions-ja.jsonl`
+   (50 each, parallel), then merge the branch.
 
-- **`scripts/translate_questions.py`** — translate a questions JSONL between languages.
-  - For step 2: only the `question` field is needed (grouping ignores other fields).
-  - For step 4: translate all fields (`question`, `answer`, `chapters`, `rationale`;
-    `chapters` is language-independent and copied as-is).
-  - Reuse `llm7shi` (`generate_with_schema` / `config_from_schema`) like
-    `scripts/create_rag_questions.py` and `scripts/translate_segments.py`.
-  - Use the proper-nouns dictionary under `proper_nouns/` for transliteration
-    consistency, as `translate_segments.py` does.
-  - **OPEN: which translation model** (project's main translations use Gemini; the dedup
-    judge uses ollama gemma — confirm with user).
+## Parameters
 
-- **Merge helper** for step 2 (200-line combined JSONL with provenance), and a
-  **final assembly** for step 4 (pick representatives, emit the parallel EN/JA sets).
+- Total: **50** — single-passage **25** + cross-reference **25**.
+- Generation / translation model: **Gemini** (via `llm7shi`).
+- Dedup judge (validation only): `ollama:gemma4:31b-it-qat` (default in
+  `check_duplicates.py`).
+
+## Status
+
+- Branch `rebuild-questions` created off `main`.
+- Committed (`ba20ae0`): `check_duplicates.py` + `questions-en-cache.tsv` +
+  `questions-ja-cache.tsv`. Duplicate **judgment** phase is complete for both
+  languages; the English **keep-selection** is intentionally **deferred** because
+  the sets are being regenerated, not pruned.
+- The current `questions-en.jsonl` / `questions-ja.jsonl` (100 each, old generator)
+  are the **replace targets**.
+
+## Next actions (resume here)
+
+1. Build the **anchor-design** script (step 1) → produces a 50-anchor plan
+   (25 single + 25 cross), with chapter/segment refs and question type.
+2. Build the **anchor-based generation** (step 2) → 50 English questions grounded
+   in scene full text.
+3. Run **dedup validation** (step 3, user-run since `check_duplicates.py` is
+   interactive in its keep phase, but validation needs no keep input).
+4. Build **`translate_questions.py`** (step 4) and produce the Japanese set.
+5. Replace `questions-en.jsonl` / `questions-ja.jsonl`, merge.
 
 ## Division of labour
 
-`check_duplicates.py` is interactive (the keep phase uses `input()`), so the **user runs
-the grouping steps**; the assistant builds the translation/merge/assembly tooling.
+`check_duplicates.py`'s keep phase uses `input()`, so interactive grouping is
+**user-run**; the assistant builds the generation / translation tooling.
 
 ## Key files
-- `scripts/check_duplicates.py` — duplicate detection (done)
-- `scripts/create_rag_questions.py` — original question generation (reference)
+
+- `scripts/check_duplicates.py` — duplicate detection / validation (done)
+- `scripts/create_rag_questions.py` — old whole-text generator (reference)
 - `scripts/translate_segments.py` — chapter translation w/ proper nouns (reference)
-- `questions-en.jsonl`, `questions-ja.jsonl` — the two question sets
-- `questions-ja-cache.tsv` — Japanese grouping cache (done)
+- `all/en-gemini.jsonl`, `all/en-gemini.tsv`, `all/en-gemini-summary.md` — anchors + text
+- `questions-en.jsonl`, `questions-ja.jsonl` — sets to rebuild
+- `questions-en-cache.tsv`, `questions-ja-cache.tsv` — dedup judgment caches
