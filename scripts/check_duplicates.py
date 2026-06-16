@@ -9,15 +9,14 @@ Judgment phase — every question acts as a seed, independent of grouping:
 
 Aggregation phase:
   4. Union-find over all "same" judgments builds the final duplicate groups.
-  5. For each group, ask the user which question to keep.
-  6. Report the effective unique question count.
+  5. Report the groups and the effective unique question count.
 
 Because every question is a seed and judgments are cached symmetrically, a question
 missed by its natural seed is still caught when a sibling acts as seed; the final
 union-find merges any overlapping chains into one group.
 
-Cache format: TSV with header q1<TAB>q2<TAB>same<TAB>selected (1-based, y/n).
-Overwritten after each seed's judgments complete and after each keep decision.
+Cache format: TSV with header q1<TAB>q2<TAB>same (1-based, y/n).
+Overwritten after each seed's judgments complete.
 """
 
 import argparse
@@ -83,9 +82,9 @@ def judge_duplicate(q1: str, q2: str, model: str) -> str:
 
 def write_tsv(path: Path, records: list[dict]) -> None:
     with open(path, "w", encoding="utf-8", newline="") as f:
-        f.write("q1\tq2\tsame\tselected\n")
+        f.write("q1\tq2\tsame\n")
         for r in records:
-            f.write(f"{r['q1']}\t{r['q2']}\t{'y' if r['same'] else 'n'}\t{'y' if r['selected'] else 'n'}\n")
+            f.write(f"{r['q1']}\t{r['q2']}\t{'y' if r['same'] else 'n'}\n")
 
 
 def load_tsv(path: Path) -> list[dict]:
@@ -94,14 +93,14 @@ def load_tsv(path: Path) -> list[dict]:
         next(f)
         for line in f:
             if line.strip():
-                q1, q2, same, selected = line.rstrip("\n").split("\t")
-                records.append({"q1": int(q1), "q2": int(q2), "same": same == "y", "selected": selected == "y"})
+                q1, q2, same = line.rstrip("\n").split("\t")
+                records.append({"q1": int(q1), "q2": int(q2), "same": same == "y"})
     return records
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-l", "--lang", default="ja", choices=["en", "ja"],
+    parser.add_argument("-l", "--lang", default="en", choices=["en", "ja"],
                         help="evaluation language (selects default questions file)")
     parser.add_argument("-i", "--input", default=None, help="questions JSONL (default: questions-<lang>.jsonl)")
     parser.add_argument("-m", "--model", default="ollama:gemma4:31b-it-qat", help="llm7shi model string")
@@ -166,7 +165,7 @@ def main():
                     header_printed = True
                 verdict = judge_duplicate(questions[qid], questions[cand_qid], args.model)
                 is_same = verdict == "same"
-                new_recs.append({"q1": qid + 1, "q2": cand_qid + 1, "same": is_same, "selected": False})
+                new_recs.append({"q1": qid + 1, "q2": cand_qid + 1, "same": is_same})
                 pair_cache[(qid, cand_qid)] = is_same
                 cached_tag = ""
 
@@ -195,14 +194,6 @@ def main():
             uf.union(r["q1"] - 1, r["q2"] - 1)
     final_groups = uf.groups(N)
 
-    # Build keep_cache from records: group_key → kept_qid (0-based)
-    keep_cache: dict[tuple[int, ...], int] = {}
-    for r in records:
-        if r["same"] and r["selected"]:
-            root = uf.find(r["q1"] - 1)
-            group = [i for i in range(N) if uf.find(i) == root]
-            keep_cache[tuple(sorted(group))] = r["q2"] - 1
-
     print(f"\n{'='*60}")
     if not final_groups:
         print("No duplicate groups found.")
@@ -214,29 +205,6 @@ def main():
         print(f"\nGroup {i}: {ids}")
         for j, q in enumerate(group, start=1):
             print(f"  {j}. Q{q + 1}: {questions[q]}")
-
-        group_key = tuple(sorted(group))
-        cached_kept = keep_cache.get(group_key)
-        default_choice = (group.index(cached_kept) + 1) if cached_kept is not None else 1
-
-        while True:
-            raw = input(f"  Keep [1-{len(group)}, default {default_choice}]: ").strip()
-            if raw == "":
-                choice = default_choice
-                break
-            if raw.isdigit() and 1 <= int(raw) <= len(group):
-                choice = int(raw)
-                break
-            print(f"  Please enter a number between 1 and {len(group)}.")
-
-        kept = group[choice - 1]
-        keep_cache[group_key] = kept
-        group_set = set(group)
-        for r in records:
-            if r["same"] and (r["q1"] - 1) in group_set and (r["q2"] - 1) in group_set:
-                r["selected"] = (r["q2"] - 1 == kept)
-        write_tsv(cache_path, records)
-        print(f"  → Keep: Q{kept + 1}")
 
     duplicate_count = sum(len(g) - 1 for g in final_groups)
     unique_count = N - duplicate_count

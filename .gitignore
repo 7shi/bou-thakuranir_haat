@@ -12,5 +12,6 @@ wheels/
 # Images
 images/
 
-# QA evaluation artifacts
+# Generated files
+questions-en-cache.tsv
 qa-eval/index-*.safetensors
