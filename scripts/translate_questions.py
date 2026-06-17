@@ -3,8 +3,8 @@ Translate the English RAG question set into Japanese.
 
 Translates the ``question``, ``answer`` and ``rationale`` fields of each record in
 ``questions-en.jsonl`` using Gemini, keeping proper nouns consistent with
-``proper_nouns/all.tsv``. ``chapters`` (and ``anchor_id``) are language-independent
-and copied as-is so the two files stay parallel.
+``proper_nouns/all.tsv``. ``anchor_id``, ``type`` and ``chapters`` are
+language-independent and copied as-is so the two files stay parallel.
 
 Resumable: records whose ``anchor_id`` (or line index) is already present in the
 output are skipped.
@@ -171,7 +171,7 @@ def main():
         if not result:
             print("  failed")
             continue
-        out = {k: record[k] for k in ("anchor_id",) if k in record}
+        out = {k: record[k] for k in ("anchor_id", "type") if k in record}
         out["question"] = result["question"]
         out["answer"] = result["answer"]
         out["chapters"] = record["chapters"]

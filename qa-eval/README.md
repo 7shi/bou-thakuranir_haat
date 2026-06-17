@@ -7,6 +7,36 @@ design.
 
 The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 
+## Results
+
+50 questions per language (25 single-passage + 25 cross-reference), judged
+against a Gemini full-text gold standard with `ollama:qwen3.6`. `correct` counts
+(weighted = `(correct + 0.5·partial) / n` for the `all` scope):
+
+| Scope | Method | English | Japanese |
+| --- | --- | --- | --- |
+| **all** | RAG | 39/50 (0.830) | 38/50 (0.810) |
+| **all** | Extract | 39/50 (0.830) | 40/50 (0.850) |
+| single | RAG | 24/25 | 24/25 |
+| single | Extract | 24/25 | 25/25 |
+| cross | RAG | 15/25 | 14/25 |
+| cross | Extract | 15/25 | 15/25 |
+
+Both languages use the same answer model `google:gemma-4-31b-it`, the same
+`embeddinggemma` index, and the same judge, so the comparison isolates the effect
+of language alone.
+
+The headline holds in both languages: **single-passage QA is solved** (~24–25/25),
+**cross-reference is the open problem** (14–15/25), and **Extract ≥ RAG** —
+convergent evidence the gold is sound, since Extract reads every chapter
+independently. With the model held fixed, the **language makes almost no
+difference to accuracy**: totals match within one or two questions (English ties
+39/39, Japanese has Extract one ahead at 40/38). The one structural difference is
+that more questions are missed by *both* methods in Japanese (7 vs. 3) — a
+redistribution at near-constant total accuracy, reflecting translation and
+question specifics rather than a capability gap. Per-question disagreement case
+studies: [English](results-en/README.md) · [Japanese](results-ja/README.md).
+
 ## Languages
 
 Every script takes `-l/--lang {en,ja}` (default `en`), which selects the
@@ -18,9 +48,8 @@ options (`-i`/`-o`/`--index`/`--scenes`/`-t`) still override these defaults.
 
 ## Status
 
-Answering and judging complete for **English** (`google:gemma-4-31b-it`
-answers, judged with `ollama:qwen3.6`). The **Japanese** path runs the same
-pipeline with `-l ja`.
+Answering and judging complete for both languages (see [Results](#results)
+above). The five scripts form the pipeline:
 
 - `build_index.py` — scene embedding index → `index-<lang>.safetensors`
 - `answer_rag.py` — Vector RAG answering → `results-<lang>/rag.jsonl`

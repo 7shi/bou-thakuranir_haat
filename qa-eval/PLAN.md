@@ -4,43 +4,27 @@
 
 Read this first to resume after a session reset.
 
-**Done (English, 50-question set)** — see [README.md](README.md) for details.
+**Done (both languages, 50-question set)** — see [README.md](README.md) for details.
 
-- `build_index.py` — scene embedding index (`index-en.safetensors`)
-- `answer_rag.py` — Vector RAG (`google:gemma-4-31b-it`) → `results-en/rag.jsonl`
-- `answer_extract.py` — Per-chapter extraction (`google:gemma-4-31b-it`) → `results-en/extract.jsonl`
-- `judge.py` — LLM grading vs. gold (judge `ollama:qwen3.6`) → `results-en/judge-<stem>.jsonl`
-- `report.py` — RAG-vs-Extract table; results + per-question case study in
-  [results-en/README.md](results-en/README.md). Headline: RAG and Extract tie at
-  39/50 correct; single-passage is solved (24/25 each), cross-reference is the
-  open problem (15/25 each); gold is sound.
-
-**In progress: Japanese run.** `results-ja` is being generated in a separate
-session (started 2026-06-17). The pipeline is language-parameterized via
-`-l/--lang {en,ja}` (see [README.md](README.md#languages)) and driven by the
-[`Makefile`](Makefile) (`make LANG=ja report` or `make ja`); `all/ja-gemini.tsv`
-titles already exist.
-
-**Next step — after `results-ja` finishes, do this:**
-
-1. **Verify** the run: `uv run report.py -l ja` (or `make LANG=ja report`).
-   Confirm `results-ja/{rag,extract,judge-rag,judge-extract}.jsonl` are each 50
-   lines. Record the answer model actually used (Makefile leaves it at the script
-   default `ollama:gemma4:31b-it-qat` unless `-m` was passed).
-2. **Update [README.md](README.md) "Status"**: it currently describes the English
-   run only — add the Japanese run (answer + judge models) and its `report.py`
-   numbers.
-3. **Write `results-ja/README.md`**: a Japanese disagreement case study parallel
-   to [results-en/README.md](results-en/README.md) — reuse its structure (single
-   vs. cross framing, verdict-agreement matrix, gold spot-check, per-method
-   failure modes), but populate it from the `results-ja` data, not by translating
-   the English analysis (the specific questions that split will differ).
-4. **Cross-language comparison**: check whether EN and JA agree on the headline
-   findings — method tie, the single-vs-cross gap, gold soundness — and call out
-   any divergence (e.g. Japanese embeddings/answers behaving differently).
+- `build_index.py` — scene embedding index (`index-<lang>.safetensors`)
+- `answer_rag.py` — Vector RAG → `results-<lang>/rag.jsonl`
+  (answers `google:gemma-4-31b-it` for both languages)
+- `answer_extract.py` — Per-chapter extraction → `results-<lang>/extract.jsonl`
+  (same answer model)
+- `judge.py` — LLM grading vs. gold (judge `ollama:qwen3.6` for both) → `results-<lang>/judge-<stem>.jsonl`
+- `report.py` — RAG-vs-Extract table; per-question case studies in
+  [results-en/README.md](results-en/README.md) and [results-ja/README.md](results-ja/README.md).
+  - **EN**: RAG and Extract tie at 39/50; single-passage solved (24/25 each),
+    cross-reference the open problem (15/25 each); gold sound.
+  - **JA**: Extract 40/50, RAG 38/50; single 25/25 and 24/25, cross 15/25 and
+    14/25. Headline findings match EN; with the same answer model, language makes
+    almost no difference to accuracy (the only divergence is a larger
+    both-methods-wrong set, 7 vs. 3, at near-constant total accuracy).
+    `questions-ja.jsonl` gained the `type` field (single/cross) so `report.py
+    -l ja` breaks scope down.
 
 After that, the optional retrieval follow-ups below (`sweep_rag.py`, then BM25
-hybrid) tune RAG using the gold chapter labels.
+hybrid) tune RAG using the gold chapter labels — these are the only remaining work.
 
 ## Goal
 
