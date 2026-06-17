@@ -2,8 +2,8 @@
 
 Tools for measuring the QA accuracy of local LLMs on the translations of
 *Bou-Thakuranir Haat*, comparing **Vector RAG** against **Per-Chapter
-Extraction** as retrieval strategies. See [PLAN.md](PLAN.md) for the full
-design.
+Extraction** as retrieval strategies. See [PLAN.md](PLAN.md) for the goal and
+remaining work.
 
 The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 
@@ -56,9 +56,8 @@ above). The five scripts form the pipeline:
 - `answer_extract.py` — Per-chapter extraction answering → `results-<lang>/extract.jsonl`
 - `judge.py` — LLM grading of answers vs. gold → `results-<lang>/judge-<stem>.jsonl`
 - `report.py` — accuracy + chapter retrieval comparison (terminal table)
-
-Optional follow-up: `sweep_rag.py` (tune RAG's `-k`/`-N` from the gold chapter
-labels). See [PLAN.md](PLAN.md).
+- `sweep_rag.py` — retrieval-depth / threshold sweep vs. gold chapters
+  (terminal tables only; no LLM, independent of the pipeline)
 
 ## Pipeline (`Makefile`)
 
@@ -85,6 +84,7 @@ convenience:
 | `extract-parts` | `results-<lang>/extract-{1..4}.jsonl` | scenes, questions |
 | `extract` | `results-<lang>/extract.jsonl` | the four part files, questions |
 | `judge` | `results-<lang>/judge-{rag,extract}.jsonl` | the answer files, questions |
+| `sweep` | (terminal tables only) | index, questions |
 | `report` | (terminal table only) | `judge` |
 
 Because the targets are real files, Make skips any step whose output is already
@@ -387,6 +387,95 @@ uv run qa-eval/report.py -l ja    # Japanese (results-ja)
 | --- | --- | --- |
 | `-l`, `--lang` | `en` | evaluation language (`en`/`ja`); selects the gold questions and `results-<lang>` dir |
 | `-i`, `--input` | `../questions-<lang>.jsonl` | questions JSONL (gold standard) |
+
+## `sweep_rag.py`
+
+A standalone retrieval-tuning script, independent of `report.py` (it neither
+feeds nor reads the accuracy table). It uses the gold `chapters` as a relevance
+label to *tune* RAG's retrieval depth, asking: **at what similarity score / rank
+do the gold chapters actually appear?** This is the lever the
+[case study](results-en/README.md#3-extract-correct--rag-not-correct-8-questions)
+points to for RAG's 6 retrieval-miss losses.
+
+Pure retrieval analysis — no LLM, no answer synthesis, no output file (like
+`report.py`, it just prints tables). It re-embeds each question and scores it
+against the **full** index (all scenes, not just top-5, which is what
+`rag.jsonl` stores), so the whole score distribution is available for the
+threshold sweep. Reuses `load_index` / `embed_query` from `answer_rag.py`.
+
+**Algorithm**
+
+1. For each question: embed, score every scene by cosine, argsort descending.
+2. Record the full ranking plus the rank at which each gold chapter first
+   appears (`gold_first_rank`, `gold_chapter_best_rank`).
+3. Print three tables (see below).
+
+**Output (terminal only)**
+
+1. **Chapter coverage@k** — fraction of gold chapters with a scene in the
+   top-k, meaned over questions, for k = 1, 2, 3, 4, 5, 7, 10, 15, 20, 30, 82.
+   Broken down by `type`. Shows where coverage saturates — i.e. whether the
+   current `k=5` is generous or tight. A tie-back line also prints the
+   report.py strict-subset recall (`gold ⊆ used`) and precision at k=5, so the
+   two scripts can be cross-checked.
+2. **Cosine threshold sweep** — pooling every (question, scene) pair with
+   `scene.chapter ∈ gold` as the positive class, sweep τ ∈ [0.2, 0.8] and
+   report precision / recall / F1. The best `τ*` (max F1) shows whether a
+   single global cosine cutoff can separate relevant from irrelevant scenes —
+   and at what cost.
+3. **Per-question ranks + separation gap** — for each question, the first gold
+   rank, the best gold-chapter score, and the "gap" between that score and the
+   best non-gold score ranked below it. `gap > 0` means a threshold could
+   isolate the gold hit; `gap ≤ 0` means entangled. Questions whose first gold
+   hit lands outside k=5 are flagged (`*`) — they are the retrieval misses the
+   case study attributes RAG's losses to.
+
+### Findings
+
+English run (Japanese is within ±0.02 on every cell). The sweep reproduces
+report.py's strict-recall at k=5 exactly (0.720 / 1.000 / 0.440 for all /
+single / cross) and pins down *why* the cross set is the frontier:
+
+- **k=5 is tight for cross-reference.** Single-passage coverage hits 1.00 at
+  k=4, but cross only reaches 0.71 at k=5, 0.86 at k=10, 0.93 at k=15. Bumping
+  `-k` toward ~10–15 would surface most cross gold chapters the current setting
+  drops.
+- **A global cosine threshold is a poor lever.** Pooling all (question, scene)
+  pairs with `scene.chapter ∈ gold` as the positive class, best `τ*≈0.50` (F1
+  only 0.38, precision 0.36, recall 0.41). Dense cosine barely separates
+  gold-chapter scenes from topically-similar non-gold ones — so a score cutoff
+  is not useful here; **rank (k) is.** This is the motivation for the BM25
+  hybrid in [PLAN.md](PLAN.md).
+- **Per-question gaps confirm the case study.** The 6 documented RAG retrieval
+  misses (Q27, 28, 31, 36, 43, 45; plus Q49 with Ch22 at rank 40) all show
+  their gold chapters ranked >5 with separation gaps of just +0.00 to +0.07 —
+  dense scores essentially tie them with neighboring non-gold scenes.
+
+### Note on the two "recall" notions
+
+`report.py` uses **strict subset recall** (1 iff `gold ⊆ used`, else 0) — a
+per-question pass/fail. `sweep_rag.py` instead reports **partial coverage** —
+the fraction of gold chapters represented in the top-k — because the goal is the
+coverage-vs-k *curve*. The two agree only at coverage = 1.0; a question can have
+coverage 0.5 (half its gold chapters surfaced) and still score 0 on the strict
+metric. This is why k=5 shows coverage 0.71 but strict recall 0.44 on the cross
+set.
+
+### Usage
+
+```sh
+uv run qa-eval/sweep_rag.py            # English (terminal tables only)
+uv run qa-eval/sweep_rag.py -l ja      # Japanese
+```
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `-l`, `--lang` | `en` | evaluation language (`en`/`ja`); selects default questions/index |
+| `-e`, `--embed` | `embeddinggemma` | ollama embedding model |
+| `-i`, `--input` | `../questions-<lang>.jsonl` | questions JSONL |
+| `--index` | `index-<lang>.safetensors` | scene index |
+
+There are no `-k` / `-N` flags: those are what the sweep tunes.
 
 ## `ref/`
 

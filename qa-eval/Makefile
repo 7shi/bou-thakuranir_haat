@@ -10,6 +10,7 @@
 #   make all        # both languages
 #   make report     # build whatever is missing, then print the table
 #   make LANG=ja rag judge
+#   make sweep      # retrieval sweep (independent of the pipeline; no LLM)
 
 LANG    := en
 ROOT    := ..
@@ -23,7 +24,7 @@ INDEX     := index-$(LANG).safetensors
 PARTS         := 1 2 3 4
 EXTRACT_PARTS := $(patsubst %,$(RESULTS)/extract-%.jsonl,$(PARTS))
 
-.PHONY: en ja all pipeline index rag extract-parts extract judge report clean
+.PHONY: en ja all pipeline index rag extract-parts extract judge report sweep clean
 .DEFAULT_GOAL := en
 
 en:
@@ -43,6 +44,8 @@ rag: $(RESULTS)/rag.jsonl
 extract-parts: $(EXTRACT_PARTS)
 extract: $(RESULTS)/extract.jsonl
 judge: $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-extract.jsonl
+sweep: $(INDEX) $(QUESTIONS)
+	uv run sweep_rag.py -l $(LANG)
 
 # Accuracy + chapter retrieval comparison table (terminal output only).
 report: judge
