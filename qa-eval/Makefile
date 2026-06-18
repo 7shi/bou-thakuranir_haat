@@ -55,7 +55,8 @@ judge: $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-extract.jsonl
 sweep: $(INDEX) $(QUESTIONS)
 	uv run sweep_rag.py -l $(LANG)
 
-# Accuracy + chapter retrieval comparison table (terminal output only).
+# Accuracy + chapter retrieval comparison table + pairwise disagreement
+# analysis (terminal output only). Needs >= 2 judged methods for the pass.
 report: judge
 	uv run report.py -l $(LANG)
 

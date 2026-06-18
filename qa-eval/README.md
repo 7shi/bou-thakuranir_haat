@@ -52,44 +52,29 @@ above). The five scripts form the pipeline:
 - `answer_rag.py` — Vector RAG answering → `results-<lang>/rag.jsonl`
 - `answer_extract.py` — Per-chapter extraction answering → `results-<lang>/extract.jsonl`
 - `judge.py` — LLM grading of answers vs. gold → `results-<lang>/judge-<stem>.jsonl`
-- `report.py` — accuracy + chapter retrieval comparison (terminal table)
+- `report.py` — accuracy + chapter retrieval comparison + pairwise disagreement analysis (terminal table)
 - `sweep_rag.py` — retrieval-depth / threshold sweep vs. gold chapters
   (terminal tables only; no LLM, independent of the pipeline)
 
 ## Pipeline (`Makefile`)
 
-The [`Makefile`](Makefile) wires the five scripts into one dependency chain so
-the whole evaluation runs with a single command. Models are left to each
-script's default. Run it from this directory:
+The [`Makefile`](Makefile) wires the scripts into one dependency chain, so the
+whole evaluation runs with a single command (models left to each script's
+default). Run from this directory:
 
 ```sh
-make            # full English pipeline (LANG=en, the default goal)
-make ja         # full Japanese pipeline
-make all        # both languages
-make report     # build whatever is missing, then print the table
-make LANG=ja rag judge   # individual steps for one language
-make rag K=10            # RAG at k=10 → results-<lang>/rag-10.jsonl
-make clean      # remove generated answers/judgements (keeps the index)
+make                    # full English pipeline (LANG=en, the default goal)
+make ja                 # full Japanese pipeline
+make all                # both languages
+make LANG=ja rag judge  # individual steps for one language
+make K=10 rag           # RAG at k=10 → results-<lang>/rag-10.jsonl
+make clean              # remove generated answers/judgements (keeps the index)
 ```
 
-Each step's **output file is the real target**, with a `.PHONY` alias for
-convenience:
-
-| Alias | Output target | Depends on |
-| --- | --- | --- |
-| `index` | `index-<lang>.safetensors` | scenes, titles TSV |
-| `rag` | `results-<lang>/rag.jsonl` (or `rag-<k>.jsonl` with `K=<k>`) | index, questions |
-| `extract-parts` | `results-<lang>/extract-{1..4}.jsonl` | scenes, questions |
-| `extract` | `results-<lang>/extract.jsonl` | the four part files, questions |
-| `judge` | `results-<lang>/judge-{rag,extract}.jsonl` | the answer files, questions |
-| `sweep` | (terminal tables only) | index, questions |
-| `report` | (terminal table only) | `judge` |
-
-Because the targets are real files, Make skips any step whose output is already
-up to date and rebuilds only what is missing or stale — re-running `make` after
-an interrupted run resumes from where it stopped (each script is also internally
-resume-safe). Phase 1 of extraction uses a pattern rule (`extract-%.jsonl`, one
-chapter group per part), so the parts can be built in parallel with `make -j`.
+Each step's **output file is the real target**, so Make skips anything already
+up to date and an interrupted `make` resumes where it stopped (each script is
+also internally resume-safe). Extraction Phase 1 uses a pattern rule (one chapter
+group per part), so the parts build in parallel with `make -j`.
 
 ## `build_index.py`
 
@@ -235,8 +220,9 @@ citations.
 
 ## `report.py`
 
-Aggregates the existing result files into one comparison table on the terminal.
-Pure mechanical aggregation — no LLM calls, no output file.
+Aggregates the existing result files into one comparison table on the terminal,
+then appends a pairwise disagreement analysis. Pure mechanical aggregation — no
+LLM calls, no output file.
 
 **Two independent axes**, one (method, scope) row each:
 
@@ -256,6 +242,27 @@ Both axes are broken down by gold `type` (`all` / `single` / `cross`).
 (`rag-10.jsonl` → `RAG-10`) — and Extract is appended when both its files
 exist. Rows are ordered: `RAG`, then `RAG-<k>` by ascending `k`, then Extract,
 so a newly judged retrieval depth appears with no code change.
+
+### Pairwise disagreement analysis
+
+When at least two methods are available, a second pass compares **every pair**
+of methods question-by-question. For each pair it prints a 3×3 verdict agreement
+matrix and, for every question where one method is strictly better than the
+other, the **loss class** of the loser:
+
+- **missed context** — a gold chapter is absent from the loser's `expanded`, so
+  it never reached the answerer at all. For Extract this is a **Phase 1 false
+  negative** (a wrong `None` dropped the chapter); for RAG it is a **retrieval
+  miss** (the chapter ranked outside the top-k).
+- **synthesis** — the loser held every gold chapter yet still mis-synthesized
+  the answer.
+
+This splits each off-diagonal loss into its true lever: retrieval/filtering vs.
+answering. The summary line rolls the counts up, e.g. *"RAG-10 beats Extract on
+10 (7 missed-context, 3 synthesis); Extract beats RAG-10 on 3 (3
+missed-context, 0 synthesis)."* See the case study's [Extract-vs-RAG-10
+section](results-en/README.md#extract-vs-rag-k10-where-each-method-loses) for
+the reading.
 
 ## `sweep_rag.py`
 

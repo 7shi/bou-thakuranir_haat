@@ -39,6 +39,62 @@ extra context helps more than it distracts. Net, RAG k=10 overtakes Extract on
 accuracy (0.92 vs 0.83) while Extract still leads sharply on chapter precision
 (0.84).
 
+## Extract vs RAG k=10: where each method loses
+
+The Headline's five-question margin is the whole story of "k=10 beats Extract,"
+so [`report.py`](../README.md#reportpy)
+breaks it open into its per-question causes — and it lands squarely on Extract's
+two-stage filter. The disagreement pass prints three pairwise matrices (RAG×RAG-10,
+RAG×Extract, RAG-10×Extract); the decisive one is the last:
+
+```
+Agreement matrix (rows = RAG-10, cols = Extract):
+                  Extract:correct  Extract:partial  Extract:incorrect | RAG-10 total
+RAG-10:correct                36               4                  4  | 44
+RAG-10:partial                 1               1                  2  |  4
+RAG-10:incorrect               2               0                  0  |  2
+Extract total                 39               5                  6  | 50
+```
+
+For each off-diagonal question the disagreement pass asks whether the loser
+actually held every gold chapter in context, then classes the loss:
+
+- **missed context** — a gold chapter is absent from the loser's `expanded`. For
+  Extract that is a **Phase 1 false negative** (a wrong `None` dropped it
+  unrecoverably); for RAG a **retrieval miss** (the chapter ranked outside top-k).
+- **synthesis** — the loser held every gold chapter yet still mis-synthesized.
+
+The split is lopsided:
+
+| direction | n | missed context | synthesis |
+| --- | --- | --- | --- |
+| RAG-10 beats Extract | 10 | **7** (Phase 1 FN) | 3 |
+| Extract beats RAG-10 | 3 | 3 (retrieval miss) | 0 |
+
+**Seven of Extract's ten losses are Phase 1 false negatives** (Q26, Q28, Q34,
+Q40, Q42, Q48, Q50) — the gold chapter a stage-1 `None` dropped, so stage 2
+never saw it. The filter, not the synthesis, is where the gap lives. Three are
+total wipeouts: Q42 (`expanded` empty — all of Ch22/23/29 dropped), Q34 (only
+Ch2 kept, all of Ch30/31/33 dropped), and Q26 (used Ch15/30, disjoint from gold
+Ch11/29). The remaining three losses (Q22, Q30, Q33) are genuine synthesis slips
+where Extract held every gold chapter — the same single-passage inversion and
+half-answers the [k=5 study](#k5-baseline-in-brief) flagged.
+
+**Every one of Extract's wins is a retrieval miss RAG cannot fix.** Q31, Q43,
+Q49 are the [Class A](#both-wrong-what-k10-cannot-fix) chapters dense embedding
+ranks outside the top-10 at both depths — Extract's per-chapter reading finds
+them, RAG-10 never does. Extract never beats RAG-10 on synthesis.
+
+So the two architectures fail on **orthogonal axes**, and that is the read on
+the 0.92 vs 0.83 margin: Extract's losses are self-inflicted by its own Phase 1
+filter (cheaply fixable — keep more context, weaken the `None` bar, or quote
+verbatim instead of summarize-or-discard), whereas RAG's losses are structural
+dense-retrieval blindness (the BM25/lexical hybrid in [PLAN.md](../PLAN.md)).
+Fixing Phase 1 alone lifts Extract toward a 39+7 = 46 ceiling — re-overtaking
+k=10 — while its thorough-reading edge on the vector-unreachable three stays
+intact. The lever for Extract is in its own stage 1; the lever for RAG is
+hybrid retrieval.
+
 ## k=5 baseline, in brief
 
 (This condenses the earlier RAG-vs-Extract disagreement study; the per-question
@@ -47,7 +103,8 @@ detail is redeployed in the k=10 analysis below.) RAG k=5 and Extract tie at
 split dominates everything: both score 24–25/25 on single-passage and 15/25 on
 cross.
 
-**Agreement matrix (k=5 RAG × Extract):**
+**Agreement matrix (k=5 RAG × Extract)** — now reproduced verbatim by the
+`RAG × Extract` block of `report.py`'s disagreement pass:
 
 | | Ext correct | Ext partial | Ext incorrect | RAG total |
 | --- | --- | --- | --- | --- |
@@ -181,6 +238,13 @@ reader, sharper extraction, or a second look at the gold.
   single saturates to 1.00, and RAG k=10 overtakes Extract on accuracy
   (0.92 vs 0.83). The win is broad — six questions fixed — at the cost of one
   synthesis regression (Q34) and lower chapter precision.
+- **The 0.92 vs 0.83 margin is Extract's Phase 1 filter, not its synthesis.**
+  `report.py`'s disagreement pass shows 7 of Extract's 10 losses to k=10 are
+  Phase 1 false negatives (a gold chapter dropped by a wrong `None`); only 3 are
+  synthesis slips. The two methods fail on orthogonal axes — Extract
+  self-inflicts retrievable losses, RAG suffers structural dense-retrieval
+  blindness — so the levers differ: weaken Extract's `None` bar (ceiling
+  39+7 = 46, re-overtaking k=10) versus add a BM25/lexical hybrid to RAG.
 - **Half the k=5 losses were not retrieval problems.** Two fixes (Q21, Q29) had
   the gold chapter in context all along; k=10's extra context just yielded a
   better answer. Retrieval depth is not the only lever — answer synthesis
