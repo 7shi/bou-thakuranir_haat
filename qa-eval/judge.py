@@ -113,11 +113,9 @@ def main():
                 if line.strip():
                     records.append(json.loads(line))
 
-        print(f"\n{'#'*60}")
         print(f"# {in_path} → {out_path}  ({len(records)} answers)")
         if done_ids:
             print(f"# Resuming: {len(done_ids)} already done")
-        print('#'*60)
 
         total = len(records)
         with open(out_path, "a", encoding="utf-8") as out_f:
@@ -127,7 +125,10 @@ def main():
                     continue
 
                 q = questions[qid]
-                print(f"\n[{i}/{total}] Q{qid}")
+                print(f"\n[Q{i}/{total}] {q['question']}")
+                print(f"=> {rec['answer']}")
+                print(f"  ({q['answer']})")
+                print()
                 judgement = judge_answer(
                     q["question"], q["answer"], q["rationale"], rec["answer"], args.model
                 )

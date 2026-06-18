@@ -20,11 +20,7 @@ import numpy as np
 from ollama import embed
 from safetensors import safe_open
 
-from llm7shi.compat import generate_with_schema
-
-ROOT = Path(__file__).resolve().parent.parent
-
-LANGS = {"en": "English", "ja": "Japanese"}
+from answer import ROOT, LANGS, load_questions, answer_question, print_banner
 
 DEFAULT_K = 5
 
@@ -97,28 +93,11 @@ def build_context(expanded_indices: list, scenes: list) -> str:
     return "\n".join(parts).strip()
 
 
-def answer_question(question: str, context: str, model: str, lang_name: str) -> str:
-    prompt = (
-        f"Answer the following question in {lang_name} based ONLY on the context provided. "
-        f"Do not use any outside knowledge. "
-        f"Reply with the answer only — no preamble, no reasoning, no closing remarks.\n\n"
-        f"Question: {question}\n\n"
-        f"Context:\n{context}"
-    )
-    # The model occasionally returns an empty answer; retry up to 3 times
-    # (4 attempts total), then keep the empty result rather than loop forever.
-    max_retries = 3
-    answer = ""
-    for attempt in range(max_retries + 1):
-        result = generate_with_schema([prompt], model=model, show_params=False)
-        answer = result.text.strip()
-        if answer:
-            return answer
-        if attempt < max_retries:
-            print(f"  empty answer — retrying ({attempt + 1}/{max_retries})")
-        else:
-            print(f"  answer still empty after {max_retries} retries — keeping as is")
-    return answer
+RAG_PREAMBLE = (
+    "Answer the following question in {lang_name} based ONLY on the context provided. "
+    "Do not use any outside knowledge. "
+    "Reply with the answer only — no preamble, no reasoning, no closing remarks."
+)
 
 
 def main():
@@ -158,11 +137,7 @@ def main():
     print(f"Index: {normed.shape[0]} scenes, dim={normed.shape[1]}")
 
     # Load questions
-    questions = []
-    with open(args.input, encoding="utf-8") as f:
-        for line in f:
-            if line.strip():
-                questions.append(json.loads(line))
+    questions = load_questions(Path(args.input))
     print(f"Questions: {len(questions)}")
 
     total = len(questions)
@@ -172,9 +147,7 @@ def main():
                 continue
 
             question_text = q["question"]
-            print(f"\n{'='*60}")
-            print(f"[{qid}/{total}] {question_text}")
-            print('='*60)
+            print_banner(f"[{qid}/{total}] {question_text}")
 
             # Embed and search
             q_vec = embed_query(question_text, args.embed)
@@ -185,7 +158,8 @@ def main():
             context = build_context(expanded, scenes)
 
             # Get answer
-            answer = answer_question(question_text, context, args.model, lang_name)
+            answer = answer_question(question_text, context, args.model, lang_name,
+                                     preamble=RAG_PREAMBLE, context_prefix="Context:\n")
 
             # Build hit metadata
             hit_records = {

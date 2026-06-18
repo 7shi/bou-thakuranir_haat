@@ -22,42 +22,11 @@ import argparse
 import json
 from pathlib import Path
 
+from answer import (
+    ROOT, LANGS, PART_RANGES,
+    load_chapters, load_questions, answer_question, print_banner, print_answer_banner,
+)
 from llm7shi.compat import generate_with_schema
-
-ROOT = Path(__file__).resolve().parent.parent
-
-LANGS = {"en": "English", "ja": "Japanese"}
-
-PART_RANGES = {1: (1, 10), 2: (11, 20), 3: (21, 30), 4: (31, 37)}
-
-
-def load_chapters(path: Path) -> dict[int, list[dict]]:
-    chapters: dict[int, list[dict]] = {}
-    with open(path, encoding="utf-8") as f:
-        for line in f:
-            if not line.strip():
-                continue
-            rec = json.loads(line)
-            ch, seg = rec.get("chapter", 0), rec.get("segment", 0)
-            if ch == 0 or seg == 0:
-                continue
-            chapters.setdefault(ch, []).append({
-                "chapter": ch,
-                "segment": seg,
-                "text": rec["response"]["translation"],
-            })
-    for scenes in chapters.values():
-        scenes.sort(key=lambda s: s["segment"])
-    return chapters
-
-
-def load_questions(path: Path) -> list[dict]:
-    questions = []
-    with open(path, encoding="utf-8") as f:
-        for line in f:
-            if line.strip():
-                questions.append(json.loads(line))
-    return questions
 
 
 def extract_chapter(question: str, chapter: int, chapter_text: str, model: str, lang_name: str) -> str:
@@ -83,28 +52,11 @@ def extract_chapter(question: str, chapter: int, chapter_text: str, model: str, 
     return text
 
 
-def answer_question(question: str, context: str, model: str, lang_name: str) -> str:
-    prompt = (
-        f"Answer the following question in {lang_name} based ONLY on the chapter excerpts below.\n"
-        f"Do not use any outside knowledge.\n"
-        f"Reply with the answer only — no preamble, no reasoning, no closing remarks.\n\n"
-        f"Question: {question}\n\n"
-        f"{context}"
-    )
-    # The model occasionally returns an empty answer; retry up to 3 times
-    # (4 attempts total), then keep the empty result rather than loop forever.
-    max_retries = 3
-    answer = ""
-    for attempt in range(max_retries + 1):
-        result = generate_with_schema([prompt], model=model, show_params=False)
-        answer = result.text.strip()
-        if answer:
-            return answer
-        if attempt < max_retries:
-            print(f"  empty answer — retrying ({attempt + 1}/{max_retries})")
-        else:
-            print(f"  answer still empty after {max_retries} retries — keeping as is")
-    return answer
+EXTRACT_PREAMBLE = (
+    "Answer the following question in {lang_name} based ONLY on the chapter excerpts below.\n"
+    "Do not use any outside knowledge.\n"
+    "Reply with the answer only — no preamble, no reasoning, no closing remarks."
+)
 
 
 def main():
@@ -174,9 +126,7 @@ def main():
                             continue
 
                         question_text = q["question"]
-                        print(f"\n{'='*60}")
-                        print(f"[Q{qid}/{total} Ch{ch}] {question_text[:80]}")
-                        print('='*60)
+                        print_banner(f"[Ch{ch} Q{qid}/{total}] {question_text}")
 
                         text = extract_chapter(question_text, ch, chapter_text, args.model, lang_name)
                         done_extractions[(qid, ch)] = text
@@ -219,15 +169,15 @@ def main():
                 relevant = {ch: done_extractions[(qid, ch)] for ch in all_chapter_ids
                             if done_extractions.get((qid, ch), "None").strip() not in ("None", "")}
 
-                print(f"\n{'='*60}")
-                print(f"[Q{qid}/{total} Answer] {len(relevant)} relevant chapters")
-                print('='*60)
+                print_answer_banner(qid, total, sorted(relevant.keys()), question_text)
 
                 if not relevant:
                     answer = "No relevant content found."
+                    print(answer)
                 else:
                     context = "\n\n".join(f"[Chapter {ch}]\n{text}" for ch, text in sorted(relevant.items()))
-                    answer = answer_question(question_text, context, args.model, lang_name)
+                    answer = answer_question(question_text, context, args.model, lang_name,
+                                             preamble=EXTRACT_PREAMBLE)
 
                 record = {
                     "question_id": qid,
