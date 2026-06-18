@@ -13,11 +13,15 @@ strategy, is added at the end
 ([§ Filter](#filter-per-chapter-reading-with-a-loose-relevance-bar)): a looser
 variant of Extract that reads the full text of every chapter not marked `no`,
 which sidesteps the dense-retrieval blindness the depth study cannot fix.
+**Ceiling** closes the study
+([§ Ceiling](#ceiling-the-perfect-retrieval-upper-bound)): the gold chapters
+fed verbatim as context, stripping out retrieval entirely to expose the
+synthesis-only upper bound.
 
 Run: answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`, 50 questions
 (`questions-en.jsonl`, 25 single-passage + 25 cross-reference). RAG k=5 →
 `rag.jsonl`; RAG k=10 → `rag-10.jsonl`; Filter2 → `filter2.jsonl`; Filter3 →
-`filter3.jsonl`.
+`filter3.jsonl`; Ceiling → `ceiling.jsonl`.
 
 ## Headline (`report.py`)
 
@@ -29,18 +33,21 @@ all      RAG k=10  50      44       4         2     0.920     0.840    0.205
 all      Extract   50      39       5         6     0.830     0.740    0.843
 all      Filter2   50      36       7         7     0.790     0.600    0.808
 all      Filter3   50      45       3         2     0.930     0.880    0.775
+all      Ceiling   50      49       1         0     0.990     1.000    1.000
 
 single   RAG k=5   25      24       0         1     0.960     1.000    0.263
 single   RAG k=10  25      25       0         0     1.000     1.000    0.136
 single   Extract   25      24       0         1     0.960     1.000    1.000
 single   Filter2   25      24       1         0     0.980     1.000    1.000
 single   Filter3   25      25       0         0     1.000     1.000    0.940
+single   Ceiling   25      25       0         0     1.000     1.000    1.000
 
 cross    RAG k=5   25      15       5         5     0.700     0.440    0.411
 cross    RAG k=10  25      19       4         2     0.840     0.680    0.274
 cross    Extract   25      15       5         5     0.700     0.480    0.686
 cross    Filter2   25      12       6         7     0.600     0.200    0.617
 cross    Filter3   25      20       3         2     0.860     0.760    0.611
+cross    Ceiling   25      24       1         0     0.980     1.000    1.000
 ```
 
 The sweep's prediction holds: deepening retrieval lifts the cross-reference
@@ -251,7 +258,10 @@ retrieval cannot be the lever:
   reading it in full — misread it as Ramchandra thinking Udayaditya acted "for
   his sister's sake." Three independent paths converge on the same wrong
   reading, which points to an answering-model limitation (and possibly a gold
-  that over-weights a fleeting detail), not retrieval.
+  that over-weights a fleeting detail), not retrieval. Ceiling
+  ([§ below](#ceiling-the-perfect-retrieval-upper-bound)) confirms this
+  decisively: with Ch11+19 verbatim in context it still lands partial — the
+  same misreading, now with zero retrieval noise.
 
 Class B is the true residual: no `k` or hybrid fixes it. It needs a better
 reader, sharper extraction, or a second look at the gold.
@@ -315,7 +325,7 @@ were total wipeouts — every gold chapter dismissed:
 | --- | --- | --- | --- |
 | 34 | 30,31,33 | yes | incorrect (loses to both RAG variants) |
 | 42 | 22,23,29 | yes | incorrect (loses to both RAG variants) |
-| 32 | 11,15,16 | yes | partial (shared with every method — Class B) |
+| 32 | 11,15,16 | yes | partial (shared with every retrieval method — Class B; Ceiling recovers it) |
 | 31 | 21,22,23 | no (kept 21,22) | correct |
 | 38 | 26,28,32 | no (kept 26,28) | correct |
 | 50 | 8,18,23 | no (kept 8,18) | correct |
@@ -364,6 +374,95 @@ the `maybe` verdict is not a cosmetic middle label — it is the lever that
 makes per-chapter reading work, and removing it gives back everything the
 loose bar bought.
 
+## Ceiling: the perfect-retrieval upper bound
+
+Ceiling strips out retrieval entirely: the gold `chapters` are fed verbatim as
+context, so chapter recall and precision are both **1.000 by construction** —
+the context *is* the gold set. Every Ceiling loss is therefore a pure
+**synthesis** loss, and its score (0.990) is the upper bound every retrieval
+strategy chases. The question it answers is not *"which chapters should the
+answerer see?"* but *"given the right chapters, how well does the model read
+and synthesize?"*
+
+### No method beats Ceiling
+
+Ceiling wins or ties on every question against every method — never the
+reverse. Its margin over each is the pure cost of that method's retrieval,
+and the gradient tracks retrieval quality exactly:
+
+| method | method score | Ceiling beats it on | missed-context | synthesis |
+| --- | --- | --- | --- | --- |
+| Filter2 | 0.790 | 14 | 13 | 1 |
+| Extract | 0.830 | 11 | 8 | 3 |
+| RAG k=5 | 0.830 | 10 | 8 | 2 |
+| RAG k=10 | 0.920 | 5 | 5 | 0 |
+| Filter3 | 0.930 | 4 | 3 | 1 |
+
+The count shrinks monotonically with accuracy: the better the retrieval, the
+fewer questions separate it from the ceiling. Filter3 — the top-scoring
+retrieval method — sits just four questions below, and those four are the
+entire remaining retrieval frontier (below).
+
+### The four-question gap to Filter3
+
+Filter3 is the closest any retrieval method gets to Ceiling, so its four
+losses pin down exactly what retrieval still cannot fix:
+
+- **Q32, Q34, Q42 (missed-context)** — the confident-wrong-`no` wipeouts from
+  [§ Filter's losses](#where-filter-still-loses-confident-false-negatives).
+  Every gold chapter was marked `no`, so Phase 2 saw nothing. These are the
+  same questions Extract drops too (two different classifiers, each reading
+  the full chapter, independently decide they are irrelevant), and Ceiling
+  recovers all three — confirming the gold chapters *do* contain the answer.
+  No threshold trick fixes them: the model never hesitated (`no`, not
+  `maybe`), so the `maybe` rescue cannot reach.
+- **Q37 (synthesis)** — Filter3 held every gold chapter (1, 34) yet still
+  half-answered. Ceiling, with the same chapters but *only* those chapters,
+  got it correct. The likely cause is noise: Filter3's context also carried
+  non-gold chapters that diluted the signal — a precision effect that
+  Ceiling's clean gold-only context avoids by construction.
+
+So of the four questions separating the best retrieval method from perfect
+retrieval, three are classifier confidence (fixable only by a better `no`
+bar) and one is context precision. None is a dense-retrieval blindness case —
+Filter3's per-chapter reading already solved those (Q31, Q43, Q49).
+
+### Q48: the synthesis floor
+
+Ceiling's lone loss — Q48 (gold 11,19), **partial** — is the single question
+where even perfect context is not enough. The gold's key fact is Ramchandra's
+*paranoid* reading of Udayaditya whispering to a servant as an insult plot,
+and that passage is in Chapter 19 verbatim:
+
+> he had seen Yubaraj Udayaditya whispering something to that servant — of
+> course, they must have been plotting to insult him, what else could it be!
+
+Yet the model, with this text directly in context, reads it as Ramchandra
+believing Udayaditya acted "for his sister's sake" — the same misreading every
+other method produces (see [§ Class B](#class-b--failures-shared-with-extract-q32-q48)).
+Ceiling makes the diagnosis definitive: retrieval is perfect, the detail is
+present, the model still mis-reads it. This is an answering-model
+comprehension limit — the floor that no retrieval fix can break through — and
+possibly a gold that over-weights a fleeting detail.
+
+### What Ceiling confirms
+
+- **The single-passage axis is solved.** Single-passage saturates to 1.000
+  under Ceiling, Filter3, and RAG k=10 — any method with perfect single-chapter
+  recall reads a single chapter perfectly. The entire frontier is
+  cross-reference.
+- **The accuracy gap between methods traces entirely to retrieval.** Ceiling's
+  context is identical in shape to Filter3's Phase 2 (full chapter text, same
+  prompt, same model); the only difference is *which* chapters — Ceiling's are
+  perfect, Filter3's are classifier-selected. So Ceiling's 0.990 vs Filter3's
+  0.930 is a clean measure of what Filter3's three confident-wrong-`no`
+  wipeouts cost.
+- **Q32's gold answer is confirmed.** Q32 (the secret stipend to dismissed
+  guards) was partial for every method including Filter3, with Extract and
+  Filter both dropping Ch15. Ceiling — which feeds Ch15 verbatim — gets it
+  correct, confirming the detail *is* in the chapter and the gold is sound;
+  the other methods' failures are retrieval/extraction, not gold ambiguity.
+
 ## Takeaways
 
 - **k=10 delivers the sweep's promise on cross-reference** (0.700→0.840),
@@ -403,10 +502,26 @@ loose bar bought.
   chapters to `no`. The residual is a *confident* wrong `no` (Q32, Q34, Q42),
   which `maybe` cannot reach because the model never hesitated — a different
   failure mode than Extract's uncertain `None`.
-- **Two questions are hard for every method** (Q32, Q48): all five land
-  partial/incorrect, so they are answering/extraction limits or
-  gold-ambiguity, not retrieval. They bound what any retrieval fix can
+- **Two questions are hard for every retrieval method** (Q32, Q48): all five
+  land partial/incorrect. Ceiling disambiguates them — Q32 it gets *correct*
+  (the detail is in Ch15 after all; the gold is sound, the other methods'
+  failures are retrieval/extraction), while Q48 stays *partial* even with
+  perfect context. Q48 alone is the true comprehension floor: the
+  paranoid-detail passage is in Chapter 19 verbatim, yet the model
+  mis-reads it the same way every time. It bounds what any retrieval fix can
   achieve.
+- **Ceiling isolates the synthesis ceiling at 0.990.** With retrieval stripped
+  out (gold chapters verbatim), the model mis-synthesizes exactly one question
+  (Q48) and reads the other 49 correctly — including Q32, which every
+  retrieval method gets partial. No method ever beats Ceiling; its margin over
+  each (14/11/10/5/4 for Filter2/Extract/RAG-5/RAG-10/Filter3) shrinks
+  monotonically with retrieval quality, tracing the entire accuracy gap to
+  retrieval. Filter3 is within four questions — three confident-wrong-`no`
+  wipeouts and one precision-driven synthesis slip — and none of the four is a
+  dense-retrieval case. The retrieval frontier, in other words, is closeable;
+  what remains is classifier confidence and one comprehension limit.
 - **The gold holds up.** Across every disagreement the failures trace to a
-  method — never to the gold — and where three independent thorough readers
-  (Extract, RAG k=10, Filter3) meet, they confirm the gold answer.
+  method — never to the gold — and Ceiling confirms the two the other methods
+  most often miss: Q31/Q43/Q49 (the vector-unreachable trio, all correct
+  under Ceiling) and Q32 (the secret-stipend question, correct under Ceiling
+  despite being partial for every retrieval method).

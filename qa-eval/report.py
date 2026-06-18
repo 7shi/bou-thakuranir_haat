@@ -232,10 +232,12 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
     answer and judge files exist. Filter has two verdict granularities:
     filter2.jsonl (yes/no) and filter3.jsonl (yes/maybe/no, the default), and
     both are appended when present. Order: the default RAG first, then
-    RAG-<k> by ascending k, then Extract, then Filter2, then Filter3 — so the
-    k=5 baseline sits beside its deeper-retrieval variants, and the
-    per-chapter methods sit next to each other for direct comparison, with the
-    stricter two-level filter ahead of its looser three-level counterpart.
+    RAG-<k> by ascending k, then Extract, then Filter2, then Filter3, then
+    Ceiling (perfect-retrieval ceiling) — so the k=5 baseline sits beside its
+    deeper-retrieval variants, the per-chapter methods sit next to each other
+    for direct comparison, the stricter two-level filter sits ahead of its
+    looser three-level counterpart, and Ceiling anchors the table as the
+    upper bound that strips out retrieval entirely.
     """
     def rag_key(stem: str) -> tuple[int, int]:
         if stem == "rag":
@@ -262,6 +264,13 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
         judge = f"judge-{stem}.jsonl"
         if (results / ans).exists() and (results / judge).exists():
             found.append((label, ans, judge))
+    # Ceiling: the gold chapters fed verbatim as context (no retrieval). A
+    # perfect-retrieval ceiling appended last, since its losses are all
+    # synthesis by definition — it isolates reading comprehension, not
+    # retrieval, and sits below the retrieval strategies as the upper bound
+    # they chase.
+    if (results / "ceiling.jsonl").exists() and (results / "judge-ceiling.jsonl").exists():
+        found.append(("Ceiling", "ceiling.jsonl", "judge-ceiling.jsonl"))
     return found
 
 

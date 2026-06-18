@@ -10,6 +10,11 @@
 # to the comparison. Neither is part of `make`, `make all`, or `make <lang>`
 # because Phase 1 costs ~1,850 LLM calls per language.
 #
+# Ceiling (gold chapters as context, no retrieval) is likewise OPT-IN: run
+# `make ceiling` to establish a perfect-retrieval ceiling that isolates the
+# answer model's reading comprehension. It costs only ~50 calls (no Phase 1),
+# but is kept opt-in to match the experimental posture of Filter.
+#
 # Usage:
 #   make            # full English pipeline (LANG=en)
 #   make ja         # full Japanese pipeline
@@ -18,6 +23,7 @@
 #   make LANG=ja rag judge
 #   make filter2    # opt-in: per-chapter yes/no filter (Phase 1 + 2 + judge)
 #   make filter3    # opt-in: per-chapter yes/maybe/no filter (Phase 1 + 2 + judge)
+#   make ceiling    # opt-in: gold-chapter context ceiling (answer + judge)
 #   make sweep      # retrieval sweep (independent of the pipeline; no LLM)
 
 LANG    := en
@@ -42,7 +48,7 @@ ifneq ($(K),)
 RAG_FILE := $(RESULTS)/rag-$(K).jsonl
 endif
 
-.PHONY: en ja all pipeline index rag extract-parts extract filter2-parts filter2 filter3-parts filter3 judge report sweep clean
+.PHONY: en ja all pipeline index rag extract-parts extract filter2-parts filter2 filter3-parts filter3 ceiling judge report sweep clean
 .DEFAULT_GOAL := en
 
 en:
@@ -70,6 +76,7 @@ filter3-parts: $(FILTER3_PARTS)
 # `make filter3` mirrors `make filter2` for the three-level (yes/maybe/no)
 # default variant: Phase 1 + Phase 2 + judge, surfacing Filter3 in `make report`.
 filter3: $(RESULTS)/judge-filter3.jsonl
+ceiling: $(RESULTS)/judge-ceiling.jsonl
 judge: $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-extract.jsonl
 sweep: $(INDEX) $(QUESTIONS)
 	uv run sweep_rag.py -l $(LANG)
@@ -128,6 +135,12 @@ $(RESULTS)/filter3-%.tsv: $(SCENES) $(QUESTIONS)
 $(RESULTS)/filter3.jsonl: $(FILTER3_PARTS) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG)
 
+# Perfect-retrieval ceiling: the gold chapters fed verbatim as context, no
+# retrieval. No Phase 1, so just one target — the answer file. Its judge target
+# is defined below alongside the other opt-in judge rules.
+$(RESULTS)/ceiling.jsonl: $(SCENES) $(QUESTIONS)
+	uv run answer_ceiling.py -l $(LANG)
+
 # LLM grading of each answer file.
 $(RESULTS)/judge-rag.jsonl: $(RESULTS)/rag.jsonl $(QUESTIONS)
 	uv run judge.py -l $(LANG) $(RESULTS)/rag.jsonl
@@ -145,6 +158,11 @@ $(RESULTS)/judge-filter2.jsonl: $(RESULTS)/filter2.jsonl $(QUESTIONS)
 $(RESULTS)/judge-filter3.jsonl: $(RESULTS)/filter3.jsonl $(QUESTIONS)
 	uv run judge.py -l $(LANG) $(RESULTS)/filter3.jsonl
 
+# Opt-in: ceiling (gold-chapter context) judging. Run `make judge-ceiling`
+# (or `make ceiling`) explicitly to grade the ceiling answers.
+$(RESULTS)/judge-ceiling.jsonl: $(RESULTS)/ceiling.jsonl $(QUESTIONS)
+	uv run judge.py -l $(LANG) $(RESULTS)/ceiling.jsonl
+
 # Remove generated answers/judgements (keeps the index). The rag-[0-9]* and
 # judge-rag-[0-9]* globs catch the k-variant files (rag-10.jsonl, etc.); rm -f
 # silently ignores them when no match exists.
@@ -152,8 +170,10 @@ clean:
 	rm -f $(RESULTS)/rag.jsonl $(RESULTS)/rag-[0-9]*.jsonl \
 	      $(RESULTS)/extract.jsonl \
 	      $(RESULTS)/filter2.jsonl $(RESULTS)/filter3.jsonl \
+	      $(RESULTS)/ceiling.jsonl \
 	      $(EXTRACT_PARTS) \
 	      $(FILTER2_PARTS) $(FILTER3_PARTS) \
 	      $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-rag-[0-9]*.jsonl \
 	      $(RESULTS)/judge-extract.jsonl \
-	      $(RESULTS)/judge-filter2.jsonl $(RESULTS)/judge-filter3.jsonl
+	      $(RESULTS)/judge-filter2.jsonl $(RESULTS)/judge-filter3.jsonl \
+	      $(RESULTS)/judge-ceiling.jsonl
