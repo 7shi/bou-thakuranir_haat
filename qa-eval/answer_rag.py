@@ -7,8 +7,9 @@ For each question in questions-en.jsonl:
   3. Expand each hit ±N scenes within the same chapter and merge overlapping ranges.
   4. Build a labeled context block and ask the model to answer the question.
 
-Output: results-<lang>/rag.jsonl, one record per question.
-Resume-safe: skips question IDs already present in the output file.
+Output: results-<lang>/rag.jsonl for the default k=5, or rag-<k>.jsonl for any
+other k, one record per question. Resume-safe: skips question IDs already
+present in the output file.
 """
 
 import argparse
@@ -24,6 +25,8 @@ from llm7shi.compat import generate_with_schema
 ROOT = Path(__file__).resolve().parent.parent
 
 LANGS = {"en": "English", "ja": "Japanese"}
+
+DEFAULT_K = 5
 
 
 def load_index(index_path: Path):
@@ -124,18 +127,19 @@ def main():
                         help="evaluation language (selects default questions/index/output paths and answer language)")
     parser.add_argument("-m", "--model", default="ollama:gemma4:31b-it-qat", help="llm7shi model string")
     parser.add_argument("-e", "--embed", default="embeddinggemma", help="embedding model")
-    parser.add_argument("-k", type=int, default=5, help="top-k scenes to retrieve")
+    parser.add_argument("-k", type=int, default=DEFAULT_K, help="top-k scenes to retrieve")
     parser.add_argument("-N", type=int, default=1, help="context expansion window ±N")
     parser.add_argument("-i", "--input", default=None, help="questions JSONL (default: questions-<lang>.jsonl)")
     parser.add_argument("--index", default=None, help="index safetensors (default: qa-eval/index-<lang>.safetensors)")
-    parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/rag.jsonl)")
+    parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/rag.jsonl for k=5, rag-<k>.jsonl otherwise)")
     args = parser.parse_args()
 
     lang = args.lang
     lang_name = LANGS[lang]
     args.input = args.input or str(ROOT / f"questions-{lang}.jsonl")
     args.index = args.index or str(ROOT / "qa-eval" / f"index-{lang}.safetensors")
-    output_path = Path(args.output) if args.output else ROOT / "qa-eval" / f"results-{lang}" / "rag.jsonl"
+    rag_name = "rag.jsonl" if args.k == DEFAULT_K else f"rag-{args.k}.jsonl"
+    output_path = Path(args.output) if args.output else ROOT / "qa-eval" / f"results-{lang}" / rag_name
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Resume: collect already-done question IDs

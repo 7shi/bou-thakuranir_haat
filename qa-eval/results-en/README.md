@@ -1,221 +1,198 @@
-# Disagreement case study: RAG vs. Extract
+# Retrieval-depth case study: RAG k=5 vs k=10
 
-A manual, per-question analysis of where the two methods **disagree**, to
-complement the aggregate table from [`report.py`](../README.md#reportpy). The goal
-is to attribute each disagreement to a concrete failure mode and, along the way,
-spot-check whether the gold answers are sound.
+A per-question analysis of what changes when RAG's retrieval depth is bumped
+from `k=5` to `k=10`, complementing the aggregate table from
+[`report.py`](../README.md#reportpy). The bump was motivated by
+[`sweep_rag.py`](../README.md#sweep_ragpy), which found `k=5` tight for
+cross-reference questions and predicted that `k≈10–15` would surface most
+dropped gold chapters. **Per-Chapter Extract** — an independent thorough-reading
+path — is kept as the convergent-validity baseline: where it agrees with the
+gold, two independent readers confirm the answer.
 
 Run: answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`, 50 questions
-(`questions-en.jsonl`, 25 single-passage + 25 cross-reference).
+(`questions-en.jsonl`, 25 single-passage + 25 cross-reference). RAG k=5 →
+`rag.jsonl`; RAG k=10 → `rag-10.jsonl`.
 
-## Where the difficulty lives: single vs. cross
+## Headline (`report.py`)
 
-The two methods tie on accuracy (39/50 correct, weighted 0.830 each), but the tie
-hides the real story. On the **single-passage** half both score 24/25; on the
-**cross-reference** half both drop to 15/25. Every retrieval and synthesis failure
-below is a cross question except two single misses (Q21, Q22), and even those two
-are *answering* failures, not retrieval failures — the correct passage was in hand
-both times. So single-passage QA is essentially solved by either method; the open
-problem is multi-chapter integration.
+```
+scope    method     n correct partial incorrect  weighted ch.recall  ch.prec
+----------------------------------------------------------------------------
+all      RAG k=5   50      39       5         6     0.830     0.720    0.337
+all      RAG k=10  50      44       4         2     0.920     0.840    0.205
+all      Extract   50      39       5         6     0.830     0.740    0.843
 
-## Verdict agreement matrix
+single   RAG k=5   25      24       0         1     0.960     1.000    0.263
+single   RAG k=10  25      25       0         0     1.000     1.000    0.136
+single   Extract   25      24       0         1     0.960     1.000    1.000
 
-Rows = RAG verdict, columns = Extract verdict.
+cross    RAG k=5   25      15       5         5     0.700     0.440    0.411
+cross    RAG k=10  25      19       4         2     0.840     0.680    0.274
+cross    Extract   25      15       5         5     0.700     0.480    0.686
+```
+
+The sweep's prediction holds: deepening retrieval lifts the cross-reference
+score from 0.700 to 0.840 (incorrect 5→2), and single-passage saturates to
+1.00. Chapter recall rises (cross 0.44→0.68) at the cost of precision
+(0.41→0.27) — more context, looser filtering — yet **accuracy rises**, so the
+extra context helps more than it distracts. Net, RAG k=10 overtakes Extract on
+accuracy (0.92 vs 0.83) while Extract still leads sharply on chapter precision
+(0.84).
+
+## k=5 baseline, in brief
+
+(This condenses the earlier RAG-vs-Extract disagreement study; the per-question
+detail is redeployed in the k=10 analysis below.) RAG k=5 and Extract tie at
+0.830 but split on **which** cross questions each solves. The single/cross
+split dominates everything: both score 24–25/25 on single-passage and 15/25 on
+cross.
+
+**Agreement matrix (k=5 RAG × Extract):**
 
 | | Ext correct | Ext partial | Ext incorrect | RAG total |
 | --- | --- | --- | --- | --- |
 | **RAG correct** | 31 | 4 | 4 | 39 |
 | **RAG partial** | 3 | 1 | 1 | 5 |
 | **RAG incorrect** | 5 | 0 | 1 | 6 |
-| **Ext total** | 39 | 5 | 6 | 50 |
 
-The two off-diagonal blocks analyzed below:
+Two failure modes account for almost every off-diagonal loss:
 
-- **RAG correct / Extract not correct** — 8 questions (§2): mostly Extract Phase 1
-  retrieval misses, plus a few where Extract held the right chapters but only half
-  synthesized them.
-- **Extract correct / RAG not correct** — 8 questions (§3): six RAG vector
-  retrieval misses and two where RAG retrieved the gold chapter but answered the
-  wrong thing.
+- **RAG k=5's losses are mostly top-5 retrieval misses** — a gold chapter ranks
+  just outside `k=5` (the +0.00–0.07 gaps `sweep_rag.py` flagged). Two exceptions
+  (Q21, Q29) are *answering* slips where the gold chapter was already in context.
+- **Extract's losses are Phase 1 false negatives** — a wrong `None` on a gold
+  chapter drops it unrecoverably (Q26, Q34, Q42 dropped gold chapters entirely).
+  A secondary loss is Phase 2 synthesis (Q30, Q33 held every gold chapter yet
+  only half-answered); and one single-passage inversion (Q22).
 
-Only **3** questions are wrong under *both* methods (28, 32, 48); these are
-examined in §4. All three are shared coverage/synthesis failures on cross
-questions, not gold problems.
+**The gold is sound.** On Q29 (the covert poisoning behind the surface exile
+decree), both Extract and RAG k=10 independently reconstruct the covert chain
+the gold describes — two thorough paths agreeing with the gold is convergent
+evidence it is correct, and RAG k=5's loss there is an answering failure, not a
+gold problem.
 
-## 1. Gold validity spot-check (Q29)
+## What changes at k=10
 
-Q29 — "While Pratapaditya's official decree aims to separate Surma and Udayaditya
-by exiling her to her father's house, what covert action actually causes her
-departure?" (gold chapters 16, 17).
+Twelve questions are not-correct in at least one of k=5 / k=10. Their movement
+(`k=10 retrieval` = gold chapters newly pulled into context vs. k=5):
 
-Every claim in the gold answer is grounded in the source text (`all/en-gemini`):
+| Q | type | gold | k=5 | k=10 | k=10 retrieval | class |
+| --- | --- | --- | --- | --- | --- | --- |
+| 21 | single | 5 | incorrect | **correct** | — (Ch5 already in k=5) | answering fix |
+| 27 | cross | 2,4,33 | partial | **correct** | +Ch33 | retrieval fix |
+| 28 | cross | 9,37 | incorrect | **correct** | +Ch9, +Ch37 | retrieval fix |
+| 29 | cross | 16,17 | incorrect | **correct** | — (both already in k=5) | answering fix |
+| 36 | cross | 1,17,21 | incorrect | **correct** | +Ch17 | retrieval fix |
+| 45 | cross | 18,25 | partial | **correct** | +Ch18 | retrieval fix |
+| 34 | cross | 30,31,33 | correct | **partial** | — (same chapters as k=5) | **regression** |
+| 31 | cross | 21,22,23 | incorrect | incorrect | +Ch23, but Ch21/22 still out | both wrong |
+| 32 | cross | 11,15,16 | partial | partial | Ch15 still out | both wrong |
+| 43 | cross | 11,37 | partial | partial | Ch37 still out | both wrong |
+| 48 | cross | 11,19 | partial | partial | Ch11 still out | both wrong |
+| 49 | cross | 2,22 | incorrect | incorrect | Ch22 still out | both wrong |
 
-| Gold claim | Source |
-| --- | --- |
-| Pratapaditya orders Surma to her father's house (the surface decree) | **Ch16**: the order that "Surma must go to her paternal home" |
-| The Mahishi has Matangini secretly fetch "medicine" from Mangala to win the Yubaraj back | **Ch17**: "She sent Matangini to secretly fetch medicine from Mangala" |
-| The "medicine" was actually a poison brewed by Mangala (Rukmini) | **Ch17**: "Mangala took various roots and spent the entire night... to prepare a **poison**" |
-| Surma consumes it and dies — the true cause of her departure | **Ch17** (closing scene): "the physician said, 'It is over!'" |
+### The six fixes
 
-The gold correctly distinguishes the **surface decree** (exile) from the **covert
-cause** (poisoning), which is exactly what the question asks. Extract, reading
-chapters 15–17 in full, reconstructed the same covert chain and was graded
-correct. RAG retrieved chapters 16 and 17 too, but its answerer stopped at the
-surface decree ("Pratapaditya threatens to have Udayaditya imprisoned if Surma
-does not leave") — a reading failure, not a gold problem. Two independent paths
-agreeing with the gold on the covert cause is convergent evidence the gold is
-sound.
+Two flavors, matching the k=5 failure-mode split:
 
-## 2. RAG correct / Extract not correct (8 questions)
+- **Retrieval fixes (Q27, Q28, Q36, Q45).** A gold chapter that ranked just
+  outside k=5 enters the top-10 — exactly the "gap +0.00–0.07" cases
+  `sweep_rag.py` predicted: Ch33 (Q27), Ch9+Ch37 (Q28), Ch17 (Q36), Ch18 (Q45).
+- **Answering fixes (Q21, Q29).** The gold chapter was *already* in k=5's
+  context; k=10's broader supporting context let the answerer synthesize the
+  right answer. Q21 (Ch5 present at both depths — k=5 cited the wrong incident,
+  k=10 named both offenses); Q29 (Ch16+17 present at both — k=5 stopped at the
+  surface exile decree, k=10 gave the covert poisoning). These are precisely the
+  two k=5 losses `sweep_rag.py` could *not* have explained by retrieval alone.
 
-| Q | type | gold ch | Extract used | verdict | failure |
+### The one regression: Q34
+
+Q34 (gold 30,31,33) goes correct→partial despite identical gold-chapter
+coverage (Ch30+33 at both depths). With more surrounding context at k=10, the
+answerer misstated the causal mechanism — crediting a "pre-existing order"
+Udayaditya explained, rather than Rukmini going to court to accuse Basanta Ray.
+This is the one place larger context *hurt* synthesis (a mild "lost in the
+middle" effect), though Q34 is genuinely hard: Extract scores it incorrect too.
+The net trade is overwhelmingly positive — six fixes for one regression.
+
+## Both wrong: what k=10 cannot fix
+
+Five questions stay not-correct at both depths (Q31, Q32, Q43, Q48, Q49) — all
+cross-reference. The decisive cross-check is what **Extract**, reading every
+chapter independently, makes of them:
+
+| Q | gold | load-bearing chapter vector search misses | RAG k=5 | RAG k=10 | Extract |
 | --- | --- | --- | --- | --- | --- |
-| 22 | single | 11 | **11** | incorrect | Phase 2 misattribution (see 2c) |
-| 26 | cross | 11,29 | 15,30 | incorrect | Phase 1 miss (both gold chapters) |
-| 34 | cross | 30,31,33 | 2 | incorrect | Phase 1 miss (kept one wrong chapter) |
-| 42 | cross | 22,23,29 | — | incorrect | Phase 1 miss (nothing retained) |
-| 40 | cross | 13,27 | 13 | partial | Phase 1 miss (Ch27) |
-| 50 | cross | 8,18,23 | 6,8,12,18 | partial | Phase 1 miss (Ch23) |
-| 30 | cross | 23,24,36 | **23,24,26,36** | partial | synthesis (had the chapters) |
-| 33 | cross | 27,28 | **27,28** | partial | synthesis (had the chapters) |
+| 31 | 21,22,23 | Ch21,22 — the ring gift and the seal-forgery | incorrect | incorrect | **correct** |
+| 43 | 11,37 | Ch37 — the Chandradwip palanquin extraction | partial | partial | **correct** |
+| 49 | 2,22 | Ch22 — the forged petition to the Emperor of Delhi | incorrect | incorrect | **correct** |
+| 32 | 11,15,16 | Ch15 — the secret stipend to the dismissed guards | partial | partial | partial |
+| 48 | 11,19 | (Ch19 *is* retrieved; the paranoid detail is misread) | partial | partial | incorrect |
 
-### 2a. Phase 1 false negatives (26, 34, 42, 40, 50)
+This splits the residual frontier cleanly into two classes.
 
-Extract makes a per-chapter binary call in Phase 1: extract the relevant passage,
-or emit `None`. A wrong `None` is unrecoverable — that chapter never reaches Phase
-2. In the worst cases the gold chapters were dropped entirely, so Phase 2 answered
-that the text does not cover the question:
+### Class A — vector-unreachable chapters that thorough reading finds (Q31, Q43, Q49)
 
-- **Q34** (gold 30,31,33) kept only Ch2 and concluded "the provided text does not
-  explain a causal link... the order to kill Basanta Ray was given the day before
-  the escape" — the exact causal chain the gold draws from Ch33 was thrown away.
-- **Q42** (gold 22,23,29) retained *nothing* and returned "No relevant content
-  found."
-- **Q26** (gold 11,29) kept the wrong chapters (15, 30) and replied that the
-  reversal "cannot be fully established."
+In three questions the answer turns on a single chapter that dense embedding
+ranks outside the top-10 at *both* depths, so no k≤10 surfaces it; the answerer
+honestly abstains (Q31, Q49) or gives half the answer (Q43). But **Extract,
+reading those chapters in full, gets all three correct** — reconstructing the
+ring→seal→forged-petition chain (Q31, Ch21–22), the Chandradwip palanquin
+rescue (Q43, Ch37), and the Delhi-petition forgery (Q49, Ch22).
 
-Q40 and Q50 are the milder, partial version: one of the two gold chapters
-survived, so Extract answered half the question (Q40 caught the sitar in Jessore,
-Ch13, but missed the Raigarh half in Ch27). RAG retrieved the same gold chapters
-by vector similarity in every case and answered correctly — vector retrieval is
-harder to make miss a relevant scene than a binary per-chapter judgment is.
+That convergent result is decisive: these are not gold problems (an independent
+thorough reader confirms the gold) and not a depth problem (deeper k still
+misses them). It is a **dense-retrieval problem** — the failing chapters are
+lexically distinctive ("signet ring", "Emperor of Delhi", "palanquin") but
+semantically generic, so cosine cannot separate them from topically-similar
+neighbours. This is exactly the failure `sweep_rag.py`'s threshold table
+predicted (best τ*≈0.50, F1 0.38) and the motivation for the **BM25/lexical
+hybrid** in [PLAN.md](../PLAN.md): a lexical signal would match those
+proper-noun/term-heavy queries where dense embedding is blind. Ch22 is the
+standout — load-bearing for *two* of these questions (Q31 and Q49) and
+resistant to retrieval in both.
 
-### 2b. Phase 2 synthesis shortfall (30, 33)
+### Class B — failures shared with Extract (Q32, Q48)
 
-Q30 and Q33 are different: Phase 1 **kept every gold chapter** (Q30 used
-23,24,36; Q33 used 27,28), yet the answer was only partial. Here the loss is in
-Phase 2 synthesis, not retrieval — Q30 named the spiteful re-marriage but dropped
-the gold's punchline that Vibha arrives *on the wedding day* and is rejected; Q33
-explained the song's meaning but under-specified the two contrasting singing
-contexts. The chapters were in hand; the answer model just didn't integrate them
-fully. RAG happened to phrase the same material more completely.
+The remaining two are not-correct for **all three methods**, so deeper
+retrieval cannot be the lever:
 
-### 2c. Phase 2 misattribution on a single question (Q22)
+- **Q32** (gold 11,15,16) — the gold's load-bearing middle step is the *secret
+  monthly stipend* Udayaditya and Surma pay the dismissed guards, which
+  Pratapaditya discovers. Ch15 never ranks in the top-10 for either RAG depth,
+  and Extract's per-chapter extraction misses the stipend too, attributing the
+  exile to vague "psychological tactics." All three land on partial. The causal
+  detail is genuinely subtle and lives in a chapter none of the methods weighs
+  heavily.
+- **Q48** (gold 11,19) — the gold's key fact is Ramchandra's *paranoid* reading
+  of Udayaditya whispering to a servant as an insult plot. Ch19 (which contains
+  it) *is* retrieved by both RAG depths, yet both answerers — and Extract,
+  reading it in full — misread it as Ramchandra thinking Udayaditya acted "for
+  his sister's sake." Three independent paths converge on the same wrong
+  reading, which points to an answering-model limitation (and possibly a gold
+  that over-weights a fleeting detail), not retrieval.
 
-Q22 — "what specific item does Udayaditya use to tie up the compliant guard,
-Sitaram?" (gold chapter 11; gold answer "His own cloth"). Phase 1 kept the right
-chapter (Ch11), but the Phase 2 answer flipped the ownership: "**Sitaram's** own
-cloth." The single fact the question turns on — *whose* cloth — was inverted, so
-the judge scored it incorrect. RAG answered "his own cloth" verbatim. This is the
-only single-passage question Extract missed, and it is an answering slip, not a
-retrieval one.
+Class B is the true residual: no `k` or hybrid fixes it. It needs a better
+reader, sharper extraction, or a second look at the gold.
 
-## 3. Extract correct / RAG not correct (8 questions)
+## Takeaways
 
-| Q | type | gold ch | RAG used | verdict | failure |
-| --- | --- | --- | --- | --- | --- |
-| 31 | cross | 21,22,23 | 12,27,29,33,34 | incorrect | retrieval miss (all gold) |
-| 36 | cross | 1,17,21 | 1,21,33,34 | incorrect | retrieval miss (Ch17) |
-| 49 | cross | 2,22 | 2,5,8,12 | incorrect | retrieval miss (Ch22) |
-| 27 | cross | 2,4,33 | 2,4,5,10 | partial | retrieval miss (Ch33) |
-| 43 | cross | 11,37 | 7,11,19,24 | partial | retrieval miss (Ch37) |
-| 45 | cross | 18,25 | 1,16,21,25,29 | partial | retrieval miss (Ch18) |
-| 21 | single | 5 | **2,5,12** | incorrect | retrieved Ch5, wrong incident |
-| 29 | cross | 16,17 | **13,15,16,17,21** | incorrect | retrieved gold, surface answer |
-
-### 3a. Vector retrieval misses (31, 36, 49, 27, 43, 45)
-
-Six are RAG retrieval misses: a gold chapter ranked outside the top-5, so the
-answerer never saw it. Two flavors:
-
-- **Honest abstention → incorrect** (31, 49): RAG correctly says it cannot find the
-  answer. Q31 (how the signet ring becomes evidence, gold 21–23) retrieved none of
-  the three gold chapters and replied "the provided text does not mention a signet
-  ring." Extract, reading Ch21–22, reconstructed the ring→seal→forged-petition
-  chain in full.
-- **Half answer → partial** (27, 43, 45): the question has two sides and RAG
-  retrieved only one chapter. Q27 (Pratapaditya's failed *and* successful plot to
-  kill Basanta Ray) got the failed Simultali plan from Ch2/4 but missed the
-  successful Muktiyar-Khan method in Ch33; Q43 got the Jessore rescue (Ch11) but
-  missed the Chandradwip one (Ch37). Extract retained both sides each time.
-
-### 3b. Retrieval hit, wrong answer (21, 29)
-
-The other two RAG losses are *not* retrieval misses — the gold chapter was in the
-context and the answerer still went wrong:
-
-- **Q21** (single, gold Ch5): RAG retrieved Ch5 but answered with a *different*
-  reprimand entirely — guards failing to follow Prince Udayaditya — instead of the
-  two offenses the question asks for (losing a letter; sending a man to Umesh Ray).
-  Extract, given the same chapter, named both offenses exactly. The one
-  single-passage question RAG missed, and like Q22 it is an answering failure.
-- **Q29** (cross, gold 16,17): analyzed in §1 — RAG retrieved both gold chapters
-  but reported the surface decree rather than the covert poisoning.
-
-## 4. Both incorrect (Q28, Q32, Q48)
-
-The three questions wrong under both methods — all cross-reference, all shared
-coverage/synthesis failures rather than gold problems.
-
-### 4a. Q28 — two-location question, each method finds one or none
-
-Q28 — "In what two distinct locations and disguises does Ramai Bhand face physical
-retaliation from Rammohan Mal...?" (gold chapters 9, 37). The gold names both
-beatings (the Jessore inner quarters in disguise; the Chandradwip court). RAG
-retrieved neither gold chapter and abstained; Extract kept only Ch37 and concluded
-"the provided text only mentions one location." A two-part answer needs both
-chapters, and neither method assembled the pair — RAG via vector miss, Extract via
-a Phase 1 `None` on Ch9.
-
-### 4b. Q32 — both miss the central mechanism, RAG also hallucinates
-
-Q32 — "How do the repercussions of Ramchandra Ray's midnight escape indirectly
-trigger the decree for Surma to be exiled?" (gold chapters 11, 15, 16). The gold's
-load-bearing middle step is the **secret stipend** Udayaditya and Surma pay the
-dismissed guards, which Pratapaditya discovers. Both methods reached the final
-trigger (the discovered stipends → exile) but skipped *why* the guards needed
-support. RAG additionally invented an unsupported detail (Basanta Ray bribing
-Bhagavat to lie); Extract attributed the exile to vague "psychological tactics."
-Both partial.
-
-### 4c. Q48 — both miss the specific paranoid interpretation
-
-Q48 — "...how does Ramchandra Ray later interpret his brother-in-law's behavior in
-his own court?" (gold chapters 11, 19). The gold's key fact is that Ramchandra,
-seeing Udayaditya whisper to a servant, paranoically assumes the prince is
-plotting to insult him. Both methods caught Ramchandra's ingratitude but missed
-the specific whisper-to-servant interpretation; both instead claimed he thought
-Udayaditya acted only for his sister's sake. RAG partial, Extract incorrect.
-
-## 5. Takeaways
-
-- **Single-passage QA is solved; cross-reference is the frontier.** Both methods
-  score 24/25 on single questions and 15/25 on cross. Every retrieval and
-  synthesis failure above is a cross question except Q21 and Q22, and those two are
-  answering slips with the correct passage already retrieved.
-- **The gold is sound.** Disagreements are method failures, not gold problems. The
-  Q29 spot-check shows the gold correctly separates a surface decree from the
-  covert cause, confirmed independently by Extract's full reading.
-- **Extract's weakness is Phase 1 recall** — a `None` on a gold chapter is
-  unrecoverable (5 of its 8 unique losses, three of them total misses). A secondary
-  loss is Phase 2: twice it held every gold chapter yet only half-synthesized
-  (Q30, Q33), and once it inverted a single fact (Q22).
-- **RAG's weakness is top-5 retrieval recall** — the gold chapter ranking just
-  outside `k=5` (6 of its 8 unique losses, including three half-answers on
-  two-sided questions). Lever: `-k` / `-N` / a score threshold, the target of
-  [`sweep_rag.py`](../PLAN.md). Twice (Q21, Q29) RAG retrieved the gold chapter and
-  still answered wrong — an answering failure no retrieval tuning fixes.
-- This is consistent with the aggregate result (`report.py`: 39 correct each,
-  Extract recall 0.740 ≥ RAG 0.720 at much higher precision): exhaustive reading
-  and vector top-5 land in the same place overall, but split on which specific
-  cross-reference questions each can assemble.
+- **k=10 delivers the sweep's promise on cross-reference** (0.700→0.840),
+  single saturates to 1.00, and RAG k=10 overtakes Extract on accuracy
+  (0.92 vs 0.83). The win is broad — six questions fixed — at the cost of one
+  synthesis regression (Q34) and lower chapter precision.
+- **Half the k=5 losses were not retrieval problems.** Two fixes (Q21, Q29) had
+  the gold chapter in context all along; k=10's extra context just yielded a
+  better answer. Retrieval depth is not the only lever — answer synthesis
+  improves with context too.
+- **The remaining frontier is dense-retrieval blindness, not depth.** Of the
+  five both-wrong questions, three (Q31, Q43, Q49) are solved by Extract's
+  thorough reading — the load-bearing chapter is vector-unreachable at k≤10 but
+  lexically distinctive. This is the case for the BM25/lexical hybrid in
+  PLAN.md.
+- **Two questions are hard for every method** (Q32, Q48): all three land
+  partial/incorrect, so they are answering/extraction limits or gold-ambiguity,
+  not retrieval. They bound what any retrieval fix can achieve.
+- **The gold holds up.** Across every disagreement the failures trace to a
+  method — never to the gold — and where two independent thorough readers
+  (Extract, RAG k=10) meet, they confirm the gold answer.

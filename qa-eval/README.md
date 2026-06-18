@@ -9,33 +9,30 @@ The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 
 ## Results
 
-50 questions per language (25 single-passage + 25 cross-reference), judged
-against a Gemini full-text gold standard with `ollama:qwen3.6`. `correct` counts
-(weighted = `(correct + 0.5·partial) / n` for the `all` scope):
+50 questions per language, judged against a Gemini full-text gold standard
+with `ollama:qwen3.6`. The table reports `correct`/50 with the weighted score
+`(correct + 0.5·partial) / 50` in parentheses. RAG `k=10` has been run for
+English only (Japanese pending).
 
-| Scope | Method | English | Japanese |
-| --- | --- | --- | --- |
-| **all** | RAG | 39/50 (0.830) | 38/50 (0.810) |
-| **all** | Extract | 39/50 (0.830) | 40/50 (0.850) |
-| single | RAG | 24/25 | 24/25 |
-| single | Extract | 24/25 | 25/25 |
-| cross | RAG | 15/25 | 14/25 |
-| cross | Extract | 15/25 | 15/25 |
+| Method | English | Japanese |
+| --- | --- | --- |
+| RAG (k=5) | 39/50 (0.830) | 38/50 (0.810) |
+| RAG (k=10) | 44/50 (0.920) | — |
+| Extract | 39/50 (0.830) | 40/50 (0.850) |
 
 Both languages use the same answer model `google:gemma-4-31b-it`, the same
-`embeddinggemma` index, and the same judge, so the comparison isolates the effect
-of language alone.
+`embeddinggemma` index, and the same judge.
 
-The headline holds in both languages: **single-passage QA is solved** (~24–25/25),
-**cross-reference is the open problem** (14–15/25), and **Extract ≥ RAG** —
-convergent evidence the gold is sound, since Extract reads every chapter
-independently. With the model held fixed, the **language makes almost no
-difference to accuracy**: totals match within one or two questions (English ties
-39/39, Japanese has Extract one ahead at 40/38). The one structural difference is
-that more questions are missed by *both* methods in Japanese (7 vs. 3) — a
-redistribution at near-constant total accuracy, reflecting translation and
-question specifics rather than a capability gap. Per-question disagreement case
-studies: [English](results-en/README.md) · [Japanese](results-ja/README.md).
+**Retrieval depth is the lever; language barely is.** At `k=5`, RAG and Extract
+tie on English (0.830) and sit within two questions on Japanese (0.810 vs
+0.850) — the language makes almost no difference. Bumping RAG to `k=10`
+(English) lifts accuracy to 0.920 and overtakes Extract, exactly what
+[`sweep_rag.py`](#sweep_ragpy) predicted: `k=5` was tight, and deeper retrieval
+surfaces the chapters the top-5 missed. What `k=10` *cannot* fix is dense-
+retrieval blindness — load-bearing chapters that rank outside the top-10 at
+both depths, which motivates the BM25/lexical hybrid in [PLAN.md](PLAN.md). The
+per-question `k=5`-vs-`k=10` movement and the both-wrong analysis are in the
+case studies: [English](results-en/README.md) · [Japanese](results-ja/README.md).
 
 ## Languages
 
@@ -71,6 +68,7 @@ make ja         # full Japanese pipeline
 make all        # both languages
 make report     # build whatever is missing, then print the table
 make LANG=ja rag judge   # individual steps for one language
+make rag K=10            # RAG at k=10 → results-<lang>/rag-10.jsonl
 make clean      # remove generated answers/judgements (keeps the index)
 ```
 
@@ -80,7 +78,7 @@ convenience:
 | Alias | Output target | Depends on |
 | --- | --- | --- |
 | `index` | `index-<lang>.safetensors` | scenes, titles TSV |
-| `rag` | `results-<lang>/rag.jsonl` | index, questions |
+| `rag` | `results-<lang>/rag.jsonl` (or `rag-<k>.jsonl` with `K=<k>`) | index, questions |
 | `extract-parts` | `results-<lang>/extract-{1..4}.jsonl` | scenes, questions |
 | `extract` | `results-<lang>/extract.jsonl` | the four part files, questions |
 | `judge` | `results-<lang>/judge-{rag,extract}.jsonl` | the answer files, questions |
@@ -121,13 +119,17 @@ index and asks an LLM to answer based solely on that context.
 
 - **Input**: `questions-<lang>.jsonl` (50 questions, ROOT-level)
 - **Index**: `index-<lang>.safetensors` (built by `build_index.py`)
-- **Output**: `results-<lang>/rag.jsonl` — one record per question:
+- **Output**: `results-<lang>/rag.jsonl` for the default `k=5`, or
+  `results-<lang>/rag-<k>.jsonl` for any other `-k` — one record per question:
   - `question_id` — 1-origin line number in the input file
   - `hits` — top-k scenes as `{"chapter:segment": score}` dict
   - `expanded` — all scenes included in the context as `"chapter:segment"` strings
   - `answer` — the model's answer
 
 Resume-safe: re-running skips question IDs already present in the output file.
+The k-aware filename lets a deeper retrieval run (e.g. `-k 10`) coexist with the
+`k=5` baseline rather than overwriting it; `judge.py` derives its output stem
+from the input, so `judge-rag-10.jsonl` follows automatically.
 
 ## `answer_extract.py`
 
@@ -168,9 +170,9 @@ entirely; `(question_id, chapter)` pairs already in the part file are skipped
 in Phase 1.
 
 Its main failure mode is a Phase 1 false negative: a wrong `None` drops a gold
-chapter unrecoverably, so Phase 2 never sees it. See
-[results-en/README.md](results-en/README.md#2-rag-correct--extract-not-correct-8-questions)
-for worked examples and the RAG-vs-Extract disagreement analysis.
+chapter unrecoverably, so Phase 2 never sees it. See the
+[k=5 baseline section](results-en/README.md#k5-baseline-in-brief) of the case
+study for the RAG-vs-Extract disagreement analysis.
 
 ## `judge.py`
 
@@ -248,22 +250,12 @@ Pure mechanical aggregation — no LLM calls, no output file.
 
 Both axes are broken down by gold `type` (`all` / `single` / `cross`).
 
-**Output format** (English run):
-
-```
-scope    method     n correct partial incorrect  weighted ch.recall  ch.prec
-----------------------------------------------------------------------------
-all      RAG       50      39       5         6     0.830     0.720    0.337
-all      Extract   50      39       5         6     0.830     0.740    0.843
-single   RAG       25      24       0         1     0.960     1.000    0.263
-single   Extract   25      24       0         1     0.960     1.000    1.000
-cross    RAG       25      15       5         5     0.700     0.440    0.411
-cross    Extract   25      15       5         5     0.700     0.480    0.686
-```
-
-The single/cross split and **Extract ≥ RAG** match the [Results](#results)
-headline; the per-question [case study](results-en/README.md) walks through every
-split verdict.
+**Method discovery**: rows are auto-discovered from the results directory. Each
+`rag-<k>.jsonl` with a matching `judge-rag-<k>.jsonl` becomes a row — labelled
+`RAG` for the default `k=5` `rag.jsonl`, `RAG-<k>` for a variant
+(`rag-10.jsonl` → `RAG-10`) — and Extract is appended when both its files
+exist. Rows are ordered: `RAG`, then `RAG-<k>` by ascending `k`, then Extract,
+so a newly judged retrieval depth appears with no code change.
 
 ## `sweep_rag.py`
 
@@ -271,8 +263,8 @@ Standalone retrieval-tuning script (no LLM, no output file — terminal tables
 only). It uses the gold `chapters` as a relevance label and re-embeds each
 question against the **full** index (all scenes, not just top-5) to ask:
 **at what rank/similarity do the gold chapters actually appear?** This is the
-lever the [case study](results-en/README.md#3-extract-correct--rag-not-correct-8-questions)
-points to for RAG's 6 retrieval-miss losses. Reuses `load_index` /
+lever the [case study](results-en/README.md#both-wrong-what-k10-cannot-fix)
+points to for the questions RAG still misses. Reuses `load_index` /
 `embed_query` from `answer_rag.py`.
 
 For each question it records the full cosine ranking and where each gold

@@ -25,6 +25,7 @@ performance can be compared side by side.
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -84,6 +85,39 @@ def retrieval(answers: list[dict], gold: dict[int, dict],
             "precision": prec_sum / n if n else 0.0}
 
 
+def discover_methods(results: Path) -> list[tuple[str, str, str]]:
+    """(label, answer_file, judge_file) triples for every available method.
+
+    RAG variants are discovered from results-<lang>/rag*.jsonl answer files:
+      rag.jsonl      → "RAG"        (the default k=5 baseline)
+      rag-<k>.jsonl  → "RAG-<k>"    (e.g. rag-10.jsonl → "RAG-10")
+    A variant is included only when its judge-<stem>.jsonl also exists, so a
+    not-yet-judged rag-15.jsonl simply doesn't appear. Extract is appended last
+    when both extract.jsonl and judge-extract.jsonl exist. Order: the default
+    RAG first, then RAG-<k> by ascending k, then Extract — so the k=5 baseline
+    sits beside its deeper-retrieval variants for direct comparison.
+    """
+    def rag_key(stem: str) -> tuple[int, int]:
+        if stem == "rag":
+            return (0, 0)
+        m = re.fullmatch(r"rag-(\d+)", stem)
+        return (1, int(m.group(1))) if m else (2, 0)
+
+    found: list[tuple[str, str, str]] = []
+    rag_files = [p for p in results.glob("rag*.jsonl")
+                 if p.stem == "rag" or re.fullmatch(r"rag-\d+", p.stem)]
+    for ans in sorted(rag_files, key=lambda p: rag_key(p.stem)):
+        stem = ans.stem
+        label = "RAG" if stem == "rag" else stem.upper()  # rag-10 → RAG-10
+        judge = f"judge-{stem}.jsonl"
+        if (results / judge).exists():
+            found.append((label, ans.name, judge))
+
+    if (results / "extract.jsonl").exists() and (results / "judge-extract.jsonl").exists():
+        found.append(("Extract", "extract.jsonl", "judge-extract.jsonl"))
+    return found
+
+
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -105,13 +139,14 @@ def main():
     scopes += [(t, {qid for qid, g in gold.items() if g["type"] == t})
                for t in types_present]
 
-    methods = {
-        "RAG": ("rag.jsonl", "judge-rag.jsonl"),
-        "Extract": ("extract.jsonl", "judge-extract.jsonl"),
-    }
+    methods = discover_methods(results)
+    if not methods:
+        print(f"No answer/judge pairs found in {results}")
+        return
 
-    loaded = {name: (load_jsonl(results / ans_file), load_jsonl(results / judge_file))
-              for name, (ans_file, judge_file) in methods.items()}
+    # label → (answers, judge); insertion order = RAG, RAG-<k>…, Extract.
+    loaded = {label: (load_jsonl(results / ans_file), load_jsonl(results / judge_file))
+              for label, ans_file, judge_file in methods}
 
     header = (f"{'scope':<8} {'method':<8} {'n':>3} {'correct':>7} {'partial':>7} "
               f"{'incorrect':>9} {'weighted':>9} {'ch.recall':>9} {'ch.prec':>8}")
