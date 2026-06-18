@@ -1,9 +1,10 @@
 # QA Evaluation
 
 Tools for measuring the QA accuracy of local LLMs on the translations of
-*Bou-Thakuranir Haat*, comparing **Vector RAG** against **Per-Chapter
-Extraction** as retrieval strategies. See [PLAN.md](PLAN.md) for the goal and
-remaining work.
+*Bou-Thakuranir Haat*, comparing **Vector RAG** against two per-chapter
+retrieval strategies — **Extraction** (summarize) and **Filter** (yes/maybe/no
+relevance) — as alternative ways to surface the chapters the answerer sees.
+See [PLAN.md](PLAN.md) for the goal and remaining work.
 
 The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 
@@ -11,28 +12,42 @@ The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 
 50 questions per language, judged against a Gemini full-text gold standard
 with `ollama:qwen3.6`. The table reports `correct`/50 with the weighted score
-`(correct + 0.5·partial) / 50` in parentheses. RAG `k=10` has been run for
-English only (Japanese pending).
+`(correct + 0.5·partial) / 50` in parentheses. RAG `k=10` and **Filter** have
+been run for English only (Japanese pending).
 
 | Method | English | Japanese |
 | --- | --- | --- |
 | RAG (k=5) | 39/50 (0.830) | 38/50 (0.810) |
 | RAG (k=10) | 44/50 (0.920) | — |
 | Extract | 39/50 (0.830) | 40/50 (0.850) |
+| Filter | 45/50 (0.930) | — |
 
 Both languages use the same answer model `google:gemma-4-31b-it`, the same
 `embeddinggemma` index, and the same judge.
 
-**Retrieval depth is the lever; language barely is.** At `k=5`, RAG and Extract
-tie on English (0.830) and sit within two questions on Japanese (0.810 vs
-0.850) — the language makes almost no difference. Bumping RAG to `k=10`
-(English) lifts accuracy to 0.920 and overtakes Extract, exactly what
-[`sweep_rag.py`](#sweep_ragpy) predicted: `k=5` was tight, and deeper retrieval
-surfaces the chapters the top-5 missed. What `k=10` *cannot* fix is dense-
-retrieval blindness — load-bearing chapters that rank outside the top-10 at
-both depths, which motivates the BM25/lexical hybrid in [PLAN.md](PLAN.md). The
-per-question `k=5`-vs-`k=10` movement and the both-wrong analysis are in the
-case studies: [English](results-en/README.md) · [Japanese](results-ja/README.md).
+**Retrieval strategy is the lever; language barely is.** At `k=5`, RAG and
+Extract tie on English (0.830) and sit within two questions on Japanese (0.810
+vs 0.850) — the language makes almost no difference. Two levers lift the score
+further, both about *how* chapters reach the answerer rather than which
+language:
+
+- **Bump RAG's depth to `k=10`** (English): 0.830 → 0.920, exactly what
+  [`sweep_rag.py`](#sweep_ragpy) predicted (`k=5` was tight; deeper retrieval
+  surfaces the chapters the top-5 missed).
+- **Switch to per-chapter reading with a loose relevance bar** (Filter):
+  0.830 → 0.930. Filter asks the LLM whether each chapter is relevant
+  (`yes`/`maybe`/`no`) and keeps everything except an explicit `no`, so
+  uncertainty is resolved toward inclusion. The `maybe` verdict alone rescues
+  32 of the 86 gold chapters (recall 0.49 with `yes` only → 0.86 with
+  `yes`+`maybe`).
+
+What `k=10` *cannot* fix is dense-retrieval blindness — load-bearing chapters
+that rank outside the top-10 at both depths, which motivates the BM25/lexical
+hybrid in [PLAN.md](PLAN.md). Filter sidesteps that blindness by reading every
+chapter, which is why it wins head-to-head against RAG k=10 on the questions
+RAG could not retrieve (Q31, Q43, Q49) while matching its accuracy at ~4× the
+chapter precision (0.775 vs 0.205). The per-question detail is in the case
+studies: [English](results-en/README.md) · [Japanese](results-ja/README.md).
 
 ## Languages
 
@@ -45,16 +60,24 @@ options (`-i`/`-o`/`--index`/`--scenes`/`-t`) still override these defaults.
 
 ## Status
 
-Answering and judging complete for both languages (see [Results](#results)
-above). The five scripts form the pipeline:
+Answering and judging complete for both languages for RAG and Extract (see
+[Results](#results) above). Filter is wired into the pipeline and run for
+English (Japanese pending); run [`make filter`](#pipeline-makefile) with
+`-l ja` to fill the Japanese row.
+
+The six scripts form the pipeline (Filter is opt-in):
 
 - `build_index.py` — scene embedding index → `index-<lang>.safetensors`
 - `answer_rag.py` — Vector RAG answering → `results-<lang>/rag.jsonl`
 - `answer_extract.py` — Per-chapter extraction answering → `results-<lang>/extract.jsonl`
+- `answer_filter.py` — Per-chapter yes/maybe/no relevance filter → `results-<lang>/filter.jsonl` (opt-in)
 - `judge.py` — LLM grading of answers vs. gold → `results-<lang>/judge-<stem>.jsonl`
 - `report.py` — accuracy + chapter retrieval comparison + pairwise disagreement analysis (terminal table)
 - `sweep_rag.py` — retrieval-depth / threshold sweep vs. gold chapters
   (terminal tables only; no LLM, independent of the pipeline)
+
+`answer.py` holds the shared helpers (`LANGS`, `PART_RANGES`, `load_questions`,
+`load_chapters`, `answer_question`) imported by all three answer scripts.
 
 ## Pipeline (`Makefile`)
 
@@ -74,7 +97,10 @@ make clean              # remove generated answers/judgements (keeps the index)
 Each step's **output file is the real target**, so Make skips anything already
 up to date and an interrupted `make` resumes where it stopped (each script is
 also internally resume-safe). Extraction Phase 1 uses a pattern rule (one chapter
-group per part), so the parts build in parallel with `make -j`.
+group per part), so the parts build in parallel with `make -j`. Filter reuses
+the same pattern rule shape; it is **opt-in** (not in `make`, `make all`, or
+`make <lang>`) because Phase 1 costs ~1,850 LLM calls per language — run
+`make filter` after the default pipeline to add the third retrieval strategy.
 
 ## `build_index.py`
 
@@ -159,6 +185,66 @@ chapter unrecoverably, so Phase 2 never sees it. See the
 [k=5 baseline section](results-en/README.md#k5-baseline-in-brief) of the case
 study for the RAG-vs-Extract disagreement analysis.
 
+## `answer_filter.py`
+
+A trimmed variant of per-chapter extraction that plays the same role as Vector
+RAG — a **retrieval step that selects chapters** — but uses the LLM itself as
+the retriever instead of dense embeddings. Where Extract summarizes each
+chapter and answers from the summaries, Filter asks only "is this chapter
+relevant?" (returning `yes` / `maybe` / `no`) and answers from the **full
+text** of the chapters whose verdict is not `no`.
+
+**Algorithm**
+
+Phase 1 — Relevance classification (37 chapters × 50 questions = 1,850 calls):
+
+1. Outer loop iterates over chapters; inner loop iterates over questions. This
+   keeps the same chapter text in the KV cache across all questions for that
+   chapter, mirroring `answer_extract.py`.
+2. For each (chapter, question) pair, pass the chapter text as context and ask
+   the model whether the chapter is relevant to the question. CoT is disabled
+   (`include_thoughts=False`) and the reply is the single word `yes`, `maybe`,
+   or `no` (plain text, no structured schema) — parsed by first character,
+   retrying up to 3 times on an unclear reply and defaulting to `maybe` if
+   still unclear.
+3. Write the result immediately to the checkpoint file and flush.
+
+Phase 2 — Answer (50 calls):
+
+4. Collect every chapter whose verdict is not `no` for the question (both
+   `yes` and `maybe` count as relevant).
+5. Build a context block with the **full chapter text** (not a summary)
+   labeled `[Chapter N]`, and ask the model to answer in English using only
+   that context.
+
+- **Input**: `questions-<lang>.jsonl` (50 questions, ROOT-level) and
+  `../all/<lang>-gemini.jsonl` (scenes — needed in Phase 2 because Phase 1
+  stored only verdicts, unlike Extract which kept the summary text)
+- **Output**: `results-<lang>/filter.jsonl` — one record per question:
+  - `question_id` — 1-origin line number in the input file
+  - `expanded` — chapter numbers with verdict not `no`, as `["5", "10", ...]` strings
+  - `answer` — the model's answer
+- **Part files**: `results-<lang>/filter-{N}.jsonl` (N = 1–4) — one record per
+  classified `(chapter, question_id)` pair for each chapter group:
+  - `chapter` — chapter number
+  - `question_id` — 1-origin line number in the input file
+  - `verdict` — relevance verdict: `yes`, `maybe`, or `no`
+  - Part 1: chapters 1–10 · Part 2: chapters 11–20 · Part 3: chapters 21–30 · Part 4: chapters 31–37
+
+Resume-safe at two levels: question IDs already in the output file are skipped
+entirely; `(question_id, chapter)` pairs already in the part file are skipped
+in Phase 1.
+
+Its main failure mode is the same shape as Extract's but with a different
+cause: a wrong `no` verdict drops a gold chapter unrecoverably (both `yes`
+and `maybe` keep it). In the English run this hit 6 questions, three of them
+(Q32, Q34, Q42) total wipeouts where every gold chapter was marked `no`. The
+`maybe` bar still earns its keep: of the 86 gold chapters, 42 were `yes`,
+32 were `maybe`, and 12 were `no` — so keeping only `yes` would have given
+chapter recall 0.49, while keeping `yes`+`maybe` gives 0.86. That rescue is
+what lifts the Filter row in [Results](#results) to 0.930 — top of the table.
+See the [Filter case study](results-en/README.md#filter-per-chapter-reading-with-a-loose-relevance-bar).
+
 ## `judge.py`
 
 Grades the candidate answers in one or more result files against the gold
@@ -239,9 +325,10 @@ Both axes are broken down by gold `type` (`all` / `single` / `cross`).
 **Method discovery**: rows are auto-discovered from the results directory. Each
 `rag-<k>.jsonl` with a matching `judge-rag-<k>.jsonl` becomes a row — labelled
 `RAG` for the default `k=5` `rag.jsonl`, `RAG-<k>` for a variant
-(`rag-10.jsonl` → `RAG-10`) — and Extract is appended when both its files
-exist. Rows are ordered: `RAG`, then `RAG-<k>` by ascending `k`, then Extract,
-so a newly judged retrieval depth appears with no code change.
+(`rag-10.jsonl` → `RAG-10`) — and Extract, then Filter, are appended when both
+their files exist. Rows are ordered: `RAG`, then `RAG-<k>` by ascending `k`,
+then Extract, then Filter, so a newly judged retrieval depth or a new
+per-chapter method appears with no code change.
 
 ### Pairwise disagreement analysis
 
@@ -252,8 +339,10 @@ other, the **loss class** of the loser:
 
 - **missed context** — a gold chapter is absent from the loser's `expanded`, so
   it never reached the answerer at all. For Extract this is a **Phase 1 false
-  negative** (a wrong `None` dropped the chapter); for RAG it is a **retrieval
-  miss** (the chapter ranked outside the top-k).
+  negative** (a wrong `None` dropped the chapter); for Filter a **wrong
+  `no` verdict** (same shape, different cause — see
+  [`answer_filter.py`](#answer_filterpy)); for RAG it is a **retrieval miss**
+  (the chapter ranked outside the top-k).
 - **synthesis** — the loser held every gold chapter yet still mis-synthesized
   the answer.
 

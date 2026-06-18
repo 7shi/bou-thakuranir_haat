@@ -1,17 +1,22 @@
-# Retrieval-depth case study: RAG k=5 vs k=10
+# Retrieval-strategy case study: RAG depth and per-chapter reading
 
-A per-question analysis of what changes when RAG's retrieval depth is bumped
-from `k=5` to `k=10`, complementing the aggregate table from
-[`report.py`](../README.md#reportpy). The bump was motivated by
+A per-question analysis of the retrieval strategies on the English question
+set, complementing the aggregate table from
+[`report.py`](../README.md#reportpy). The original thread follows what changes
+when RAG's retrieval depth is bumped from `k=5` to `k=10` — motivated by
 [`sweep_rag.py`](../README.md#sweep_ragpy), which found `k=5` tight for
 cross-reference questions and predicted that `k≈10–15` would surface most
 dropped gold chapters. **Per-Chapter Extract** — an independent thorough-reading
 path — is kept as the convergent-validity baseline: where it agrees with the
-gold, two independent readers confirm the answer.
+gold, two independent readers confirm the answer. **Filter**, the third
+strategy, is added at the end
+([§ Filter](#filter-per-chapter-reading-with-a-loose-relevance-bar)): a looser
+variant of Extract that reads the full text of every chapter not marked `no`,
+which sidesteps the dense-retrieval blindness the depth study cannot fix.
 
 Run: answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`, 50 questions
 (`questions-en.jsonl`, 25 single-passage + 25 cross-reference). RAG k=5 →
-`rag.jsonl`; RAG k=10 → `rag-10.jsonl`.
+`rag.jsonl`; RAG k=10 → `rag-10.jsonl`; Filter → `filter.jsonl`.
 
 ## Headline (`report.py`)
 
@@ -21,23 +26,34 @@ scope    method     n correct partial incorrect  weighted ch.recall  ch.prec
 all      RAG k=5   50      39       5         6     0.830     0.720    0.337
 all      RAG k=10  50      44       4         2     0.920     0.840    0.205
 all      Extract   50      39       5         6     0.830     0.740    0.843
+all      Filter    50      45       3         2     0.930     0.880    0.775
 
 single   RAG k=5   25      24       0         1     0.960     1.000    0.263
 single   RAG k=10  25      25       0         0     1.000     1.000    0.136
 single   Extract   25      24       0         1     0.960     1.000    1.000
+single   Filter    25      25       0         0     1.000     1.000    0.940
 
 cross    RAG k=5   25      15       5         5     0.700     0.440    0.411
 cross    RAG k=10  25      19       4         2     0.840     0.680    0.274
 cross    Extract   25      15       5         5     0.700     0.480    0.686
+cross    Filter    25      20       3         2     0.860     0.760    0.611
 ```
 
 The sweep's prediction holds: deepening retrieval lifts the cross-reference
 score from 0.700 to 0.840 (incorrect 5→2), and single-passage saturates to
 1.00. Chapter recall rises (cross 0.44→0.68) at the cost of precision
 (0.41→0.27) — more context, looser filtering — yet **accuracy rises**, so the
-extra context helps more than it distracts. Net, RAG k=10 overtakes Extract on
+extra context helps more than it distracts. RAG k=10 overtakes Extract on
 accuracy (0.92 vs 0.83) while Extract still leads sharply on chapter precision
 (0.84).
+
+**Filter tops both** at 0.930 by attacking a different lever: not how *deep*
+to retrieve but how *strictly* to filter once every chapter is read. Keeping
+every chapter that is not an explicit `no` lifts cross-reference accuracy to
+0.860 and chapter recall to 0.880, while chapter precision (0.775) stays far
+above either RAG variant — Filter matches RAG k=10's accuracy at ~4× the
+signal-to-noise. The detail is in
+[§ Filter](#filter-per-chapter-reading-with-a-loose-relevance-bar).
 
 ## Extract vs RAG k=10: where each method loses
 
@@ -232,31 +248,108 @@ retrieval cannot be the lever:
 Class B is the true residual: no `k` or hybrid fixes it. It needs a better
 reader, sharper extraction, or a second look at the gold.
 
+## Filter: per-chapter reading with a loose relevance bar
+
+The depth study above ends on a frontier: five questions stay not-correct at
+every `k`, three of them (Q31, Q43, Q49) because the load-bearing chapter is
+vector-unreachable — dense embedding ranks it outside the top-10 at both
+depths. Filter attacks that frontier from a different angle. Instead of
+deciding how *deep* to retrieve, it reads every chapter and decides only how
+*strictly* to filter: keep everything the LLM does not explicitly mark `no`,
+so the three-level `yes`/`maybe`/`no` verdict resolves uncertainty toward
+inclusion.
+
+### Why `maybe` carries the recall
+
+The verdict split on the 86 gold `(question, chapter)` pairs tells the story:
+
+| verdict | in gold | not gold | gold precision |
+| --- | --- | --- | --- |
+| `yes` | 42 | 2 | 0.955 |
+| `maybe` | 32 | 41 | 0.438 |
+| `no` | 12 | 1721 | 0.007 |
+
+The `yes` bar is tight (0.955 precision) but low-recall on its own: keeping
+only `yes` would give chapter recall **0.49**. The `maybe` bar is the rescue
+— 32 of 86 gold chapters landed there, not confident enough for `yes` but
+not dismissed as `no`. Including `yes`+`maybe` lifts chapter recall to **0.86**,
+and Filter's headline 0.880 follows. Without the middle verdict, Filter would
+be strictly worse than Extract on retrieval.
+
+### What Filter fixes that depth could not
+
+The three Class A questions the depth study ends on — Q31, Q43, Q49, where
+the gold chapter is vector-unreachable at k≤10 — are exactly what per-chapter
+reading is built for. Filter answers all three correctly, matching Extract's
+thorough-reading wins and confirming the gold (now three independent paths
+agree: gold, Extract, Filter). This is the clean split against RAG k=10:
+same accuracy (0.92 vs 0.93), but Filter's three wins are the
+vector-unreachable Class A trio, and RAG k=10's three wins are Q34 / Q37 /
+Q42 — Filter's own false negatives (below). Against Extract, 5 of Filter's
+8 head-to-head wins are missed-context: chapters Extract's Phase 1 dropped
+with a wrong `None`, Filter kept with `yes` or `maybe`.
+
+### Where Filter still loses: confident false negatives
+
+A wrong `no` drops a gold chapter just as unrecoverably as Extract's wrong
+`None`. Six questions had at least one gold chapter marked `no`, and three
+were total wipeouts — every gold chapter dismissed:
+
+| Q | gold | all dropped? | result |
+| --- | --- | --- | --- |
+| 34 | 30,31,33 | yes | incorrect (loses to both RAG variants) |
+| 42 | 22,23,29 | yes | incorrect (loses to both RAG variants) |
+| 32 | 11,15,16 | yes | partial (shared with every method — Class B) |
+| 31 | 21,22,23 | no (kept 21,22) | correct |
+| 38 | 26,28,32 | no (kept 26,28) | correct |
+| 50 | 8,18,23 | no (kept 8,18) | correct |
+
+The partial drops (Q31, Q38, Q50) did not cost Filter — enough gold chapters
+survived to synthesize the answer. The total wipeouts did: Q34 and Q42 are
+Filter's only losses to the RAG variants, both because every gold chapter was
+marked `no`. Notably, Q34 and Q42 are also Extract's total wipeouts — two
+different classifiers (each reading the full chapter) independently decide
+these chapters are irrelevant, weak evidence that the chapter-question link
+is genuinely hard to spot rather than a single prompt's quirk. This is the
+residual the `maybe` bar cannot reach: a confident wrong `no`, not an
+uncertain `maybe`.
+
 ## Takeaways
 
 - **k=10 delivers the sweep's promise on cross-reference** (0.700→0.840),
   single saturates to 1.00, and RAG k=10 overtakes Extract on accuracy
   (0.92 vs 0.83). The win is broad — six questions fixed — at the cost of one
-  synthesis regression (Q34) and lower chapter precision.
-- **The 0.92 vs 0.83 margin is Extract's Phase 1 filter, not its synthesis.**
-  `report.py`'s disagreement pass shows 7 of Extract's 10 losses to k=10 are
-  Phase 1 false negatives (a gold chapter dropped by a wrong `None`); only 3 are
-  synthesis slips. The two methods fail on orthogonal axes — Extract
-  self-inflicts retrievable losses, RAG suffers structural dense-retrieval
-  blindness — so the levers differ: weaken Extract's `None` bar (ceiling
-  39+7 = 46, re-overtaking k=10) versus add a BM25/lexical hybrid to RAG.
+  synthesis regression (Q34) and lower chapter precision. Filter then tops
+  both at 0.93 by loosening the filter rather than deepening the retrieval.
+- **The 0.92 vs 0.83 margin is Extract's Phase 1 filter, not its synthesis —
+  and Filter confirms the fix.** `report.py`'s disagreement pass shows 7 of
+  Extract's 10 losses to k=10 are Phase 1 false negatives (a gold chapter
+  dropped by a wrong `None`); only 3 are synthesis slips. The k=10 study
+  predicted the lever was to *weaken Extract's `None` bar* (ceiling 39+7 = 46
+  correct, re-overtaking k=10); Filter is that lever made real — keeping every
+  chapter not marked `no` recovers 5 of those 7 Phase 1 false negatives (plus
+  all 3 synthesis slips) and lands at 45 correct / 0.930 weighted, one shy of
+  the 46 ceiling because Q34 and Q42 stay false negatives for Filter too.
 - **Half the k=5 losses were not retrieval problems.** Two fixes (Q21, Q29) had
   the gold chapter in context all along; k=10's extra context just yielded a
   better answer. Retrieval depth is not the only lever — answer synthesis
   improves with context too.
-- **The remaining frontier is dense-retrieval blindness, not depth.** Of the
-  five both-wrong questions, three (Q31, Q43, Q49) are solved by Extract's
-  thorough reading — the load-bearing chapter is vector-unreachable at k≤10 but
-  lexically distinctive. This is the case for the BM25/lexical hybrid in
-  PLAN.md.
-- **Two questions are hard for every method** (Q32, Q48): all three land
+- **The dense-retrieval blindness frontier is closeable per-chapter.** Of the
+  five both-wrong questions, three (Q31, Q43, Q49) are solved by a thorough
+  reading the vector retriever cannot do — Extract gets them, and so does
+  Filter. The chapter-question link is vector-unreachable at k≤10 but
+  lexically distinctive, so the BM25/lexical hybrid in PLAN.md and the
+  per-chapter reading of Extract/Filter both recover it. RAG's loss there is
+  structural to dense embedding, not to depth.
+- **The `maybe` verdict is what makes Filter work.** On 86 gold chapters, only
+  42 earned `yes` (recall 0.49 on its own); 32 more earned `maybe`, lifting
+  recall to 0.86. Without the middle verdict Filter would be strictly worse
+  than Extract at retrieval. The residual is a *confident* wrong `no` (Q32,
+  Q34, Q42), which `maybe` cannot reach because the model never hesitated — a
+  different failure mode than Extract's uncertain `None`.
+- **Two questions are hard for every method** (Q32, Q48): all four land
   partial/incorrect, so they are answering/extraction limits or gold-ambiguity,
   not retrieval. They bound what any retrieval fix can achieve.
 - **The gold holds up.** Across every disagreement the failures trace to a
-  method — never to the gold — and where two independent thorough readers
-  (Extract, RAG k=10) meet, they confirm the gold answer.
+  method — never to the gold — and where three independent thorough readers
+  (Extract, RAG k=10, Filter) meet, they confirm the gold answer.

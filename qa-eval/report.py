@@ -27,9 +27,10 @@ of methods: a 3x3 verdict agreement matrix plus, for each question where one
 method strictly beats the other, whether the loser actually had every gold
 chapter in its context. A non-empty `dropped` set means the loser never saw that
 chapter at all — a **missed-context** loss (for Extract this is a Phase 1 false
-negative, for RAG a retrieval miss); an empty set means the loser held all the
-evidence and still mis-synthesized — a **synthesis** loss. This isolates the
-lever behind each off-diagonal cell: retrieval/filtering vs. answering.
+negative, for Filter a wrong `no` verdict, for RAG a retrieval miss); an
+empty set means the loser held all the evidence and still mis-synthesized — a
+**synthesis** loss. This isolates the lever behind each off-diagonal cell:
+retrieval/filtering vs. answering.
 """
 
 import argparse
@@ -124,8 +125,9 @@ def disagreement(label_a: str, ans_a: dict[int, dict], judge_a: dict[int, dict],
 
     A non-empty `dropped` marks a **missed-context** loss: the loser never had
     that gold chapter in context (for Extract, a Phase 1 false negative; for
-    RAG, a retrieval miss). An empty `dropped` marks a **synthesis** loss: the
-    loser held every gold chapter yet still mis-synthesized the answer.
+    Filter, a wrong `no` verdict; for RAG, a retrieval miss). An empty
+    `dropped` marks a **synthesis** loss: the loser held every gold chapter yet
+    still mis-synthesized the answer.
     """
     common = sorted(set(judge_a) & set(judge_b) & set(ans_a) & set(ans_b))
     matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -223,12 +225,14 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
 
     RAG variants are discovered from results-<lang>/rag*.jsonl answer files:
       rag.jsonl      → "RAG"        (the default k=5 baseline)
-      rag-<k>.jsonl  → "RAG-<k>"    (e.g. rag-10.jsonl → "RAG-10")
+      rag-<k>.jsonl  → "RAG-<k>"    (e.g. rag-10.jsonl → RAG-10)
     A variant is included only when its judge-<stem>.jsonl also exists, so a
-    not-yet-judged rag-15.jsonl simply doesn't appear. Extract is appended last
-    when both extract.jsonl and judge-extract.jsonl exist. Order: the default
-    RAG first, then RAG-<k> by ascending k, then Extract — so the k=5 baseline
-    sits beside its deeper-retrieval variants for direct comparison.
+    not-yet-judged rag-15.jsonl simply doesn't appear. Extract (per-chapter
+    summary) and Filter (per-chapter yes/maybe/no relevance) are appended when both
+    their answer and judge files exist. Order: the default RAG first, then
+    RAG-<k> by ascending k, then Extract, then Filter — so the k=5 baseline
+    sits beside its deeper-retrieval variants, and the two per-chapter
+    methods sit next to each other for direct comparison.
     """
     def rag_key(stem: str) -> tuple[int, int]:
         if stem == "rag":
@@ -248,6 +252,8 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
 
     if (results / "extract.jsonl").exists() and (results / "judge-extract.jsonl").exists():
         found.append(("Extract", "extract.jsonl", "judge-extract.jsonl"))
+    if (results / "filter.jsonl").exists() and (results / "judge-filter.jsonl").exists():
+        found.append(("Filter", "filter.jsonl", "judge-filter.jsonl"))
     return found
 
 
@@ -300,9 +306,10 @@ def main():
         print("=" * 78)
         print()
         print("Loss class: 'missed context' = the loser never had a gold chapter\n"
-              "in its context — for Extract that is a Phase 1 false negative, for\n"
-              "RAG a retrieval miss. 'synthesis' = the loser held all gold chapters\n"
-              "yet still mis-synthesized.")
+              "in its context — for Extract that is a Phase 1 false negative (a\n"
+              "wrong `None`), for Filter a wrong `no` verdict, for RAG a\n"
+              "retrieval miss. 'synthesis' = the loser held all gold chapters yet\n"
+              "still mis-synthesized.")
         print()
         ans_by = {label: _by_qid(a) for label, (a, _j) in loaded.items()}
         judge_by = {label: _by_qid(j) for label, (_a, j) in loaded.items()}
