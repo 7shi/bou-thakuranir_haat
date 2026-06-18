@@ -228,11 +228,14 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
       rag-<k>.jsonl  → "RAG-<k>"    (e.g. rag-10.jsonl → RAG-10)
     A variant is included only when its judge-<stem>.jsonl also exists, so a
     not-yet-judged rag-15.jsonl simply doesn't appear. Extract (per-chapter
-    summary) and Filter (per-chapter yes/maybe/no relevance) are appended when both
-    their answer and judge files exist. Order: the default RAG first, then
-    RAG-<k> by ascending k, then Extract, then Filter — so the k=5 baseline
-    sits beside its deeper-retrieval variants, and the two per-chapter
-    methods sit next to each other for direct comparison.
+    summary) and Filter (per-chapter relevance) are appended when both their
+    answer and judge files exist. Filter has two verdict granularities:
+    filter2.jsonl (yes/no) and filter3.jsonl (yes/maybe/no, the default), and
+    both are appended when present. Order: the default RAG first, then
+    RAG-<k> by ascending k, then Extract, then Filter2, then Filter3 — so the
+    k=5 baseline sits beside its deeper-retrieval variants, and the
+    per-chapter methods sit next to each other for direct comparison, with the
+    stricter two-level filter ahead of its looser three-level counterpart.
     """
     def rag_key(stem: str) -> tuple[int, int]:
         if stem == "rag":
@@ -252,8 +255,13 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
 
     if (results / "extract.jsonl").exists() and (results / "judge-extract.jsonl").exists():
         found.append(("Extract", "extract.jsonl", "judge-extract.jsonl"))
-    if (results / "filter.jsonl").exists() and (results / "judge-filter.jsonl").exists():
-        found.append(("Filter", "filter.jsonl", "judge-filter.jsonl"))
+    # Filter2 (yes/no) first, then Filter3 (yes/maybe/no, default). Each is
+    # included only when both its answer file and its judge file exist.
+    for stem, label in [("filter2", "Filter2"), ("filter3", "Filter3")]:
+        ans = f"{stem}.jsonl"
+        judge = f"judge-{stem}.jsonl"
+        if (results / ans).exists() and (results / judge).exists():
+            found.append((label, ans, judge))
     return found
 
 

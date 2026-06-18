@@ -16,7 +16,8 @@ which sidesteps the dense-retrieval blindness the depth study cannot fix.
 
 Run: answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`, 50 questions
 (`questions-en.jsonl`, 25 single-passage + 25 cross-reference). RAG k=5 →
-`rag.jsonl`; RAG k=10 → `rag-10.jsonl`; Filter → `filter.jsonl`.
+`rag.jsonl`; RAG k=10 → `rag-10.jsonl`; Filter2 → `filter2.jsonl`; Filter3 →
+`filter3.jsonl`.
 
 ## Headline (`report.py`)
 
@@ -26,17 +27,20 @@ scope    method     n correct partial incorrect  weighted ch.recall  ch.prec
 all      RAG k=5   50      39       5         6     0.830     0.720    0.337
 all      RAG k=10  50      44       4         2     0.920     0.840    0.205
 all      Extract   50      39       5         6     0.830     0.740    0.843
-all      Filter    50      45       3         2     0.930     0.880    0.775
+all      Filter2   50      36       7         7     0.790     0.600    0.808
+all      Filter3   50      45       3         2     0.930     0.880    0.775
 
 single   RAG k=5   25      24       0         1     0.960     1.000    0.263
 single   RAG k=10  25      25       0         0     1.000     1.000    0.136
 single   Extract   25      24       0         1     0.960     1.000    1.000
-single   Filter    25      25       0         0     1.000     1.000    0.940
+single   Filter2   25      24       1         0     0.980     1.000    1.000
+single   Filter3   25      25       0         0     1.000     1.000    0.940
 
 cross    RAG k=5   25      15       5         5     0.700     0.440    0.411
 cross    RAG k=10  25      19       4         2     0.840     0.680    0.274
 cross    Extract   25      15       5         5     0.700     0.480    0.686
-cross    Filter    25      20       3         2     0.860     0.760    0.611
+cross    Filter2   25      12       6         7     0.600     0.200    0.617
+cross    Filter3   25      20       3         2     0.860     0.760    0.611
 ```
 
 The sweep's prediction holds: deepening retrieval lifts the cross-reference
@@ -47,13 +51,17 @@ extra context helps more than it distracts. RAG k=10 overtakes Extract on
 accuracy (0.92 vs 0.83) while Extract still leads sharply on chapter precision
 (0.84).
 
-**Filter tops both** at 0.930 by attacking a different lever: not how *deep*
+**Filter3 tops both** at 0.930 by attacking a different lever: not how *deep*
 to retrieve but how *strictly* to filter once every chapter is read. Keeping
 every chapter that is not an explicit `no` lifts cross-reference accuracy to
 0.860 and chapter recall to 0.880, while chapter precision (0.775) stays far
-above either RAG variant — Filter matches RAG k=10's accuracy at ~4× the
-signal-to-noise. The detail is in
-[§ Filter](#filter-per-chapter-reading-with-a-loose-relevance-bar).
+above either RAG variant — Filter3 matches RAG k=10's accuracy at ~4× the
+signal-to-noise. **Filter2** — the same per-chapter reading with a strict
+two-level `yes`/`no` bar — shows what the loose threshold buys: it collapses to
+0.790 (below Extract), because the forced binary call drops 33 of 86 gold
+chapters as `no` (vs. 12 under Filter3) and cross-reference chapter recall
+falls to 0.20. The `maybe` verdict is the lever, not the reading. The detail
+is in [§ Filter](#filter-per-chapter-reading-with-a-loose-relevance-bar).
 
 ## Extract vs RAG k=10: where each method loses
 
@@ -250,10 +258,16 @@ reader, sharper extraction, or a second look at the gold.
 
 ## Filter: per-chapter reading with a loose relevance bar
 
+This section analyzes the three-level Filter (Filter3, `yes`/`maybe`/`no`,
+keeping everything not `no`) — the default and top-scoring variant. The
+two-level Filter2 (`yes`/`no`, keeping only `yes`) is compared against it at
+the end
+([§ Filter2 vs Filter3](#filter2-vs-filter3-what-the-maybe-bar-buys)).
+
 The depth study above ends on a frontier: five questions stay not-correct at
 every `k`, three of them (Q31, Q43, Q49) because the load-bearing chapter is
 vector-unreachable — dense embedding ranks it outside the top-10 at both
-depths. Filter attacks that frontier from a different angle. Instead of
+depths. Filter3 attacks that frontier from a different angle. Instead of
 deciding how *deep* to retrieve, it reads every chapter and decides only how
 *strictly* to filter: keep everything the LLM does not explicitly mark `no`,
 so the three-level `yes`/`maybe`/`no` verdict resolves uncertainty toward
@@ -273,8 +287,10 @@ The `yes` bar is tight (0.955 precision) but low-recall on its own: keeping
 only `yes` would give chapter recall **0.49**. The `maybe` bar is the rescue
 — 32 of 86 gold chapters landed there, not confident enough for `yes` but
 not dismissed as `no`. Including `yes`+`maybe` lifts chapter recall to **0.86**,
-and Filter's headline 0.880 follows. Without the middle verdict, Filter would
-be strictly worse than Extract on retrieval.
+and Filter3's headline 0.880 follows. The prediction "without the middle
+verdict, Filter would be strictly worse than Extract on retrieval" is exactly
+what Filter2 confirms (see
+[§ Filter2 vs Filter3](#filter2-vs-filter3-what-the-maybe-bar-buys)).
 
 ### What Filter fixes that depth could not
 
@@ -304,9 +320,9 @@ were total wipeouts — every gold chapter dismissed:
 | 38 | 26,28,32 | no (kept 26,28) | correct |
 | 50 | 8,18,23 | no (kept 8,18) | correct |
 
-The partial drops (Q31, Q38, Q50) did not cost Filter — enough gold chapters
+The partial drops (Q31, Q38, Q50) did not cost Filter3 — enough gold chapters
 survived to synthesize the answer. The total wipeouts did: Q34 and Q42 are
-Filter's only losses to the RAG variants, both because every gold chapter was
+Filter3's only losses to the RAG variants, both because every gold chapter was
 marked `no`. Notably, Q34 and Q42 are also Extract's total wipeouts — two
 different classifiers (each reading the full chapter) independently decide
 these chapters are irrelevant, weak evidence that the chapter-question link
@@ -314,22 +330,59 @@ is genuinely hard to spot rather than a single prompt's quirk. This is the
 residual the `maybe` bar cannot reach: a confident wrong `no`, not an
 uncertain `maybe`.
 
+### Filter2 vs Filter3: what the `maybe` bar buys
+
+Both filters do the same per-chapter reading and both reduce Phase 2 to a
+binary keep/drop; the only difference is where the drop threshold sits. So
+Filter2 (`yes`/`no`, keep only `yes`) is a controlled experiment on the value
+of the `maybe` verdict — and the result is decisive: **0.790 vs 0.930**, with
+Filter2 landing *below Extract* (0.83). The verdict split on the 86 gold
+pairs shows the mechanism:
+
+| verdict | Filter2 in gold | Filter2 not gold | Filter3 in gold | Filter3 not gold |
+| --- | --- | --- | --- | --- |
+| `yes` | 53 | 11 | 42 | 2 |
+| `maybe` | — | — | 32 | 41 |
+| `no` | 33 | 1753 | 12 | 1721 |
+
+Forced into a binary call, the model promotes *some* uncertain chapters to
+`yes` (53 vs 42) — so Filter2's `yes` recall is 0.62, above Filter3's
+`yes`-only 0.49. But that promotion is partial: of the 32 gold chapters
+Filter3 caught with `maybe`, only 11 survive as `yes` under Filter2; the other
+21 fall to `no`. That is why Filter2 drops **33** gold chapters as `no` (vs.
+Filter3's 12) and tops out at chapter recall 0.62 (vs. 0.86). The strict bar
+re-introduces exactly the missed-context losses per-chapter reading was meant
+to fix.
+
+The damage is concentrated on cross-reference: cross chapter recall collapses
+to **0.20** (vs. 0.76), and `report.py`'s Filter2×Filter3 disagreement pass
+confirms the cause — Filter3 beats Filter2 on **11** questions, **10** of them
+missed-context (Q26, Q28, Q33, Q38, Q40, Q43, Q44, Q45, Q48, Q50). Filter2's
+single win over Filter3 is Q37 (a synthesis slip where Filter3 half-answered);
+Filter2 never beats Filter3 by holding an extra gold chapter. In other words,
+the `maybe` verdict is not a cosmetic middle label — it is the lever that
+makes per-chapter reading work, and removing it gives back everything the
+loose bar bought.
+
 ## Takeaways
 
 - **k=10 delivers the sweep's promise on cross-reference** (0.700→0.840),
   single saturates to 1.00, and RAG k=10 overtakes Extract on accuracy
   (0.92 vs 0.83). The win is broad — six questions fixed — at the cost of one
-  synthesis regression (Q34) and lower chapter precision. Filter then tops
-  both at 0.93 by loosening the filter rather than deepening the retrieval.
+  synthesis regression (Q34) and lower chapter precision. Filter3 then tops
+  both at 0.93 by loosening the filter rather than deepening the retrieval,
+  while the strict two-level Filter2 drops to 0.79 — the threshold, not the
+  reading, is the lever.
 - **The 0.92 vs 0.83 margin is Extract's Phase 1 filter, not its synthesis —
-  and Filter confirms the fix.** `report.py`'s disagreement pass shows 7 of
+  and Filter3 confirms the fix.** `report.py`'s disagreement pass shows 7 of
   Extract's 10 losses to k=10 are Phase 1 false negatives (a gold chapter
   dropped by a wrong `None`); only 3 are synthesis slips. The k=10 study
   predicted the lever was to *weaken Extract's `None` bar* (ceiling 39+7 = 46
-  correct, re-overtaking k=10); Filter is that lever made real — keeping every
-  chapter not marked `no` recovers 5 of those 7 Phase 1 false negatives (plus
-  all 3 synthesis slips) and lands at 45 correct / 0.930 weighted, one shy of
-  the 46 ceiling because Q34 and Q42 stay false negatives for Filter too.
+  correct, re-overtaking k=10); Filter3 is that lever made real — keeping
+  every chapter not marked `no` recovers 5 of those 7 Phase 1 false negatives
+  (plus all 3 synthesis slips) and lands at 45 correct / 0.930 weighted, one
+  shy of the 46 ceiling because Q34 and Q42 stay false negatives for Filter3
+  too.
 - **Half the k=5 losses were not retrieval problems.** Two fixes (Q21, Q29) had
   the gold chapter in context all along; k=10's extra context just yielded a
   better answer. Retrieval depth is not the only lever — answer synthesis
@@ -337,19 +390,23 @@ uncertain `maybe`.
 - **The dense-retrieval blindness frontier is closeable per-chapter.** Of the
   five both-wrong questions, three (Q31, Q43, Q49) are solved by a thorough
   reading the vector retriever cannot do — Extract gets them, and so does
-  Filter. The chapter-question link is vector-unreachable at k≤10 but
+  Filter3. The chapter-question link is vector-unreachable at k≤10 but
   lexically distinctive, so the BM25/lexical hybrid in PLAN.md and the
-  per-chapter reading of Extract/Filter both recover it. RAG's loss there is
+  per-chapter reading of Extract/Filter3 both recover it. RAG's loss there is
   structural to dense embedding, not to depth.
-- **The `maybe` verdict is what makes Filter work.** On 86 gold chapters, only
-  42 earned `yes` (recall 0.49 on its own); 32 more earned `maybe`, lifting
-  recall to 0.86. Without the middle verdict Filter would be strictly worse
-  than Extract at retrieval. The residual is a *confident* wrong `no` (Q32,
-  Q34, Q42), which `maybe` cannot reach because the model never hesitated — a
-  different failure mode than Extract's uncertain `None`.
-- **Two questions are hard for every method** (Q32, Q48): all four land
-  partial/incorrect, so they are answering/extraction limits or gold-ambiguity,
-  not retrieval. They bound what any retrieval fix can achieve.
+- **The `maybe` verdict is what makes the filter work — and Filter2 proves it
+  by absence.** On 86 gold chapters, only 42 earned `yes` (recall 0.49 on its
+  own); 32 more earned `maybe`, lifting recall to 0.86. The prediction that
+  "without the middle verdict the filter would be strictly worse than Extract
+  at retrieval" is exactly borne out: Filter2 drops to 0.790 (below Extract's
+  0.830), because the forced binary call pushes 21 of those 32 `maybe` gold
+  chapters to `no`. The residual is a *confident* wrong `no` (Q32, Q34, Q42),
+  which `maybe` cannot reach because the model never hesitated — a different
+  failure mode than Extract's uncertain `None`.
+- **Two questions are hard for every method** (Q32, Q48): all five land
+  partial/incorrect, so they are answering/extraction limits or
+  gold-ambiguity, not retrieval. They bound what any retrieval fix can
+  achieve.
 - **The gold holds up.** Across every disagreement the failures trace to a
   method — never to the gold — and where three independent thorough readers
-  (Extract, RAG k=10, Filter) meet, they confirm the gold answer.
+  (Extract, RAG k=10, Filter3) meet, they confirm the gold answer.

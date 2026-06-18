@@ -1,26 +1,38 @@
 #!/usr/bin/env python3
-"""Answer evaluation questions using a per-chapter yes/maybe/no relevance filter.
+"""Answer evaluation questions using a per-chapter relevance filter.
 
 A trimmed variant of per-chapter extraction: instead of summarizing each
 chapter, Phase 1 asks only "is this chapter relevant to the question?" and
-emits a three-level verdict (`yes` / `maybe` / `no`). Phase 2 then answers
-from the full text of every chapter whose verdict is not `no` — i.e., both
-`yes` and `maybe` are kept, so uncertainty falls on the side of inclusion and
-the filter only drops a chapter when the model is confident it is irrelevant.
-This puts Filter in the same role as Vector RAG — a retrieval step that
-selects chapters — but uses the LLM itself as the retriever rather than dense
-embeddings, giving a third retrieval strategy to compare against RAG (vector)
-and Extract (summary).
+emits a verdict. Phase 2 then answers from the full text of every kept
+chapter. This puts Filter in the same role as Vector RAG — a retrieval step
+that selects chapters — but uses the LLM itself as the retriever rather than
+dense embeddings, giving a third retrieval strategy to compare against RAG
+(vector) and Extract (summary).
+
+The `--verdicts` switch selects the classification granularity. Both variants
+ultimately reduce Phase 2 to a binary keep/drop decision; the difference is
+where the drop threshold sits:
+
+  --verdicts 2: two-level verdict (`yes` / `no`). Phase 2 keeps only `yes`, so
+           the model must be confident to include a chapter — a high bar that
+           drops anything the model is not sure about.
+  --verdicts 3 (default): three-level verdict (`yes` / `maybe` / `no`). Phase 2
+           keeps every chapter whose verdict is not `no` (i.e., both `yes`
+           and `maybe`), so uncertainty falls on the side of inclusion. The
+           `maybe` label is a trick for shifting the threshold: by routing
+           uncertain chapters through a middle verdict instead of forcing a
+           yes/no call, the effective `no` bar rises and more chapters survive
+           into Phase 2.
 
 For each question in questions-<lang>.jsonl:
   Phase 1 (--part 1-4): For chapters in the given range, ask the model whether
            the chapter is relevant to the question. CoT is disabled
-           (include_thoughts=False) and the model replies with the single word
-           `yes`, `maybe`, or `no` (plain text, no structured schema).
-           Output: results-<lang>/filter-{N}.jsonl.
-  Phase 2 (no --part): Concatenate the FULL chapter text of every chapter
-           whose verdict is not `no` and ask the model to answer.
-           Output: results-<lang>/filter.jsonl.
+           (include_thoughts=False) and the model replies with a single word
+           (plain text, no structured schema).
+           Output: results-<lang>/filter{V}-{N}.jsonl (V = verdicts, e.g. filter3-1.jsonl).
+  Phase 2 (no --part): Concatenate the FULL chapter text of every kept chapter
+           and ask the model to answer.
+           Output: results-<lang>/filter{V}.jsonl (e.g. filter3.jsonl).
 
 Chapter groups (shared with answer_extract.py):
   Part 1: chapters 1-10
@@ -43,25 +55,43 @@ from answer import (
 from llm7shi.compat import generate_with_schema
 
 
-def classify_chapter(question: str, chapter: int, chapter_text: str, model: str) -> str:
+def classify_chapter(question: str, chapter: int, chapter_text: str, model: str,
+                     levels: int = 3) -> str:
     context = f"Chapter {chapter} text:\n{chapter_text}"
+    if levels == 2:
+        options = (
+            "Reply with `yes` or `no` — nothing else.\n"
+            "  - `yes`: contains relevant information.\n"
+            "  - `no`: contains nothing relevant.\n"
+        )
+        # Inclusion-side default on an unparseable reply keeps the chapter,
+        # mirroring the three-level variant's `maybe` fallback. With only two
+        # verdicts the inclusion side is `yes`, so an unclear reply falls on
+        # the side of keeping the chapter rather than dropping it.
+        default = "yes"
+        accept = ("y", "n")
+    else:
+        options = (
+            "Reply with `yes`, `maybe`, or `no` — nothing else.\n"
+            "  - `yes`: clearly contains relevant information.\n"
+            "  - `maybe`: might contain relevant information (partial, indirect, or uncertain).\n"
+            "  - `no`: contains nothing relevant.\n"
+        )
+        # Defaulting ambiguous replies to `maybe` makes an unparseable answer
+        # fall on the side of keeping the chapter rather than dropping it.
+        default = "maybe"
+        accept = ("y", "m", "n")
     prompt = (
         f"Does the chapter text above contain any information relevant to "
         f"answering the question below?\n"
-        f"Reply with `yes`, `maybe`, or `no` — nothing else.\n"
-        f"  - `yes`: clearly contains relevant information.\n"
-        f"  - `maybe`: might contain relevant information (partial, indirect, or uncertain).\n"
-        f"  - `no`: contains nothing relevant.\n\n"
+        f"{options}\n"
         f"Question: {question}"
     )
     # include_thoughts=False disables the model's thinking channel (Ollama
     # think=False), so the verdict is a pure classification with no CoT — the
     # whole point of this method versus Extract's summarization. The model is
     # expected to reply with a single word; if it produces something whose
-    # first letter is not y/m/n, retry up to 3 times then default to `maybe`.
-    # Phase 2 keeps any verdict that is not `no` (so both `yes` and `maybe`),
-    # and defaulting ambiguous replies to `maybe` makes an unparseable answer
-    # fall on the side of keeping the chapter rather than dropping it.
+    # first letter is not in `accept`, retry up to 3 times then default.
     max_retries = 3
     for attempt in range(max_retries + 1):
         result = generate_with_schema(
@@ -74,13 +104,14 @@ def classify_chapter(question: str, chapter: int, chapter_text: str, model: str)
             return "yes"
         if text.startswith("n"):
             return "no"
-        if text.startswith("m"):
+        if levels == 3 and text.startswith("m"):
             return "maybe"
         if attempt < max_retries:
-            print(f"  unclear yes/maybe/no ({raw!r}) — retrying ({attempt + 1}/{max_retries})")
+            accepted = "/".join(repr(a) for a in accept)
+            print(f"  unclear verdict ({raw!r}, expected {accepted}) — retrying ({attempt + 1}/{max_retries})")
         else:
-            print(f"  still unclear after {max_retries} retries — defaulting to maybe ({raw!r})")
-    return "maybe"
+            print(f"  still unclear after {max_retries} retries — defaulting to {default} ({raw!r})")
+    return default
 
 
 # Filter's Phase 2 reads full chapter text (not summaries), so the wording
@@ -114,9 +145,12 @@ def main():
     parser.add_argument("-m", "--model", default="ollama:gemma4:31b-it-qat", help="llm7shi model string")
     parser.add_argument("-i", "--input", default=None, help="questions JSONL (default: questions-<lang>.jsonl)")
     parser.add_argument("--scenes", default=None, help="scenes JSONL (default: all/<lang>-gemini.jsonl)")
-    parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/filter.jsonl)")
+    parser.add_argument("-o", "--output", default=None,
+                        help="output JSONL path (default: qa-eval/results-<lang>/filter{V}.jsonl where V = --verdicts)")
     parser.add_argument("-p", "--part", default=None,
                         help="chapter group(s) to process: single (e.g. 2) or range (e.g. 1-4); omit to run Phase 2 only")
+    parser.add_argument("--verdicts", type=int, default=3, choices=[2, 3],
+                        help="relevance granularity: 3 = yes/maybe/no (keep yes+maybe), 2 = yes/no (keep yes only)")
     args = parser.parse_args()
 
     lang = args.lang
@@ -126,14 +160,15 @@ def main():
 
     parts = parse_parts(args.part, parser)
 
-    output_path = Path(args.output) if args.output else ROOT / "qa-eval" / f"results-{lang}" / "filter.jsonl"
+    stem = f"filter{args.verdicts}"
+    output_path = Path(args.output) if args.output else ROOT / "qa-eval" / f"results-{lang}" / f"{stem}.jsonl"
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     questions = load_questions(Path(args.input))
     total = len(questions)
 
     if parts:
-        # Phase 1: classify each (chapter, question) pair as yes/maybe/no.
+        # Phase 1: classify each (chapter, question) pair by relevance.
         print(f"Loading scenes from {args.scenes}")
         chapters = load_chapters(Path(args.scenes))
         all_chapter_ids = sorted(chapters.keys())
@@ -166,7 +201,8 @@ def main():
                         question_text = q["question"]
                         print_banner(f"[Ch{ch} Q{qid}/{total}] {question_text}")
 
-                        verdict = classify_chapter(question_text, ch, chapter_text, args.model)
+                        verdict = classify_chapter(question_text, ch, chapter_text, args.model,
+                                                   levels=args.verdicts)
                         done[(qid, ch)] = verdict
                         ckpt_f.write(json.dumps(
                             {"chapter": ch, "question_id": qid, "verdict": verdict},
@@ -210,13 +246,23 @@ def main():
                     continue
 
                 question_text = q["question"]
-                # Keep every chapter whose verdict is not `no` — both `yes`
-                # and `maybe` count as relevant, so uncertainty is resolved in
-                # favor of keeping the chapter rather than dropping it.
-                selected_chapters = sorted(
-                    ch for ch in chapters
-                    if verdict_map.get((qid, ch), "no") != "no"
-                )
+                # Inclusion rule depends on the verdict granularity:
+                #   3-value: keep every chapter whose verdict is not `no`
+                #            (both `yes` and `maybe`), resolving uncertainty
+                #            toward inclusion.
+                #   2-value: keep only `yes` — a stricter bar, since there is
+                #            no `maybe` to rescue uncertain-but-relevant
+                #            chapters.
+                if args.verdicts == 2:
+                    selected_chapters = sorted(
+                        ch for ch in chapters
+                        if verdict_map.get((qid, ch), "no") == "yes"
+                    )
+                else:
+                    selected_chapters = sorted(
+                        ch for ch in chapters
+                        if verdict_map.get((qid, ch), "no") != "no"
+                    )
 
                 print_answer_banner(qid, total, selected_chapters, question_text)
 

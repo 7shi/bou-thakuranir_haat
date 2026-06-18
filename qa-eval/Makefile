@@ -4,10 +4,11 @@
 # convenient aliases. Per-language flow (LANG=en|ja):
 #   index -> rag + extract -> judge -> report
 #
-# Filter (per-chapter yes/no relevance) is OPT-IN: run `make filter` after the
-# default pipeline to add a third retrieval strategy to the comparison. It is
-# not part of `make`, `make all`, or `make <lang>` because Phase 1 costs
-# ~1,850 LLM calls per language.
+# Filter (per-chapter relevance) is OPT-IN: run `make filter2` (the two-level
+# yes/no variant) or `make filter3` (the default three-level yes/maybe/no
+# variant) after the default pipeline to add a per-chapter retrieval strategy
+# to the comparison. Neither is part of `make`, `make all`, or `make <lang>`
+# because Phase 1 costs ~1,850 LLM calls per language.
 #
 # Usage:
 #   make            # full English pipeline (LANG=en)
@@ -15,7 +16,8 @@
 #   make all        # both languages
 #   make report     # build whatever is missing, then print the table
 #   make LANG=ja rag judge
-#   make filter     # opt-in: per-chapter yes/no filter (Phase 1 + 2 + judge)
+#   make filter2    # opt-in: per-chapter yes/no filter (Phase 1 + 2 + judge)
+#   make filter3    # opt-in: per-chapter yes/maybe/no filter (Phase 1 + 2 + judge)
 #   make sweep      # retrieval sweep (independent of the pipeline; no LLM)
 
 LANG    := en
@@ -28,8 +30,9 @@ TSV       := $(ROOT)/all/$(LANG)-gemini.tsv
 INDEX     := index-$(LANG).safetensors
 
 PARTS         := 1 2 3 4
-EXTRACT_PARTS := $(patsubst %,$(RESULTS)/extract-%.jsonl,$(PARTS))
-FILTER_PARTS  := $(patsubst %,$(RESULTS)/filter-%.jsonl,$(PARTS))
+EXTRACT_PARTS  := $(patsubst %,$(RESULTS)/extract-%.jsonl,$(PARTS))
+FILTER2_PARTS  := $(patsubst %,$(RESULTS)/filter2-%.jsonl,$(PARTS))
+FILTER3_PARTS  := $(patsubst %,$(RESULTS)/filter3-%.jsonl,$(PARTS))
 
 # Retrieval depth for the `rag` target. Empty (or unset) → default k=5, whose
 # output is results-<lang>/rag.jsonl. Set K=10 → results-<lang>/rag-10.jsonl.
@@ -39,7 +42,7 @@ ifneq ($(K),)
 RAG_FILE := $(RESULTS)/rag-$(K).jsonl
 endif
 
-.PHONY: en ja all pipeline index rag extract-parts extract filter-parts filter judge report sweep clean
+.PHONY: en ja all pipeline index rag extract-parts extract filter2-parts filter2 filter3-parts filter3 judge report sweep clean
 .DEFAULT_GOAL := en
 
 en:
@@ -58,11 +61,15 @@ index: $(INDEX)
 rag: $(RAG_FILE)
 extract-parts: $(EXTRACT_PARTS)
 extract: $(RESULTS)/extract.jsonl
-filter-parts: $(FILTER_PARTS)
-# `make filter` runs the whole opt-in pipeline (Phase 1 + Phase 2 + judge) so
-# that filter appears in `make report` after a single command. judge-filter
-# depends on filter.jsonl which depends on the four part files.
-filter: $(RESULTS)/judge-filter.jsonl
+filter2-parts: $(FILTER2_PARTS)
+# `make filter2` runs the whole opt-in pipeline (Phase 1 + Phase 2 + judge) so
+# that Filter2 appears in `make report` after a single command. judge-filter2
+# depends on filter2.jsonl which depends on the four part files.
+filter2: $(RESULTS)/judge-filter2.jsonl
+filter3-parts: $(FILTER3_PARTS)
+# `make filter3` mirrors `make filter2` for the three-level (yes/maybe/no)
+# default variant: Phase 1 + Phase 2 + judge, surfacing Filter3 in `make report`.
+filter3: $(RESULTS)/judge-filter3.jsonl
 judge: $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-extract.jsonl
 sweep: $(INDEX) $(QUESTIONS)
 	uv run sweep_rag.py -l $(LANG)
@@ -97,14 +104,27 @@ $(RESULTS)/extract-%.jsonl: $(SCENES) $(QUESTIONS)
 $(RESULTS)/extract.jsonl: $(EXTRACT_PARTS) $(QUESTIONS)
 	uv run answer_extract.py -l $(LANG)
 
-# Per-chapter yes/maybe/no relevance filter, Phase 1: one chapter group per
-# part file. Mirrors the extract-% pattern but writes `verdict: str` records.
-$(RESULTS)/filter-%.jsonl: $(SCENES) $(QUESTIONS)
+# Per-chapter two-level relevance filter (yes/no), Phase 1: same pattern as
+# extract-% but with `--verdicts 2`, which writes filter2-%.jsonl. A stricter
+# bar than filter3 — Phase 2 keeps only "yes" verdicts, so uncertain chapters
+# are dropped.
+$(RESULTS)/filter2-%.jsonl: $(SCENES) $(QUESTIONS)
+	uv run answer_filter.py -l $(LANG) -p $* --verdicts 2
+
+# Per-chapter two-level relevance filter, Phase 2: answer from the FULL text
+# of every chapter marked "yes".
+$(RESULTS)/filter2.jsonl: $(FILTER2_PARTS) $(QUESTIONS)
+	uv run answer_filter.py -l $(LANG) --verdicts 2
+
+# Per-chapter three-level relevance filter (yes/maybe/no), Phase 1: default
+# --verdicts 3 (omitted), writes filter3-%.jsonl. Mirrors the extract-% pattern
+# but writes `verdict: str` records.
+$(RESULTS)/filter3-%.jsonl: $(SCENES) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG) -p $*
 
-# Per-chapter yes/maybe/no relevance filter, Phase 2: answer from the FULL
-# text of the chapters whose verdict is not "no".
-$(RESULTS)/filter.jsonl: $(FILTER_PARTS) $(QUESTIONS)
+# Per-chapter three-level relevance filter, Phase 2: answer from the FULL text
+# of every chapter whose verdict is not "no" (both "yes" and "maybe").
+$(RESULTS)/filter3.jsonl: $(FILTER3_PARTS) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG)
 
 # LLM grading of each answer file.
@@ -114,10 +134,15 @@ $(RESULTS)/judge-rag.jsonl: $(RESULTS)/rag.jsonl $(QUESTIONS)
 $(RESULTS)/judge-extract.jsonl: $(RESULTS)/extract.jsonl $(QUESTIONS)
 	uv run judge.py -l $(LANG) $(RESULTS)/extract.jsonl
 
-# Opt-in: not built by the default `judge` aggregate. Run `make judge-filter`
-# (or `make filter`) explicitly to grade the filter answers.
-$(RESULTS)/judge-filter.jsonl: $(RESULTS)/filter.jsonl $(QUESTIONS)
-	uv run judge.py -l $(LANG) $(RESULTS)/filter.jsonl
+# Opt-in: two-level filter judging. Run `make judge-filter2` (or `make
+# filter2`) explicitly to grade the two-level filter answers.
+$(RESULTS)/judge-filter2.jsonl: $(RESULTS)/filter2.jsonl $(QUESTIONS)
+	uv run judge.py -l $(LANG) $(RESULTS)/filter2.jsonl
+
+# Opt-in: not built by the default `judge` aggregate. Run `make judge-filter3`
+# (or `make filter3`) explicitly to grade the three-level filter answers.
+$(RESULTS)/judge-filter3.jsonl: $(RESULTS)/filter3.jsonl $(QUESTIONS)
+	uv run judge.py -l $(LANG) $(RESULTS)/filter3.jsonl
 
 # Remove generated answers/judgements (keeps the index). The rag-[0-9]* and
 # judge-rag-[0-9]* globs catch the k-variant files (rag-10.jsonl, etc.); rm -f
@@ -125,9 +150,9 @@ $(RESULTS)/judge-filter.jsonl: $(RESULTS)/filter.jsonl $(QUESTIONS)
 clean:
 	rm -f $(RESULTS)/rag.jsonl $(RESULTS)/rag-[0-9]*.jsonl \
 	      $(RESULTS)/extract.jsonl \
-	      $(RESULTS)/filter.jsonl \
+	      $(RESULTS)/filter2.jsonl $(RESULTS)/filter3.jsonl \
 	      $(EXTRACT_PARTS) \
-	      $(FILTER_PARTS) \
+	      $(FILTER2_PARTS) $(FILTER3_PARTS) \
 	      $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-rag-[0-9]*.jsonl \
 	      $(RESULTS)/judge-extract.jsonl \
-	      $(RESULTS)/judge-filter.jsonl
+	      $(RESULTS)/judge-filter2.jsonl $(RESULTS)/judge-filter3.jsonl
