@@ -31,8 +31,8 @@ INDEX     := index-$(LANG).safetensors
 
 PARTS         := 1 2 3 4
 EXTRACT_PARTS  := $(patsubst %,$(RESULTS)/extract-%.jsonl,$(PARTS))
-FILTER2_PARTS  := $(patsubst %,$(RESULTS)/filter2-%.jsonl,$(PARTS))
-FILTER3_PARTS  := $(patsubst %,$(RESULTS)/filter3-%.jsonl,$(PARTS))
+FILTER2_PARTS  := $(patsubst %,$(RESULTS)/filter2-%.tsv,$(PARTS))
+FILTER3_PARTS  := $(patsubst %,$(RESULTS)/filter3-%.tsv,$(PARTS))
 
 # Retrieval depth for the `rag` target. Empty (or unset) → default k=5, whose
 # output is results-<lang>/rag.jsonl. Set K=10 → results-<lang>/rag-10.jsonl.
@@ -105,10 +105,11 @@ $(RESULTS)/extract.jsonl: $(EXTRACT_PARTS) $(QUESTIONS)
 	uv run answer_extract.py -l $(LANG)
 
 # Per-chapter two-level relevance filter (yes/no), Phase 1: same pattern as
-# extract-% but with `--verdicts 2`, which writes filter2-%.jsonl. A stricter
-# bar than filter3 — Phase 2 keeps only "yes" verdicts, so uncertain chapters
-# are dropped.
-$(RESULTS)/filter2-%.jsonl: $(SCENES) $(QUESTIONS)
+# extract-% but with `--verdicts 2`, which writes filter2-%.tsv (a TSV: a
+# chapter/question_id/verdict header then one row per classified pair). A
+# stricter bar than filter3 — Phase 2 keeps only "yes" verdicts, so uncertain
+# chapters are dropped.
+$(RESULTS)/filter2-%.tsv: $(SCENES) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG) -p $* --verdicts 2
 
 # Per-chapter two-level relevance filter, Phase 2: answer from the FULL text
@@ -117,9 +118,9 @@ $(RESULTS)/filter2.jsonl: $(FILTER2_PARTS) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG) --verdicts 2
 
 # Per-chapter three-level relevance filter (yes/maybe/no), Phase 1: default
-# --verdicts 3 (omitted), writes filter3-%.jsonl. Mirrors the extract-% pattern
-# but writes `verdict: str` records.
-$(RESULTS)/filter3-%.jsonl: $(SCENES) $(QUESTIONS)
+# --verdicts 3 (omitted), writes filter3-%.tsv. Mirrors the extract-% pattern
+# but writes a `verdict` column (TSV) instead of a summary.
+$(RESULTS)/filter3-%.tsv: $(SCENES) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG) -p $*
 
 # Per-chapter three-level relevance filter, Phase 2: answer from the FULL text

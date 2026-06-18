@@ -29,7 +29,8 @@ For each question in questions-<lang>.jsonl:
            the chapter is relevant to the question. CoT is disabled
            (include_thoughts=False) and the model replies with a single word
            (plain text, no structured schema).
-           Output: results-<lang>/filter{V}-{N}.jsonl (V = verdicts, e.g. filter3-1.jsonl).
+           Output: results-<lang>/filter{V}-{N}.tsv (V = verdicts, e.g. filter3-1.tsv) — a TSV with
+           a `chapter	question_id	verdict` header followed by one row per (chapter, question).
   Phase 2 (no --part): Concatenate the FULL chapter text of every kept chapter
            and ask the model to answer.
            Output: results-<lang>/filter{V}.jsonl (e.g. filter3.jsonl).
@@ -53,6 +54,30 @@ from answer import (
     load_chapters, load_questions, answer_question, print_banner, print_answer_banner,
 )
 from llm7shi.compat import generate_with_schema
+
+
+# Phase 1 part files are simple three-column tables — one row per classified
+# (chapter, question_id) pair — so they are stored as TSV rather than JSONL.
+# The first line is this header, which the readers skip.
+VERDICT_HEADER = "chapter	question_id	verdict"
+
+
+def read_verdict_tsv(path: Path):
+    """Yield (chapter, question_id, verdict) tuples from a part TSV.
+
+    Skips the header row (first line whose first field is `chapter`) and blank
+    lines, so the same loader works for both a fresh file and a resumed one.
+    """
+    with open(path, encoding="utf-8") as f:
+        for i, line in enumerate(f):
+            line = line.rstrip("\n")
+            if not line:
+                continue
+            fields = line.split("	")
+            if i == 0 and fields[0] == "chapter":
+                continue  # header
+            ch, qid, verdict = fields
+            yield int(ch), int(qid), verdict
 
 
 def classify_chapter(question: str, chapter: int, chapter_text: str, model: str,
@@ -175,7 +200,7 @@ def main():
         print(f"Questions: {total}")
 
         for part in parts:
-            part_path = output_path.with_name(output_path.stem + f"-{part}.jsonl")
+            part_path = output_path.with_name(output_path.stem + f"-{part}.tsv")
             lo, hi = PART_RANGES[part]
             chapter_ids = [ch for ch in all_chapter_ids if lo <= ch <= hi]
             print(f"\nPart {part}: chapters {lo}-{hi} ({len(chapter_ids)} chapters)")
@@ -183,13 +208,16 @@ def main():
             # Resume: collect done (qid, chapter) pairs as verdict strings.
             done: dict[tuple[int, int], str] = {}
             if part_path.exists():
-                with open(part_path, encoding="utf-8") as f:
-                    for line in f:
-                        if line.strip():
-                            rec = json.loads(line)
-                            done[(rec["question_id"], rec["chapter"])] = rec["verdict"]
+                for ch, qid, verdict in read_verdict_tsv(part_path):
+                    done[(qid, ch)] = verdict
             if done:
                 print(f"Checkpoint: {len(done)} chapter classifications already done")
+
+            # Write the TSV header once when starting a fresh part file so that
+            # resumed appends do not duplicate it.
+            if not part_path.exists():
+                with open(part_path, "w", encoding="utf-8") as ckpt_f:
+                    ckpt_f.write(VERDICT_HEADER + "\n")
 
             with open(part_path, "a", encoding="utf-8") as ckpt_f:
                 for ch in chapter_ids:
@@ -204,10 +232,7 @@ def main():
                         verdict = classify_chapter(question_text, ch, chapter_text, args.model,
                                                    levels=args.verdicts)
                         done[(qid, ch)] = verdict
-                        ckpt_f.write(json.dumps(
-                            {"chapter": ch, "question_id": qid, "verdict": verdict},
-                            ensure_ascii=False,
-                        ) + "\n")
+                        ckpt_f.write(f"{ch}\t{qid}\t{verdict}\n")
                         ckpt_f.flush()
 
             print(f"Done → {part_path}")
@@ -227,13 +252,10 @@ def main():
         # verdicts), so the scenes file is required here too.
         verdict_map: dict[tuple[int, int], str] = {}
         for p in range(1, 5):
-            part_path = output_path.with_name(output_path.stem + f"-{p}.jsonl")
+            part_path = output_path.with_name(output_path.stem + f"-{p}.tsv")
             if part_path.exists():
-                with open(part_path, encoding="utf-8") as f:
-                    for line in f:
-                        if line.strip():
-                            rec = json.loads(line)
-                            verdict_map[(rec["question_id"], rec["chapter"])] = rec["verdict"]
+                for ch, qid, verdict in read_verdict_tsv(part_path):
+                    verdict_map[(qid, ch)] = verdict
         print(f"Loaded {len(verdict_map)} chapter classifications from part files")
 
         print(f"Loading scenes from {args.scenes}")

@@ -253,8 +253,9 @@ Phase 2 — Answer (50 calls):
   - `question_id` — 1-origin line number in the input file
   - `expanded` — kept chapter numbers, as `["5", "10", ...]` strings
   - `answer` — the model's answer
-- **Part files**: `results-<lang>/filter{V}-{N}.jsonl` (N = 1–4) — one record
-  per classified `(chapter, question_id)` pair for each chapter group:
+- **Part files**: `results-<lang>/filter{V}-{N}.tsv` (N = 1–4) — a TSV with a
+  `chapter	question_id	verdict` header followed by one row per classified
+  `(chapter, question_id)` pair for each chapter group:
   - `chapter` — chapter number
   - `question_id` — 1-origin line number in the input file
   - `verdict` — relevance verdict: `yes` or `no` for V=2; `yes`, `maybe`, or
