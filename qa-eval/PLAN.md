@@ -15,6 +15,48 @@ tracks only what is not yet built.
 
 ## Remaining work
 
+### Multi-axis relevance scoring (prevents gold-scored-0)
+
+The filter10/100 runs share one failure: a handful of gold chapters score 0
+and are unrecoverable at any threshold (7 under filter10, 11 under filter100 —
+all cross-reference chapters whose relevance is indirect). A single "rate
+relevance 0–N" prompt lets the model collapse the call to a snap 0; a finer
+scale did not help — filter100 is filter10 ×10 and the floor actually grew
+(see [filter.md](filter.md#filter100-filter10-x10)).
+
+A different lever: **decompose the relevance call across several axes so that
+at least one axis scores non-zero on an indirectly-relevant chapter,
+structurally preventing a 0 total.** Rate each `(chapter, question)` pair on
+five relevance dimensions (each 0–20, summing to 0–100), for example:
+
+| axis | captures |
+|------|----------|
+| factual answer | facts directly answering the question |
+| character/action | the question's characters acting or appearing |
+| causal chain | causes/consequences of the question's event |
+| reference/foreshadow | cross-references, callbacks, foreshadowing |
+| thematic/symbolic | the question's themes/symbols/motifs |
+
+A chapter that scores 0 on "factual answer" can still earn points on
+"reference/foreshadow" or "causal chain" — exactly the cross-reference
+chapters the single-axis prompt drops to 0. The verdict TSV stores all five
+subscores, so the keep rule is chosen afterwards:
+
+- **sum >= threshold** — drop-in compatible with the existing
+  [`filter.py`](filter.md) threshold sweep;
+- **max >= threshold** — keep if any one axis fires (strongest floor defense);
+- **non-zero-axis count >= n** — a majority vote, robust to noise.
+
+This is a distinct vector from filter10/100 (judgement *decomposition*, not
+scale granularity) and from the BM25 hybrid below (retrieval *mechanism*, not
+LLM judgement). It costs one Phase 1 run (~1,850 calls) like the other filter
+variants; CoT is effectively re-introduced because scoring five axes is
+structured reasoning, which is also why it should calibrate better than the
+single-token filter10 call. Wire it as `answer_filter.py --verdicts 5d` writing
+`filter5d.tsv`, with `filter.py` gaining a per-axis breakdown table. If the
+gold-scored-0 floor drops toward zero, the residual retrieval misses become the
+pure BM25 case below.
+
 ### BM25 hybrid retrieval (complements `sweep_rag.py`)
 
 The 50-question English run ([results-en/README.md](results-en/README.md)) traces

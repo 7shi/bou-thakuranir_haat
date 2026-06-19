@@ -28,7 +28,7 @@
 #   make ceiling    # opt-in: gold-chapter context ceiling (answer + judge)
 #   make sweep      # retrieval sweep (independent of the pipeline; no LLM)
 #   make filter     # filter10 verdicts + score-distribution analysis (no LLM)
-#   make filter SCALE=100  # filter100 verdicts + analysis (decile-bucketed; no LLM)
+#   make filter SCALE=100  # filter100 occurrence count only (no LLM)
 
 LANG    := en
 ROOT    := ..
@@ -98,9 +98,10 @@ sweep: $(INDEX) $(QUESTIONS)
 	uv run sweep_rag.py -l $(LANG)
 
 # filter{10,100} score-distribution / threshold-sweep analysis (terminal output
-# only, no LLM). SCALE selects which verdict TSV to read: 10 → filter10.tsv,
-# 100 → filter100.tsv (shown as deciles). Depends on the matching parts target
-# so `make filter SCALE=100` generates it if missing, then runs filter.py.
+# only, no LLM). SCALE selects which verdict TSV to read: 10 → filter10.tsv
+# (full eight-table analysis), 100 → filter100.tsv (occurrence count only —
+# filter100 is filter10 x10). Depends on the matching target so
+# `make filter SCALE=100` generates it if missing, then runs filter.py.
 # filter2/3 TSVs are read opportunistically when present (for the crosstab
 # tables) but are not required.
 filter: filter$(SCALE)-tsv $(QUESTIONS)
@@ -166,12 +167,11 @@ $(RESULTS)/filter3.jsonl: $(FILTER3_TSV) $(QUESTIONS)
 $(FILTER10_TSV): $(SCENES) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG) --phase1 --verdicts 10
 
-# Per-chapter 101-level relevance filter (integer 0-100), Phase 1 ONLY — the
-# finer-grained counterpart of filter10. Motivated by filter10's bimodal score
-# collapse (91.4% scored 0): a 0-100 scale gives the model more room to
-# distinguish partial/indirect relevance. Same Phase-1-only posture as filter10;
-# analyze with `make filter SCALE=100`. Phase 2 is deferred until the threshold
-# is chosen.
+# Per-chapter 101-level relevance filter (integer 0-100), Phase 1 ONLY. Tried
+# as a finer-grained filter10, but the model self-quantized to multiples of 10
+# (13 of 101 values used) — filter100 is filter10 scaled x10, with a worse
+# gold-scored-0 floor. `make filter SCALE=100` prints only the occurrence
+# count; see filter.md. Phase 2 is not planned for this variant.
 $(FILTER100_TSV): $(SCENES) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG) --phase1 --verdicts 100
 

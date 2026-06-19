@@ -31,13 +31,13 @@ the difference is where the drop threshold sits:
            intentionally NOT wired up for this variant yet: run only Phase 1
            (with --phase1) to produce filter10.tsv, inspect the score
            distribution, decide a threshold, then add the Phase 2 path.
-  --verdicts 100: 101-level verdict (an integer 0-100), parallel to the 0-10
-           variant but with finer granularity. Motivated by the filter10 run,
-           where scores collapsed bimodally onto 0 and 10 (91.4% scored 0) and
-           the middle band was noisy — a 0-100 scale gives the model more room
-           to distinguish partial/indirect relevance. Same Phase-1-only posture
-           as --verdicts 10: run with --phase1 to produce filter100.tsv,
-           then analyze with filter.py --scale 100.
+  --verdicts 100: 101-level verdict (an integer 0-100), tried as a finer-grained
+           counterpart of the 0-10 variant. It did not help: the model self-
+           quantized to multiples of 10 (only 13 of 101 values used), so
+           filter100 is filter10 scaled x10 with a worse gold-scored-0 floor
+           (11 vs 7); filter.py --scale 100 prints only the occurrence count.
+           See filter.md ("Filter100: filter10 x10"). Same Phase-1-only posture
+           as --verdicts 10: run with --phase1 to produce filter100.tsv.
 
 For each question in questions-<lang>.jsonl:
   Phase 1 (--phase1): For every chapter, ask the model whether the chapter is

@@ -6,19 +6,21 @@ synthesis, no output file (terminal tables only, like sweep_rag.py). It reads
 the Phase 1 verdict TSVs produced by answer_filter.py and the gold chapters
 from questions-<lang>.jsonl to answer:
 
-  1. How are the scores distributed, and do they separate gold from non-gold
-     chapters? (For --scale 100 the raw 0-100 scores are bucketed into deciles
-     so the distribution and crosstab tables stay the same width as --scale 10;
-     filter100's decile buckets line up 1:1 with filter10's integer scores.)
-  2. Which keep/drop threshold maximizes chapter recall / precision / F1,
-     broken down by question type (single / cross)?
-  3. How do the filter2 (yes/no) and filter3 (yes/maybe/no) verdicts map onto
-     the score scale, and which threshold reproduces each variant's keep/drop
-     boundary?
+   1. How are the scores distributed, and do they separate gold from non-gold
+      chapters?
+   2. Which keep/drop threshold maximizes chapter recall / precision / F1,
+      broken down by question type (single / cross)?
+   3. How do the filter2 (yes/no) and filter3 (yes/maybe/no) verdicts map onto
+      the score scale, and which threshold reproduces each variant's keep/drop
+      boundary?
 
-Requires the filter{scale} Phase 1 part TSVs (filter{scale}-{1..4}.tsv). The
-filter2 and filter3 crosstabs (Tables 5-8) are included only when those part
-TSVs also exist.
+The detailed tables (Tables 1-8) are scale-10 only. `--scale 100` prints just
+the raw score occurrence count (zeros filtered) and returns: filter100 turned
+out to be filter10 scaled ×10 — the model used only multiples of 10 — so the
+threshold/crosstab analysis reproduces filter10's exactly and adds nothing (see
+filter.md). Requires the filter10 Phase 1 verdict TSV (filter10.tsv), or
+filter100.tsv for `--scale 100`. The filter2 and filter3 crosstabs (Tables 5-8)
+are included only when those TSVs also exist.
 
 Note on "recall": report.py uses strict subset recall (1 iff gold ⊆ used). This
 script reports both strict subset recall AND partial coverage (the fraction of
@@ -36,34 +38,10 @@ from answer_filter import read_verdict_tsv
 QA_EVAL = Path(__file__).resolve().parent
 
 # The relevance scale under analysis. Set in main() from --scale (10 or 100).
-# Scale 10 reads filter10-*.tsv (integer 0-10); scale 100 reads filter100-*.tsv
-# (integer 0-100, aggregated into deciles for the wide tables).
+# Scale 10 runs the full table suite below; scale 100 prints only the raw score
+# occurrence count and returns early, so the detailed table functions always run
+# at scale 10 (scores 0-10).
 SCALE = 10
-
-# Number of score buckets used in the distribution/crosstab tables. Always 11
-# (indices 0..BUCKET_MAX): for SCALE=10 each bucket is one score; for SCALE=100
-# each bucket is a decile (score // 10). This keeps every table the same width
-# regardless of scale.
-BUCKET_MAX = 10
-
-
-def bucket_of(score: int) -> int:
-    """Map a raw score to a bucket index in 0..BUCKET_MAX.
-
-    For SCALE=10 this is the identity (each score 0-10 is its own bucket). For
-    SCALE=100 each bucket is a decile (score // 10), so a filter100 decile
-    bucket aligns 1:1 with the same filter10 score — bucket 5 is score 5 under
-    SCALE=10 and scores 50-59 under SCALE=100.
-    """
-    return score if SCALE == 10 else score // 10
-
-
-def bucket_label(b: int) -> str:
-    """Human-readable label for a bucket index, for table rows/columns."""
-    if SCALE == 10:
-        return str(b)
-    lo = b * 10
-    return "100" if lo == 100 else f"{lo}-{lo + 9}"
 
 
 def load_verdicts(lang: str, stem: str) -> dict[tuple[int, int], str]:
@@ -159,37 +137,12 @@ def metrics_keep(
     }
 
 
-def sweep_thresholds(
-    scores: dict[tuple[int, int], int],
-    gold_by_qid: dict[int, set[int]],
-    qids: list[int],
-) -> list[int]:
-    """Sorted list of thresholds to display in the sweep tables.
+def sweep_thresholds() -> list[int]:
+    """Thresholds to display in the sweep tables: every integer 0..11.
 
-    For SCALE=10: every integer 0..SCALE+1 (12 rows), matching the original
-    filter10 table.
-
-    For SCALE=100: a coarse sweep at multiples of 10 (0,10,...,100) plus the
-    SCALE+1 "keep all" endpoint, then a fine-grained ±10 window around the
-    F1 peak at step 1. This keeps the 0-100 table readable (~25 rows) while
-    still locating the optimum to within ±1 — the F1 peak is where the
-    recall/precision trade-off is sharpest, so the neighborhood is what
-    matters for threshold selection.
+    Scale 10 only — scale 100 returns early in main() before any sweep.
     """
-    if SCALE == 10:
-        return list(range(0, SCALE + 2))
-    coarse = set(range(0, SCALE + 1, 10))
-    coarse.add(SCALE + 1)
-    best_thr, best_f1 = 0, -1.0
-    for thr in sorted(coarse):
-        m = metrics(scores, gold_by_qid, thr, qids)
-        denom = m["partial"] + m["precision"]
-        f1 = (2 * m["partial"] * m["precision"] / denom) if denom else 0.0
-        if f1 > best_f1:
-            best_f1, best_thr = f1, thr
-    lo = max(0, best_thr - 10)
-    hi = min(SCALE + 1, best_thr + 10)
-    return sorted(coarse | set(range(lo, hi + 1)))
+    return list(range(0, 12))
 
 
 # ---------------------------------------------------------------------------
@@ -202,27 +155,24 @@ def print_score_distribution(
 ) -> None:
     total = len(scores)
     n_gold = sum(1 for (qid, ch) in scores if ch in gold_by_qid.get(qid, set()))
-    kind = "score" if SCALE == 10 else "score decile"
-    col_name = "score" if SCALE == 10 else "decile"
-    print(f"Table 1 — filter{SCALE} {kind} distribution (all chapter-question pairs)")
+    print(f"Table 1 — filter{SCALE} score distribution (all chapter-question pairs)")
     print(f"  {total} pairs total, {n_gold} gold, {total - n_gold} non-gold\n")
-    print(f"  {col_name:>8}  {'count':>5}  {'pct':>6}  {'gold':>5}  {'nongold':>7}  {'gold%':>6}  bar")
+    print(f"  {'score':>8}  {'count':>5}  {'pct':>6}  {'gold':>5}  {'nongold':>7}  {'gold%':>6}  bar")
     print(f"  {'—' * 70}")
-    bucket_count: Counter = Counter()
-    bucket_gold: Counter = Counter()
+    score_count: Counter = Counter()
+    score_gold: Counter = Counter()
     for (qid, ch), sc in scores.items():
-        b = bucket_of(sc)
-        bucket_count[b] += 1
+        score_count[sc] += 1
         if ch in gold_by_qid.get(qid, set()):
-            bucket_gold[b] += 1
-    for b in range(BUCKET_MAX + 1):
-        cnt = bucket_count[b]
-        g = bucket_gold[b]
+            score_gold[sc] += 1
+    for sc in range(11):
+        cnt = score_count[sc]
+        g = score_gold[sc]
         ng = cnt - g
         pct = cnt / total * 100 if total else 0
         share = g / cnt * 100 if cnt else 0
         bar = "#" * math.ceil(math.log10(cnt + 1) * 10)
-        print(f"  {bucket_label(b):>8}  {cnt:5d}  {pct:5.1f}%  {g:5d}  {ng:7d}  {share:5.1f}%  {bar}")
+        print(f"  {sc:>8}  {cnt:5d}  {pct:5.1f}%  {g:5d}  {ng:7d}  {share:5.1f}%  {bar}")
     print()
 
 
@@ -271,11 +221,10 @@ def print_low_score_gold(
 ) -> None:
     """Gold chapters scored at or below `cutoff` — unrecoverable retrieval risk.
 
-    The cutoff scales with the relevance scale (3 for 0-10, 30 for 0-100) so the
-    "unrecoverable floor" notion is preserved across scales.
+    Default cutoff 3 (the "unrecoverable floor" for the 0-10 scale).
     """
     if cutoff is None:
-        cutoff = SCALE * 3 // 10
+        cutoff = 3
     rows = []
     n_gold = 0
     for (qid, ch), sc in sorted(scores.items()):
@@ -306,35 +255,35 @@ def print_crosstab(
     print(f"  ({len(common)} common pairs)\n")
     matrix: dict[str, Counter] = {label: Counter() for label in labels}
     for key in common:
-        matrix[verdict_map[key]][bucket_of(scores[key])] += 1
-    col_w = max(len(bucket_label(b)) for b in range(BUCKET_MAX + 1))
+        matrix[verdict_map[key]][scores[key]] += 1
+    col_w = 2
     hdr = f"  {'verdict':>6}"
-    for b in range(BUCKET_MAX + 1):
-        hdr += f" {bucket_label(b):>{col_w}}"
+    for b in range(11):
+        hdr += f" {b:>{col_w}}"
     hdr += "  total"
     print(hdr)
     print(f"  {'—' * (len(hdr) - 2)}")
     for label in labels:
         row = f"  {label:>6}"
         total = sum(matrix[label].values())
-        for b in range(BUCKET_MAX + 1):
+        for b in range(11):
             row += f" {matrix[label][b]:>{col_w}}"
         row += f" {total:5d}"
         print(row)
     # Gold-only breakdown.
     print("\n  gold chapters only:")
     gold_hdr = f"  {'verdict':>6}"
-    for b in range(BUCKET_MAX + 1):
-        gold_hdr += f" {bucket_label(b):>{col_w}}"
+    for b in range(11):
+        gold_hdr += f" {b:>{col_w}}"
     print(gold_hdr)
     print(f"  {'—' * (len(gold_hdr) - 2)}")
     for label in labels:
         counter = Counter()
         for key in common:
             if key[1] in gold_by_qid.get(key[0], set()) and verdict_map[key] == label:
-                counter[bucket_of(scores[key])] += 1
+                counter[scores[key]] += 1
         row = f"  {label:>6}"
-        for b in range(BUCKET_MAX + 1):
+        for b in range(11):
             row += f" {counter[b]:>{col_w}}"
         print(row)
     print()
@@ -421,6 +370,32 @@ def print_score_summary(
     print()
 
 
+def print_occurrence_counts(
+    scores: dict[tuple[int, int], int],
+) -> None:
+    """Raw score occurrence count for filter100 (scale-100 path).
+
+    filter100 turned out to be filter10 scaled x10: the model used only
+    multiples of 10 (13 of 101 values), so the threshold sweep and crosstabs
+    reproduce filter10's exactly and carry no extra information. This table is
+    the whole of the scale-100 analysis — just how many pairs landed on each
+    score that was actually used, with zero-count scores omitted.
+    """
+    total = len(scores)
+    by_score = Counter(scores.values())
+    used = sorted(by_score)
+    print(f"filter100 raw score occurrences ({total} pairs, {len(used)} distinct values)\n")
+    print(f"  {'score':>5}  {'count':>6}  bar")
+    print(f"  {'—' * 50}")
+    for sc in used:
+        cnt = by_score[sc]
+        bar = "#" * math.ceil(math.log10(cnt + 1) * 10)
+        print(f"  {sc:5d}  {cnt:6d}  {bar}")
+    print(f"\n  {len(used)} of 101 values used; {101 - len(used)} never used "
+          f"(all non-multiples of 10 except 25/85).")
+    print()
+
+
 # ---------------------------------------------------------------------------
 # main
 # ---------------------------------------------------------------------------
@@ -434,8 +409,8 @@ def main():
     parser.add_argument("-i", "--input", default=None,
                         help="questions JSONL (default: questions-<lang>.jsonl)")
     parser.add_argument("--scale", type=int, default=10, choices=[10, 100],
-                        help="relevance scale to analyze: 10 = filter10.tsv (0-10), "
-                             "100 = filter100.tsv (0-100, shown as deciles)")
+                        help="relevance scale to analyze: 10 = filter10.tsv (full table suite), "
+                             "100 = filter100.tsv (raw occurrence count only — filter100 is filter10 x10)")
     args = parser.parse_args()
 
     SCALE = args.scale
@@ -458,9 +433,17 @@ def main():
     n_chapters = len({ch for _, ch in scores})
     print(f"{stem}: {total} (chapter, question) pairs ({n_chapters} chapters)\n")
 
-    # Tables 1-4: filter{scale} alone.
+    # Scale 100: filter100 is filter10 scaled x10 — the model used only multiples
+    # of 10, so the threshold/crosstab analysis reproduces filter10's exactly
+    # and adds nothing. Print just the raw score occurrence count (zeros filtered)
+    # and stop. See filter.md.
+    if args.scale == 100:
+        print_occurrence_counts(scores)
+        return
+
+    # Tables 1-4: filter10 alone.
     print_score_distribution(scores, gold_by_qid)
-    thresholds = sweep_thresholds(scores, gold_by_qid, all_qids)
+    thresholds = sweep_thresholds()
     print_threshold_sweep(scores, gold_by_qid, questions, all_qids, thresholds)
     print_low_score_gold(scores, gold_by_qid, questions)
 
@@ -468,7 +451,7 @@ def main():
     f2 = load_verdicts(lang, "filter2")
     f3 = load_verdicts(lang, "filter3")
     if not f2 and not f3:
-        print("(filter2/filter3 part TSVs not found — skipping crosstabs Tables 5-8)\n")
+        print("(filter2/filter3 TSVs not found — skipping crosstabs Tables 5-8)\n")
         return
 
     if f2:
