@@ -9,9 +9,9 @@ that selects chapters — but uses the LLM itself as the retriever rather than
 dense embeddings, giving a third retrieval strategy to compare against RAG
 (vector) and Extract (summary).
 
-The `--verdicts` switch selects the classification granularity. Both variants
-ultimately reduce Phase 2 to a binary keep/drop decision; the difference is
-where the drop threshold sits:
+The `--verdicts` switch selects the classification granularity. The two- and
+three-level variants ultimately reduce Phase 2 to a binary keep/drop decision;
+the difference is where the drop threshold sits:
 
   --verdicts 2: two-level verdict (`yes` / `no`). Phase 2 keeps only `yes`, so
            the model must be confident to include a chapter — a high bar that
@@ -23,6 +23,14 @@ where the drop threshold sits:
            uncertain chapters through a middle verdict instead of forcing a
            yes/no call, the effective `no` bar rises and more chapters survive
            into Phase 2.
+  --verdicts 10: eleven-level verdict (an integer 0-10). Phase 1 records the
+           raw score per (chapter, question) pair so that the keep/drop
+           threshold can be chosen *after* the distribution is observed — a
+           single Phase 1 run feeds every threshold under test, instead of one
+           run per threshold as with the 2- and 3-level variants. Phase 2 is
+           intentionally NOT wired up for this variant yet: run only Phase 1
+           (with --part) to produce filter10-{1..4}.tsv, inspect the score
+           distribution, decide a threshold, then add the Phase 2 path.
 
 For each question in questions-<lang>.jsonl:
   Phase 1 (--part 1-4): For chapters in the given range, ask the model whether
@@ -47,6 +55,7 @@ pairs already in the part file.
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 from answer import (
@@ -139,6 +148,53 @@ def classify_chapter(question: str, chapter: int, chapter_text: str, model: str,
     return default
 
 
+def classify_chapter_score(question: str, chapter: int, chapter_text: str,
+                           model: str) -> int:
+    """Rate a chapter's relevance on a 0-10 integer scale (verdicts=10).
+
+    Unlike `classify_chapter`, which collapses relevance onto a small label
+    set, this returns the raw score so the keep/drop threshold can be chosen
+    after the distribution is observed — one Phase 1 run feeds every
+    threshold under test.
+
+    The reply is parsed for the first integer token in [0, 10]; on an unclear
+    reply it retries up to 3 times, then defaults to 5 (mid-scale) so an
+    unparseable answer lands in the middle rather than silently dropping or
+    keeping the chapter.
+    """
+    context = f"Chapter {chapter} text:\n{chapter_text}"
+    options = (
+        "Reply with a single integer from 0 to 10 — nothing else.\n"
+        "  - 0: completely irrelevant to the question.\n"
+        "  - 10: directly and fully answers the question.\n"
+        "  - Use intermediate values for partial or indirect relevance.\n"
+    )
+    prompt = (
+        f"Rate how relevant the chapter text above is to answering the "
+        f"question below, on an integer scale from 0 to 10.\n"
+        f"{options}\n"
+        f"Question: {question}"
+    )
+    max_retries = 3
+    default = 5
+    for attempt in range(max_retries + 1):
+        result = generate_with_schema(
+            [context, prompt], model=model,
+            include_thoughts=False, show_params=False,
+        )
+        raw = result.text.strip()
+        m = re.search(r"\b(\d{1,2})\b", raw)
+        if m:
+            score = int(m.group(1))
+            if 0 <= score <= 10:
+                return score
+        if attempt < max_retries:
+            print(f"  unclear score ({raw!r}, expected 0-10) — retrying ({attempt + 1}/{max_retries})")
+        else:
+            print(f"  still unclear after {max_retries} retries — defaulting to {default} ({raw!r})")
+    return default
+
+
 # Filter's Phase 2 reads full chapter text (not summaries), so the wording
 # matches RAG's neutral "context provided" phrasing rather than Extract's
 # "chapter excerpts below".
@@ -174,8 +230,8 @@ def main():
                         help="output JSONL path (default: qa-eval/results-<lang>/filter{V}.jsonl where V = --verdicts)")
     parser.add_argument("-p", "--part", default=None,
                         help="chapter group(s) to process: single (e.g. 2) or range (e.g. 1-4); omit to run Phase 2 only")
-    parser.add_argument("--verdicts", type=int, default=3, choices=[2, 3],
-                        help="relevance granularity: 3 = yes/maybe/no (keep yes+maybe), 2 = yes/no (keep yes only)")
+    parser.add_argument("--verdicts", type=int, default=3, choices=[2, 3, 10],
+                        help="relevance granularity: 3 = yes/maybe/no (keep yes+maybe), 2 = yes/no (keep yes only), 10 = integer 0-10 (Phase 1 only)")
     args = parser.parse_args()
 
     lang = args.lang
@@ -229,8 +285,12 @@ def main():
                         question_text = q["question"]
                         print_banner(f"[Ch{ch} Q{qid}/{total}] {question_text}")
 
-                        verdict = classify_chapter(question_text, ch, chapter_text, args.model,
-                                                   levels=args.verdicts)
+                        if args.verdicts == 10:
+                            verdict = str(classify_chapter_score(
+                                question_text, ch, chapter_text, args.model))
+                        else:
+                            verdict = classify_chapter(question_text, ch, chapter_text, args.model,
+                                                       levels=args.verdicts)
                         done[(qid, ch)] = verdict
                         ckpt_f.write(f"{ch}\t{qid}\t{verdict}\n")
                         ckpt_f.flush()
@@ -239,6 +299,13 @@ def main():
 
     else:
         # Phase 2: answer each question from the full text of its relevant chapters.
+        if args.verdicts == 10:
+            parser.error(
+                "Phase 2 is not wired up for --verdicts 10 yet: the keep/drop "
+                "threshold must be chosen first. Run Phase 1 only (with --part) "
+                "to produce filter10-{1..4}.tsv, inspect the score distribution, "
+                "then decide a threshold."
+            )
         done_qids: set[int] = set()
         if output_path.exists():
             with open(output_path, encoding="utf-8") as f:

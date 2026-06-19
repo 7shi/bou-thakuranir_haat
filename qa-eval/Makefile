@@ -23,8 +23,10 @@
 #   make LANG=ja rag judge
 #   make filter2    # opt-in: per-chapter yes/no filter (Phase 1 + 2 + judge)
 #   make filter3    # opt-in: per-chapter yes/maybe/no filter (Phase 1 + 2 + judge)
+#   make filter10-parts  # opt-in: per-chapter 0-10 score (Phase 1 only; threshold TBD)
 #   make ceiling    # opt-in: gold-chapter context ceiling (answer + judge)
 #   make sweep      # retrieval sweep (independent of the pipeline; no LLM)
+#   make filter     # filter10 parts + score-distribution analysis (no LLM)
 
 LANG    := en
 ROOT    := ..
@@ -39,6 +41,7 @@ PARTS         := 1 2 3 4
 EXTRACT_PARTS  := $(patsubst %,$(RESULTS)/extract-%.jsonl,$(PARTS))
 FILTER2_PARTS  := $(patsubst %,$(RESULTS)/filter2-%.tsv,$(PARTS))
 FILTER3_PARTS  := $(patsubst %,$(RESULTS)/filter3-%.tsv,$(PARTS))
+FILTER10_PARTS := $(patsubst %,$(RESULTS)/filter10-%.tsv,$(PARTS))
 
 # Retrieval depth for the `rag` target. Empty (or unset) → default k=5, whose
 # output is results-<lang>/rag.jsonl. Set K=10 → results-<lang>/rag-10.jsonl.
@@ -48,7 +51,7 @@ ifneq ($(K),)
 RAG_FILE := $(RESULTS)/rag-$(K).jsonl
 endif
 
-.PHONY: en ja all pipeline index rag extract-parts extract filter2-parts filter2 filter3-parts filter3 ceiling judge report sweep clean
+.PHONY: en ja all pipeline index rag extract-parts extract filter2-parts filter2 filter3-parts filter3 filter10-parts filter ceiling judge report sweep clean
 .DEFAULT_GOAL := en
 
 en:
@@ -76,10 +79,18 @@ filter3-parts: $(FILTER3_PARTS)
 # `make filter3` mirrors `make filter2` for the three-level (yes/maybe/no)
 # default variant: Phase 1 + Phase 2 + judge, surfacing Filter3 in `make report`.
 filter3: $(RESULTS)/judge-filter3.jsonl
+filter10-parts: $(FILTER10_PARTS)
 ceiling: $(RESULTS)/judge-ceiling.jsonl
 judge: $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-extract.jsonl
 sweep: $(INDEX) $(QUESTIONS)
 	uv run sweep_rag.py -l $(LANG)
+
+# Filter10 score-distribution / threshold-sweep analysis (terminal output only,
+# no LLM). Depends on the filter10 part TSVs so `make filter` generates them if
+# missing, then runs filter.py. filter2/3 part TSVs are read opportunistically
+# when present (for the crosstab tables) but are not required.
+filter: $(FILTER10_PARTS) $(QUESTIONS)
+	uv run filter.py -l $(LANG)
 
 # Accuracy + chapter retrieval comparison table + pairwise disagreement
 # analysis (terminal output only). Needs >= 2 judged methods for the pass.
@@ -135,6 +146,14 @@ $(RESULTS)/filter3-%.tsv: $(SCENES) $(QUESTIONS)
 $(RESULTS)/filter3.jsonl: $(FILTER3_PARTS) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG)
 
+# Per-chapter eleven-level relevance filter (integer 0-10), Phase 1 ONLY. The
+# keep/drop threshold is intentionally not fixed here: a single Phase 1 run
+# records the raw score per (chapter, question) pair so the threshold can be
+# chosen after inspecting the distribution. Phase 2 (and the filter10.jsonl /
+# judge targets) are deferred until that decision is made.
+$(RESULTS)/filter10-%.tsv: $(SCENES) $(QUESTIONS)
+	uv run answer_filter.py -l $(LANG) -p $* --verdicts 10
+
 # Perfect-retrieval ceiling: the gold chapters fed verbatim as context, no
 # retrieval. No Phase 1, so just one target — the answer file. Its judge target
 # is defined below alongside the other opt-in judge rules.
@@ -172,7 +191,7 @@ clean:
 	      $(RESULTS)/filter2.jsonl $(RESULTS)/filter3.jsonl \
 	      $(RESULTS)/ceiling.jsonl \
 	      $(EXTRACT_PARTS) \
-	      $(FILTER2_PARTS) $(FILTER3_PARTS) \
+	      $(FILTER2_PARTS) $(FILTER3_PARTS) $(FILTER10_PARTS) \
 	      $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-rag-[0-9]*.jsonl \
 	      $(RESULTS)/judge-extract.jsonl \
 	      $(RESULTS)/judge-filter2.jsonl $(RESULTS)/judge-filter3.jsonl \

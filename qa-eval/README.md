@@ -99,12 +99,15 @@ The scripts form the pipeline (Filter and Ceiling are opt-in):
 - `build_index.py` — scene embedding index → `index-<lang>.safetensors`
 - `answer_rag.py` — Vector RAG answering → `results-<lang>/rag.jsonl`
 - `answer_extract.py` — Per-chapter extraction answering → `results-<lang>/extract.jsonl`
-- `answer_filter.py` — Per-chapter yes/no (or yes/maybe/no) relevance filter → `results-<lang>/filter2.jsonl` or `filter3.jsonl` (opt-in)
+- `answer_filter.py` — Per-chapter relevance filter (yes/no, yes/maybe/no, or integer 0–10); see [filter.md](filter.md) for details → `results-<lang>/filter2.jsonl`, `filter3.jsonl`, or `filter10-{1..4}.tsv` (opt-in)
 - `answer_ceiling.py` — Gold-chapter context, no retrieval → `results-<lang>/ceiling.jsonl` (opt-in)
 - `judge.py` — LLM grading of answers vs. gold → `results-<lang>/judge-<stem>.jsonl`
 - `report.py` — accuracy + chapter retrieval comparison + pairwise disagreement analysis (terminal table)
 - `sweep_rag.py` — retrieval-depth / threshold sweep vs. gold chapters
   (terminal tables only; no LLM, independent of the pipeline)
+- `filter.py` — Filter10 score-distribution / threshold-sweep analysis and
+  filter2/3 crosstab (terminal tables only; no LLM, independent of the
+  pipeline); see [filter.md](filter.md)
 
 `answer.py` holds the shared helpers (`LANGS`, `PART_RANGES`, `load_questions`,
 `load_chapters`, `answer_question`) imported by all four answer scripts.
@@ -121,7 +124,6 @@ make ja                 # full Japanese pipeline
 make all                # both languages
 make LANG=ja rag judge  # individual steps for one language
 make K=10 rag           # RAG at k=10 → results-<lang>/rag-10.jsonl
-make ceiling            # opt-in: gold-chapter context (answer + judge)
 make clean              # remove generated answers/judgements (keeps the index)
 ```
 
@@ -133,11 +135,13 @@ the same pattern rule shape; it is **opt-in** (not in `make`, `make all`, or
 `make <lang>`) because Phase 1 costs ~1,850 LLM calls per language — run
 `make filter2` (two-level, yes/no) or `make filter3` (three-level,
 yes/maybe/no) after the default pipeline to add a per-chapter retrieval
-strategy. Ceiling is **opt-in** for a different reason — it is not a retrieval
-method at all but a perfect-retrieval reference run, so it sits outside the
-default retrieval comparison; run `make ceiling` to feed the gold chapters
-directly as context and measure the answer model's reading comprehension in
-isolation (~50 calls, no Phase 1).
+strategy, or `make filter10-parts` (eleven-level, integer 0–10) to collect raw
+relevance scores whose keep/drop threshold is chosen afterwards (see
+[filter.md](filter.md)). Ceiling is **opt-in** for a different reason — it is
+not a retrieval method at all but a perfect-retrieval reference run, so it sits
+outside the default retrieval comparison; run `make ceiling` to feed the gold
+chapters directly as context and measure the answer model's reading
+comprehension in isolation (~50 calls, no Phase 1).
 
 ## `build_index.py`
 
@@ -224,86 +228,15 @@ study for the RAG-vs-Extract disagreement analysis.
 
 ## `answer_filter.py`
 
-A trimmed variant of per-chapter extraction that plays the same role as Vector
-RAG — a **retrieval step that selects chapters** — but uses the LLM itself as
-the retriever instead of dense embeddings. Where Extract summarizes each
-chapter and answers from the summaries, Filter asks only "is this chapter
-relevant?" and answers from the **full text** of the kept chapters.
-
-The `--verdicts {2,3}` switch selects the classification granularity. Both
-variants ultimately reduce Phase 2 to a binary keep/drop decision; the
-difference is where the drop threshold sits:
-
-- **`--verdicts 2` (→ Filter2)**: two-level verdict `yes` / `no`. Phase 2 keeps
-  only `yes`, a high bar that drops anything the model is not sure about.
-- **`--verdicts 3` (default → Filter3)**: three-level verdict `yes` / `maybe` /
-  `no`. Phase 2 keeps every chapter whose verdict is not `no` (i.e., both
-  `yes` and `maybe`), so uncertainty is resolved toward inclusion. The `maybe`
-  label is a trick for shifting the threshold: routing uncertain chapters
-  through a middle verdict instead of forcing a yes/no call raises the
-  effective `no` bar and lets more chapters survive into Phase 2.
-
-**Algorithm**
-
-Phase 1 — Relevance classification (37 chapters × 50 questions = 1,850 calls):
-
-1. Outer loop iterates over chapters; inner loop iterates over questions. This
-   keeps the same chapter text in the KV cache across all questions for that
-   chapter, mirroring `answer_extract.py`.
-2. For each (chapter, question) pair, pass the chapter text as context and ask
-   the model whether the chapter is relevant to the question. CoT is disabled
-   (`include_thoughts=False`) and the reply is a single word (plain text, no
-   structured schema) — parsed by first character, retrying up to 3 times on
-   an unclear reply. The fallback on a still-unclear reply is the inclusion
-   side of the chosen granularity: `yes` for `--verdicts 2`, `maybe` for
-   `--verdicts 3`, so an unparseable answer keeps the chapter rather than
-   dropping it.
-3. Write the result immediately to the checkpoint file and flush.
-
-Phase 2 — Answer (50 calls):
-
-4. Collect the kept chapters for the question. For `--verdicts 2` that is
-   only `yes`; for `--verdicts 3` it is every chapter whose verdict is not
-   `no` (both `yes` and `maybe`).
-5. Build a context block with the **full chapter text** (not a summary)
-   labeled `[Chapter N]`, and ask the model to answer in English using only
-   that context.
-
-- **Input**: `questions-<lang>.jsonl` (50 questions, ROOT-level) and
-  `../all/<lang>-gemini.jsonl` (scenes — needed in Phase 2 because Phase 1
-  stored only verdicts, unlike Extract which kept the summary text)
-- **Output**: `results-<lang>/filter{V}.jsonl` — `filter2.jsonl` for
-  `--verdicts 2`, `filter3.jsonl` for the default `--verdicts 3` — one record
-  per question:
-  - `question_id` — 1-origin line number in the input file
-  - `expanded` — kept chapter numbers, as `["5", "10", ...]` strings
-  - `answer` — the model's answer
-- **Part files**: `results-<lang>/filter{V}-{N}.tsv` (N = 1–4) — a TSV with a
-  `chapter	question_id	verdict` header followed by one row per classified
-  `(chapter, question_id)` pair for each chapter group:
-  - `chapter` — chapter number
-  - `question_id` — 1-origin line number in the input file
-  - `verdict` — relevance verdict: `yes` or `no` for V=2; `yes`, `maybe`, or
-    `no` for V=3
-  - Part 1: chapters 1–10 · Part 2: chapters 11–20 · Part 3: chapters 21–30 · Part 4: chapters 31–37
-
-Resume-safe at two levels: question IDs already in the output file are skipped
-entirely; `(question_id, chapter)` pairs already in the part file are skipped
-in Phase 1.
-
-Its main failure mode is the same shape as Extract's but with a different
-cause: a wrong `no` verdict drops a gold chapter unrecoverably (in V=2 only
-`yes` keeps it; in V=3 both `yes` and `maybe` do). In the English V=3 run
-this hit 6 questions, three of them (Q32, Q34, Q42) total wipeouts where every
-gold chapter was marked `no`. The `maybe` bar still earns its keep: of the 86
-gold chapters, 42 were `yes`, 32 were `maybe`, and 12 were `no` — so keeping
-only `yes` would have given chapter recall 0.49, while keeping `yes`+`maybe`
-gives 0.86. That rescue is what lifts the Filter3 row in
-[Results](#results) to 0.930 — top of the table. The V=2 run confirms the
-contrast from the other side: forced into a binary call, the model marks 33 of
-86 gold chapters `no` (vs. 12 under V=3) and only 53 earn `yes` (recall 0.62),
-which drops Filter2 to 0.790 — below Extract. See the
-[Filter case study](results-en/README.md#filter-per-chapter-reading-with-a-loose-relevance-bar).
+A per-chapter relevance filter that uses the LLM itself as the retriever:
+instead of dense embeddings, it asks the model to judge each chapter's
+relevance to each question, then answers from the **full text** of the kept
+chapters. The `--verdicts {2,3,10}` switch selects the classification
+granularity — two-level (`yes`/`no` → Filter2), three-level
+(`yes`/`maybe`/`no` → Filter3, the default), or eleven-level (integer 0–10 →
+Filter10, Phase 1 only). Full details — the two-phase algorithm, I/O and part
+files, the failure-mode analysis, and the Filter10 score-distribution /
+threshold-sweep findings — are in [filter.md](filter.md).
 
 ## `answer_ceiling.py`
 
