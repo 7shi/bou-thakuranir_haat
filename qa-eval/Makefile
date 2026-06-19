@@ -28,6 +28,7 @@
 #   make filter5d-tsv   # opt-in: per-chapter five-axis 0-10 scores → filter5d.tsv (Phase 1 only)
 #   make ceiling    # opt-in: gold-chapter context ceiling (answer + judge)
 #   make sweep      # retrieval sweep (independent of the pipeline; no LLM)
+#   make bm25       # BM25/lexical retrieval gold-coverage analysis vs. dense (no LLM)
 #   make filter     # filter10 verdicts + score-distribution analysis (no LLM)
 #   make filter SCALE=100  # filter100 occurrence count only (no LLM)
 #   make filter5d   # five-axis verdicts + sum/per-axis/floor analysis (no LLM)
@@ -65,7 +66,7 @@ ifneq ($(K),)
 RAG_FILE := $(RESULTS)/rag-$(K).jsonl
 endif
 
-.PHONY: en ja all pipeline index rag extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter5d-tsv filter filter5d ceiling judge report sweep clean
+.PHONY: en ja all pipeline index rag extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter5d-tsv filter filter5d ceiling judge report sweep bm25 clean
 .DEFAULT_GOAL := en
 
 en:
@@ -100,6 +101,16 @@ ceiling: $(RESULTS)/judge-ceiling.jsonl
 judge: $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-extract.jsonl
 sweep: $(INDEX) $(QUESTIONS)
 	uv run sweep_rag.py -l $(LANG)
+
+# BM25/lexical retrieval gold-coverage analysis (independent of the pipeline;
+# no LLM, no embedding index — reads the raw scene text directly). Ranks scenes
+# by Okapi BM25 and reports the same coverage@k / threshold / per-question
+# tables as sweep_rag.py, plus a cross-reference of BM25's rank on the known
+# dense-retrieval misses. Side-by-side with `make sweep`, answers whether
+# sparse lexical matching recovers the gold chapters dense retrieval drops —
+# the PLAN.md question that motivates the future hybrid. See bm25.py.
+bm25: $(SCENES) $(TSV) $(QUESTIONS)
+	uv run bm25.py -l $(LANG)
 
 # filter{10,100} score-distribution / threshold-sweep analysis (terminal output
 # only, no LLM). SCALE selects which verdict TSV to read: 10 → filter10.tsv
