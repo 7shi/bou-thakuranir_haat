@@ -29,28 +29,29 @@ the difference is where the drop threshold sits:
            single Phase 1 run feeds every threshold under test, instead of one
            run per threshold as with the 2- and 3-level variants. Phase 2 is
            intentionally NOT wired up for this variant yet: run only Phase 1
-           (with --part) to produce filter10-{1..4}.tsv, inspect the score
+           (with --phase1) to produce filter10.tsv, inspect the score
            distribution, decide a threshold, then add the Phase 2 path.
+  --verdicts 100: 101-level verdict (an integer 0-100), parallel to the 0-10
+           variant but with finer granularity. Motivated by the filter10 run,
+           where scores collapsed bimodally onto 0 and 10 (91.4% scored 0) and
+           the middle band was noisy — a 0-100 scale gives the model more room
+           to distinguish partial/indirect relevance. Same Phase-1-only posture
+           as --verdicts 10: run with --phase1 to produce filter100.tsv,
+           then analyze with filter.py --scale 100.
 
 For each question in questions-<lang>.jsonl:
-  Phase 1 (--part 1-4): For chapters in the given range, ask the model whether
-           the chapter is relevant to the question. CoT is disabled
-           (include_thoughts=False) and the model replies with a single word
-           (plain text, no structured schema).
-           Output: results-<lang>/filter{V}-{N}.tsv (V = verdicts, e.g. filter3-1.tsv) — a TSV with
+  Phase 1 (--phase1): For every chapter, ask the model whether the chapter is
+           relevant to the question. CoT is disabled (include_thoughts=False)
+           and the model replies with a single word (plain text, no structured
+           schema).
+           Output: results-<lang>/filter{V}.tsv (V = verdicts, e.g. filter3.tsv) — a TSV with
            a `chapter	question_id	verdict` header followed by one row per (chapter, question).
-  Phase 2 (no --part): Concatenate the FULL chapter text of every kept chapter
+  Phase 2 (no --phase1): Concatenate the FULL chapter text of every kept chapter
            and ask the model to answer.
            Output: results-<lang>/filter{V}.jsonl (e.g. filter3.jsonl).
 
-Chapter groups (shared with answer_extract.py):
-  Part 1: chapters 1-10
-  Part 2: chapters 11-20
-  Part 3: chapters 21-30
-  Part 4: chapters 31-37
-
 Resume-safe: skips question IDs already in the output; skips (qid, chapter)
-pairs already in the part file.
+pairs already in the verdict TSV.
 """
 
 import argparse
@@ -59,7 +60,7 @@ import re
 from pathlib import Path
 
 from answer import (
-    ROOT, LANGS, PART_RANGES,
+    ROOT, LANGS,
     load_chapters, load_questions, answer_question, print_banner, print_answer_banner,
 )
 from llm7shi.compat import generate_with_schema
@@ -149,47 +150,49 @@ def classify_chapter(question: str, chapter: int, chapter_text: str, model: str,
 
 
 def classify_chapter_score(question: str, chapter: int, chapter_text: str,
-                           model: str) -> int:
-    """Rate a chapter's relevance on a 0-10 integer scale (verdicts=10).
+                           model: str, scale_max: int = 10) -> int:
+    """Rate a chapter's relevance on a 0-`scale_max` integer scale.
 
     Unlike `classify_chapter`, which collapses relevance onto a small label
     set, this returns the raw score so the keep/drop threshold can be chosen
     after the distribution is observed — one Phase 1 run feeds every
-    threshold under test.
+    threshold under test. `scale_max` is 10 for the `--verdicts 10` variant
+    and 100 for `--verdicts 100` (the finer-grained variant, motivated by the
+    filter10 run's bimodal collapse onto 0 and 10).
 
-    The reply is parsed for the first integer token in [0, 10]; on an unclear
-    reply it retries up to 3 times, then defaults to 5 (mid-scale) so an
-    unparseable answer lands in the middle rather than silently dropping or
-    keeping the chapter.
+    The reply is parsed for the first integer token in [0, scale_max]; on an
+    unclear reply it retries up to 3 times, then defaults to `scale_max // 2`
+    (mid-scale: 5 for scale 10, 50 for scale 100) so an unparseable answer
+    lands in the middle rather than silently dropping or keeping the chapter.
     """
     context = f"Chapter {chapter} text:\n{chapter_text}"
     options = (
-        "Reply with a single integer from 0 to 10 — nothing else.\n"
-        "  - 0: completely irrelevant to the question.\n"
-        "  - 10: directly and fully answers the question.\n"
-        "  - Use intermediate values for partial or indirect relevance.\n"
+        f"Reply with a single integer from 0 to {scale_max} — nothing else.\n"
+        f"  - 0: completely irrelevant to the question.\n"
+        f"  - {scale_max}: directly and fully answers the question.\n"
+        f"  - Use intermediate values for partial or indirect relevance.\n"
     )
     prompt = (
         f"Rate how relevant the chapter text above is to answering the "
-        f"question below, on an integer scale from 0 to 10.\n"
+        f"question below, on an integer scale from 0 to {scale_max}.\n"
         f"{options}\n"
         f"Question: {question}"
     )
     max_retries = 3
-    default = 5
+    default = scale_max // 2
     for attempt in range(max_retries + 1):
         result = generate_with_schema(
             [context, prompt], model=model,
             include_thoughts=False, show_params=False,
         )
         raw = result.text.strip()
-        m = re.search(r"\b(\d{1,2})\b", raw)
+        m = re.search(r"\b(\d{1,3})\b", raw)
         if m:
             score = int(m.group(1))
-            if 0 <= score <= 10:
+            if 0 <= score <= scale_max:
                 return score
         if attempt < max_retries:
-            print(f"  unclear score ({raw!r}, expected 0-10) — retrying ({attempt + 1}/{max_retries})")
+            print(f"  unclear score ({raw!r}, expected 0-{scale_max}) — retrying ({attempt + 1}/{max_retries})")
         else:
             print(f"  still unclear after {max_retries} retries — defaulting to {default} ({raw!r})")
     return default
@@ -205,20 +208,6 @@ FILTER_PREAMBLE = (
 )
 
 
-def parse_parts(arg: str, parser: argparse.ArgumentParser) -> list[int]:
-    if arg is None:
-        return []
-    if "-" in arg:
-        lo_s, hi_s = arg.split("-", 1)
-        parts = list(range(int(lo_s), int(hi_s) + 1))
-    else:
-        parts = [int(arg)]
-    invalid = [p for p in parts if p not in PART_RANGES]
-    if invalid:
-        parser.error(f"part values out of range (1-4): {invalid}")
-    return parts
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-l", "--lang", default="en", choices=sorted(LANGS),
@@ -228,18 +217,17 @@ def main():
     parser.add_argument("--scenes", default=None, help="scenes JSONL (default: all/<lang>-gemini.jsonl)")
     parser.add_argument("-o", "--output", default=None,
                         help="output JSONL path (default: qa-eval/results-<lang>/filter{V}.jsonl where V = --verdicts)")
-    parser.add_argument("-p", "--part", default=None,
-                        help="chapter group(s) to process: single (e.g. 2) or range (e.g. 1-4); omit to run Phase 2 only")
-    parser.add_argument("--verdicts", type=int, default=3, choices=[2, 3, 10],
-                        help="relevance granularity: 3 = yes/maybe/no (keep yes+maybe), 2 = yes/no (keep yes only), 10 = integer 0-10 (Phase 1 only)")
+    parser.add_argument("-p", "--phase1", action="store_true",
+                        help="run Phase 1 only: classify every (chapter, question) pair into filter{V}.tsv; "
+                             "omit to run Phase 2 (answer from kept chapters)")
+    parser.add_argument("--verdicts", type=int, default=3, choices=[2, 3, 10, 100],
+                        help="relevance granularity: 3 = yes/maybe/no (keep yes+maybe), 2 = yes/no (keep yes only), 10 = integer 0-10 (Phase 1 only), 100 = integer 0-100 (Phase 1 only)")
     args = parser.parse_args()
 
     lang = args.lang
     lang_name = LANGS[lang]
     args.input = args.input or str(ROOT / f"questions-{lang}.jsonl")
     args.scenes = args.scenes or str(ROOT / "all" / f"{lang}-gemini.jsonl")
-
-    parts = parse_parts(args.part, parser)
 
     stem = f"filter{args.verdicts}"
     output_path = Path(args.output) if args.output else ROOT / "qa-eval" / f"results-{lang}" / f"{stem}.jsonl"
@@ -248,63 +236,63 @@ def main():
     questions = load_questions(Path(args.input))
     total = len(questions)
 
-    if parts:
-        # Phase 1: classify each (chapter, question) pair by relevance.
+    if args.phase1:
+        # Phase 1: classify each (chapter, question) pair by relevance. All
+        # chapters go into a single verdict TSV (filter{V}.tsv) — the files are
+        # small and fast to generate, so there is no need to split by chapter
+        # group the way extract does.
         print(f"Loading scenes from {args.scenes}")
         chapters = load_chapters(Path(args.scenes))
         all_chapter_ids = sorted(chapters.keys())
         print(f"Questions: {total}")
 
-        for part in parts:
-            part_path = output_path.with_name(output_path.stem + f"-{part}.tsv")
-            lo, hi = PART_RANGES[part]
-            chapter_ids = [ch for ch in all_chapter_ids if lo <= ch <= hi]
-            print(f"\nPart {part}: chapters {lo}-{hi} ({len(chapter_ids)} chapters)")
+        verdict_path = output_path.with_name(output_path.stem + ".tsv")
 
-            # Resume: collect done (qid, chapter) pairs as verdict strings.
-            done: dict[tuple[int, int], str] = {}
-            if part_path.exists():
-                for ch, qid, verdict in read_verdict_tsv(part_path):
+        # Resume: collect done (qid, chapter) pairs as verdict strings.
+        done: dict[tuple[int, int], str] = {}
+        if verdict_path.exists():
+            for ch, qid, verdict in read_verdict_tsv(verdict_path):
+                done[(qid, ch)] = verdict
+        if done:
+            print(f"Checkpoint: {len(done)} chapter classifications already done")
+
+        # Write the TSV header once when starting a fresh file so that resumed
+        # appends do not duplicate it.
+        if not verdict_path.exists():
+            with open(verdict_path, "w", encoding="utf-8") as ckpt_f:
+                ckpt_f.write(VERDICT_HEADER + "\n")
+
+        with open(verdict_path, "a", encoding="utf-8") as ckpt_f:
+            for ch in all_chapter_ids:
+                chapter_text = "\n\n".join(s["text"] for s in chapters[ch])
+                for qid, q in enumerate(questions, start=1):
+                    if (qid, ch) in done:
+                        continue
+
+                    question_text = q["question"]
+                    print_banner(f"[Ch{ch} Q{qid}/{total}] {question_text}")
+
+                    if args.verdicts in (10, 100):
+                        verdict = str(classify_chapter_score(
+                            question_text, ch, chapter_text, args.model,
+                            scale_max=args.verdicts))
+                    else:
+                        verdict = classify_chapter(question_text, ch, chapter_text, args.model,
+                                                   levels=args.verdicts)
                     done[(qid, ch)] = verdict
-            if done:
-                print(f"Checkpoint: {len(done)} chapter classifications already done")
+                    ckpt_f.write(f"{ch}\t{qid}\t{verdict}\n")
+                    ckpt_f.flush()
 
-            # Write the TSV header once when starting a fresh part file so that
-            # resumed appends do not duplicate it.
-            if not part_path.exists():
-                with open(part_path, "w", encoding="utf-8") as ckpt_f:
-                    ckpt_f.write(VERDICT_HEADER + "\n")
-
-            with open(part_path, "a", encoding="utf-8") as ckpt_f:
-                for ch in chapter_ids:
-                    chapter_text = "\n\n".join(s["text"] for s in chapters[ch])
-                    for qid, q in enumerate(questions, start=1):
-                        if (qid, ch) in done:
-                            continue
-
-                        question_text = q["question"]
-                        print_banner(f"[Ch{ch} Q{qid}/{total}] {question_text}")
-
-                        if args.verdicts == 10:
-                            verdict = str(classify_chapter_score(
-                                question_text, ch, chapter_text, args.model))
-                        else:
-                            verdict = classify_chapter(question_text, ch, chapter_text, args.model,
-                                                       levels=args.verdicts)
-                        done[(qid, ch)] = verdict
-                        ckpt_f.write(f"{ch}\t{qid}\t{verdict}\n")
-                        ckpt_f.flush()
-
-            print(f"Done → {part_path}")
+        print(f"Done → {verdict_path}")
 
     else:
         # Phase 2: answer each question from the full text of its relevant chapters.
-        if args.verdicts == 10:
+        if args.verdicts in (10, 100):
             parser.error(
-                "Phase 2 is not wired up for --verdicts 10 yet: the keep/drop "
-                "threshold must be chosen first. Run Phase 1 only (with --part) "
-                "to produce filter10-{1..4}.tsv, inspect the score distribution, "
-                "then decide a threshold."
+                f"Phase 2 is not wired up for --verdicts {args.verdicts} yet: "
+                f"the keep/drop threshold must be chosen first. Run Phase 1 "
+                f"only (with --phase1) to produce filter{args.verdicts}.tsv, "
+                f"inspect the score distribution, then decide a threshold."
             )
         done_qids: set[int] = set()
         if output_path.exists():
@@ -318,12 +306,11 @@ def main():
         # Unlike extract, Phase 2 needs the chapter text (Phase 1 stored only
         # verdicts), so the scenes file is required here too.
         verdict_map: dict[tuple[int, int], str] = {}
-        for p in range(1, 5):
-            part_path = output_path.with_name(output_path.stem + f"-{p}.tsv")
-            if part_path.exists():
-                for ch, qid, verdict in read_verdict_tsv(part_path):
-                    verdict_map[(qid, ch)] = verdict
-        print(f"Loaded {len(verdict_map)} chapter classifications from part files")
+        verdict_path = output_path.with_name(output_path.stem + ".tsv")
+        if verdict_path.exists():
+            for ch, qid, verdict in read_verdict_tsv(verdict_path):
+                verdict_map[(qid, ch)] = verdict
+        print(f"Loaded {len(verdict_map)} chapter classifications from {verdict_path.name}")
 
         print(f"Loading scenes from {args.scenes}")
         chapters = load_chapters(Path(args.scenes))

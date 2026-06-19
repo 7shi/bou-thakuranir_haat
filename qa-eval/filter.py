@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
-"""Analyze filter10 relevance scores and cross-reference them against filter2/filter3.
+"""Analyze filter{10,100} relevance scores and cross-reference them against filter2/filter3.
 
 Standalone analysis, independent of the answering pipeline — no LLM, no answer
 synthesis, no output file (terminal tables only, like sweep_rag.py). It reads
 the Phase 1 verdict TSVs produced by answer_filter.py and the gold chapters
 from questions-<lang>.jsonl to answer:
 
-  1. How are the 0-10 scores distributed, and do they separate gold from
-     non-gold chapters?
+  1. How are the scores distributed, and do they separate gold from non-gold
+     chapters? (For --scale 100 the raw 0-100 scores are bucketed into deciles
+     so the distribution and crosstab tables stay the same width as --scale 10;
+     filter100's decile buckets line up 1:1 with filter10's integer scores.)
   2. Which keep/drop threshold maximizes chapter recall / precision / F1,
      broken down by question type (single / cross)?
   3. How do the filter2 (yes/no) and filter3 (yes/maybe/no) verdicts map onto
-     the 0-10 scale, and which filter10 threshold reproduces each variant's
-     keep/drop boundary?
+     the score scale, and which threshold reproduces each variant's keep/drop
+     boundary?
 
-Requires the filter10 Phase 1 part TSVs (filter10-{1..4}.tsv). The filter2 and
-filter3 crosstabs (Tables 5-8) are included only when those part TSVs also
-exist.
+Requires the filter{scale} Phase 1 part TSVs (filter{scale}-{1..4}.tsv). The
+filter2 and filter3 crosstabs (Tables 5-8) are included only when those part
+TSVs also exist.
 
 Note on "recall": report.py uses strict subset recall (1 iff gold ⊆ used). This
 script reports both strict subset recall AND partial coverage (the fraction of
@@ -24,7 +26,7 @@ gold chapters kept) so the threshold trade-off is visible as a curve.
 """
 
 import argparse
-import json
+import math
 from collections import Counter
 from pathlib import Path
 
@@ -33,19 +35,45 @@ from answer_filter import read_verdict_tsv
 
 QA_EVAL = Path(__file__).resolve().parent
 
-SCORE_MAX = 10
+# The relevance scale under analysis. Set in main() from --scale (10 or 100).
+# Scale 10 reads filter10-*.tsv (integer 0-10); scale 100 reads filter100-*.tsv
+# (integer 0-100, aggregated into deciles for the wide tables).
+SCALE = 10
+
+# Number of score buckets used in the distribution/crosstab tables. Always 11
+# (indices 0..BUCKET_MAX): for SCALE=10 each bucket is one score; for SCALE=100
+# each bucket is a decile (score // 10). This keeps every table the same width
+# regardless of scale.
+BUCKET_MAX = 10
+
+
+def bucket_of(score: int) -> int:
+    """Map a raw score to a bucket index in 0..BUCKET_MAX.
+
+    For SCALE=10 this is the identity (each score 0-10 is its own bucket). For
+    SCALE=100 each bucket is a decile (score // 10), so a filter100 decile
+    bucket aligns 1:1 with the same filter10 score — bucket 5 is score 5 under
+    SCALE=10 and scores 50-59 under SCALE=100.
+    """
+    return score if SCALE == 10 else score // 10
+
+
+def bucket_label(b: int) -> str:
+    """Human-readable label for a bucket index, for table rows/columns."""
+    if SCALE == 10:
+        return str(b)
+    lo = b * 10
+    return "100" if lo == 100 else f"{lo}-{lo + 9}"
 
 
 def load_verdicts(lang: str, stem: str) -> dict[tuple[int, int], str]:
-    """Load a filter{V}-{1..4}.tsv set into {(qid, chapter): verdict_str}.
+    """Load filter{V}.tsv into {(qid, chapter): verdict_str}.
 
-    Returns an empty dict if no part files exist for the given stem.
+    Returns an empty dict if the file does not exist.
     """
     out: dict[tuple[int, int], str] = {}
-    for p in range(1, 5):
-        path = QA_EVAL / f"results-{lang}" / f"{stem}-{p}.tsv"
-        if not path.exists():
-            continue
+    path = QA_EVAL / f"results-{lang}" / f"{stem}.tsv"
+    if path.exists():
         for ch, qid, verdict in read_verdict_tsv(path):
             out[(qid, ch)] = verdict
     return out
@@ -131,6 +159,39 @@ def metrics_keep(
     }
 
 
+def sweep_thresholds(
+    scores: dict[tuple[int, int], int],
+    gold_by_qid: dict[int, set[int]],
+    qids: list[int],
+) -> list[int]:
+    """Sorted list of thresholds to display in the sweep tables.
+
+    For SCALE=10: every integer 0..SCALE+1 (12 rows), matching the original
+    filter10 table.
+
+    For SCALE=100: a coarse sweep at multiples of 10 (0,10,...,100) plus the
+    SCALE+1 "keep all" endpoint, then a fine-grained ±10 window around the
+    F1 peak at step 1. This keeps the 0-100 table readable (~25 rows) while
+    still locating the optimum to within ±1 — the F1 peak is where the
+    recall/precision trade-off is sharpest, so the neighborhood is what
+    matters for threshold selection.
+    """
+    if SCALE == 10:
+        return list(range(0, SCALE + 2))
+    coarse = set(range(0, SCALE + 1, 10))
+    coarse.add(SCALE + 1)
+    best_thr, best_f1 = 0, -1.0
+    for thr in sorted(coarse):
+        m = metrics(scores, gold_by_qid, thr, qids)
+        denom = m["partial"] + m["precision"]
+        f1 = (2 * m["partial"] * m["precision"] / denom) if denom else 0.0
+        if f1 > best_f1:
+            best_f1, best_thr = f1, thr
+    lo = max(0, best_thr - 10)
+    hi = min(SCALE + 1, best_thr + 10)
+    return sorted(coarse | set(range(lo, hi + 1)))
+
+
 # ---------------------------------------------------------------------------
 # Table printers
 # ---------------------------------------------------------------------------
@@ -140,20 +201,28 @@ def print_score_distribution(
     gold_by_qid: dict[int, set[int]],
 ) -> None:
     total = len(scores)
-    dist = Counter(scores.values())
     n_gold = sum(1 for (qid, ch) in scores if ch in gold_by_qid.get(qid, set()))
-    print("Table 1 — filter10 score distribution (all chapter-question pairs)")
+    kind = "score" if SCALE == 10 else "score decile"
+    col_name = "score" if SCALE == 10 else "decile"
+    print(f"Table 1 — filter{SCALE} {kind} distribution (all chapter-question pairs)")
     print(f"  {total} pairs total, {n_gold} gold, {total - n_gold} non-gold\n")
-    print(f"  {'score':>5}  {'count':>5}  {'pct':>6}  {'gold':>5}  {'nongold':>7}  {'gold%':>6}  bar")
-    print(f"  {'—'*70}")
-    for s in range(SCORE_MAX + 1):
-        g = sum(1 for (qid, ch), sc in scores.items()
-                if sc == s and ch in gold_by_qid.get(qid, set()))
-        ng = dist[s] - g
-        pct = dist[s] / total * 100 if total else 0
-        share = g / dist[s] * 100 if dist[s] else 0
-        bar = "#" * (dist[s] // 5)
-        print(f"  {s:5d}  {dist[s]:5d}  {pct:5.1f}%  {g:5d}  {ng:7d}  {share:5.1f}%  {bar}")
+    print(f"  {col_name:>8}  {'count':>5}  {'pct':>6}  {'gold':>5}  {'nongold':>7}  {'gold%':>6}  bar")
+    print(f"  {'—' * 70}")
+    bucket_count: Counter = Counter()
+    bucket_gold: Counter = Counter()
+    for (qid, ch), sc in scores.items():
+        b = bucket_of(sc)
+        bucket_count[b] += 1
+        if ch in gold_by_qid.get(qid, set()):
+            bucket_gold[b] += 1
+    for b in range(BUCKET_MAX + 1):
+        cnt = bucket_count[b]
+        g = bucket_gold[b]
+        ng = cnt - g
+        pct = cnt / total * 100 if total else 0
+        share = g / cnt * 100 if cnt else 0
+        bar = "#" * math.ceil(math.log10(cnt + 1) * 10)
+        print(f"  {bucket_label(b):>8}  {cnt:5d}  {pct:5.1f}%  {g:5d}  {ng:7d}  {share:5.1f}%  {bar}")
     print()
 
 
@@ -162,16 +231,17 @@ def print_threshold_sweep(
     gold_by_qid: dict[int, set[int]],
     questions: list[dict],
     all_qids: list[int],
+    thresholds: list[int],
 ) -> None:
     scopes = scopes_from_questions(questions)
     print("Table 2 — threshold sweep: keep chapters with score >= threshold")
-    print(f"\n  {'thr':>3}  {'strict':>7}  {'partial':>8}  {'precision':>9}  {'F1':>5}  {'avg_kept':>8}")
-    print(f"  {'—'*50}")
-    for thr in range(0, SCORE_MAX + 2):
+    print(f"\n  {'thr':>4}  {'strict':>7}  {'partial':>8}  {'precision':>9}  {'F1':>5}  {'avg_kept':>8}")
+    print(f"  {'—' * 50}")
+    for thr in thresholds:
         m = metrics(scores, gold_by_qid, thr, all_qids)
         f1 = (2 * m["partial"] * m["precision"] / (m["partial"] + m["precision"])
               if (m["partial"] + m["precision"]) else 0.0)
-        print(f"  {thr:3d}  {m['strict']:7.3f}  {m['partial']:8.3f}  "
+        print(f"  {thr:4d}  {m['strict']:7.3f}  {m['partial']:8.3f}  "
               f"{m['precision']:9.3f}  {f1:5.3f}  {m['avg_kept']:8.1f}")
     print()
 
@@ -184,11 +254,11 @@ def print_threshold_sweep(
         if n == 0:
             continue
         print(f"\n  {scope_name} ({n} questions):")
-        print(f"    {'thr':>3}  {'strict':>7}  {'partial':>8}  {'precision':>9}  {'avg_kept':>8}")
-        print(f"    {'—'*46}")
-        for thr in range(0, SCORE_MAX + 2):
+        print(f"    {'thr':>4}  {'strict':>7}  {'partial':>8}  {'precision':>9}  {'avg_kept':>8}")
+        print(f"    {'—' * 46}")
+        for thr in thresholds:
             m = metrics(scores, gold_by_qid, thr, qids)
-            print(f"    {thr:3d}  {m['strict']:7.3f}  {m['partial']:8.3f}  "
+            print(f"    {thr:4d}  {m['strict']:7.3f}  {m['partial']:8.3f}  "
                   f"{m['precision']:9.3f}  {m['avg_kept']:8.1f}")
     print()
 
@@ -197,9 +267,15 @@ def print_low_score_gold(
     scores: dict[tuple[int, int], int],
     gold_by_qid: dict[int, set[int]],
     questions: list[dict],
-    cutoff: int = 3,
+    cutoff: int | None = None,
 ) -> None:
-    """Gold chapters scored at or below `cutoff` — unrecoverable retrieval risk."""
+    """Gold chapters scored at or below `cutoff` — unrecoverable retrieval risk.
+
+    The cutoff scales with the relevance scale (3 for 0-10, 30 for 0-100) so the
+    "unrecoverable floor" notion is preserved across scales.
+    """
+    if cutoff is None:
+        cutoff = SCALE * 3 // 10
     rows = []
     n_gold = 0
     for (qid, ch), sc in sorted(scores.items()):
@@ -211,7 +287,7 @@ def print_low_score_gold(
     print(f"  {len(rows)} of {n_gold} gold chapters are unrecoverable at any "
           f"threshold >= {cutoff + 1}\n")
     print(f"  {'qid':>3}  {'ch':>3}  {'score':>5}  {'type':<6}  question")
-    print(f"  {'—'*64}")
+    print(f"  {'—' * 64}")
     for qid, ch, sc, qtype in rows:
         q = questions[qid - 1]["question"][:60]
         print(f"  {qid:3d}  {ch:3d}  {sc:5d}  {qtype:<6}  {q}")
@@ -230,35 +306,36 @@ def print_crosstab(
     print(f"  ({len(common)} common pairs)\n")
     matrix: dict[str, Counter] = {label: Counter() for label in labels}
     for key in common:
-        matrix[verdict_map[key]][scores[key]] += 1
+        matrix[verdict_map[key]][bucket_of(scores[key])] += 1
+    col_w = max(len(bucket_label(b)) for b in range(BUCKET_MAX + 1))
     hdr = f"  {'verdict':>6}"
-    for s in range(SCORE_MAX + 1):
-        hdr += f" {s:4d}"
+    for b in range(BUCKET_MAX + 1):
+        hdr += f" {bucket_label(b):>{col_w}}"
     hdr += "  total"
     print(hdr)
     print(f"  {'—' * (len(hdr) - 2)}")
     for label in labels:
         row = f"  {label:>6}"
         total = sum(matrix[label].values())
-        for s in range(SCORE_MAX + 1):
-            row += f" {matrix[label][s]:4d}"
+        for b in range(BUCKET_MAX + 1):
+            row += f" {matrix[label][b]:>{col_w}}"
         row += f" {total:5d}"
         print(row)
     # Gold-only breakdown.
     print("\n  gold chapters only:")
     gold_hdr = f"  {'verdict':>6}"
-    for s in range(SCORE_MAX + 1):
-        gold_hdr += f" {s:4d}"
+    for b in range(BUCKET_MAX + 1):
+        gold_hdr += f" {bucket_label(b):>{col_w}}"
     print(gold_hdr)
     print(f"  {'—' * (len(gold_hdr) - 2)}")
     for label in labels:
         counter = Counter()
         for key in common:
             if key[1] in gold_by_qid.get(key[0], set()) and verdict_map[key] == label:
-                counter[scores[key]] += 1
+                counter[bucket_of(scores[key])] += 1
         row = f"  {label:>6}"
-        for s in range(SCORE_MAX + 1):
-            row += f" {counter[s]:4d}"
+        for b in range(BUCKET_MAX + 1):
+            row += f" {counter[b]:>{col_w}}"
         print(row)
     print()
 
@@ -266,14 +343,15 @@ def print_crosstab(
 def print_equivalence(
     f2: dict[tuple[int, int], str],
     f3: dict[tuple[int, int], str],
-    f10i: dict[tuple[int, int], int],
+    scores: dict[tuple[int, int], int],
     gold_by_qid: dict[int, set[int]],
     all_qids: list[int],
+    thresholds: list[int],
 ) -> None:
-    print("Table 6 — retrieval metrics: filter2/3 keep rules vs filter10 thresholds")
-    print("  (which filter10 threshold reproduces each filter variant?)\n")
+    print(f"Table 6 — retrieval metrics: filter2/3 keep rules vs filter{SCALE} thresholds")
+    print("  (which threshold reproduces each filter variant?)\n")
     print(f"  {'rule':>22}  {'strict':>7}  {'partial':>8}  {'precision':>9}  {'avg_kept':>8}")
-    print(f"  {'—'*60}")
+    print(f"  {'—' * 60}")
     f2_keep = {k: v == "yes" for k, v in f2.items()}
     m2 = metrics_keep(f2_keep, gold_by_qid, all_qids)
     print(f"  {'filter2 (keep yes)':>22}  {m2['strict']:7.3f}  {m2['partial']:8.3f}  "
@@ -282,9 +360,9 @@ def print_equivalence(
     m3 = metrics_keep(f3_keep, gold_by_qid, all_qids)
     print(f"  {'filter3 (keep != no)':>22}  {m3['strict']:7.3f}  {m3['partial']:8.3f}  "
           f"{m3['precision']:9.3f}  {m3['avg_kept']:8.1f}")
-    for thr in range(0, SCORE_MAX + 2):
-        m = metrics(f10i, gold_by_qid, thr, all_qids)
-        print(f"  {'filter10 (>= %d)' % thr:>22}  {m['strict']:7.3f}  {m['partial']:8.3f}  "
+    for thr in thresholds:
+        m = metrics(scores, gold_by_qid, thr, all_qids)
+        print(f"  {'filter%d (>= %d)' % (SCALE, thr):>22}  {m['strict']:7.3f}  {m['partial']:8.3f}  "
               f"{m['precision']:9.3f}  {m['avg_kept']:8.1f}")
     print()
 
@@ -292,7 +370,8 @@ def print_equivalence(
 def print_agreement(
     f2: dict[tuple[int, int], str],
     f3: dict[tuple[int, int], str],
-    f10i: dict[tuple[int, int], int],
+    scores: dict[tuple[int, int], int],
+    thresholds: list[int],
 ) -> None:
     def agreement(keep_a: dict, keep_b: dict) -> float:
         keys = sorted(set(keep_a) & set(keep_b))
@@ -301,29 +380,29 @@ def print_agreement(
 
     f2_keep = {k: v == "yes" for k, v in f2.items()}
     f3_keep = {k: v != "no" for k, v in f3.items()}
-    print("Table 7 — agreement rate: filter10 keep/drop vs filter2/3 keep/drop")
+    print(f"Table 7 — agreement rate: filter{SCALE} keep/drop vs filter2/3 keep/drop")
     print("  (fraction of pairs where the two runs make the same keep/drop call)\n")
     print(f"  {'threshold':>22}  {'vs filter2':>10}  {'vs filter3':>10}")
-    print(f"  {'—'*48}")
-    for thr in range(0, SCORE_MAX + 2):
-        f10_keep = {k: v >= thr for k, v in f10i.items()}
-        a2 = agreement(f10_keep, f2_keep)
-        a3 = agreement(f10_keep, f3_keep)
-        print(f"  {'filter10 (>= %d)' % thr:>22}  {a2:10.3f}  {a3:10.3f}")
+    print(f"  {'—' * 48}")
+    for thr in thresholds:
+        fN_keep = {k: v >= thr for k, v in scores.items()}
+        a2 = agreement(fN_keep, f2_keep)
+        a3 = agreement(fN_keep, f3_keep)
+        print(f"  {'filter%d (>= %d)' % (SCALE, thr):>22}  {a2:10.3f}  {a3:10.3f}")
     print()
 
 
 def print_score_summary(
     f2: dict[tuple[int, int], str],
     f3: dict[tuple[int, int], str],
-    f10i: dict[tuple[int, int], int],
+    scores: dict[tuple[int, int], int],
 ) -> None:
-    common = sorted(set(f2) & set(f3) & set(f10i))
+    common = sorted(set(f2) & set(f3) & set(scores))
 
     def summary(verdict_map: dict, labels: list[str], title: str) -> None:
         print(f"  {title}:")
         for label in labels:
-            vals = [f10i[k] for k in common if verdict_map[k] == label]
+            vals = [scores[k] for k in common if verdict_map[k] == label]
             vals_sorted = sorted(vals)
             n = len(vals)
             if n == 0:
@@ -333,12 +412,12 @@ def print_score_summary(
             mean = sum(vals) / n
             c = Counter(vals)
             mode = c.most_common(1)[0]
-            print(f"    {label:>6} ({n:4d} pairs): mean={mean:5.2f}  "
+            print(f"    {label:>6} ({n:4d} pairs): mean={mean:6.2f}  "
                   f"median={median}  mode={mode[0]} (n={mode[1]})")
 
-    print("Table 8 — filter10 score summary per filter2/3 verdict label\n")
-    summary(f2, ["yes", "no"], "filter2 verdict → filter10 score")
-    summary(f3, ["yes", "maybe", "no"], "filter3 verdict → filter10 score")
+    print(f"Table 8 — filter{SCALE} score summary per filter2/3 verdict label\n")
+    summary(f2, ["yes", "no"], f"filter2 verdict → filter{SCALE} score")
+    summary(f3, ["yes", "maybe", "no"], f"filter3 verdict → filter{SCALE} score")
     print()
 
 
@@ -347,14 +426,19 @@ def print_score_summary(
 # ---------------------------------------------------------------------------
 
 def main():
+    global SCALE
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-l", "--lang", default="en", choices=sorted(LANGS),
                         help="evaluation language (selects default questions/results paths)")
     parser.add_argument("-i", "--input", default=None,
                         help="questions JSONL (default: questions-<lang>.jsonl)")
+    parser.add_argument("--scale", type=int, default=10, choices=[10, 100],
+                        help="relevance scale to analyze: 10 = filter10.tsv (0-10), "
+                             "100 = filter100.tsv (0-100, shown as deciles)")
     args = parser.parse_args()
 
+    SCALE = args.scale
     lang = args.lang
     questions_path = Path(args.input) if args.input else ROOT / f"questions-{lang}.jsonl"
 
@@ -363,20 +447,22 @@ def main():
     all_qids = list(range(1, len(questions) + 1))
     print(f"Questions: {len(questions)} ({questions_path})")
 
-    # filter10 scores (required).
-    f10 = load_verdicts(lang, "filter10")
-    if not f10:
-        parser.error(f"no filter10 part TSVs found in results-{lang}/ — "
-                     f"run `make filter10-parts LANG={lang}` first.")
-    f10i = {k: int(v) for k, v in f10.items()}
-    total = len(f10i)
-    n_chapters = len({ch for _, ch in f10i})
-    print(f"filter10: {total} (chapter, question) pairs ({n_chapters} chapters)\n")
+    # filter{scale} scores (required).
+    stem = f"filter{args.scale}"
+    fN = load_verdicts(lang, stem)
+    if not fN:
+        parser.error(f"no {stem}.tsv found in results-{lang}/ — "
+                     f"run `make {stem}-tsv LANG={lang}` first.")
+    scores = {k: int(v) for k, v in fN.items()}
+    total = len(scores)
+    n_chapters = len({ch for _, ch in scores})
+    print(f"{stem}: {total} (chapter, question) pairs ({n_chapters} chapters)\n")
 
-    # Tables 1-4: filter10 alone.
-    print_score_distribution(f10i, gold_by_qid)
-    print_threshold_sweep(f10i, gold_by_qid, questions, all_qids)
-    print_low_score_gold(f10i, gold_by_qid, questions)
+    # Tables 1-4: filter{scale} alone.
+    print_score_distribution(scores, gold_by_qid)
+    thresholds = sweep_thresholds(scores, gold_by_qid, all_qids)
+    print_threshold_sweep(scores, gold_by_qid, questions, all_qids, thresholds)
+    print_low_score_gold(scores, gold_by_qid, questions)
 
     # Tables 5-8: crosstabs against filter2/filter3 (if present).
     f2 = load_verdicts(lang, "filter2")
@@ -387,18 +473,18 @@ def main():
 
     if f2:
         print_crosstab(
-            f2, f10i, ["yes", "no"],
-            "Table 5a — filter2 verdict × filter10 score",
+            f2, scores, ["yes", "no"],
+            f"Table 5a — filter2 verdict × filter{args.scale} score",
             gold_by_qid)
     if f3:
         print_crosstab(
-            f3, f10i, ["yes", "maybe", "no"],
-            "Table 5b — filter3 verdict × filter10 score",
+            f3, scores, ["yes", "maybe", "no"],
+            f"Table 5b — filter3 verdict × filter{args.scale} score",
             gold_by_qid)
     if f2 and f3:
-        print_equivalence(f2, f3, f10i, gold_by_qid, all_qids)
-        print_agreement(f2, f3, f10i)
-        print_score_summary(f2, f3, f10i)
+        print_equivalence(f2, f3, scores, gold_by_qid, all_qids, thresholds)
+        print_agreement(f2, f3, scores, thresholds)
+        print_score_summary(f2, f3, scores)
 
 
 if __name__ == "__main__":

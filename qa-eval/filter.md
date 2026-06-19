@@ -3,10 +3,10 @@
 The per-chapter relevance filter ([`answer_filter.py`](#answer_filterpy)) uses
 the LLM itself as the retriever: instead of dense-embedding similarity, it asks
 the model to judge each chapter's relevance to each question. This document
-covers the three granularity variants (**Filter2**, **Filter3**, **Filter10**),
-the standalone analysis script ([`filter.py`](#filterpy)) that tunes the
-keep/drop threshold from the gold labels, and the findings from the English
-run.
+covers the granularity variants (**Filter2**, **Filter3**, **Filter10**,
+**Filter100**), the standalone analysis script ([`filter.py`](#filterpy)) that
+tunes the keep/drop threshold from the gold labels, and the findings from the
+English run.
 
 ## `answer_filter.py`
 
@@ -33,9 +33,17 @@ decision; the difference is where the drop threshold sits:
   pair so the keep/drop threshold can be chosen *after* the distribution is
   observed — a single Phase 1 run feeds every threshold under test, instead of
   one run per threshold as with the 2- and 3-level variants. Phase 2 is not
-  wired up for this variant yet: run only Phase 1 (with `-p`) to produce
-  `filter10-{1..4}.tsv`, inspect the score distribution with
+  wired up for this variant yet: run only Phase 1 (with `--phase1`) to produce
+  `filter10.tsv`, inspect the score distribution with
   [`filter.py`](#filterpy), then decide a threshold and add the Phase 2 path.
+- **`--verdicts 100` (→ Filter100, Phase 1 only)**: 101-level verdict (an
+  integer `0`–`100`), the finer-grained counterpart of Filter10. Motivated by
+  the Filter10 run, where scores collapsed bimodally onto `0` and `10` (91.4%
+  scored `0`, [see below](#score-distribution-and-gold-separation)) and the
+  middle band was noisy — a `0`–`100` scale gives the model more room to
+  distinguish partial/indirect relevance. Same Phase-1-only posture as
+  Filter10: run with `--phase1` to produce `filter100.tsv`, then analyze with
+  `filter.py --scale 100`.
 
 **Algorithm**
 
@@ -47,11 +55,12 @@ Phase 1 — Relevance classification (37 chapters × 50 questions = 1,850 calls)
 2. For each (chapter, question) pair, pass the chapter text as context and ask
    the model whether the chapter is relevant to the question. CoT is disabled
    (`include_thoughts=False`) and the reply is a single token (plain text, no
-   structured schema) — for V=2/3 parsed by first character, for V=10 parsed
-   for the first integer in `[0, 10]`, retrying up to 3 times on an unclear
-   reply. The fallback on a still-unclear reply is the inclusion side of the
-   chosen granularity: `yes` for `--verdicts 2`, `maybe` for `--verdicts 3`,
-   and `5` (mid-scale) for `--verdicts 10`, so an unparseable answer keeps
+   structured schema) — for V=2/3 parsed by first character, for V=10/100
+   parsed for the first integer in `[0, scale]` (`scale` = 10 or 100),
+   retrying up to 3 times on an unclear reply. The fallback on a still-unclear
+   reply is the inclusion side of the chosen granularity: `yes` for
+   `--verdicts 2`, `maybe` for `--verdicts 3`, and mid-scale (`5` for V=10,
+   `50` for V=100) for the numeric variants, so an unparseable answer keeps
    the chapter rather than dropping it.
 3. Write the result immediately to the checkpoint file and flush.
 
@@ -73,19 +82,18 @@ Phase 2 — Answer (50 calls):
   - `question_id` — 1-origin line number in the input file
   - `expanded` — kept chapter numbers, as `["5", "10", ...]` strings
   - `answer` — the model's answer
-  - *(Filter10 has no `.jsonl` yet — Phase 2 is deferred until the threshold
-    is chosen; only the part TSVs below exist.)*
-- **Part files**: `results-<lang>/filter{V}-{N}.tsv` (N = 1–4) — a TSV with a
+  - *(Filter10/Filter100 have no `.jsonl` yet — Phase 2 is deferred until the
+    threshold is chosen; only the verdict TSV below exists.)*
+- **Verdict file**: `results-<lang>/filter{V}.tsv` — a TSV with a
   `chapter	question_id	verdict` header followed by one row per classified
-  `(chapter, question_id)` pair for each chapter group:
+  `(chapter, question_id)` pair (all chapters in a single file):
   - `chapter` — chapter number
   - `question_id` — 1-origin line number in the input file
   - `verdict` — relevance verdict: `yes` or `no` for V=2; `yes`, `maybe`, or
-    `no` for V=3; an integer `0`–`10` for V=10
-  - Part 1: chapters 1–10 · Part 2: chapters 11–20 · Part 3: chapters 21–30 · Part 4: chapters 31–37
+    `no` for V=3; an integer `0`–`10` for V=10; an integer `0`–`100` for V=100
 
 Resume-safe at two levels: question IDs already in the output file are skipped
-entirely; `(question_id, chapter)` pairs already in the part file are skipped
+entirely; `(question_id, chapter)` pairs already in the verdict file are skipped
 in Phase 1.
 
 ### Failure mode
@@ -111,41 +119,55 @@ like [`sweep_rag.py`](README.md#sweep_ragpy)). It reads the Phase 1 verdict
 TSVs produced by `answer_filter.py` and the gold chapters from
 `questions-<lang>.jsonl` to answer three questions:
 
-1. How are the 0-10 scores distributed, and do they separate gold from
-   non-gold chapters?
+1. How are the scores distributed, and do they separate gold from non-gold
+   chapters?
 2. Which keep/drop threshold maximizes chapter recall / precision / F1,
    broken down by question type?
 3. How do the filter2 (yes/no) and filter3 (yes/maybe/no) verdicts map onto
-   the 0-10 scale, and which filter10 threshold reproduces each variant's
-   keep/drop boundary?
+   the score scale, and which threshold reproduces each variant's keep/drop
+   boundary?
 
-Requires the filter10 part TSVs (`make filter10-parts`); the filter2/filter3
-crosstabs (Tables 5-8) appear only when those part TSVs also exist. Run:
+The `--scale {10,100}` switch selects which verdict TSV to read (`filter10.tsv`
+or `filter100.tsv`) and sets the table widths. Requires the matching verdict
+TSV; the filter2/filter3 crosstabs (Tables 5-8) appear only when those TSVs
+also exist. Run:
 
 ```sh
-make filter            # filter10 parts + analysis (LANG=en default)
-make filter LANG=ja    # Japanese
+make filter                  # filter10 verdicts + analysis (LANG=en default)
+make filter LANG=ja          # Japanese
+make filter SCALE=100        # filter100 verdicts + analysis (scores shown as deciles)
 ```
+
+At `--scale 100` the raw `0`–`100` scores are bucketed into deciles
+(`score // 10`) wherever a wide table would otherwise overflow, so filter100's
+decile buckets line up 1:1 with filter10's integer scores and every table
+keeps the same width — bucket `5` is score `5` at scale 10 and scores `50`–`59`
+at scale 100. The threshold sweep (Table 2) also coarsens to multiples of 10
+plus a fine-grained ±10 window around the F1 peak, instead of all 102 rows.
 
 Eight tables:
 
-1. **Score distribution** — histogram of filter10 scores over all
-   `(chapter, question)` pairs, split by gold vs non-gold.
-2. **Threshold sweep** — for each threshold 0-11: strict subset recall,
-   partial coverage recall, precision, F1, and mean chapters kept.
+1. **Score distribution** — histogram of scores over all
+   `(chapter, question)` pairs, split by gold vs non-gold (raw scores at scale
+   10, decile buckets at scale 100).
+2. **Threshold sweep** — for each threshold: strict subset recall, partial
+   coverage recall, precision, F1, and mean chapters kept. Scale 10 sweeps
+   every integer `0`–`11`; scale 100 sweeps decades plus the F1-peak
+   neighborhood.
 3. **Per-type breakdown** — the threshold sweep repeated for each gold `type`
    (`single` / `cross`), so the recall-precision frontier is visible per scope.
-4. **Retrieval risk** — gold chapters scored at or below 3, which no threshold
-   above 4 can recover (the unrecoverable floor).
+4. **Retrieval risk** — gold chapters scored at or below the cutoff (3 at
+   scale 10, 30 at scale 100), which no higher threshold can recover (the
+   unrecoverable floor).
 5. **Crosstab** — filter2 verdict (Table 5a) and filter3 verdict (Table 5b)
-   crossed against filter10 score, both overall and gold-only.
+   crossed against score bucket, both overall and gold-only.
 6. **Equivalence** — retrieval metrics for the filter2/3 keep rules side by
-   side with every filter10 threshold, so the matching threshold can be read
-   off directly.
-7. **Agreement rate** — fraction of pairs where filter10's keep/drop call
+   side with every threshold, so the matching threshold can be read off
+   directly.
+7. **Agreement rate** — fraction of pairs where the score's keep/drop call
    matches filter2/3's, per threshold.
-8. **Score summary** — mean / median / mode of the filter10 score within each
-   filter2/3 verdict label.
+8. **Score summary** — mean / median / mode of the raw score within each
+   filter2/3 verdict label (computed on raw scores, not buckets).
 
 ---
 
@@ -281,9 +303,18 @@ cheap once the single Phase 1 run exists.
 
 ### Next step
 
-Phase 2 is not yet wired up for Filter10. The threshold-sweep and per-type
-tables above suggest the answer-accuracy-optimal threshold likely lies in the
-1-3 range (where partial recall stays above 0.86 and precision is still
-reasonable), but only running Phase 2 at multiple thresholds and judging the
-answers can confirm which maximizes QA accuracy. Since Phase 2 is ~50 calls
+Phase 2 is not yet wired up for Filter10 (or Filter100). The threshold-sweep
+and per-type tables above suggest the answer-accuracy-optimal threshold likely
+lies in the 1-3 range (where partial recall stays above 0.86 and precision is
+still reasonable), but only running Phase 2 at multiple thresholds and judging
+the answers can confirm which maximizes QA accuracy. Since Phase 2 is ~50 calls
 per threshold, sweeping thresholds 1, 2, and 3 is the cheapest way to find out.
+
+**Filter100** (`make filter SCALE=100`) is the parallel next experiment: the
+0-10 scale collapsed bimodally onto `0` and `10`, leaving the noisy score-2
+band as the only middle ground. A 0-100 scale gives the model room to spread
+partial/indirect relevance across a finer band, and `filter.py --scale 100`
+aggregates those scores into deciles so the result is directly comparable to
+the Filter10 tables above — if the finer scale separates gold from non-gold
+more cleanly in the middle band, it would narrow the threshold choice before
+any Phase 2 spend.

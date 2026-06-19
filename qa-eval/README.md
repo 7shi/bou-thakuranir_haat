@@ -99,7 +99,7 @@ The scripts form the pipeline (Filter and Ceiling are opt-in):
 - `build_index.py` — scene embedding index → `index-<lang>.safetensors`
 - `answer_rag.py` — Vector RAG answering → `results-<lang>/rag.jsonl`
 - `answer_extract.py` — Per-chapter extraction answering → `results-<lang>/extract.jsonl`
-- `answer_filter.py` — Per-chapter relevance filter (yes/no, yes/maybe/no, or integer 0–10); see [filter.md](filter.md) for details → `results-<lang>/filter2.jsonl`, `filter3.jsonl`, or `filter10-{1..4}.tsv` (opt-in)
+- `answer_filter.py` — Per-chapter relevance filter (yes/no, yes/maybe/no, or integer 0–10/0–100); see [filter.md](filter.md) for details → `results-<lang>/filter2.jsonl`, `filter3.jsonl`, or `filter{V}.tsv` verdict files (opt-in)
 - `answer_ceiling.py` — Gold-chapter context, no retrieval → `results-<lang>/ceiling.jsonl` (opt-in)
 - `judge.py` — LLM grading of answers vs. gold → `results-<lang>/judge-<stem>.jsonl`
 - `report.py` — accuracy + chapter retrieval comparison + pairwise disagreement analysis (terminal table)
@@ -130,12 +130,14 @@ make clean              # remove generated answers/judgements (keeps the index)
 Each step's **output file is the real target**, so Make skips anything already
 up to date and an interrupted `make` resumes where it stopped (each script is
 also internally resume-safe). Extraction Phase 1 uses a pattern rule (one chapter
-group per part), so the parts build in parallel with `make -j`. Filter reuses
-the same pattern rule shape; it is **opt-in** (not in `make`, `make all`, or
-`make <lang>`) because Phase 1 costs ~1,850 LLM calls per language — run
+group per part), so the parts build in parallel with `make -j`. Filter writes a
+single consolidated verdict TSV per variant instead (the files are small and
+fast to generate, so the part split is unnecessary); it is **opt-in** (not in
+`make`, `make all`, or `make <lang>`) because Phase 1 costs ~1,850 LLM calls
+per language — run
 `make filter2` (two-level, yes/no) or `make filter3` (three-level,
 yes/maybe/no) after the default pipeline to add a per-chapter retrieval
-strategy, or `make filter10-parts` (eleven-level, integer 0–10) to collect raw
+strategy, or `make filter10-tsv` (eleven-level, integer 0–10) to collect raw
 relevance scores whose keep/drop threshold is chosen afterwards (see
 [filter.md](filter.md)). Ceiling is **opt-in** for a different reason — it is
 not a retrieval method at all but a perfect-retrieval reference run, so it sits

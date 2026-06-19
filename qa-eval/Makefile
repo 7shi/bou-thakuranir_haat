@@ -23,10 +23,12 @@
 #   make LANG=ja rag judge
 #   make filter2    # opt-in: per-chapter yes/no filter (Phase 1 + 2 + judge)
 #   make filter3    # opt-in: per-chapter yes/maybe/no filter (Phase 1 + 2 + judge)
-#   make filter10-parts  # opt-in: per-chapter 0-10 score (Phase 1 only; threshold TBD)
+#   make filter10-tsv   # opt-in: per-chapter 0-10 score → filter10.tsv (Phase 1 only)
+#   make filter100-tsv  # opt-in: per-chapter 0-100 score → filter100.tsv (Phase 1 only)
 #   make ceiling    # opt-in: gold-chapter context ceiling (answer + judge)
 #   make sweep      # retrieval sweep (independent of the pipeline; no LLM)
-#   make filter     # filter10 parts + score-distribution analysis (no LLM)
+#   make filter     # filter10 verdicts + score-distribution analysis (no LLM)
+#   make filter SCALE=100  # filter100 verdicts + analysis (decile-bucketed; no LLM)
 
 LANG    := en
 ROOT    := ..
@@ -39,9 +41,18 @@ INDEX     := index-$(LANG).safetensors
 
 PARTS         := 1 2 3 4
 EXTRACT_PARTS  := $(patsubst %,$(RESULTS)/extract-%.jsonl,$(PARTS))
-FILTER2_PARTS  := $(patsubst %,$(RESULTS)/filter2-%.tsv,$(PARTS))
-FILTER3_PARTS  := $(patsubst %,$(RESULTS)/filter3-%.tsv,$(PARTS))
-FILTER10_PARTS := $(patsubst %,$(RESULTS)/filter10-%.tsv,$(PARTS))
+# Filter verdict TSVs are single files (one per verdict granularity), not split
+# by chapter group — they are small and fast to generate, so the part split that
+# Extract uses is unnecessary here. Phase 1 writes filter{V}.tsv (all chapters).
+FILTER2_TSV   := $(RESULTS)/filter2.tsv
+FILTER3_TSV   := $(RESULTS)/filter3.tsv
+FILTER10_TSV  := $(RESULTS)/filter10.tsv
+FILTER100_TSV := $(RESULTS)/filter100.tsv
+
+# Relevance scale for the `filter` analysis target: 10 reads filter10.tsv,
+# 100 reads filter100.tsv. `make filter SCALE=100` builds filter100.tsv (if
+# missing) then runs filter.py --scale 100.
+SCALE := 10
 
 # Retrieval depth for the `rag` target. Empty (or unset) → default k=5, whose
 # output is results-<lang>/rag.jsonl. Set K=10 → results-<lang>/rag-10.jsonl.
@@ -51,7 +62,7 @@ ifneq ($(K),)
 RAG_FILE := $(RESULTS)/rag-$(K).jsonl
 endif
 
-.PHONY: en ja all pipeline index rag extract-parts extract filter2-parts filter2 filter3-parts filter3 filter10-parts filter ceiling judge report sweep clean
+.PHONY: en ja all pipeline index rag extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter ceiling judge report sweep clean
 .DEFAULT_GOAL := en
 
 en:
@@ -70,27 +81,30 @@ index: $(INDEX)
 rag: $(RAG_FILE)
 extract-parts: $(EXTRACT_PARTS)
 extract: $(RESULTS)/extract.jsonl
-filter2-parts: $(FILTER2_PARTS)
+filter2-tsv: $(FILTER2_TSV)
 # `make filter2` runs the whole opt-in pipeline (Phase 1 + Phase 2 + judge) so
 # that Filter2 appears in `make report` after a single command. judge-filter2
-# depends on filter2.jsonl which depends on the four part files.
+# depends on filter2.jsonl which depends on the verdict TSV (filter2.tsv).
 filter2: $(RESULTS)/judge-filter2.jsonl
-filter3-parts: $(FILTER3_PARTS)
+filter3-tsv: $(FILTER3_TSV)
 # `make filter3` mirrors `make filter2` for the three-level (yes/maybe/no)
 # default variant: Phase 1 + Phase 2 + judge, surfacing Filter3 in `make report`.
 filter3: $(RESULTS)/judge-filter3.jsonl
-filter10-parts: $(FILTER10_PARTS)
+filter10-tsv: $(FILTER10_TSV)
+filter100-tsv: $(FILTER100_TSV)
 ceiling: $(RESULTS)/judge-ceiling.jsonl
 judge: $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-extract.jsonl
 sweep: $(INDEX) $(QUESTIONS)
 	uv run sweep_rag.py -l $(LANG)
 
-# Filter10 score-distribution / threshold-sweep analysis (terminal output only,
-# no LLM). Depends on the filter10 part TSVs so `make filter` generates them if
-# missing, then runs filter.py. filter2/3 part TSVs are read opportunistically
-# when present (for the crosstab tables) but are not required.
-filter: $(FILTER10_PARTS) $(QUESTIONS)
-	uv run filter.py -l $(LANG)
+# filter{10,100} score-distribution / threshold-sweep analysis (terminal output
+# only, no LLM). SCALE selects which verdict TSV to read: 10 → filter10.tsv,
+# 100 → filter100.tsv (shown as deciles). Depends on the matching parts target
+# so `make filter SCALE=100` generates it if missing, then runs filter.py.
+# filter2/3 TSVs are read opportunistically when present (for the crosstab
+# tables) but are not required.
+filter: filter$(SCALE)-tsv $(QUESTIONS)
+	uv run filter.py -l $(LANG) --scale $(SCALE)
 
 # Accuracy + chapter retrieval comparison table + pairwise disagreement
 # analysis (terminal output only). Needs >= 2 judged methods for the pass.
@@ -122,28 +136,26 @@ $(RESULTS)/extract-%.jsonl: $(SCENES) $(QUESTIONS)
 $(RESULTS)/extract.jsonl: $(EXTRACT_PARTS) $(QUESTIONS)
 	uv run answer_extract.py -l $(LANG)
 
-# Per-chapter two-level relevance filter (yes/no), Phase 1: same pattern as
-# extract-% but with `--verdicts 2`, which writes filter2-%.tsv (a TSV: a
-# chapter/question_id/verdict header then one row per classified pair). A
-# stricter bar than filter3 — Phase 2 keeps only "yes" verdicts, so uncertain
-# chapters are dropped.
-$(RESULTS)/filter2-%.tsv: $(SCENES) $(QUESTIONS)
-	uv run answer_filter.py -l $(LANG) -p $* --verdicts 2
+# Per-chapter two-level relevance filter (yes/no), Phase 1: writes a single
+# filter2.tsv (a TSV: a chapter/question_id/verdict header then one row per
+# classified pair, all chapters at once). A stricter bar than filter3 — Phase 2
+# keeps only "yes" verdicts, so uncertain chapters are dropped.
+$(FILTER2_TSV): $(SCENES) $(QUESTIONS)
+	uv run answer_filter.py -l $(LANG) --phase1 --verdicts 2
 
 # Per-chapter two-level relevance filter, Phase 2: answer from the FULL text
 # of every chapter marked "yes".
-$(RESULTS)/filter2.jsonl: $(FILTER2_PARTS) $(QUESTIONS)
+$(RESULTS)/filter2.jsonl: $(FILTER2_TSV) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG) --verdicts 2
 
 # Per-chapter three-level relevance filter (yes/maybe/no), Phase 1: default
-# --verdicts 3 (omitted), writes filter3-%.tsv. Mirrors the extract-% pattern
-# but writes a `verdict` column (TSV) instead of a summary.
-$(RESULTS)/filter3-%.tsv: $(SCENES) $(QUESTIONS)
-	uv run answer_filter.py -l $(LANG) -p $*
+# --verdicts 3 (omitted), writes filter3.tsv. All chapters in one run.
+$(FILTER3_TSV): $(SCENES) $(QUESTIONS)
+	uv run answer_filter.py -l $(LANG) --phase1
 
 # Per-chapter three-level relevance filter, Phase 2: answer from the FULL text
 # of every chapter whose verdict is not "no" (both "yes" and "maybe").
-$(RESULTS)/filter3.jsonl: $(FILTER3_PARTS) $(QUESTIONS)
+$(RESULTS)/filter3.jsonl: $(FILTER3_TSV) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG)
 
 # Per-chapter eleven-level relevance filter (integer 0-10), Phase 1 ONLY. The
@@ -151,8 +163,17 @@ $(RESULTS)/filter3.jsonl: $(FILTER3_PARTS) $(QUESTIONS)
 # records the raw score per (chapter, question) pair so the threshold can be
 # chosen after inspecting the distribution. Phase 2 (and the filter10.jsonl /
 # judge targets) are deferred until that decision is made.
-$(RESULTS)/filter10-%.tsv: $(SCENES) $(QUESTIONS)
-	uv run answer_filter.py -l $(LANG) -p $* --verdicts 10
+$(FILTER10_TSV): $(SCENES) $(QUESTIONS)
+	uv run answer_filter.py -l $(LANG) --phase1 --verdicts 10
+
+# Per-chapter 101-level relevance filter (integer 0-100), Phase 1 ONLY — the
+# finer-grained counterpart of filter10. Motivated by filter10's bimodal score
+# collapse (91.4% scored 0): a 0-100 scale gives the model more room to
+# distinguish partial/indirect relevance. Same Phase-1-only posture as filter10;
+# analyze with `make filter SCALE=100`. Phase 2 is deferred until the threshold
+# is chosen.
+$(FILTER100_TSV): $(SCENES) $(QUESTIONS)
+	uv run answer_filter.py -l $(LANG) --phase1 --verdicts 100
 
 # Perfect-retrieval ceiling: the gold chapters fed verbatim as context, no
 # retrieval. No Phase 1, so just one target — the answer file. Its judge target
@@ -191,7 +212,7 @@ clean:
 	      $(RESULTS)/filter2.jsonl $(RESULTS)/filter3.jsonl \
 	      $(RESULTS)/ceiling.jsonl \
 	      $(EXTRACT_PARTS) \
-	      $(FILTER2_PARTS) $(FILTER3_PARTS) $(FILTER10_PARTS) \
+	      $(FILTER2_TSV) $(FILTER3_TSV) $(FILTER10_TSV) $(FILTER100_TSV) \
 	      $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-rag-[0-9]*.jsonl \
 	      $(RESULTS)/judge-extract.jsonl \
 	      $(RESULTS)/judge-filter2.jsonl $(RESULTS)/judge-filter3.jsonl \
