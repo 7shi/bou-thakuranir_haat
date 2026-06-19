@@ -31,34 +31,19 @@ Both languages use the same answer model `google:gemma-4-31b-it`, the same
 
 **Retrieval strategy is the lever; language barely is.** At `k=5`, RAG and
 Extract tie on English (0.830) and sit within two questions on Japanese (0.810
-vs 0.850) — the language makes almost no difference. Two levers lift the score
-further, both about *how* chapters reach the answerer rather than which
-language:
+vs 0.850) — the language makes almost no difference. The main lever is
+retrieval depth: **bumping RAG to `k=10`** (English) lifts 0.830 → 0.920,
+exactly what [`sweep_rag.py`](#sweep_ragpy) predicted (`k=5` was tight; deeper
+retrieval surfaces the chapters the top-5 missed). What `k=10` *cannot* fix is
+dense-retrieval blindness — load-bearing chapters that rank outside the top-10
+at both depths, which motivates the BM25/lexical hybrid in [PLAN.md](PLAN.md).
 
-- **Bump RAG's depth to `k=10`** (English): 0.830 → 0.920, exactly what
-  [`sweep_rag.py`](#sweep_ragpy) predicted (`k=5` was tight; deeper retrieval
-  surfaces the chapters the top-5 missed).
-- **Switch to per-chapter reading with a loose relevance bar** (Filter3):
-  0.830 → 0.930. Filter3 asks the LLM whether each chapter is relevant
-  (`yes`/`maybe`/`no`) and keeps everything except an explicit `no`, so
-  uncertainty is resolved toward inclusion. The `maybe` verdict alone rescues
-  32 of the 86 gold chapters (recall 0.49 with `yes` only → 0.86 with
-  `yes`+`maybe`). The two-level variant (Filter2, `yes`/`no`) drops to 0.790:
-  forced into a binary call, the model marks 33 of 86 gold chapters `no`
-  (vs. 12 under Filter3), collapsing cross-reference recall to 0.20. Both
-  variants reduce Phase 2 to the same keep/drop decision — the `maybe` label
-  is a trick for shifting the drop threshold, and the 0.14-point gap is what
-  that trick buys.
-
-What `k=10` *cannot* fix is dense-retrieval blindness — load-bearing chapters
-that rank outside the top-10 at both depths, which motivates the BM25/lexical
-hybrid in [PLAN.md](PLAN.md). Filter3 sidesteps that blindness by reading
-every chapter, which is why it wins head-to-head against RAG k=10 on the
-questions RAG could not retrieve (Q31, Q43, Q49) while matching its accuracy
-at ~4× the chapter precision (0.775 vs 0.205). Filter2 cannot make that trade:
-its stricter bar re-introduces the same dropped-chapter losses per-chapter
-reading was meant to fix, so it lands below Extract (0.79 vs 0.83). The
-per-question detail is in the case studies:
+The **Filter** rows use the LLM itself as the retriever (per-chapter relevance,
+answer from the full text of the kept chapters). Filter3 posts the table's top
+Phase 2 score (0.930) but at hundreds of times RAG's cost, with no retrieval
+advantage once the gold floor is taken into account — see
+[FILTER.md](FILTER.md) for the full analysis and verdict. The per-question
+detail is in the case studies:
 [English](results-en/README.md) · [Japanese](results-ja/README.md).
 
 **Ceiling pins the frontier to retrieval, not comprehension.** Feeding the
@@ -99,7 +84,7 @@ The scripts form the pipeline (Filter and Ceiling are opt-in):
 - `build_index.py` — scene embedding index → `index-<lang>.safetensors`
 - `answer_rag.py` — Vector RAG answering → `results-<lang>/rag.jsonl`
 - `answer_extract.py` — Per-chapter extraction answering → `results-<lang>/extract.jsonl`
-- `answer_filter.py` — Per-chapter relevance filter (yes/no, yes/maybe/no, or integer 0–10/0–100); see [filter.md](filter.md) for details → `results-<lang>/filter2.jsonl`, `filter3.jsonl`, or `filter{V}.tsv` verdict files (opt-in)
+- `answer_filter.py` — Per-chapter relevance filter, the LLM as retriever (yes/no, yes/maybe/no, integer 0–10/0–100, or five-axis); see [FILTER.md](FILTER.md) for details → `results-<lang>/filter2.jsonl`, `filter3.jsonl`, or `filter{V}.tsv` verdict files (opt-in)
 - `answer_ceiling.py` — Gold-chapter context, no retrieval → `results-<lang>/ceiling.jsonl` (opt-in)
 - `judge.py` — LLM grading of answers vs. gold → `results-<lang>/judge-<stem>.jsonl`
 - `report.py` — accuracy + chapter retrieval comparison + pairwise disagreement analysis (terminal table)
@@ -107,10 +92,10 @@ The scripts form the pipeline (Filter and Ceiling are opt-in):
   (terminal tables only; no LLM, independent of the pipeline)
 - `filter.py` — Filter10 score-distribution / threshold-sweep analysis and
   filter2/3 crosstab (terminal tables only; no LLM, independent of the
-  pipeline); see [filter.md](filter.md)
+  pipeline); see [FILTER.md](FILTER.md)
 - `filter5d.py` — Filter5d five-axis sum-distribution / threshold-sweep /
   per-axis analysis (terminal tables only; no LLM, independent of the
-  pipeline); see [filter5d.md](filter5d.md)
+  pipeline); see [FILTER.md](FILTER.md)
 
 `answer.py` holds the shared helpers (`LANGS`, `PART_RANGES`, `load_questions`,
 `load_chapters`, `answer_question`) imported by all four answer scripts.
@@ -142,7 +127,7 @@ per language — run
 yes/maybe/no) after the default pipeline to add a per-chapter retrieval
 strategy, or `make filter10-tsv` (eleven-level, integer 0–10) to collect raw
 relevance scores whose keep/drop threshold is chosen afterwards (see
-[filter.md](filter.md)). Ceiling is **opt-in** for a different reason — it is
+[FILTER.md](FILTER.md)). Ceiling is **opt-in** for a different reason — it is
 not a retrieval method at all but a perfect-retrieval reference run, so it sits
 outside the default retrieval comparison; run `make ceiling` to feed the gold
 chapters directly as context and measure the answer model's reading
@@ -240,12 +225,11 @@ chapters. The `--verdicts {2,3,10,100,5d}` switch selects the classification
 granularity — two-level (`yes`/`no` → Filter2), three-level
 (`yes`/`maybe`/`no` → Filter3, the default), eleven-level (integer 0–10 →
 Filter10, Phase 1 only), 101-level (integer 0–100 → Filter100, Phase 1 only),
-or five-axis (five integers 0–10 → Filter5d, Phase 1 only). Full details for
-Filter2/3/10/100 — the two-phase algorithm, I/O and part files, the
-failure-mode analysis, and the score-distribution / threshold-sweep findings —
-are in [filter.md](filter.md); the five-axis variant that decomposes relevance
-across orthogonal axes to attack the gold-scored-0 floor is in
-[filter5d.md](filter5d.md).
+or five-axis (five integers 0–10 → Filter5d, Phase 1 only). Full details — the
+two-phase algorithm, I/O and verdict files, the failure-mode analysis, the
+score-distribution / threshold-sweep findings, the multi-axis decomposition,
+and the verdict on where the LLM-as-retriever lands relative to Vector RAG —
+are in [FILTER.md](FILTER.md).
 
 ## `answer_ceiling.py`
 

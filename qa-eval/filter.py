@@ -18,7 +18,7 @@ The detailed tables (Tables 1-8) are scale-10 only. `--scale 100` prints just
 the raw score occurrence count (zeros filtered) and returns: filter100 turned
 out to be filter10 scaled ×10 — the model used only multiples of 10 — so the
 threshold/crosstab analysis reproduces filter10's exactly and adds nothing (see
-filter.md). Requires the filter10 Phase 1 verdict TSV (filter10.tsv), or
+FILTER.md). Requires the filter10 Phase 1 verdict TSV (filter10.tsv), or
 filter100.tsv for `--scale 100`. The filter2 and filter3 crosstabs (Tables 5-8)
 are included only when those TSVs also exist.
 
@@ -436,7 +436,7 @@ def main():
     # Scale 100: filter100 is filter10 scaled x10 — the model used only multiples
     # of 10, so the threshold/crosstab analysis reproduces filter10's exactly
     # and adds nothing. Print just the raw score occurrence count (zeros filtered)
-    # and stop. See filter.md.
+    # and stop. See FILTER.md.
     if args.scale == 100:
         print_occurrence_counts(scores)
         return

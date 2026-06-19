@@ -36,7 +36,7 @@ the difference is where the drop threshold sits:
             quantized to multiples of 10 (only 13 of 101 values used), so
             filter100 is filter10 scaled x10 with a worse gold-scored-0 floor
             (11 vs 7); filter.py --scale 100 prints only the occurrence count.
-            See filter.md ("Filter100: filter10 x10"). Same Phase-1-only posture
+            See FILTER.md ("Filter100: filter10 x10"). Same Phase-1-only posture
             as --verdicts 10: run with --phase1 to produce filter100.tsv.
    --verdicts 5d: five-axis verdict (five integers 0-10, one per relevance axis).
             Decomposes the relevance judgement across orthogonal axes (factual,

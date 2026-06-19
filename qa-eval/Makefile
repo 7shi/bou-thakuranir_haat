@@ -113,7 +113,7 @@ filter: filter$(SCALE)-tsv $(QUESTIONS)
 
 # Five-axis relevance score analysis (terminal output only, no LLM). Reads
 # filter5d.tsv and prints the sum distribution, threshold sweep, per-axis
-# breakdown, and the floor analysis. See filter5d.md.
+# breakdown, and the floor analysis. See FILTER.md.
 filter5d: $(FILTER5D_TSV) $(QUESTIONS)
 	uv run filter5d.py -l $(LANG)
 
@@ -181,7 +181,7 @@ $(FILTER10_TSV): $(SCENES) $(QUESTIONS)
 # as a finer-grained filter10, but the model self-quantized to multiples of 10
 # (13 of 101 values used) — filter100 is filter10 scaled x10, with a worse
 # gold-scored-0 floor. `make filter SCALE=100` prints only the occurrence
-# count; see filter.md. Phase 2 is not planned for this variant.
+# count; see FILTER.md. Phase 2 is not planned for this variant.
 $(FILTER100_TSV): $(SCENES) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG) --phase1 --verdicts 100
 

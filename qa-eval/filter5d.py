@@ -423,7 +423,7 @@ def print_or_search(
     thresholds simultaneously to the 86-pair gold set is fitting the metric,
     not learning a generalizable rule. The results are reported so the reader
     can see the gap between the best possible OR rule and the simpler sum
-    threshold. See filter5d.md ("OR combination: an upper bound, not a rule").
+    threshold. See FILTER.md ("OR combination: an upper bound, not a rule").
     """
     THRESHOLDS = list(range(1, 6))
     n_questions = len(all_qids)
@@ -453,7 +453,7 @@ def print_or_search(
 
     print("Table 9 — OR combination search: per-axis thresholds (any axis fires)")
     print("  NOTE: fitting 5 thresholds to the known gold set is overfitting;")
-    print("  this is an upper bound, not a recommended rule. See filter5d.md.\n")
+    print("  this is an upper bound, not a recommended rule. See FILTER.md.\n")
 
     if not results:
         print("  (no combination with full gold inclusion found)\n")
