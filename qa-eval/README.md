@@ -108,6 +108,9 @@ The scripts form the pipeline (Filter and Ceiling are opt-in):
 - `filter.py` — Filter10 score-distribution / threshold-sweep analysis and
   filter2/3 crosstab (terminal tables only; no LLM, independent of the
   pipeline); see [filter.md](filter.md)
+- `filter5d.py` — Filter5d five-axis sum-distribution / threshold-sweep /
+  per-axis analysis (terminal tables only; no LLM, independent of the
+  pipeline); see [filter5d.md](filter5d.md)
 
 `answer.py` holds the shared helpers (`LANGS`, `PART_RANGES`, `load_questions`,
 `load_chapters`, `answer_question`) imported by all four answer scripts.
@@ -233,12 +236,16 @@ study for the RAG-vs-Extract disagreement analysis.
 A per-chapter relevance filter that uses the LLM itself as the retriever:
 instead of dense embeddings, it asks the model to judge each chapter's
 relevance to each question, then answers from the **full text** of the kept
-chapters. The `--verdicts {2,3,10}` switch selects the classification
+chapters. The `--verdicts {2,3,10,100,5d}` switch selects the classification
 granularity — two-level (`yes`/`no` → Filter2), three-level
-(`yes`/`maybe`/`no` → Filter3, the default), or eleven-level (integer 0–10 →
-Filter10, Phase 1 only). Full details — the two-phase algorithm, I/O and part
-files, the failure-mode analysis, and the Filter10 score-distribution /
-threshold-sweep findings — are in [filter.md](filter.md).
+(`yes`/`maybe`/`no` → Filter3, the default), eleven-level (integer 0–10 →
+Filter10, Phase 1 only), 101-level (integer 0–100 → Filter100, Phase 1 only),
+or five-axis (five integers 0–10 → Filter5d, Phase 1 only). Full details for
+Filter2/3/10/100 — the two-phase algorithm, I/O and part files, the
+failure-mode analysis, and the score-distribution / threshold-sweep findings —
+are in [filter.md](filter.md); the five-axis variant that decomposes relevance
+across orthogonal axes to attack the gold-scored-0 floor is in
+[filter5d.md](filter5d.md).
 
 ## `answer_ceiling.py`
 

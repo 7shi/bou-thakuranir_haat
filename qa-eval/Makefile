@@ -25,10 +25,12 @@
 #   make filter3    # opt-in: per-chapter yes/maybe/no filter (Phase 1 + 2 + judge)
 #   make filter10-tsv   # opt-in: per-chapter 0-10 score → filter10.tsv (Phase 1 only)
 #   make filter100-tsv  # opt-in: per-chapter 0-100 score → filter100.tsv (Phase 1 only)
+#   make filter5d-tsv   # opt-in: per-chapter five-axis 0-10 scores → filter5d.tsv (Phase 1 only)
 #   make ceiling    # opt-in: gold-chapter context ceiling (answer + judge)
 #   make sweep      # retrieval sweep (independent of the pipeline; no LLM)
 #   make filter     # filter10 verdicts + score-distribution analysis (no LLM)
 #   make filter SCALE=100  # filter100 occurrence count only (no LLM)
+#   make filter5d   # five-axis verdicts + sum/per-axis/floor analysis (no LLM)
 
 LANG    := en
 ROOT    := ..
@@ -48,6 +50,7 @@ FILTER2_TSV   := $(RESULTS)/filter2.tsv
 FILTER3_TSV   := $(RESULTS)/filter3.tsv
 FILTER10_TSV  := $(RESULTS)/filter10.tsv
 FILTER100_TSV := $(RESULTS)/filter100.tsv
+FILTER5D_TSV  := $(RESULTS)/filter5d.tsv
 
 # Relevance scale for the `filter` analysis target: 10 reads filter10.tsv,
 # 100 reads filter100.tsv. `make filter SCALE=100` builds filter100.tsv (if
@@ -62,7 +65,7 @@ ifneq ($(K),)
 RAG_FILE := $(RESULTS)/rag-$(K).jsonl
 endif
 
-.PHONY: en ja all pipeline index rag extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter ceiling judge report sweep clean
+.PHONY: en ja all pipeline index rag extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter5d-tsv filter filter5d ceiling judge report sweep clean
 .DEFAULT_GOAL := en
 
 en:
@@ -92,6 +95,7 @@ filter3-tsv: $(FILTER3_TSV)
 filter3: $(RESULTS)/judge-filter3.jsonl
 filter10-tsv: $(FILTER10_TSV)
 filter100-tsv: $(FILTER100_TSV)
+filter5d-tsv: $(FILTER5D_TSV)
 ceiling: $(RESULTS)/judge-ceiling.jsonl
 judge: $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-extract.jsonl
 sweep: $(INDEX) $(QUESTIONS)
@@ -106,6 +110,12 @@ sweep: $(INDEX) $(QUESTIONS)
 # tables) but are not required.
 filter: filter$(SCALE)-tsv $(QUESTIONS)
 	uv run filter.py -l $(LANG) --scale $(SCALE)
+
+# Five-axis relevance score analysis (terminal output only, no LLM). Reads
+# filter5d.tsv and prints the sum distribution, threshold sweep, per-axis
+# breakdown, and the floor analysis. See filter5d.md.
+filter5d: $(FILTER5D_TSV) $(QUESTIONS)
+	uv run filter5d.py -l $(LANG)
 
 # Accuracy + chapter retrieval comparison table + pairwise disagreement
 # analysis (terminal output only). Needs >= 2 judged methods for the pass.
@@ -175,6 +185,18 @@ $(FILTER10_TSV): $(SCENES) $(QUESTIONS)
 $(FILTER100_TSV): $(SCENES) $(QUESTIONS)
 	uv run answer_filter.py -l $(LANG) --phase1 --verdicts 100
 
+# Per-chapter five-axis relevance filter (five integers 0-10: factual, entity,
+# causal, reference, thematic), Phase 1 ONLY. Decomposes the relevance judgement
+# across orthogonal axes so that an indirectly-relevant cross-reference chapter
+# scores non-zero on at least one axis, attacking the gold-scored-0 floor that
+# the single-axis 10/100 variants cannot reach (see PLAN.md). Phase 2 would keep
+# a chapter when the five-axis sum is non-zero, but is deferred until the floor
+# distribution from this Phase 1 run is inspected. Uses structured output (a
+# pydantic schema) via create_json_descriptions_prompt, unlike the plain-text
+# single-token replies of filter10/100.
+$(FILTER5D_TSV): $(SCENES) $(QUESTIONS)
+	uv run answer_filter.py -l $(LANG) --phase1 --verdicts 5d
+
 # Perfect-retrieval ceiling: the gold chapters fed verbatim as context, no
 # retrieval. No Phase 1, so just one target — the answer file. Its judge target
 # is defined below alongside the other opt-in judge rules.
@@ -212,7 +234,7 @@ clean:
 	      $(RESULTS)/filter2.jsonl $(RESULTS)/filter3.jsonl \
 	      $(RESULTS)/ceiling.jsonl \
 	      $(EXTRACT_PARTS) \
-	      $(FILTER2_TSV) $(FILTER3_TSV) $(FILTER10_TSV) $(FILTER100_TSV) \
+	      $(FILTER2_TSV) $(FILTER3_TSV) $(FILTER10_TSV) $(FILTER100_TSV) $(FILTER5D_TSV) \
 	      $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-rag-[0-9]*.jsonl \
 	      $(RESULTS)/judge-extract.jsonl \
 	      $(RESULTS)/judge-filter2.jsonl $(RESULTS)/judge-filter3.jsonl \
