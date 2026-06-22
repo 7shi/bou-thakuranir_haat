@@ -1,6 +1,6 @@
 # Bengali Poem Summary and Chandradwip Market Name Origin
 
-### Summarize this text file. ([en.md](https://github.com/7shi/bou-thakuranir_haat/blob/main/en.md))
+### Summarize this text file. ([all/en-google.md](all/en-google.md))
 
 Here is a summary of the key events in the Bengali short story Bouthakuranir Haat by Rabindranath Tagore:
 
