@@ -1,9 +1,9 @@
-"""Shared helpers for the answer_* scripts (rag / extract / filter).
+"""Shared helpers for the answer_* scripts (vector / extract / filter).
 
 Holds what is common across the answering strategies: paths, language names,
 the per-chapter scene loader, the questions loader, and the answer-question
 helper with its retry-on-empty loop. Retrieval machinery (index embedding,
-top-k search, expand-and-merge) is RAG-specific and stays in answer_rag.py;
+top-k search, expand-and-merge) is vector-specific and stays in answer_vector.py;
 the summarization prompt is Extract-specific and stays in answer_extract.py.
 """
 

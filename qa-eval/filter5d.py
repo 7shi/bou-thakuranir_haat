@@ -3,7 +3,7 @@
 
 Standalone analysis, independent of the answering pipeline — no LLM, no answer
 synthesis, no output file (terminal tables only, like ``filter.py`` and
-``sweep_rag.py``). It reads the Phase 1 verdict TSV produced by
+``sweep_vector.py``). It reads the Phase 1 verdict TSV produced by
 ``answer_filter.py --verdicts 5d`` and the gold chapters from
 ``questions-<lang>.jsonl`` to answer the three questions posed in
 [PLAN.md](PLAN.md) for the 5d variant:

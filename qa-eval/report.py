@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Aggregate and compare RAG vs. per-chapter extraction results.
+"""Aggregate and compare Vector vs. per-chapter extraction results.
 
 Pure mechanical aggregation of existing files — no LLM calls. Prints one
 comparison table to the terminal (methods as rows). Two independent axes:
@@ -8,14 +8,14 @@ comparison table to the terminal (methods as rows). Two independent axes:
    incorrect counts plus a weighted score = (correct + 0.5*partial) / total.
    `partial` stays visible as its own column so the half-credit weighting never
    hides the raw distribution. See the convergent-validity caveat in README.md:
-   the gold is the Gemini full-text baseline, so Extract >= RAG is expected.
+   the gold is the Gemini full-text baseline, so Extract >= Vector is expected.
 
 2. Chapter retrieval (mechanical, from each method's `expanded` vs gold
    `chapters` in questions-<lang>.jsonl):
    - recall: per-question complete coverage — 1 if gold ⊆ used else 0, meaned.
    - precision: mean of |gold ∩ used| / |used| per question.
 
-RAG `expanded` entries are "chapter:segment" strings (take the part before ':');
+Vector `expanded` entries are "chapter:segment" strings (take the part before ':');
 extract entries are bare "chapter" strings.
 
 Both axes are broken down by the gold `type` field (single / cross), with an
@@ -27,7 +27,7 @@ of methods: a 3x3 verdict agreement matrix plus, for each question where one
 method strictly beats the other, whether the loser actually had every gold
 chapter in its context. A non-empty `dropped` set means the loser never saw that
 chapter at all — a **missed-context** loss (for Extract this is a Phase 1 false
-negative, for Filter a wrong `no` verdict, for RAG a retrieval miss); an
+negative, for Filter a wrong `no` verdict, for Vector a retrieval miss); an
 empty set means the loser held all the evidence and still mis-synthesized — a
 **synthesis** loss. This isolates the lever behind each off-diagonal cell:
 retrieval/filtering vs. answering.
@@ -67,7 +67,7 @@ def load_gold(path: Path) -> dict[int, dict]:
 def used_chapters(expanded: list[str]) -> set[int]:
     """Reduce a method's `expanded` list to a set of chapter numbers.
 
-    RAG entries look like "2:1" (chapter:segment); extract entries look like
+    Vector entries look like "2:1" (chapter:segment); extract entries look like
     "2" (bare chapter). Splitting on ':' handles both.
     """
     return {int(e.split(":")[0]) for e in expanded}
@@ -125,7 +125,7 @@ def disagreement(label_a: str, ans_a: dict[int, dict], judge_a: dict[int, dict],
 
     A non-empty `dropped` marks a **missed-context** loss: the loser never had
     that gold chapter in context (for Extract, a Phase 1 false negative; for
-    Filter, a wrong `no` verdict; for RAG, a retrieval miss). An empty
+    Filter, a wrong `no` verdict; for Vector, a retrieval miss). An empty
     `dropped` marks a **synthesis** loss: the loser held every gold chapter yet
     still mis-synthesized the answer.
     """
@@ -223,34 +223,32 @@ def print_disagreement(label_a: str, label_b: str, result: dict) -> None:
 def discover_methods(results: Path) -> list[tuple[str, str, str]]:
     """(label, answer_file, judge_file) triples for every available method.
 
-    RAG variants are discovered from results-<lang>/rag*.jsonl answer files:
-      rag.jsonl      → "RAG"        (the default k=5 baseline)
-      rag-<k>.jsonl  → "RAG-<k>"    (e.g. rag-10.jsonl → RAG-10)
-    A variant is included only when its judge-<stem>.jsonl also exists, so a
-    not-yet-judged rag-15.jsonl simply doesn't appear. Extract (per-chapter
+    Vector variants are discovered from results-<lang>/vector<k>.jsonl answer
+    files (e.g. vector5.jsonl → "Vector k=5", vector10.jsonl → "Vector k=10").
+    A variant is included only when its judge-vector<k>.jsonl also exists, so a
+    not-yet-judged vector15.jsonl simply doesn't appear. Extract (per-chapter
     summary) and Filter (per-chapter relevance) are appended when both their
     answer and judge files exist. Filter has two verdict granularities:
     filter2.jsonl (yes/no) and filter3.jsonl (yes/maybe/no, the default), and
-    both are appended when present. Order: the default RAG first, then
-    RAG-<k> by ascending k, then Extract, then Filter2, then Filter3, then
-    Ceiling (perfect-retrieval ceiling) — so the k=5 baseline sits beside its
+    both are appended when present. Order: Vector k=5 first, then Vector k=<k>
+    by ascending k, then Extract, then Filter2, then Filter3, then Ceiling
+    (perfect-retrieval ceiling) — so the k=5 baseline sits beside its
     deeper-retrieval variants, the per-chapter methods sit next to each other
     for direct comparison, the stricter two-level filter sits ahead of its
     looser three-level counterpart, and Ceiling anchors the table as the
     upper bound that strips out retrieval entirely.
     """
-    def rag_key(stem: str) -> tuple[int, int]:
-        if stem == "rag":
-            return (0, 0)
-        m = re.fullmatch(r"rag-(\d+)", stem)
-        return (1, int(m.group(1))) if m else (2, 0)
+    def vector_key(stem: str) -> int:
+        m = re.fullmatch(r"vector(\d+)", stem)
+        return int(m.group(1)) if m else (1 << 30)
 
     found: list[tuple[str, str, str]] = []
-    rag_files = [p for p in results.glob("rag*.jsonl")
-                 if p.stem == "rag" or re.fullmatch(r"rag-\d+", p.stem)]
-    for ans in sorted(rag_files, key=lambda p: rag_key(p.stem)):
+    vector_files = [p for p in results.glob("vector*.jsonl")
+                    if re.fullmatch(r"vector\d+", p.stem)]
+    for ans in sorted(vector_files, key=lambda p: vector_key(p.stem)):
         stem = ans.stem
-        label = "RAG" if stem == "rag" else stem.upper()  # rag-10 → RAG-10
+        k = int(re.fullmatch(r"vector(\d+)", stem).group(1))
+        label = f"Vector k={k}"  # vector5 → "Vector k=5", vector10 → "Vector k=10"
         judge = f"judge-{stem}.jsonl"
         if (results / judge).exists():
             found.append((label, ans.name, judge))
@@ -300,11 +298,11 @@ def main():
         print(f"No answer/judge pairs found in {results}")
         return
 
-    # label → (answers, judge); insertion order = RAG, RAG-<k>…, Extract.
+    # label → (answers, judge); insertion order = Vector k=5, Vector k=<k>…, Extract.
     loaded = {label: (load_jsonl(results / ans_file), load_jsonl(results / judge_file))
               for label, ans_file, judge_file in methods}
 
-    header = (f"{'scope':<8} {'method':<8} {'n':>3} {'correct':>7} {'partial':>7} "
+    header = (f"{'scope':<8} {'method':<12} {'n':>3} {'correct':>7} {'partial':>7} "
               f"{'incorrect':>9} {'weighted':>9} {'ch.recall':>9} {'ch.prec':>8}")
     print(header)
     print("-" * len(header))
@@ -312,7 +310,7 @@ def main():
         for name, (answers, judge) in loaded.items():
             acc = accuracy(judge, subset)
             ret = retrieval(answers, gold, subset)
-            print(f"{scope_name:<8} {name:<8} {acc['total']:>3} "
+            print(f"{scope_name:<8} {name:<12} {acc['total']:>3} "
                   f"{acc['correct']:>7} {acc['partial']:>7} {acc['incorrect']:>9} "
                   f"{acc['weighted']:>9.3f} {ret['recall']:>9.3f} {ret['precision']:>8.3f}")
         print()
@@ -324,7 +322,7 @@ def main():
         print()
         print("Loss class: 'missed context' = the loser never had a gold chapter\n"
               "in its context — for Extract that is a Phase 1 false negative (a\n"
-              "wrong `None`), for Filter a wrong `no` verdict, for RAG a\n"
+              "wrong `None`), for Filter a wrong `no` verdict, for Vector a\n"
               "retrieval miss. 'synthesis' = the loser held all gold chapters yet\n"
               "still mis-synthesized.")
         print()

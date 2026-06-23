@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""BM25/lexical retrieval standalone analysis (complements sweep_rag.py).
+"""BM25/lexical retrieval standalone analysis (complements sweep_vector.py).
 
-Sibling of ``sweep_rag.py``: same shape of analysis, no LLM, no output file —
-terminal tables only. Where ``sweep_rag.py`` ranks scenes by **cosine** on the
+Sibling of ``sweep_vector.py``: same shape of analysis, no LLM, no output file —
+terminal tables only. Where ``sweep_vector.py`` ranks scenes by **cosine** on the
 dense embedding index and asks "does dense retrieval surface the gold
 chapters?", this script ranks the same scenes by **BM25** on the literal scene
 text and asks the same question. Reading the two side by side answers the
@@ -11,13 +11,13 @@ retrieval drops (the signet ring, the Emperor of Delhi, Muktiyar Khan's
 assassination — the low-frequency proper nouns that embeddings wash out)?
 
 The retrieval unit is a **scene** (segment), identical to Vector RAG and
-``sweep_rag.py``, so chapter coverage@k and the per-question first-gold-rank are
+``sweep_vector.py``, so chapter coverage@k and the per-question first-gold-rank are
 directly comparable across the two retrievers.
 
 Per FILTER.md's Verdict, the Ceiling run scores 0.990 — once the gold chapters
 reach the answerer the answer follows — so a retrieval method is judged on a
 single axis: does it surface the gold chapters? No Phase 2 QA run is required,
-which is why this script (like ``sweep_rag.py``) is pure ranking analysis.
+which is why this script (like ``sweep_vector.py``) is pure ranking analysis.
 
 The BM25 implementation is pure stdlib (``re`` + ``collections`` + ``math``),
 no external dependency — BM25 is ~30 lines and understanding the algorithm is
@@ -53,11 +53,11 @@ from answer import ROOT, LANGS, load_questions
 QA_EVAL = Path(__file__).resolve().parent
 
 # k columns shown in the coverage table (last entry = whole index, always 1.0).
-# Identical to sweep_rag.py so the coverage@k curves read side by side.
+# Identical to sweep_vector.py so the coverage@k curves read side by side.
 K_COLS = [1, 2, 3, 4, 5, 7, 10, 15, 20, 30, 82]
 
 # Questions where dense (cosine top-5) retrieval dropped a gold chapter in the
-# English sweep_rag.py run — the six "genuine retrieval misses" named in
+# English sweep_vector.py run — the six "genuine retrieval misses" named in
 # PLAN.md (Q27, Q28, Q31, Q36, Q43, Q45) plus Q49 (Ch22 missed, the Emperor of
 # Delhi). Source: results-en/README.md "Both wrong" section and PLAN.md. Table
 # 4 cross-references BM25's rank for the gold chapters in these questions;
@@ -66,7 +66,7 @@ DENSE_MISSES = [27, 28, 31, 36, 43, 45, 49]
 
 # Percentile grid used to choose BM25-score threshold ticks for Table 2. Unlike
 # cosine, BM25 scores are unbounded and long-tailed (most scenes score 0, a few
-# score high), so a fixed grid like sweep_rag.py's [0.25, 0.75] is meaningless;
+# score high), so a fixed grid like sweep_vector.py's [0.25, 0.75] is meaningless;
 # percentiles of the pooled score distribution give interpretable ticks. The
 # best tau* is located separately on a fine linear grid.
 TAU_PERCENTILES = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99]
@@ -210,7 +210,7 @@ class BM25Index:
 
 
 # ---------------------------------------------------------------------------
-# Ranking record (mirrors sweep_rag.py:rank_all_scenes)
+# Ranking record (mirrors sweep_vector.py:rank_all_scenes)
 # ---------------------------------------------------------------------------
 
 def rank_all_scenes(
@@ -221,7 +221,7 @@ def rank_all_scenes(
 ) -> dict:
     """Score the query against every scene and return a ranked record.
 
-    Same record shape as ``sweep_rag.py:rank_all_scenes`` so the analysis
+    Same record shape as ``sweep_vector.py:rank_all_scenes`` so the analysis
     helpers below operate uniformly on either retriever's output. ``ranked``
     is the full list of scenes sorted by score descending; ties keep scene
     order (stable sort), which for scenes in chapter/segment order means
@@ -252,7 +252,7 @@ def rank_all_scenes(
 
 
 # ---------------------------------------------------------------------------
-# Analysis helpers (copied from sweep_rag.py — see note at load_titles above)
+# Analysis helpers (copied from sweep_vector.py — see note at load_titles above)
 # ---------------------------------------------------------------------------
 
 def scopes_from_questions(questions: list[dict]) -> list[tuple[str, set[int] | None]]:
@@ -305,7 +305,7 @@ def print_coverage_table(records: dict[int, dict], questions: list[dict]) -> Non
         print(row)
     print()
     # Tie-back to report.py: strict subset recall and precision at k=5 (same as
-    # sweep_rag.py's k=5 tie-back, for direct dense-vs-BM25 comparison).
+    # sweep_vector.py's k=5 tie-back, for direct dense-vs-BM25 comparison).
     for scope_name, subset in scopes:
         recs = [r for qid, r in records.items() if subset is None or qid in subset]
         strict = sum(1 for r in recs if set(r["gold_chapters"]) <= {h["chapter"] for h in r["ranked"][:5]})
@@ -373,7 +373,7 @@ def print_threshold_table(records: dict[int, dict]) -> None:
     print("-" * 46)
     print(f"best tau*={best_tau:.3f}  precision={p:.3f} recall={r:.3f} F1={f1:.2f} "
           f"(tp={tp}, fp={fp})")
-    print("  cf. sweep_rag.py cosine: best tau*≈0.50, F1≈0.38 (a global cosine "
+    print("  cf. sweep_vector.py cosine: best tau*≈0.50, F1≈0.38 (a global cosine "
           "threshold barely separates).")
     print()
 
@@ -407,7 +407,7 @@ def print_per_question_table(records: dict[int, dict]) -> None:
 
 def print_dense_miss_table(records: dict[int, dict], questions: list[dict]) -> None:
     print("Table 5 — BM25 rank for gold chapters dense (cosine) retrieval dropped")
-    print("  dense misses from PLAN.md / results-en sweep_rag.py: "
+    print("  dense misses from PLAN.md / results-en sweep_vector.py: "
           + ", ".join(f"Q{q}" for q in DENSE_MISSES))
     print("  ✓ = BM25 surfaces the gold chapter at k≤5 (recovers dense's miss);")
     print("      k≤10 is the k=10 parity bar; beyond k=15 BM25 has not helped.")

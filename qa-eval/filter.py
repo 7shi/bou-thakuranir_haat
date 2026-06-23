@@ -2,7 +2,7 @@
 """Analyze filter{10,100} relevance scores and cross-reference them against filter2/filter3.
 
 Standalone analysis, independent of the answering pipeline — no LLM, no answer
-synthesis, no output file (terminal tables only, like sweep_rag.py). It reads
+synthesis, no output file (terminal tables only, like sweep_vector.py). It reads
 the Phase 1 verdict TSVs produced by answer_filter.py and the gold chapters
 from questions-<lang>.jsonl to answer:
 

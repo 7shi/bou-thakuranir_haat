@@ -14,13 +14,13 @@ The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 
 50 questions per language, judged against a Gemini full-text gold standard
 with `ollama:qwen3.6`. The table reports `correct`/50 with the weighted score
-`(correct + 0.5·partial) / 50` in parentheses. RAG `k=10`, **Filter2**,
+`(correct + 0.5·partial) / 50` in parentheses. Vector `k=10`, **Filter2**,
 **Filter3**, and **Ceiling** have been run for English only (Japanese pending).
 
 | Method | English | Japanese |
 | --- | --- | --- |
-| RAG (k=5) | 39/50 (0.830) | 38/50 (0.810) |
-| RAG (k=10) | 44/50 (0.920) | — |
+| Vector k=5 | 39/50 (0.830) | 38/50 (0.810) |
+| Vector k=10 | 44/50 (0.920) | — |
 | Extract | 39/50 (0.830) | 40/50 (0.850) |
 | Filter2 | 36/50 (0.790) | — |
 | Filter3 | 45/50 (0.930) | — |
@@ -29,18 +29,18 @@ with `ollama:qwen3.6`. The table reports `correct`/50 with the weighted score
 Both languages use the same answer model `google:gemma-4-31b-it`, the same
 `embeddinggemma` index, and the same judge.
 
-**Retrieval strategy is the lever; language barely is.** At `k=5`, RAG and
+**Retrieval strategy is the lever; language barely is.** At `k=5`, Vector and
 Extract tie on English (0.830) and sit within two questions on Japanese (0.810
 vs 0.850) — the language makes almost no difference. The main lever is
-retrieval depth: **bumping RAG to `k=10`** (English) lifts 0.830 → 0.920,
-exactly what [`sweep_rag.py`](#sweep_ragpy) predicted (`k=5` was tight; deeper
+retrieval depth: **bumping Vector to `k=10`** (English) lifts 0.830 → 0.920,
+exactly what [`sweep_vector.py`](#sweep_vectorpy) predicted (`k=5` was tight; deeper
 retrieval surfaces the chapters the top-5 missed). What `k=10` *cannot* fix is
 dense-retrieval blindness — load-bearing chapters that rank outside the top-10
 at both depths, which motivates the BM25/lexical hybrid in [HYBRID.md](HYBRID.md).
 
 The **Filter** rows use the LLM itself as the retriever (per-chapter relevance,
 answer from the full text of the kept chapters). Filter3 posts the table's top
-Phase 2 score (0.930) but at hundreds of times RAG's cost, with no retrieval
+Phase 2 score (0.930) but at hundreds of times Vector's cost, with no retrieval
 advantage once the gold floor is taken into account — see
 [FILTER.md](FILTER.md) for the full analysis and verdict. The per-question
 detail is in the case studies:
@@ -51,8 +51,8 @@ gold chapters verbatim as context (no retrieval at all) lands at **0.990** —
 49 correct, one partial (Q48), zero incorrect — with chapter recall and
 precision both 1.000 by construction. No method ever beats Ceiling: its lead
 over each is the pure cost of that method's retrieval, and the gradient tracks
-retrieval quality exactly — Ceiling beats Filter2 on 14, Extract on 11, RAG k=5
-on 10, RAG k=10 on 5, and Filter3 on just 4. That four-question gap to Filter3
+retrieval quality exactly — Ceiling beats Filter2 on 14, Extract on 11, Vector k=5
+on 10, Vector k=10 on 5, and Filter3 on just 4. That four-question gap to Filter3
 is the whole remaining retrieval residual: three are the confident-wrong-`no`
 wipeouts (Q32, Q34, Q42) and one a synthesis slip (Q37). The lone Ceiling loss
 (Q48, partial) is a pure synthesis failure — the paranoid "whisper-to-servant
@@ -72,7 +72,7 @@ options (`-i`/`-o`/`--index`/`--scenes`/`-t`) still override these defaults.
 
 ## Status
 
-Answering and judging complete for both languages for RAG and Extract (see
+Answering and judging complete for both languages for Vector and Extract (see
 [Results](#results) above). Both filter variants (Filter2 and Filter3) and
 Ceiling are wired into the pipeline and have been run for English (Japanese
 pending); run [`make filter2`](#pipeline-makefile) /
@@ -83,17 +83,17 @@ are standalone (English only); see [HYBRID.md](HYBRID.md).
 The scripts form the pipeline (Filter and Ceiling are opt-in):
 
 - `build_index.py` — scene embedding index → `index-<lang>.safetensors`
-- `answer_rag.py` — Vector RAG answering → `results-<lang>/rag.jsonl`
+- `answer_vector.py` — Vector RAG answering → `results-<lang>/vector5.jsonl`
 - `answer_extract.py` — Per-chapter extraction answering → `results-<lang>/extract.jsonl`
 - `answer_filter.py` — Per-chapter relevance filter, the LLM as retriever (yes/no, yes/maybe/no, integer 0–10/0–100, or five-axis); see [FILTER.md](FILTER.md) for details → `results-<lang>/filter2.jsonl`, `filter3.jsonl`, or `filter{V}.tsv` verdict files (opt-in)
 - `answer_ceiling.py` — Gold-chapter context, no retrieval → `results-<lang>/ceiling.jsonl` (opt-in)
 - `judge.py` — LLM grading of answers vs. gold → `results-<lang>/judge-<stem>.jsonl`
 - `report.py` — accuracy + chapter retrieval comparison + pairwise disagreement analysis (terminal table)
-- `sweep_rag.py` — retrieval-depth / threshold sweep vs. gold chapters
+- `sweep_vector.py` — retrieval-depth / threshold sweep vs. gold chapters
   (terminal tables only; no LLM, independent of the pipeline)
 - `bm25.py` — BM25/lexical retrieval gold-coverage analysis vs. dense
   (terminal tables only; no LLM, independent of the pipeline);
-  the sparse-retrieval sibling of sweep_rag.py; see [HYBRID.md](HYBRID.md)
+  the sparse-retrieval sibling of sweep_vector.py; see [HYBRID.md](HYBRID.md)
 - `hybrid.py` — dense+BM25 fusion (RRF/Borda/CombSUM) vs. union oracle
   (terminal tables only; no LLM, independent of the pipeline);
   see [HYBRID.md](HYBRID.md)
@@ -117,8 +117,8 @@ default). Run from this directory:
 make                    # full English pipeline (LANG=en, the default goal)
 make ja                 # full Japanese pipeline
 make all                # both languages
-make LANG=ja rag judge  # individual steps for one language
-make K=10 rag           # RAG at k=10 → results-<lang>/rag-10.jsonl
+make LANG=ja vector judge  # individual steps for one language
+make K=10 vector        # Vector at k=10 → results-<lang>/vector10.jsonl
 make clean              # remove generated answers/judgements (keeps the index)
 ```
 
@@ -160,7 +160,7 @@ Embeds every scene into a single `index-<lang>.safetensors`.
   `embed_model`, `count`, and `scenes` (JSON array of
   `{chapter, segment, title, text}` in row order).
 
-## `answer_rag.py`
+## `answer_vector.py`
 
 For each question in `questions-<lang>.jsonl`, retrieves relevant scenes from the
 index and asks an LLM to answer based solely on that context.
@@ -176,8 +176,8 @@ index and asks an LLM to answer based solely on that context.
 
 - **Input**: `questions-<lang>.jsonl` (50 questions, ROOT-level)
 - **Index**: `index-<lang>.safetensors` (built by `build_index.py`)
-- **Output**: `results-<lang>/rag.jsonl` for the default `k=5`, or
-  `results-<lang>/rag-<k>.jsonl` for any other `-k` — one record per question:
+- **Output**: `results-<lang>/vector<k>.jsonl` (e.g. `vector5.jsonl` for the
+  default `k=5`, `vector10.jsonl` for `-k 10`) — one record per question:
   - `question_id` — 1-origin line number in the input file
   - `hits` — top-k scenes as `{"chapter:segment": score}` dict
   - `expanded` — all scenes included in the context as `"chapter:segment"` strings
@@ -186,7 +186,7 @@ index and asks an LLM to answer based solely on that context.
 Resume-safe: re-running skips question IDs already present in the output file.
 The k-aware filename lets a deeper retrieval run (e.g. `-k 10`) coexist with the
 `k=5` baseline rather than overwriting it; `judge.py` derives its output stem
-from the input, so `judge-rag-10.jsonl` follows automatically.
+from the input, so `judge-vector10.jsonl` follows automatically.
 
 ## `answer_extract.py`
 
@@ -229,7 +229,7 @@ in Phase 1.
 Its main failure mode is a Phase 1 false negative: a wrong `None` drops a gold
 chapter unrecoverably, so Phase 2 never sees it. See the
 [k=5 baseline section](results-en/README.md#k5-baseline-in-brief) of the case
-study for the RAG-vs-Extract disagreement analysis.
+study for the Vector-vs-Extract disagreement analysis.
 
 ## `answer_filter.py`
 
@@ -253,7 +253,7 @@ Not a retrieval strategy at all — the gold `chapters` from
 no index, and no retrieval step. Every loss under Ceiling is a pure
 **synthesis** loss (the model held the right chapters and still mis-read or
 mis-synthesized), which makes it the **perfect-retrieval ceiling**: the upper
-bound the retrieval strategies (RAG, Extract, Filter) chase, and the cleanest
+bound the retrieval strategies (Vector, Extract, Filter) chase, and the cleanest
 measure of the answer model's reading comprehension in isolation from
 retrieval quality.
 
@@ -319,7 +319,7 @@ as `retrying (1/3)` each time; after that the short result is kept.
 - **Inputs**: one or more `results-<lang>/*.jsonl` files (positional), plus
   `questions-<lang>.jsonl` for the gold standard.
 - **Output**: `judge-<input-stem>.jsonl` next to each input (e.g.
-  `results-en/rag.jsonl` → `results-en/judge-rag.jsonl`), one record per question:
+  `results-en/vector5.jsonl` → `results-en/judge-vector5.jsonl`), one record per question:
   - `question_id` — 1-origin line number in the questions file
   - `verdict` — `correct` / `partial` / `incorrect`
   - `reason` — one-sentence justification
@@ -340,11 +340,11 @@ with the *whole text* in context (`scripts/create_rag_questions.py`), and huge
 contexts can cause omissions ("lost in the middle"). So treat the metric as
 *agreement with the Gemini full-text baseline*, not absolute accuracy.
 
-This still yields a useful inference. RAG structurally **blocks** any context
+This still yields a useful inference. Vector structurally **blocks** any context
 vector search deems irrelevant, whereas Extract reads every chapter — an
 independent thorough-reading path, like the gold's full-context reading. So if
-**Extract ≥ RAG**, two independent thorough readers agree with the gold, which
-is convergent evidence that the gold answers are sound. If Extract < RAG, that
+**Extract ≥ Vector**, two independent thorough readers agree with the gold, which
+is convergent evidence that the gold answers are sound. If Extract < Vector, that
 is a signal to suspect either the gold or the extraction.
 
 Because both methods are judged against the *same* gold, any systematic gold
@@ -366,21 +366,21 @@ LLM calls, no output file.
    `(correct + 0.5·partial) / total`.
 2. **Chapter retrieval** (each method's `expanded` vs the gold `chapters`):
    **recall** (1 if `gold ⊆ used` else 0, meaned) and **precision**
-   (mean `|gold ∩ used| / |used|`). RAG entries are `"chapter:segment"`;
+   (mean `|gold ∩ used| / |used|`). Vector entries are `"chapter:segment"`;
    Extract entries are bare `"chapter"`.
 
 Both axes are broken down by gold `type` (`all` / `single` / `cross`).
 
 **Method discovery**: rows are auto-discovered from the results directory. Each
-`rag-<k>.jsonl` with a matching `judge-rag-<k>.jsonl` becomes a row — labelled
-`RAG` for the default `k=5` `rag.jsonl`, `RAG-<k>` for a variant
-(`rag-10.jsonl` → `RAG-10`) — and Extract, then Filter2, then Filter3, then
-Ceiling, are appended when both their files exist. Rows are ordered: `RAG`,
-then `RAG-<k>` by ascending `k`, then Extract, then Filter2, then Filter3,
-then Ceiling — so a newly judged retrieval depth or a new per-chapter method
-appears with no code change, the stricter two-level filter sits ahead of its
-looser three-level counterpart, and Ceiling anchors the table last as the
-perfect-retrieval upper bound that strips out retrieval entirely.
+`vector<k>.jsonl` with a matching `judge-vector<k>.jsonl` becomes a row —
+labelled `Vector k=<k>` (e.g. `vector5.jsonl` → `Vector k=5`,
+`vector10.jsonl` → `Vector k=10`) — and Extract, then Filter2, then Filter3,
+then Ceiling, are appended when both their files exist. Rows are ordered:
+`Vector k=5`, then `Vector k=<k>` by ascending `k`, then Extract, then Filter2,
+then Filter3, then Ceiling — so a newly judged retrieval depth or a new
+per-chapter method appears with no code change, the stricter two-level filter
+sits ahead of its looser three-level counterpart, and Ceiling anchors the table
+last as the perfect-retrieval upper bound that strips out retrieval entirely.
 
 ### Pairwise disagreement analysis
 
@@ -393,27 +393,27 @@ other, the **loss class** of the loser:
   it never reached the answerer at all. For Extract this is a **Phase 1 false
   negative** (a wrong `None` dropped the chapter); for Filter a **wrong
   `no` verdict** (same shape, different cause — see
-  [`answer_filter.py`](#answer_filterpy)); for RAG it is a **retrieval miss**
+   [`answer_filter.py`](#answer_filterpy)); for Vector it is a **retrieval miss**
   (the chapter ranked outside the top-k).
 - **synthesis** — the loser held every gold chapter yet still mis-synthesized
   the answer.
 
 This splits each off-diagonal loss into its true lever: retrieval/filtering vs.
-answering. The summary line rolls the counts up, e.g. *"RAG-10 beats Extract on
-10 (7 missed-context, 3 synthesis); Extract beats RAG-10 on 3 (3
-missed-context, 0 synthesis)."* See the case study's [Extract-vs-RAG-10
-section](results-en/README.md#extract-vs-rag-k10-where-each-method-loses) for
+answering. The summary line rolls the counts up, e.g. *"Vector k=10 beats
+Extract on 10 (7 missed-context, 3 synthesis); Extract beats Vector k=10 on 3
+(3 missed-context, 0 synthesis)."* See the case study's [Extract-vs-Vector-k=10
+section](results-en/README.md#extract-vs-vector-k10-where-each-method-loses) for
 the reading.
 
-## `sweep_rag.py`
+## `sweep_vector.py`
 
 Standalone retrieval-tuning script (no LLM, no output file — terminal tables
 only). It uses the gold `chapters` as a relevance label and re-embeds each
 question against the **full** index (all scenes, not just top-5) to ask:
 **at what rank/similarity do the gold chapters actually appear?** This is the
 lever the [case study](results-en/README.md#both-wrong-what-k10-cannot-fix)
-points to for the questions RAG still misses. Reuses `load_index` /
-`embed_query` from `answer_rag.py`.
+points to for the questions Vector still misses. Reuses `load_index` /
+`embed_query` from `answer_vector.py`.
 
 For each question it records the full cosine ranking and where each gold
 chapter first appears, then prints three tables:
@@ -426,8 +426,8 @@ chapter first appears, then prints three tables:
    can separate relevant from irrelevant scenes.
 3. **Per-question ranks + separation gap** — first gold rank, best gold-chapter
    score, and the gap to the next non-gold hit. Questions whose first gold hit
-   lands outside k=5 are flagged (`*`) — the retrieval misses behind RAG's
-   losses.
+   lands outside k=5 are flagged (`*`) — the retrieval misses behind Vector's
+losses.
 
 ### Findings
 
@@ -442,21 +442,21 @@ the frontier:
   dense cosine barely separates gold scenes from topically-similar non-gold
   ones, so **rank (k), not score, is the lever.** Motivation for the BM25
   hybrid in [PLAN.md](PLAN.md).
-- **Per-question gaps confirm the case study.** The 6 RAG retrieval misses
+- **Per-question gaps confirm the case study.** The 6 Vector retrieval misses
   (Q27, 28, 31, 36, 43, 45; plus Q49) all rank gold >5 with gaps of just
   +0.00–+0.07.
 
 ### Note on the two "recall" notions
 
 `report.py` uses **strict subset recall** (1 iff `gold ⊆ used`) — a
-per-question pass/fail. `sweep_rag.py` reports **partial coverage** — the
+per-question pass/fail. `sweep_vector.py` reports **partial coverage** — the
 fraction of gold chapters in the top-k — because the goal is the coverage-vs-k
 *curve*. The two agree only at coverage = 1.0.
 
 ## `bm25.py`
 
 Standalone BM25/lexical retrieval script (no LLM, no output file — terminal
-tables only). Sibling of [`sweep_rag.py`](#sweep_ragpy): same scene unit, same
+tables only). Sibling of [`sweep_vector.py`](#sweep_vectorpy): same scene unit, same
 gold-coverage lens, but ranks scenes by **Okapi BM25** on the literal scene
 text instead of cosine on the dense embedding index. Pure stdlib (`re` +
 `collections` + `math`), k1=1.5, b=0.75 (standard Okapi defaults); English-only
@@ -464,7 +464,7 @@ tokenization (lowercase + `[a-z0-9]+` + stopword removal), so Japanese is
 deferred. The ranking functions (`BM25Index`, `rank_all_scenes`, `tokenize`)
 are importable so [`hybrid.py`](#hybridpy) reuses them without reimplementing.
 
-Read alongside `sweep_rag.py` to answer the question [PLAN.md](PLAN.md) poses —
+Read alongside `sweep_vector.py` to answer the question [PLAN.md](PLAN.md) poses —
 does sparse lexical matching recover the chapters dense retrieval drops (the
 low-frequency proper nouns embeddings wash out)? **It does:** BM25 recovers
 6/7 of dense's top-5 misses at k≤5, 7/7 at k≤10 — the orthogonal-failure
@@ -475,7 +475,7 @@ analysis are in [HYBRID.md](HYBRID.md).
 ## `hybrid.py`
 
 Standalone fusion analysis script (no LLM, no output file — terminal tables
-only). Fuses the dense (cosine) ranking from [`sweep_rag.py`](#sweep_ragpy) and
+only). Fuses the dense (cosine) ranking from [`sweep_vector.py`](#sweep_vectorpy) and
 the BM25 ranking from [`bm25.py`](#bm25py) via several strategies — **RRF**
 (rank-blend, reciprocal decay), **Borda** (rank-blend, linear decay), and
 **CombSUM** (normalized score-sum) — and compares against the per-k **Union

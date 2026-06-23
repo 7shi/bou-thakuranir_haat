@@ -11,7 +11,7 @@ verdict on where this strategy lands relative to Vector RAG.
 ## Coverage at a glance
 
 Retrieval metrics by filter variant (50 questions, 86 gold chapter-pairs), with
-RAG and Ceiling as reference points. Strict recall = fraction of questions
+Vector and Ceiling as reference points. Strict recall = fraction of questions
 where gold ⊆ kept; partial recall = mean |gold ∩ kept| / |gold|; Phase 2
 score = `(correct + 0.5·partial) / 50` (from [README](README.md#results)).
 
@@ -22,7 +22,7 @@ score = `(correct + 0.5·partial) / 50` (from [README](README.md#results)).
 | Filter10 ≥3 (F1 peak) | 0.76 | 0.86 | 1.7 | 7/86 | — |
 | Filter100 (any threshold) | — | — | — | 11/86 | — |
 | Filter5d sum ≥5 | **1.00** | **1.00** | 14.3 | **0/86** | — |
-| *RAG k=10 (reference)* | — | 0.84 | — | — | 0.920 |
+| *Vector k=10 (reference)* | — | 0.84 | — | — | 0.920 |
 | *Ceiling (reference)* | 1.00 | 1.00 | — | 0 | 0.990 |
 
 Gold floor = gold chapters unrecoverable at any keep threshold (scored 0 under
@@ -48,14 +48,14 @@ floor-vs-excess trade-off that is the method's hard limit (see
   non-gold pairs). Floor-0 and low excess do not coexist — you either tolerate a
   floor (Filter10, floor 7/86, ~1.7 kept) or you over-include (Filter5d). That
   trade-off *is* the limit of LLM-as-retriever.
-- **The practical variant, Filter10, only matches Vector RAG k=10.** Filter10's
+- **The practical variant, Filter10, only matches Vector k=10.** Filter10's
   retrieval (floor 7/86, partial recall ≈0.86) is on par with dense retrieval at
   k=10 (chapter recall 0.840). But Filter pays **1,850 LLM calls** in Phase 1
   (37 chapters × 50 questions) against k=10's single embedding + cosine pass —
   **hundreds of times the cost for an equivalent result.**
 
 So while Filter3 posts the highest *Phase 2* QA score in the table (0.930,
-slightly above RAG k=10's 0.920), that margin does not justify the cost, and the
+slightly above Vector k=10's 0.920), that margin does not justify the cost, and the
 gold-floor view shows no retrieval advantage. The residual the filter cannot
 reach (the confident-wrong-`no` floor) needs a different *mechanism* — the
 BM25/lexical hybrid in [PLAN.md](PLAN.md) — not a better LLM prompt.
@@ -225,7 +225,7 @@ threshold 1, 0.520 at 3, 0.200 at 5).
 **7 of 86 gold chapters (8.1%) score 0** — no threshold can recover them. 25 of
 86 (29%) score 3 or below. Every low-score gold chapter belongs to a `cross`
 question, and the worst-hit (Q31, Q32, Q34, Q42) are exactly the Filter3
-wipeouts. This is the same dense-retrieval blindness that RAG k=10 cannot fix:
+wipeouts. This is the same dense-retrieval blindness that Vector k=10 cannot fix:
 load-bearing chapters whose relevance is indirect enough that neither embeddings
 nor the LLM's own judgement surfaces them.
 
@@ -412,9 +412,9 @@ The Filter experiment establishes a clean boundary on the LLM-as-retriever idea:
    bridges the two.
 3. **The practical variant matches dense retrieval at hundreds of times the
    cost.** Filter10 (the cost-efficient single-axis variant, since one Phase 1
-   run covers every threshold) lands at floor 7/86 and recall comparable to RAG
+   run covers every threshold) lands at floor 7/86 and recall comparable to Vector
    k=10's 0.840 — but at 1,850 LLM calls versus one embedding pass. The highest
-   Phase 2 score in the table (Filter3, 0.930) beats RAG k=10 (0.920) by one
+   Phase 2 score in the table (Filter3, 0.930) beats Vector k=10 (0.920) by one
    question, which does not justify that cost.
 
 The residual the filter cannot reach — the confident-wrong-`no` floor on

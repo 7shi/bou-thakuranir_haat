@@ -1,10 +1,10 @@
-# Retrieval-strategy case study: RAG depth and per-chapter reading
+# Retrieval-strategy case study: Vector depth and per-chapter reading
 
 A per-question analysis of the retrieval strategies on the English question
 set, complementing the aggregate table from
 [`report.py`](../README.md#reportpy). The original thread follows what changes
-when RAG's retrieval depth is bumped from `k=5` to `k=10` — motivated by
-[`sweep_rag.py`](../README.md#sweep_ragpy), which found `k=5` tight for
+when Vector's retrieval depth is bumped from `k=5` to `k=10` — motivated by
+[`sweep_vector.py`](../README.md#sweep_vectorpy), which found `k=5` tight for
 cross-reference questions and predicted that `k≈10–15` would surface most
 dropped gold chapters. **Per-Chapter Extract** — an independent thorough-reading
 path — is kept as the convergent-validity baseline: where it agrees with the
@@ -19,42 +19,42 @@ fed verbatim as context, stripping out retrieval entirely to expose the
 synthesis-only upper bound.
 
 Run: answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`, 50 questions
-(`questions-en.jsonl`, 25 single-passage + 25 cross-reference). RAG k=5 →
-`rag.jsonl`; RAG k=10 → `rag-10.jsonl`; Filter2 → `filter2.jsonl`; Filter3 →
-`filter3.jsonl`; Ceiling → `ceiling.jsonl`.
+(`questions-en.jsonl`, 25 single-passage + 25 cross-reference). Vector k=5 →
+`vector5.jsonl`; Vector k=10 → `vector10.jsonl`; Filter2 → `filter2.jsonl`;
+Filter3 → `filter3.jsonl`; Ceiling → `ceiling.jsonl`.
 
 ## Headline (`report.py`)
 
 ```
-scope    method     n correct partial incorrect  weighted ch.recall  ch.prec
-----------------------------------------------------------------------------
-all      RAG k=5   50      39       5         6     0.830     0.720    0.337
-all      RAG k=10  50      44       4         2     0.920     0.840    0.205
-all      Extract   50      39       5         6     0.830     0.740    0.843
-all      Filter2   50      36       7         7     0.790     0.600    0.808
-all      Filter3   50      45       3         2     0.930     0.880    0.775
-all      Ceiling   50      49       1         0     0.990     1.000    1.000
+scope    method         n correct partial incorrect  weighted ch.recall  ch.prec
+--------------------------------------------------------------------------------
+all      Vector k=5    50      39       5         6     0.830     0.720    0.337
+all      Vector k=10   50      44       4         2     0.920     0.840    0.205
+all      Extract       50      39       5         6     0.830     0.740    0.843
+all      Filter2       50      36       7         7     0.790     0.600    0.808
+all      Filter3       50      45       3         2     0.930     0.880    0.775
+all      Ceiling       50      49       1         0     0.990     1.000    1.000
 
-single   RAG k=5   25      24       0         1     0.960     1.000    0.263
-single   RAG k=10  25      25       0         0     1.000     1.000    0.136
-single   Extract   25      24       0         1     0.960     1.000    1.000
-single   Filter2   25      24       1         0     0.980     1.000    1.000
-single   Filter3   25      25       0         0     1.000     1.000    0.940
-single   Ceiling   25      25       0         0     1.000     1.000    1.000
+single   Vector k=5    25      24       0         1     0.960     1.000    0.263
+single   Vector k=10   25      25       0         0     1.000     1.000    0.136
+single   Extract       25      24       0         1     0.960     1.000    1.000
+single   Filter2       25      24       1         0     0.980     1.000    1.000
+single   Filter3       25      25       0         0     1.000     1.000    0.940
+single   Ceiling       25      25       0         0     1.000     1.000    1.000
 
-cross    RAG k=5   25      15       5         5     0.700     0.440    0.411
-cross    RAG k=10  25      19       4         2     0.840     0.680    0.274
-cross    Extract   25      15       5         5     0.700     0.480    0.686
-cross    Filter2   25      12       6         7     0.600     0.200    0.617
-cross    Filter3   25      20       3         2     0.860     0.760    0.611
-cross    Ceiling   25      24       1         0     0.980     1.000    1.000
+cross    Vector k=5    25      15       5         5     0.700     0.440    0.411
+cross    Vector k=10   25      19       4         2     0.840     0.680    0.274
+cross    Extract       25      15       5         5     0.700     0.480    0.686
+cross    Filter2       25      12       6         7     0.600     0.200    0.617
+cross    Filter3       25      20       3         2     0.860     0.760    0.611
+cross    Ceiling       25      24       1         0     0.980     1.000    1.000
 ```
 
 The sweep's prediction holds: deepening retrieval lifts the cross-reference
 score from 0.700 to 0.840 (incorrect 5→2), and single-passage saturates to
 1.00. Chapter recall rises (cross 0.44→0.68) at the cost of precision
 (0.41→0.27) — more context, looser filtering — yet **accuracy rises**, so the
-extra context helps more than it distracts. RAG k=10 overtakes Extract on
+extra context helps more than it distracts. Vector k=10 overtakes Extract on
 accuracy (0.92 vs 0.83) while Extract still leads sharply on chapter precision
 (0.84).
 
@@ -62,24 +62,24 @@ The **Filter** rows use the LLM as retriever rather than dense embeddings:
 Filter3 posts the table's top Phase 2 score (0.930), Filter2 the lowest among
 the per-chapter methods (0.790). That spread, the `maybe`-verdict mechanism
 behind it, and the cost/gold-floor verdict that finds no retrieval advantage
-over RAG k=10 are all in [FILTER.md](../FILTER.md); this case study focuses on
-the RAG-depth, Extract, and Ceiling comparison.
+over Vector k=10 are all in [FILTER.md](../FILTER.md); this case study focuses on
+the Vector-depth, Extract, and Ceiling comparison.
 
-## Extract vs RAG k=10: where each method loses
+## Extract vs Vector k=10: where each method loses
 
 The Headline's five-question margin is the whole story of "k=10 beats Extract,"
 so [`report.py`](../README.md#reportpy)
 breaks it open into its per-question causes — and it lands squarely on Extract's
-two-stage filter. The disagreement pass prints three pairwise matrices (RAG×RAG-10,
-RAG×Extract, RAG-10×Extract); the decisive one is the last:
+two-stage filter. The disagreement pass prints three pairwise matrices (Vector k=5×Vector k=10,
+Vector k=5×Extract, Vector k=10×Extract); the decisive one is the last:
 
 ```
-Agreement matrix (rows = RAG-10, cols = Extract):
-                  Extract:correct  Extract:partial  Extract:incorrect | RAG-10 total
-RAG-10:correct                36               4                  4  | 44
-RAG-10:partial                 1               1                  2  |  4
-RAG-10:incorrect               2               0                  0  |  2
-Extract total                 39               5                  6  | 50
+Agreement matrix (rows = Vector k=10, cols = Extract):
+                  Extract:correct  Extract:partial  Extract:incorrect | Vector k=10 total
+Vector k=10:correct                36               4                  4  | 44
+Vector k=10:partial                 1               1                  2  |  4
+Vector k=10:incorrect               2               0                  0  |  2
+Extract total                      39               5                  6  | 50
 ```
 
 For each off-diagonal question the disagreement pass asks whether the loser
@@ -87,15 +87,15 @@ actually held every gold chapter in context, then classes the loss:
 
 - **missed context** — a gold chapter is absent from the loser's `expanded`. For
   Extract that is a **Phase 1 false negative** (a wrong `None` dropped it
-  unrecoverably); for RAG a **retrieval miss** (the chapter ranked outside top-k).
+  unrecoverably); for Vector a **retrieval miss** (the chapter ranked outside top-k).
 - **synthesis** — the loser held every gold chapter yet still mis-synthesized.
 
 The split is lopsided:
 
 | direction | n | missed context | synthesis |
 | --- | --- | --- | --- |
-| RAG-10 beats Extract | 10 | **7** (Phase 1 FN) | 3 |
-| Extract beats RAG-10 | 3 | 3 (retrieval miss) | 0 |
+| Vector k=10 beats Extract | 10 | **7** (Phase 1 FN) | 3 |
+| Extract beats Vector k=10 | 3 | 3 (retrieval miss) | 0 |
 
 **Seven of Extract's ten losses are Phase 1 false negatives** (Q26, Q28, Q34,
 Q40, Q42, Q48, Q50) — the gold chapter a stage-1 `None` dropped, so stage 2
@@ -106,42 +106,42 @@ Ch11/29). The remaining three losses (Q22, Q30, Q33) are genuine synthesis slips
 where Extract held every gold chapter — the same single-passage inversion and
 half-answers the [k=5 study](#k5-baseline-in-brief) flagged.
 
-**Every one of Extract's wins is a retrieval miss RAG cannot fix.** Q31, Q43,
+**Every one of Extract's wins is a retrieval miss Vector cannot fix.** Q31, Q43,
 Q49 are the [Class A](#both-wrong-what-k10-cannot-fix) chapters dense embedding
 ranks outside the top-10 at both depths — Extract's per-chapter reading finds
-them, RAG-10 never does. Extract never beats RAG-10 on synthesis.
+them, Vector k=10 never does. Extract never beats Vector k=10 on synthesis.
 
 So the two architectures fail on **orthogonal axes**, and that is the read on
 the 0.92 vs 0.83 margin: Extract's losses are self-inflicted by its own Phase 1
 filter (cheaply fixable — keep more context, weaken the `None` bar, or quote
-verbatim instead of summarize-or-discard), whereas RAG's losses are structural
+verbatim instead of summarize-or-discard), whereas Vector's losses are structural
 dense-retrieval blindness (the BM25/lexical hybrid in [PLAN.md](../PLAN.md)).
 Fixing Phase 1 alone lifts Extract toward a 39+7 = 46 ceiling — re-overtaking
 k=10 — while its thorough-reading edge on the vector-unreachable three stays
-intact. The lever for Extract is in its own stage 1; the lever for RAG is
+intact. The lever for Extract is in its own stage 1; the lever for Vector is
 hybrid retrieval.
 
 ## k=5 baseline, in brief
 
-(This condenses the earlier RAG-vs-Extract disagreement study; the per-question
-detail is redeployed in the k=10 analysis below.) RAG k=5 and Extract tie at
+(This condenses the earlier Vector-vs-Extract disagreement study; the per-question
+detail is redeployed in the k=10 analysis below.) Vector k=5 and Extract tie at
 0.830 but split on **which** cross questions each solves. The single/cross
 split dominates everything: both score 24–25/25 on single-passage and 15/25 on
 cross.
 
-**Agreement matrix (k=5 RAG × Extract)** — now reproduced verbatim by the
-`RAG × Extract` block of `report.py`'s disagreement pass:
+**Agreement matrix (k=5 Vector × Extract)** — now reproduced verbatim by the
+`Vector k=5 × Extract` block of `report.py`'s disagreement pass:
 
-| | Ext correct | Ext partial | Ext incorrect | RAG total |
+| | Ext correct | Ext partial | Ext incorrect | Vector total |
 | --- | --- | --- | --- | --- |
-| **RAG correct** | 31 | 4 | 4 | 39 |
-| **RAG partial** | 3 | 1 | 1 | 5 |
-| **RAG incorrect** | 5 | 0 | 1 | 6 |
+| **Vector correct** | 31 | 4 | 4 | 39 |
+| **Vector partial** | 3 | 1 | 1 | 5 |
+| **Vector incorrect** | 5 | 0 | 1 | 6 |
 
 Two failure modes account for almost every off-diagonal loss:
 
-- **RAG k=5's losses are mostly top-5 retrieval misses** — a gold chapter ranks
-  just outside `k=5` (the +0.00–0.07 gaps `sweep_rag.py` flagged). Two exceptions
+- **Vector k=5's losses are mostly top-5 retrieval misses** — a gold chapter ranks
+  just outside `k=5` (the +0.00–0.07 gaps `sweep_vector.py` flagged). Two exceptions
   (Q21, Q29) are *answering* slips where the gold chapter was already in context.
 - **Extract's losses are Phase 1 false negatives** — a wrong `None` on a gold
   chapter drops it unrecoverably (Q26, Q34, Q42 dropped gold chapters entirely).
@@ -149,9 +149,9 @@ Two failure modes account for almost every off-diagonal loss:
   only half-answered); and one single-passage inversion (Q22).
 
 **The gold is sound.** On Q29 (the covert poisoning behind the surface exile
-decree), both Extract and RAG k=10 independently reconstruct the covert chain
+decree), both Extract and Vector k=10 independently reconstruct the covert chain
 the gold describes — two thorough paths agreeing with the gold is convergent
-evidence it is correct, and RAG k=5's loss there is an answering failure, not a
+evidence it is correct, and Vector k=5's loss there is an answering failure, not a
 gold problem.
 
 ## What changes at k=10
@@ -180,13 +180,13 @@ Two flavors, matching the k=5 failure-mode split:
 
 - **Retrieval fixes (Q27, Q28, Q36, Q45).** A gold chapter that ranked just
   outside k=5 enters the top-10 — exactly the "gap +0.00–0.07" cases
-  `sweep_rag.py` predicted: Ch33 (Q27), Ch9+Ch37 (Q28), Ch17 (Q36), Ch18 (Q45).
+  `sweep_vector.py` predicted: Ch33 (Q27), Ch9+Ch37 (Q28), Ch17 (Q36), Ch18 (Q45).
 - **Answering fixes (Q21, Q29).** The gold chapter was *already* in k=5's
   context; k=10's broader supporting context let the answerer synthesize the
   right answer. Q21 (Ch5 present at both depths — k=5 cited the wrong incident,
   k=10 named both offenses); Q29 (Ch16+17 present at both — k=5 stopped at the
   surface exile decree, k=10 gave the covert poisoning). These are precisely the
-  two k=5 losses `sweep_rag.py` could *not* have explained by retrieval alone.
+  two k=5 losses `sweep_vector.py` could *not* have explained by retrieval alone.
 
 ### The one regression: Q34
 
@@ -204,7 +204,7 @@ Five questions stay not-correct at both depths (Q31, Q32, Q43, Q48, Q49) — all
 cross-reference. The decisive cross-check is what **Extract**, reading every
 chapter independently, makes of them:
 
-| Q | gold | load-bearing chapter vector search misses | RAG k=5 | RAG k=10 | Extract |
+| Q | gold | load-bearing chapter vector search misses | Vector k=5 | Vector k=10 | Extract |
 | --- | --- | --- | --- | --- | --- |
 | 31 | 21,22,23 | Ch21,22 — the ring gift and the seal-forgery | incorrect | incorrect | **correct** |
 | 43 | 11,37 | Ch37 — the Chandradwip palanquin extraction | partial | partial | **correct** |
@@ -228,7 +228,7 @@ thorough reader confirms the gold) and not a depth problem (deeper k still
 misses them). It is a **dense-retrieval problem** — the failing chapters are
 lexically distinctive ("signet ring", "Emperor of Delhi", "palanquin") but
 semantically generic, so cosine cannot separate them from topically-similar
-neighbours. This is exactly the failure `sweep_rag.py`'s threshold table
+neighbours. This is exactly the failure `sweep_vector.py`'s threshold table
 predicted (best τ*≈0.50, F1 0.38) and the motivation for the **BM25/lexical
 hybrid** in [PLAN.md](../PLAN.md): a lexical signal would match those
 proper-noun/term-heavy queries where dense embedding is blind. Ch22 is the
@@ -242,14 +242,14 @@ retrieval cannot be the lever:
 
 - **Q32** (gold 11,15,16) — the gold's load-bearing middle step is the *secret
   monthly stipend* Udayaditya and Surma pay the dismissed guards, which
-  Pratapaditya discovers. Ch15 never ranks in the top-10 for either RAG depth,
+  Pratapaditya discovers. Ch15 never ranks in the top-10 for either Vector depth,
   and Extract's per-chapter extraction misses the stipend too, attributing the
   exile to vague "psychological tactics." All three land on partial. The causal
   detail is genuinely subtle and lives in a chapter none of the methods weighs
   heavily.
 - **Q48** (gold 11,19) — the gold's key fact is Ramchandra's *paranoid* reading
   of Udayaditya whispering to a servant as an insult plot. Ch19 (which contains
-  it) *is* retrieved by both RAG depths, yet both answerers — and Extract,
+  it) *is* retrieved by both Vector depths, yet both answerers — and Extract,
   reading it in full — misread it as Ramchandra thinking Udayaditya acted "for
   his sister's sake." Three independent paths converge on the same wrong
   reading, which points to an answering-model limitation (and possibly a gold
@@ -273,7 +273,7 @@ than a gold one. Its residual losses are confident-wrong-`no` wipeouts (Q34,
 Q42, and the Class B Q32), the same chapters Extract also drops. The `maybe`
 verdict is the lever — the strict two-level Filter2 (keep only `yes`) falls to
 0.790, below Extract — but the gold-floor and cost analysis in FILTER.md finds
-no retrieval advantage over RAG k=10. The Ceiling comparison below uses Filter3
+no retrieval advantage over Vector k=10. The Ceiling comparison below uses Filter3
 as the best-scoring retrieval method.
 
 ## Ceiling: the perfect-retrieval upper bound
@@ -296,8 +296,8 @@ and the gradient tracks retrieval quality exactly:
 | --- | --- | --- | --- | --- |
 | Filter2 | 0.790 | 14 | 13 | 1 |
 | Extract | 0.830 | 11 | 8 | 3 |
-| RAG k=5 | 0.830 | 10 | 8 | 2 |
-| RAG k=10 | 0.920 | 5 | 5 | 0 |
+| Vector k=5 | 0.830 | 10 | 8 | 2 |
+| Vector k=10 | 0.920 | 5 | 5 | 0 |
 | Filter3 | 0.930 | 4 | 3 | 1 |
 
 The count shrinks monotonically with accuracy: the better the retrieval, the
@@ -350,7 +350,7 @@ possibly a gold that over-weights a fleeting detail.
 ### What Ceiling confirms
 
 - **The single-passage axis is solved.** Single-passage saturates to 1.000
-  under Ceiling, Filter3, and RAG k=10 — any method with perfect single-chapter
+  under Ceiling, Filter3, and Vector k=10 — any method with perfect single-chapter
   recall reads a single chapter perfectly. The entire frontier is
   cross-reference.
 - **The accuracy gap between methods traces entirely to retrieval.** Ceiling's
@@ -368,7 +368,7 @@ possibly a gold that over-weights a fleeting detail.
 ## Takeaways
 
 - **k=10 delivers the sweep's promise on cross-reference** (0.700→0.840),
-  single saturates to 1.00, and RAG k=10 overtakes Extract on accuracy
+  single saturates to 1.00, and Vector k=10 overtakes Extract on accuracy
   (0.92 vs 0.83). The win is broad — six questions fixed — at the cost of one
   synthesis regression (Q34) and lower chapter precision. (The Filter rows —
   Filter3 at 0.93, Filter2 at 0.79 — are analyzed in [FILTER.md](../FILTER.md).)
@@ -391,12 +391,12 @@ possibly a gold that over-weights a fleeting detail.
   reading the vector retriever cannot do — Extract gets them, and so does
   Filter3. The chapter-question link is vector-unreachable at k≤10 but
   lexically distinctive, so the BM25/lexical hybrid in PLAN.md and the
-  per-chapter reading of Extract/Filter3 both recover it. RAG's loss there is
+  per-chapter reading of Extract/Filter3 both recover it. Vector's loss there is
   structural to dense embedding, not to depth.
 - **The `maybe` verdict is what makes the per-chapter filter work**, and its
   residual is a *confident* wrong `no` (Q32, Q34, Q42) that no threshold trick
   reaches — but the gold-floor and cost analysis still finds no retrieval
-  advantage over RAG k=10. The full mechanism and verdict are in
+  advantage over Vector k=10. The full mechanism and verdict are in
   [FILTER.md](../FILTER.md).
 - **Two questions are hard for every retrieval method** (Q32, Q48): all five
   land partial/incorrect. Ceiling disambiguates them — Q32 it gets *correct*
@@ -410,7 +410,7 @@ possibly a gold that over-weights a fleeting detail.
   out (gold chapters verbatim), the model mis-synthesizes exactly one question
   (Q48) and reads the other 49 correctly — including Q32, which every
   retrieval method gets partial. No method ever beats Ceiling; its margin over
-  each (14/11/10/5/4 for Filter2/Extract/RAG-5/RAG-10/Filter3) shrinks
+  each (14/11/10/5/4 for Filter2/Extract/Vector k=5/Vector k=10/Filter3) shrinks
   monotonically with retrieval quality, tracing the entire accuracy gap to
   retrieval. Filter3 is within four questions — three confident-wrong-`no`
   wipeouts and one precision-driven synthesis slip — and none of the four is a

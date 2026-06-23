@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Hybrid retrieval (dense + BM25) gold-coverage analysis.
 
-Standalone script in the ``sweep_rag.py`` / ``bm25.py`` lineage (no LLM output,
+Standalone script in the ``sweep_vector.py`` / ``bm25.py`` lineage (no LLM output,
 no answer file — terminal tables only). It fuses the two retrievers' rankings
 and asks the question [PLAN.md](PLAN.md) poses: does a hybrid recover both
 retrievers' misses *simultaneously* — i.e. does its covered set equal the
@@ -32,12 +32,13 @@ score-blending is empirical, not assumed:
   ranking (the kept set changes with k), but the ceiling any fusion could
   reach at depth k. RRF's goal is to match it from a single ranking.
 
-Reuses ``sweep_rag.rank_all_scenes`` (dense) and ``bm25.rank_all_scenes``
-(sparse), the scoring internals ``answer_rag.load_index`` / ``embed_query`` and
+Reuses ``sweep_vector.rank_all_scenes`` (dense) and ``bm25.rank_all_scenes``
+(sparse), the scoring internals ``answer_vector.load_index`` / ``embed_query``
+and
 ``bm25.BM25Index`` / ``tokenize``, and the analysis helpers
 ``bm25.coverage_at_k`` / ``precision_at_k`` / ``scopes_from_questions``. The
 scene unit (segment; title + body document) and tokenization match ``bm25.py``
-exactly, and the dense side uses the same embedding index as ``sweep_rag.py``,
+exactly, and the dense side uses the same embedding index as ``sweep_vector.py``,
 so every retriever's coverage@k reads on identical axes.
 
 Tokenization is English-only (BM25 is English-only); Japanese is deferred.
@@ -52,8 +53,8 @@ from pathlib import Path
 import numpy as np
 
 from answer import ROOT, LANGS, load_questions
-from answer_rag import load_index, embed_query, expand_and_merge
-import sweep_rag
+from answer_vector import load_index, embed_query, expand_and_merge
+import sweep_vector
 import bm25
 from bm25 import (
     BM25Index,
@@ -68,7 +69,7 @@ from bm25 import (
 QA_EVAL = Path(__file__).resolve().parent
 
 # k columns shown in the coverage table (last entry = whole index, always 1.0).
-# Identical to sweep_rag.py / bm25.py so the curves read side by side.
+# Identical to sweep_vector.py / bm25.py so the curves read side by side.
 K_COLS = [1, 2, 3, 4, 5, 7, 10, 15, 20, 30, 82]
 
 # RRF parameter sweep grid. K controls rank-decay sharpness (standard 60; the
@@ -110,7 +111,7 @@ def _minmax(vals: list[float]) -> list[float]:
 def rank_from_scores(scores: list[float], scenes: list[dict], gold: set[int]) -> dict:
     """Build the standard ranked record from a per-scene score list.
 
-    Same record shape as ``sweep_rag.rank_all_scenes`` / ``bm25.rank_all_scenes``
+    Same record shape as ``sweep_vector.rank_all_scenes`` / ``bm25.rank_all_scenes``
     so ``coverage_at_k`` / ``precision_at_k`` operate uniformly on any
     retriever's output. Ties keep scene (narrative) order via a stable sort.
     """
@@ -450,7 +451,7 @@ def print_context_size_table(dense_recs: dict[int, dict], bm25_recs: dict[int, d
                              scenes: list[dict], questions: list[dict], N: int = 1) -> None:
     """Table 6 — context size with ±N expansion: actual scenes the answerer sees.
 
-    The retrieval unit is a **scene**; ``answer_rag.py`` expands each top-k hit
+    The retrieval unit is a **scene**; ``answer_vector.py`` expands each top-k hit
     by ±N scenes within the same chapter (``expand_and_merge``, default N=1) and
     merges overlaps before building the context. So the answerer does NOT see
     just the top-k scenes — it sees the expanded set, which is larger. This
@@ -582,7 +583,7 @@ def main():
     scenes_path = Path(args.scenes) if args.scenes else ROOT / "all" / f"{lang}-gemini.jsonl"
     tsv_path = Path(args.tsv) if args.tsv else ROOT / "all" / f"{lang}-gemini.tsv"
 
-    # Dense side: embedding index (matches sweep_rag.py).
+    # Dense side: embedding index (matches sweep_vector.py).
     print(f"Loading index from {index_path}")
     normed, dense_scenes = load_index(index_path)
     print(f"Index: {normed.shape[0]} scenes, dim={normed.shape[1]}")
@@ -615,7 +616,7 @@ def main():
 
     # Per-question base rankings from both retrievers. Each rank_all_scenes
     # returns {ranked, gold_chapter_best_rank, gold_first_rank}; the question
-    # metadata (gold_chapters, type) is added here, matching sweep_rag.py /
+    # metadata (gold_chapters, type) is added here, matching sweep_vector.py /
     # bm25.py main(), so the analysis helpers find a uniform record shape.
     dense_recs: dict[int, dict] = {}
     bm25_recs: dict[int, dict] = {}
@@ -629,7 +630,7 @@ def main():
             "gold_chapters": sorted(gold),
         }
         q_vec = embed_query(q["question"], args.embed)
-        dense_recs[qid] = {**meta, **sweep_rag.rank_all_scenes(normed, q_vec, scenes, gold)}
+        dense_recs[qid] = {**meta, **sweep_vector.rank_all_scenes(normed, q_vec, scenes, gold)}
         q_tokens = tokenize(q["question"], lang=lang)
         bm25_recs[qid] = {**meta, **bm25.rank_all_scenes(bm25_index, q_tokens, scenes, gold)}
 

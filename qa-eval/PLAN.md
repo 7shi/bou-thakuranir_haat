@@ -31,20 +31,20 @@ the retrieval gain translates to a QA-accuracy gain.
 
 ### Approach: `answer_union.py`
 
-Mirror [`answer_rag.py`](README.md#answer_ragpy), but retrieve from both
+Mirror [`answer_vector.py`](README.md#answer_vectorpy), but retrieve from both
 indexers and union the hits before expansion:
 
 1. Embed the question (dense) and tokenize it (BM25).
 2. Retrieve dense top-k scenes and BM25 top-k scenes.
 3. **Union** the two hit sets (set-theoretic, dedup by scene).
 4. Expand ±N within chapters and merge (reuse
-   [`answer_rag.expand_and_merge`](README.md#answer_ragpy)).
+   [`answer_vector.expand_and_merge`](README.md#answer_vectorpy)).
 5. Build context and answer (reuse [`answer.answer_question`](README.md#answerpy)).
 
-- **Output**: `results-<lang>/union.jsonl` (same record shape as `rag.jsonl`:
+- **Output**: `results-<lang>/union.jsonl` (same record shape as `vector5.jsonl`:
   `question_id`, `hits`, `expanded`, `answer`). A k-aware filename
-  (`union-<k>.jsonl`) mirrors `rag-<k>.jsonl`.
-- **Makefile**: `make union K=10` mirrors `make rag K=10`.
+  (`union<k>.jsonl`) mirrors `vector<k>.jsonl`.
+- **Makefile**: `make union K=10` mirrors `make vector K=10`.
 - **Judging / reporting**: [`judge.py`](README.md#judgepy) and
   [`report.py`](README.md#reportpy) auto-discover the new file —
   `judge-union.jsonl` and a "Union" row in the report follow with no code
@@ -56,7 +56,7 @@ indexers and union the hits before expansion:
 Compare Union Phase 2 against the existing baselines (see
 [README.md § Results](README.md#results)):
 
-- **vs RAG k=10** (0.920): does the +4 retrieval coverage yield Phase 2 gains?
+- **vs Vector k=10** (0.920): does the +4 retrieval coverage yield Phase 2 gains?
   The four questions Union recovers (where BM25 fills dense's gap) should
   improve if the missing gold context was the bottleneck.
 - **vs Ceiling** (0.990): the gap to Ceiling is the residual — Union's 4

@@ -7,9 +7,9 @@ For each question in questions-en.jsonl:
   3. Expand each hit ±N scenes within the same chapter and merge overlapping ranges.
   4. Build a labeled context block and ask the model to answer the question.
 
-Output: results-<lang>/rag.jsonl for the default k=5, or rag-<k>.jsonl for any
-other k, one record per question. Resume-safe: skips question IDs already
-present in the output file.
+Output: results-<lang>/vector<k>.jsonl (e.g. vector5.jsonl for the default k=5),
+one record per question. Resume-safe: skips question IDs already present in the
+output file.
 """
 
 import argparse
@@ -93,7 +93,7 @@ def build_context(expanded_indices: list, scenes: list) -> str:
     return "\n".join(parts).strip()
 
 
-RAG_PREAMBLE = (
+VECTOR_PREAMBLE = (
     "Answer the following question in {lang_name} based ONLY on the context provided. "
     "Do not use any outside knowledge. "
     "Reply with the answer only — no preamble, no reasoning, no closing remarks."
@@ -110,15 +110,15 @@ def main():
     parser.add_argument("-N", type=int, default=1, help="context expansion window ±N")
     parser.add_argument("-i", "--input", default=None, help="questions JSONL (default: questions-<lang>.jsonl)")
     parser.add_argument("--index", default=None, help="index safetensors (default: qa-eval/index-<lang>.safetensors)")
-    parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/rag.jsonl for k=5, rag-<k>.jsonl otherwise)")
+    parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/vector<k>.jsonl)")
     args = parser.parse_args()
 
     lang = args.lang
     lang_name = LANGS[lang]
     args.input = args.input or str(ROOT / f"questions-{lang}.jsonl")
     args.index = args.index or str(ROOT / "qa-eval" / f"index-{lang}.safetensors")
-    rag_name = "rag.jsonl" if args.k == DEFAULT_K else f"rag-{args.k}.jsonl"
-    output_path = Path(args.output) if args.output else ROOT / "qa-eval" / f"results-{lang}" / rag_name
+    vector_name = f"vector{args.k}.jsonl"
+    output_path = Path(args.output) if args.output else ROOT / "qa-eval" / f"results-{lang}" / vector_name
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Resume: collect already-done question IDs
@@ -159,7 +159,7 @@ def main():
 
             # Get answer
             answer = answer_question(question_text, context, args.model, lang_name,
-                                     preamble=RAG_PREAMBLE, context_prefix="Context:\n")
+                                     preamble=VECTOR_PREAMBLE, context_prefix="Context:\n")
 
             # Build hit metadata
             hit_records = {

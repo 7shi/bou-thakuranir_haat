@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tune RAG's retrieval depth (k) and cosine score threshold from the gold labels.
+"""Tune Vector's retrieval depth (k) and cosine score threshold from the gold labels.
 
 Standalone analysis, independent of report.py. Pure retrieval — no LLM, no
 answer synthesis, no output file (like report.py, it just prints tables). It
@@ -11,7 +11,7 @@ then answers two questions from PLAN.md:
   2. Can a single global cosine threshold separate gold-chapter scenes from others?
 
 The gold `chapters` field is the relevance label (chapter-level). Reuses
-`load_index` / `embed_query` from answer_rag.py.
+`load_index` / `embed_query` from answer_vector.py.
 
 Three terminal tables:
   1. Chapter coverage@k by scope (all/single/cross).
@@ -30,7 +30,7 @@ from pathlib import Path
 
 import numpy as np
 
-from answer_rag import load_index, embed_query
+from answer_vector import load_index, embed_query
 
 ROOT = Path(__file__).resolve().parent.parent
 QA_EVAL = Path(__file__).resolve().parent

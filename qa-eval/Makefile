@@ -2,7 +2,7 @@
 #
 # Real file targets drive the dependency chain; .PHONY names wrap them as
 # convenient aliases. Per-language flow (LANG=en|ja):
-#   index -> rag + extract -> judge -> report
+#   index -> vector + extract -> judge -> report
 #
 # Filter (per-chapter relevance) is OPT-IN: run `make filter2` (the two-level
 # yes/no variant) or `make filter3` (the default three-level yes/maybe/no
@@ -20,7 +20,7 @@
 #   make ja         # full Japanese pipeline
 #   make all        # both languages
 #   make report     # build whatever is missing, then print the table
-#   make LANG=ja rag judge
+#   make LANG=ja vector judge
 #   make filter2    # opt-in: per-chapter yes/no filter (Phase 1 + 2 + judge)
 #   make filter3    # opt-in: per-chapter yes/maybe/no filter (Phase 1 + 2 + judge)
 #   make filter10-tsv   # opt-in: per-chapter 0-10 score → filter10.tsv (Phase 1 only)
@@ -59,15 +59,12 @@ FILTER5D_TSV  := $(RESULTS)/filter5d.tsv
 # missing) then runs filter.py --scale 100.
 SCALE := 10
 
-# Retrieval depth for the `rag` target. Empty (or unset) → default k=5, whose
-# output is results-<lang>/rag.jsonl. Set K=10 → results-<lang>/rag-10.jsonl.
-K ?=
-RAG_FILE := $(RESULTS)/rag.jsonl
-ifneq ($(K),)
-RAG_FILE := $(RESULTS)/rag-$(K).jsonl
-endif
+# Retrieval depth for the `vector` target. Defaults to k=5, whose output is
+# results-<lang>/vector5.jsonl. Set K=10 → results-<lang>/vector10.jsonl.
+K ?= 5
+VECTOR_FILE := $(RESULTS)/vector$(K).jsonl
 
-.PHONY: en ja all pipeline index rag extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter5d-tsv filter filter5d ceiling judge report sweep bm25 hybrid clean
+.PHONY: en ja all pipeline index vector extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter5d-tsv filter filter5d ceiling judge report sweep bm25 hybrid clean
 .DEFAULT_GOAL := en
 
 en:
@@ -83,7 +80,7 @@ pipeline: report
 
 # --- .PHONY aliases for the file targets below ---
 index: $(INDEX)
-rag: $(RAG_FILE)
+vector: $(VECTOR_FILE)
 extract-parts: $(EXTRACT_PARTS)
 extract: $(RESULTS)/extract.jsonl
 filter2-tsv: $(FILTER2_TSV)
@@ -99,14 +96,14 @@ filter10-tsv: $(FILTER10_TSV)
 filter100-tsv: $(FILTER100_TSV)
 filter5d-tsv: $(FILTER5D_TSV)
 ceiling: $(RESULTS)/judge-ceiling.jsonl
-judge: $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-extract.jsonl
+judge: $(RESULTS)/judge-vector5.jsonl $(RESULTS)/judge-extract.jsonl
 sweep: $(INDEX) $(QUESTIONS)
-	uv run sweep_rag.py -l $(LANG)
+	uv run sweep_vector.py -l $(LANG)
 
 # BM25/lexical retrieval gold-coverage analysis (independent of the pipeline;
 # no LLM, no embedding index — reads the raw scene text directly). Ranks scenes
 # by Okapi BM25 and reports the same coverage@k / threshold / per-question
-# tables as sweep_rag.py, plus a cross-reference of BM25's rank on the known
+# tables as sweep_vector.py, plus a cross-reference of BM25's rank on the known
 # dense-retrieval misses. Side-by-side with `make sweep`, answers whether
 # sparse lexical matching recovers the gold chapters dense retrieval drops —
 # the PLAN.md question that motivates the future hybrid. See bm25.py.
@@ -114,7 +111,7 @@ bm25: $(SCENES) $(TSV) $(QUESTIONS)
 	uv run bm25.py -l $(LANG)
 
 # Hybrid retrieval (dense + BM25) gold-coverage analysis. Fuses the dense
-# (cosine) ranking from sweep_rag.py and the BM25 ranking from bm25.py via
+# (cosine) ranking from sweep_vector.py and the BM25 ranking from bm25.py via
 # several strategies — RRF (rank-blend, the PLAN.md choice), Borda (rank-blend,
 # linear decay), CombSUM (normalized score-sum) — and compares against the
 # per-k Union oracle (the set-theoretic upper bound). Answers the PLAN.md
@@ -152,15 +149,12 @@ $(INDEX): $(SCENES) $(TSV)
 	uv run build_index.py -l $(LANG)
 
 # Vector RAG answering.
-#   make rag            → results-<lang>/rag.jsonl      (default k=5)
-#   make rag K=10       → results-<lang>/rag-10.jsonl   (k=10)
-# answer_rag.py derives the output filename from k, so the explicit -o is not
-# needed; the pattern rule just passes -k $* (the stem, e.g. "10").
-$(RESULTS)/rag.jsonl: $(INDEX) $(QUESTIONS)
-	uv run answer_rag.py -l $(LANG)
-
-$(RESULTS)/rag-%.jsonl: $(INDEX) $(QUESTIONS)
-	uv run answer_rag.py -l $(LANG) -k $*
+#   make vector         → results-<lang>/vector5.jsonl   (default k=5)
+#   make vector K=10    → results-<lang>/vector10.jsonl  (k=10)
+# answer_vector.py derives the output filename from k, so the explicit -o is
+# not needed; the pattern rule just passes -k $* (the stem, e.g. "10").
+$(RESULTS)/vector%.jsonl: $(INDEX) $(QUESTIONS)
+	uv run answer_vector.py -l $(LANG) -k $*
 
 # Per-chapter extraction, Phase 1: one chapter group per part file.
 $(RESULTS)/extract-%.jsonl: $(SCENES) $(QUESTIONS)
@@ -227,8 +221,8 @@ $(RESULTS)/ceiling.jsonl: $(SCENES) $(QUESTIONS)
 	uv run answer_ceiling.py -l $(LANG)
 
 # LLM grading of each answer file.
-$(RESULTS)/judge-rag.jsonl: $(RESULTS)/rag.jsonl $(QUESTIONS)
-	uv run judge.py -l $(LANG) $(RESULTS)/rag.jsonl
+$(RESULTS)/judge-vector5.jsonl: $(RESULTS)/vector5.jsonl $(QUESTIONS)
+	uv run judge.py -l $(LANG) $(RESULTS)/vector5.jsonl
 
 $(RESULTS)/judge-extract.jsonl: $(RESULTS)/extract.jsonl $(QUESTIONS)
 	uv run judge.py -l $(LANG) $(RESULTS)/extract.jsonl
@@ -248,17 +242,17 @@ $(RESULTS)/judge-filter3.jsonl: $(RESULTS)/filter3.jsonl $(QUESTIONS)
 $(RESULTS)/judge-ceiling.jsonl: $(RESULTS)/ceiling.jsonl $(QUESTIONS)
 	uv run judge.py -l $(LANG) $(RESULTS)/ceiling.jsonl
 
-# Remove generated answers/judgements (keeps the index). The rag-[0-9]* and
-# judge-rag-[0-9]* globs catch the k-variant files (rag-10.jsonl, etc.); rm -f
-# silently ignores them when no match exists.
+# Remove generated answers/judgements (keeps the index). The vector[0-9]* and
+# judge-vector[0-9]* globs catch the k-variant files (vector10.jsonl, etc.); rm
+# -f silently ignores them when no match exists.
 clean:
-	rm -f $(RESULTS)/rag.jsonl $(RESULTS)/rag-[0-9]*.jsonl \
+	rm -f $(RESULTS)/vector[0-9]*.jsonl \
 	      $(RESULTS)/extract.jsonl \
 	      $(RESULTS)/filter2.jsonl $(RESULTS)/filter3.jsonl \
 	      $(RESULTS)/ceiling.jsonl \
 	      $(EXTRACT_PARTS) \
 	      $(FILTER2_TSV) $(FILTER3_TSV) $(FILTER10_TSV) $(FILTER100_TSV) $(FILTER5D_TSV) \
-	      $(RESULTS)/judge-rag.jsonl $(RESULTS)/judge-rag-[0-9]*.jsonl \
+	      $(RESULTS)/judge-vector[0-9]*.jsonl \
 	      $(RESULTS)/judge-extract.jsonl \
 	      $(RESULTS)/judge-filter2.jsonl $(RESULTS)/judge-filter3.jsonl \
 	      $(RESULTS)/judge-ceiling.jsonl

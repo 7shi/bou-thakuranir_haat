@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Grade candidate answers against the gold standard with a judge LLM.
 
-For each result file (e.g. results-<lang>/rag.jsonl, results-<lang>/extract.jsonl),
+For each result file (e.g. results-<lang>/vector5.jsonl, results-<lang>/extract.jsonl),
 compare every candidate answer against the gold `answer` and `rationale` from
 questions-<lang>.jsonl. The judge emits a one-sentence reason and a verdict of
 correct / partial / incorrect.
@@ -10,7 +10,7 @@ The `reason` field is declared before `verdict` in the schema so the model
 writes its justification first and the verdict follows from it, rather than
 being a post-hoc rationalization.
 
-Output: judge-<input-stem>.jsonl next to each input (e.g. judge-rag.jsonl), one
+Output: judge-<input-stem>.jsonl next to each input (e.g. judge-vector5.jsonl), one
 record per question. Resume-safe: skips question IDs already present in the
 output file.
 

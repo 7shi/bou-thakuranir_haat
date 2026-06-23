@@ -7,7 +7,7 @@ lexical (BM25) and dense semantic (cosine) retrieval recover the gold chapters
 each alone drops?**
 
 The retrieval unit is a **scene** (segment), identical to Vector RAG,
-[`sweep_rag.py`](README.md#sweep_ragpy), `bm25.py`, and `hybrid.py`, so
+[`sweep_vector.py`](README.md#sweep_vectorpy), `bm25.py`, and `hybrid.py`, so
 coverage@k and the per-question metrics read on identical axes across all
 retrievers. Neither script calls an LLM or writes an output file — both are
 pure terminal-table ranking analyses over the 82-scene English corpus.
@@ -82,7 +82,7 @@ union of their top-k chapters — which is parameter-free and robust.**
 
 ## `bm25.py` — sparse lexical standalone
 
-Sibling of [`sweep_rag.py`](README.md#sweep_ragpy): same scene unit, same
+Sibling of [`sweep_vector.py`](README.md#sweep_vectorpy): same scene unit, same
 gold-coverage lens, but ranks scenes by **Okapi BM25** on the literal scene
 text instead of cosine on the dense embedding index. Read the two side by side
 to answer the question PLAN.md poses — does sparse lexical matching recover the
@@ -103,7 +103,7 @@ Japanese is deferred. The ranking functions (`BM25Index`, `rank_all_scenes`,
 2. For each question, tokenize the question and score every scene.
 3. Rank all 82 scenes by BM25 score (ties break in narrative order) and record
    where each gold chapter first appears.
-4. Print five tables (1 and 3–5 mirror `sweep_rag.py` so the two retrievers read
+4. Print five tables (1 and 3–5 mirror `sweep_vector.py` so the two retrievers read
    side by side; 2 is the per-question row-level view; 5 is the PLAN.md
    cross-reference).
 
@@ -148,7 +148,7 @@ a hybrid:
 
 ## `hybrid.py` — fusion analysis
 
-Standalone analysis script in the `sweep_rag.py` / `bm25.py` lineage (no LLM,
+Standalone analysis script in the `sweep_vector.py` / `bm25.py` lineage (no LLM,
 no output file — terminal tables only). It fuses the two retrievers' rankings
 and asks whether a hybrid recovers both retrievers' misses *simultaneously*.
 
@@ -179,7 +179,7 @@ score-blending is empirical, not assumed:
   reach at depth k. RRF's goal was to match it from a single ranking.
 
 `hybrid.py` reuses `bm25.BM25Index` / `rank_all_scenes` / `tokenize` (sparse),
-`answer_rag.load_index` / `embed_query` / `expand_and_merge` (dense), and
+`answer_vector.load_index` / `embed_query` / `expand_and_merge` (dense), and
 `bm25.coverage_at_k` / `precision_at_k` / `scopes_from_questions` (analysis).
 
 ### Retrieval comparison at k=5 and k=10
@@ -273,14 +273,14 @@ gold chapter enters top-k (coverage > 0). It is **not** strict recall (all gold
 chapters ⊆ top-k). Q31's first gold chapter enters at rank 2, but its third
 gold chapter (Ch22) sits at dense rank 38 / BM25 rank 24, so Q31 still fails
 strict recall at k=10. The two notions agree only when coverage = 1.0 (see
-[`sweep_rag.py`](README.md#sweep_ragpy) § "Note on the two recall notions").
+[`sweep_vector.py`](README.md#sweep_vectorpy) § "Note on the two recall notions").
 
 ### Context size with ±1 expansion
 
-`answer_rag.py` expands each top-k hit by ±1 scene within its chapter and
+`answer_vector.py` expands each top-k hit by ±1 scene within its chapter and
 merges overlaps, so the answerer sees more than the raw top-k scenes. The
 table below applies the same ±1 expansion to each method's top-10 hits so the
-context sizes are directly comparable to what the real RAG pipeline feeds:
+context sizes are directly comparable to what the real Vector pipeline feeds:
 
 | method | expanded scenes (mean) | chapters (mean) |
 |---|---:|---:|
@@ -339,7 +339,7 @@ and cannot do on this corpus:
    chapters [FILTER.md](FILTER.md) identifies as the gold floor; they need a
    different retrieval mechanism, not a better blend.
 
-The practical takeaway: **don't fuse — union.** Replace single-retriever RAG
+The practical takeaway: **don't fuse — union.** Replace single-retriever Vector
 with a two-retriever union at the same k, feed the merged chapter set as
 context, and accept the +40% token cost for +4 questions of retrieval coverage.
 The four residual questions are the next frontier, and they require changing
