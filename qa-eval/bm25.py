@@ -6,7 +6,7 @@ terminal tables only. Where ``sweep_vector.py`` ranks scenes by **cosine** on th
 dense embedding index and asks "does dense retrieval surface the gold
 chapters?", this script ranks the same scenes by **BM25** on the literal scene
 text and asks the same question. Reading the two side by side answers the
-question PLAN.md poses — does sparse lexical matching recover the chapters dense
+question — does sparse lexical matching recover the chapters dense
 retrieval drops (the signet ring, the Emperor of Delhi, Muktiyar Khan's
 assassination — the low-frequency proper nouns that embeddings wash out)?
 
@@ -22,8 +22,8 @@ which is why this script (like ``sweep_vector.py``) is pure ranking analysis.
 The BM25 implementation is pure stdlib (``re`` + ``collections`` + ``math``),
 no external dependency — BM25 is ~30 lines and understanding the algorithm is
 part of the experimental goal. The ranking functions (``BM25Index``,
-``rank_all_scenes``) are importable so the future hybrid (RRF or a weighted
-blend of cosine + BM25, per PLAN.md) can reuse them without reimplementing.
+``rank_all_scenes``) are importable so ``hybrid.py`` (fusion analysis) and
+``answer_hybrid.py`` (Phase 2 QA) reuse them without reimplementing.
 
 Prints five terminal tables:
   1. Chapter coverage@k by scope (all/single/cross) — the headline metric.
@@ -32,7 +32,7 @@ Prints five terminal tables:
   3. BM25-score threshold sweep with the best global tau*.
   4. Per-question gold ranks and separation gap.
   5. BM25 rank for the gold chapters in the known dense-retrieval misses
-     (PLAN.md's residual gap) — the direct "does BM25 recover what dense
+     (the dense-miss residual gap) — the direct "does BM25 recover what dense
      dropped?" view that motivates the hybrid.
 
 Tokenization is English-only (lowercase + ``[a-z0-9]+`` + stopword removal);
@@ -57,11 +57,11 @@ QA_EVAL = Path(__file__).resolve().parent
 K_COLS = [1, 2, 3, 4, 5, 7, 10, 15, 20, 30, 82]
 
 # Questions where dense (cosine top-5) retrieval dropped a gold chapter in the
-# English sweep_vector.py run — the six "genuine retrieval misses" named in
-# PLAN.md (Q27, Q28, Q31, Q36, Q43, Q45) plus Q49 (Ch22 missed, the Emperor of
-# Delhi). Source: results-en/README.md "Both wrong" section and PLAN.md. Table
-# 4 cross-references BM25's rank for the gold chapters in these questions;
-# this constant is analysis-only (no pipeline data dependency).
+# English sweep_vector.py run — the six "genuine retrieval misses" from the
+# results-en case study (Q27, Q28, Q31, Q36, Q43, Q45) plus Q49 (Ch22 missed,
+# the Emperor of Delhi). Source: results-en/README.md "Both wrong" section and
+# HYBRID.md. Table 4 cross-references BM25's rank for the gold chapters in
+# these questions; this constant is analysis-only (no pipeline data dependency).
 DENSE_MISSES = [27, 28, 31, 36, 43, 45, 49]
 
 # Percentile grid used to choose BM25-score threshold ticks for Table 2. Unlike
@@ -407,7 +407,7 @@ def print_per_question_table(records: dict[int, dict]) -> None:
 
 def print_dense_miss_table(records: dict[int, dict], questions: list[dict]) -> None:
     print("Table 5 — BM25 rank for gold chapters dense (cosine) retrieval dropped")
-    print("  dense misses from PLAN.md / results-en sweep_vector.py: "
+    print("  dense misses from results-en sweep_vector.py: "
           + ", ".join(f"Q{q}" for q in DENSE_MISSES))
     print("  ✓ = BM25 surfaces the gold chapter at k≤5 (recovers dense's miss);")
     print("      k≤10 is the k=10 parity bar; beyond k=15 BM25 has not helped.")

@@ -58,7 +58,7 @@ So while Filter3 posts the highest *Phase 2* QA score in the table (0.930,
 slightly above Vector k=10's 0.920), that margin does not justify the cost, and the
 gold-floor view shows no retrieval advantage. The residual the filter cannot
 reach (the confident-wrong-`no` floor) needs a different *mechanism* — the
-BM25/lexical hybrid in [PLAN.md](PLAN.md) — not a better LLM prompt.
+BM25/lexical hybrid in [HYBRID.md](HYBRID.md) — not a better LLM prompt.
 
 ## `answer_filter.py`
 
@@ -271,7 +271,7 @@ uncertainty shape, not a resolution artifact — a chapter is either clearly
 relevant or clearly not, with a thin intrinsically-ambiguous middle that no
 finer scale resolves. The gold-scored-0 floor calls for judgement
 *decomposition* (Filter5d, below), and the retrieval misses for a different
-retrieval *mechanism* (BM25/lexical hybrid, [PLAN.md](PLAN.md)).
+retrieval *mechanism* (BM25/lexical hybrid, [HYBRID.md](HYBRID.md)).
 
 ---
 
@@ -420,4 +420,4 @@ The Filter experiment establishes a clean boundary on the LLM-as-retriever idea:
 The residual the filter cannot reach — the confident-wrong-`no` floor on
 indirectly-relevant chapters — is the same dense-retrieval blindness, and the
 lever for it is a different *mechanism* (the BM25/lexical hybrid in
-[PLAN.md](PLAN.md)), not a finer or differently-decomposed LLM judgement.
+[HYBRID.md](HYBRID.md)), not a finer or differently-decomposed LLM judgement.

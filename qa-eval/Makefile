@@ -28,8 +28,9 @@
 #   make filter5d-tsv   # opt-in: per-chapter five-axis 0-10 scores → filter5d.tsv (Phase 1 only)
 #   make ceiling    # opt-in: gold-chapter context ceiling (answer + judge)
 #   make sweep      # retrieval sweep (independent of the pipeline; no LLM)
-#   make bm25       # BM25/lexical retrieval gold-coverage analysis vs. dense (no LLM)
-#   make hybrid     # dense+BM25 fusion (RRF/Borda/CombSUM) vs. union oracle (no LLM output)
+#   make bm25               # BM25 sparse retrieval gold-coverage analysis (no LLM)
+#   make hybrid             # dense ∪ BM25 union QA answering (English only; see hybrid-judge)
+#   make hybrid-judge       # hybrid k=5 + k=10 answering + judging → rows in `make report`
 #   make filter     # filter10 verdicts + score-distribution analysis (no LLM)
 #   make filter SCALE=100  # filter100 occurrence count only (no LLM)
 #   make filter5d   # five-axis verdicts + sum/per-axis/floor analysis (no LLM)
@@ -59,12 +60,14 @@ FILTER5D_TSV  := $(RESULTS)/filter5d.tsv
 # missing) then runs filter.py --scale 100.
 SCALE := 10
 
-# Retrieval depth for the `vector` target. Defaults to k=5, whose output is
-# results-<lang>/vector5.jsonl. Set K=10 → results-<lang>/vector10.jsonl.
+# Retrieval depth for the `vector` / `hybrid` targets. Defaults to k=5, whose
+# outputs are results-<lang>/vector5.jsonl / hybrid5.jsonl. Set K=10 for the
+# k=10 variants.
 K ?= 5
 VECTOR_FILE := $(RESULTS)/vector$(K).jsonl
+HYBRID_FILE := $(RESULTS)/hybrid$(K).jsonl
 
-.PHONY: en ja all pipeline index vector extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter5d-tsv filter filter5d ceiling judge report sweep bm25 hybrid clean
+.PHONY: en ja all pipeline index vector hybrid extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter5d-tsv filter filter5d ceiling judge hybrid-judge report sweep bm25 clean
 .DEFAULT_GOAL := en
 
 en:
@@ -81,6 +84,18 @@ pipeline: report
 # --- .PHONY aliases for the file targets below ---
 index: $(INDEX)
 vector: $(VECTOR_FILE)
+# Hybrid retrieval (dense ∪ BM25 union) answering — Phase 2 QA of the HYBRID.md
+# Union approach. Mirrors `make vector`: the pattern rule derives the output
+# filename from k, so `make hybrid` → results-<lang>/hybrid5.jsonl,
+# `make hybrid K=10` → results-<lang>/hybrid10.jsonl. English only (BM25
+# tokenization is English-only — passing LANG=ja exits with an error from
+# answer_hybrid.py). Not part of the default pipeline / `judge` aggregate.
+# Note: `make hybrid` previously drove the standalone fusion analysis
+# (hybrid.py); that script is now run directly via `uv run hybrid.py -l en`.
+hybrid: $(HYBRID_FILE)
+# `make hybrid-judge` runs answering at k=5 and k=10 then judges both, so
+# Hybrid k=5 / Hybrid k=10 appear in `make report` after a single command.
+hybrid-judge: $(RESULTS)/judge-hybrid5.jsonl $(RESULTS)/judge-hybrid10.jsonl
 extract-parts: $(EXTRACT_PARTS)
 extract: $(RESULTS)/extract.jsonl
 filter2-tsv: $(FILTER2_TSV)
@@ -96,7 +111,17 @@ filter10-tsv: $(FILTER10_TSV)
 filter100-tsv: $(FILTER100_TSV)
 filter5d-tsv: $(FILTER5D_TSV)
 ceiling: $(RESULTS)/judge-ceiling.jsonl
-judge: $(RESULTS)/judge-vector5.jsonl $(RESULTS)/judge-extract.jsonl
+# `judge` aggregates the judged answer files for the default pipeline. Hybrid
+# (dense ∪ BM25 union) is English-only — answer_hybrid.py exits with an error
+# under LANG=ja — so its k=5/k=10 judge files are added to the aggregate only
+# when LANG=en. `make` (LANG=en, the default) thus builds Hybrid rows into
+# `make report`; `make ja` skips them. `make hybrid-judge` remains a standalone
+# alias for the two hybrid judge files.
+JUDGE_FILES := $(RESULTS)/judge-vector5.jsonl $(RESULTS)/judge-extract.jsonl
+ifeq ($(LANG),en)
+JUDGE_FILES += $(RESULTS)/judge-hybrid5.jsonl $(RESULTS)/judge-hybrid10.jsonl
+endif
+judge: $(JUDGE_FILES)
 sweep: $(INDEX) $(QUESTIONS)
 	uv run sweep_vector.py -l $(LANG)
 
@@ -106,20 +131,14 @@ sweep: $(INDEX) $(QUESTIONS)
 # tables as sweep_vector.py, plus a cross-reference of BM25's rank on the known
 # dense-retrieval misses. Side-by-side with `make sweep`, answers whether
 # sparse lexical matching recovers the gold chapters dense retrieval drops —
-# the PLAN.md question that motivates the future hybrid. See bm25.py.
+# the dense-vs-BM25 question that motivates the hybrid analysis. See bm25.py.
 bm25: $(SCENES) $(TSV) $(QUESTIONS)
 	uv run bm25.py -l $(LANG)
 
-# Hybrid retrieval (dense + BM25) gold-coverage analysis. Fuses the dense
-# (cosine) ranking from sweep_vector.py and the BM25 ranking from bm25.py via
-# several strategies — RRF (rank-blend, the PLAN.md choice), Borda (rank-blend,
-# linear decay), CombSUM (normalized score-sum) — and compares against the
-# per-k Union oracle (the set-theoretic upper bound). Answers the PLAN.md
-# question: does a rank-blend recover both retrievers' misses simultaneously?
-# No LLM output, terminal tables only. Needs the dense index (ollama embed for
-# the query side) and the raw scene text (BM25 side). English only.
-hybrid: $(INDEX) $(SCENES) $(TSV) $(QUESTIONS)
-	uv run hybrid.py -l $(LANG)
+# Standalone dense+BM25 fusion analysis (hybrid.py — RRF/Borda/CombSUM vs. union
+# oracle, terminal tables only, no LLM output) has no `make` alias: `make hybrid`
+# now drives the Phase 2 QA (answer_hybrid.py). Run the analysis directly with
+# `uv run hybrid.py -l en` (needs the dense index + raw scene text; English only).
 
 # filter{10,100} score-distribution / threshold-sweep analysis (terminal output
 # only, no LLM). SCALE selects which verdict TSV to read: 10 → filter10.tsv
@@ -155,6 +174,16 @@ $(INDEX): $(SCENES) $(TSV)
 # not needed; the pattern rule just passes -k $* (the stem, e.g. "10").
 $(RESULTS)/vector%.jsonl: $(INDEX) $(QUESTIONS)
 	uv run answer_vector.py -l $(LANG) -k $*
+
+# Hybrid retrieval (dense ∪ BM25 union) answering. Mirrors the vector pattern
+# rule: answer_hybrid.py derives the output filename from k, so the pattern
+# rule just passes -k $* (the stem, e.g. "10"). Depends on the embedding INDEX
+# (dense side) AND the raw SCENES + TSV (BM25 side), unlike vector which needs
+# only the index. English only.
+#   make hybrid         → results-<lang>/hybrid5.jsonl   (default k=5)
+#   make hybrid K=10    → results-<lang>/hybrid10.jsonl  (k=10)
+$(RESULTS)/hybrid%.jsonl: $(INDEX) $(SCENES) $(TSV) $(QUESTIONS)
+	uv run answer_hybrid.py -l $(LANG) -k $*
 
 # Per-chapter extraction, Phase 1: one chapter group per part file.
 $(RESULTS)/extract-%.jsonl: $(SCENES) $(QUESTIONS)
@@ -206,7 +235,7 @@ $(FILTER100_TSV): $(SCENES) $(QUESTIONS)
 # causal, reference, thematic), Phase 1 ONLY. Decomposes the relevance judgement
 # across orthogonal axes so that an indirectly-relevant cross-reference chapter
 # scores non-zero on at least one axis, attacking the gold-scored-0 floor that
-# the single-axis 10/100 variants cannot reach (see PLAN.md). Phase 2 would keep
+# the single-axis 10/100 variants cannot reach (see FILTER.md). Phase 2 would keep
 # a chapter when the five-axis sum is non-zero, but is deferred until the floor
 # distribution from this Phase 1 run is inspected. Uses structured output (a
 # pydantic schema) via create_json_descriptions_prompt, unlike the plain-text
@@ -242,17 +271,29 @@ $(RESULTS)/judge-filter3.jsonl: $(RESULTS)/filter3.jsonl $(QUESTIONS)
 $(RESULTS)/judge-ceiling.jsonl: $(RESULTS)/ceiling.jsonl $(QUESTIONS)
 	uv run judge.py -l $(LANG) $(RESULTS)/ceiling.jsonl
 
+# Opt-in: hybrid (dense ∪ BM25 union) judging. Not built by the default `judge`
+# aggregate (English only). Run `make hybrid-judge` (or `make judge-hybrid<k>`
+# explicitly) to grade the hybrid answers; `make report` then shows the rows.
+$(RESULTS)/judge-hybrid5.jsonl: $(RESULTS)/hybrid5.jsonl $(QUESTIONS)
+	uv run judge.py -l $(LANG) $(RESULTS)/hybrid5.jsonl
+
+$(RESULTS)/judge-hybrid10.jsonl: $(RESULTS)/hybrid10.jsonl $(QUESTIONS)
+	uv run judge.py -l $(LANG) $(RESULTS)/hybrid10.jsonl
+
 # Remove generated answers/judgements (keeps the index). The vector[0-9]* and
-# judge-vector[0-9]* globs catch the k-variant files (vector10.jsonl, etc.); rm
-# -f silently ignores them when no match exists.
+# judge-vector[0-9]* globs catch the k-variant files (vector10.jsonl, etc.); the
+# hybrid[0-9]* / judge-hybrid[0-9]* globs do the same for hybrid10.jsonl, etc.
+# rm -f silently ignores them when no match exists.
 clean:
 	rm -f $(RESULTS)/vector[0-9]*.jsonl \
+	      $(RESULTS)/hybrid[0-9]*.jsonl \
 	      $(RESULTS)/extract.jsonl \
 	      $(RESULTS)/filter2.jsonl $(RESULTS)/filter3.jsonl \
 	      $(RESULTS)/ceiling.jsonl \
 	      $(EXTRACT_PARTS) \
 	      $(FILTER2_TSV) $(FILTER3_TSV) $(FILTER10_TSV) $(FILTER100_TSV) $(FILTER5D_TSV) \
 	      $(RESULTS)/judge-vector[0-9]*.jsonl \
+	      $(RESULTS)/judge-hybrid[0-9]*.jsonl \
 	      $(RESULTS)/judge-extract.jsonl \
 	      $(RESULTS)/judge-filter2.jsonl $(RESULTS)/judge-filter3.jsonl \
 	      $(RESULTS)/judge-ceiling.jsonl

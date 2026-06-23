@@ -5,8 +5,8 @@ Standalone analysis, independent of the answering pipeline — no LLM, no answer
 synthesis, no output file (terminal tables only, like ``filter.py`` and
 ``sweep_vector.py``). It reads the Phase 1 verdict TSV produced by
 ``answer_filter.py --verdicts 5d`` and the gold chapters from
-``questions-<lang>.jsonl`` to answer the three questions posed in
-[PLAN.md](PLAN.md) for the 5d variant:
+``questions-<lang>.jsonl`` to answer three questions for the 5d variant
+(full analysis in [FILTER.md](FILTER.md)):
 
    1. **The floor** — how many gold pairs land at sum=0 (all five axes zero)?
       This is the design goal: decomposition should collapse the gold-scored-0

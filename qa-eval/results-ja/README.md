@@ -218,4 +218,4 @@ hard cross questions.
   search drops) are identical because the embedding model is the same.
 - The retrieval levers are unchanged: Vector's residual losses are dense top-5
   misses on rare proper nouns / second-side facts, the target of `sweep_vector.py`
-  and the BM25 hybrid follow-up in [PLAN.md](../PLAN.md).
+  and the BM25 hybrid follow-up in [HYBRID.md](../HYBRID.md).

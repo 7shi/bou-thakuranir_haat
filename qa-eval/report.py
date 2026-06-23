@@ -226,17 +226,21 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
     Vector variants are discovered from results-<lang>/vector<k>.jsonl answer
     files (e.g. vector5.jsonl → "Vector k=5", vector10.jsonl → "Vector k=10").
     A variant is included only when its judge-vector<k>.jsonl also exists, so a
-    not-yet-judged vector15.jsonl simply doesn't appear. Extract (per-chapter
-    summary) and Filter (per-chapter relevance) are appended when both their
-    answer and judge files exist. Filter has two verdict granularities:
-    filter2.jsonl (yes/no) and filter3.jsonl (yes/maybe/no, the default), and
-    both are appended when present. Order: Vector k=5 first, then Vector k=<k>
-    by ascending k, then Extract, then Filter2, then Filter3, then Ceiling
-    (perfect-retrieval ceiling) — so the k=5 baseline sits beside its
-    deeper-retrieval variants, the per-chapter methods sit next to each other
-    for direct comparison, the stricter two-level filter sits ahead of its
-    looser three-level counterpart, and Ceiling anchors the table as the
-    upper bound that strips out retrieval entirely.
+    not-yet-judged vector15.jsonl simply doesn't appear. Hybrid variants
+    (dense ∪ BM25 union, the Phase 2 QA of the HYBRID.md Union approach) are
+    discovered the same way from hybrid<k>.jsonl → "Hybrid k=<k>". Extract
+    (per-chapter summary) and Filter (per-chapter relevance) are appended when
+    both their answer and judge files exist. Filter has two verdict
+    granularities: filter2.jsonl (yes/no) and filter3.jsonl (yes/maybe/no, the
+    default), and both are appended when present. Order: Vector k=5 first, then
+    Vector k=<k> by ascending k, then Hybrid k=<k> by ascending k, then
+    Extract, then Filter2, then Filter3, then Ceiling (perfect-retrieval
+    ceiling) — so the k=5 baseline sits beside its deeper-retrieval variants,
+    the hybrid union sits beside its Vector peers as a direct retrieval
+    comparison, the per-chapter methods sit next to each other for direct
+    comparison, the stricter two-level filter sits ahead of its looser
+    three-level counterpart, and Ceiling anchors the table as the upper bound
+    that strips out retrieval entirely.
     """
     def vector_key(stem: str) -> int:
         m = re.fullmatch(r"vector(\d+)", stem)
@@ -249,6 +253,19 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
         stem = ans.stem
         k = int(re.fullmatch(r"vector(\d+)", stem).group(1))
         label = f"Vector k={k}"  # vector5 → "Vector k=5", vector10 → "Vector k=10"
+        judge = f"judge-{stem}.jsonl"
+        if (results / judge).exists():
+            found.append((label, ans.name, judge))
+
+    # Hybrid: dense ∪ BM25 union (Phase 2 QA of the HYBRID.md Union approach).
+    # Same discovery shape as Vector — hybrid<k>.jsonl with a matching judge.
+    # English only (BM25 is English-only), so no Japanese results are expected.
+    hybrid_files = [p for p in results.glob("hybrid*.jsonl")
+                    if re.fullmatch(r"hybrid\d+", p.stem)]
+    for ans in sorted(hybrid_files, key=lambda p: int(re.fullmatch(r"hybrid(\d+)", p.stem).group(1))):
+        stem = ans.stem
+        k = int(re.fullmatch(r"hybrid(\d+)", stem).group(1))
+        label = f"Hybrid k={k}"  # hybrid5 → "Hybrid k=5", hybrid10 → "Hybrid k=10"
         judge = f"judge-{stem}.jsonl"
         if (results / judge).exists():
             found.append((label, ans.name, judge))

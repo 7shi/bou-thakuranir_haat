@@ -115,7 +115,7 @@ So the two architectures fail on **orthogonal axes**, and that is the read on
 the 0.92 vs 0.83 margin: Extract's losses are self-inflicted by its own Phase 1
 filter (cheaply fixable — keep more context, weaken the `None` bar, or quote
 verbatim instead of summarize-or-discard), whereas Vector's losses are structural
-dense-retrieval blindness (the BM25/lexical hybrid in [PLAN.md](../PLAN.md)).
+dense-retrieval blindness (the BM25/lexical hybrid in [HYBRID.md](../HYBRID.md)).
 Fixing Phase 1 alone lifts Extract toward a 39+7 = 46 ceiling — re-overtaking
 k=10 — while its thorough-reading edge on the vector-unreachable three stays
 intact. The lever for Extract is in its own stage 1; the lever for Vector is
@@ -230,7 +230,7 @@ lexically distinctive ("signet ring", "Emperor of Delhi", "palanquin") but
 semantically generic, so cosine cannot separate them from topically-similar
 neighbours. This is exactly the failure `sweep_vector.py`'s threshold table
 predicted (best τ*≈0.50, F1 0.38) and the motivation for the **BM25/lexical
-hybrid** in [PLAN.md](../PLAN.md): a lexical signal would match those
+hybrid** in [HYBRID.md](../HYBRID.md): a lexical signal would match those
 proper-noun/term-heavy queries where dense embedding is blind. Ch22 is the
 standout — load-bearing for *two* of these questions (Q31 and Q49) and
 resistant to retrieval in both.
@@ -390,7 +390,7 @@ possibly a gold that over-weights a fleeting detail.
   five both-wrong questions, three (Q31, Q43, Q49) are solved by a thorough
   reading the vector retriever cannot do — Extract gets them, and so does
   Filter3. The chapter-question link is vector-unreachable at k≤10 but
-  lexically distinctive, so the BM25/lexical hybrid in PLAN.md and the
+  lexically distinctive, so the BM25/lexical hybrid in HYBRID.md and the
   per-chapter reading of Extract/Filter3 both recover it. Vector's loss there is
   structural to dense embedding, not to depth.
 - **The `maybe` verdict is what makes the per-chapter filter work**, and its

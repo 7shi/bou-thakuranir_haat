@@ -5,7 +5,7 @@ Standalone analysis, independent of report.py. Pure retrieval — no LLM, no
 answer synthesis, no output file (like report.py, it just prints tables). It
 re-embeds each question and scores it against the FULL scene index (all scenes,
 not just top-5) so the full score distribution is available,
-then answers two questions from PLAN.md:
+then answers two questions:
 
   1. At what k does chapter recall saturate? Is the current k=5 tight or generous?
   2. Can a single global cosine threshold separate gold-chapter scenes from others?

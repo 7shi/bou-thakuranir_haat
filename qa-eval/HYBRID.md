@@ -2,7 +2,7 @@
 
 The Hybrid analysis covers two standalone scripts —
 [`bm25.py`](README.md#bm25py) and [`hybrid.py`](README.md#hybridpy) — that
-together answer the question [PLAN.md](PLAN.md) poses: **does combining sparse
+together answer the question: **does combining sparse
 lexical (BM25) and dense semantic (cosine) retrieval recover the gold chapters
 each alone drops?**
 
@@ -85,7 +85,7 @@ union of their top-k chapters — which is parameter-free and robust.**
 Sibling of [`sweep_vector.py`](README.md#sweep_vectorpy): same scene unit, same
 gold-coverage lens, but ranks scenes by **Okapi BM25** on the literal scene
 text instead of cosine on the dense embedding index. Read the two side by side
-to answer the question PLAN.md poses — does sparse lexical matching recover the
+to answer the question — does sparse lexical matching recover the
 chapters dense retrieval drops (the low-frequency proper nouns embeddings wash
 out)?
 
@@ -104,7 +104,7 @@ Japanese is deferred. The ranking functions (`BM25Index`, `rank_all_scenes`,
 3. Rank all 82 scenes by BM25 score (ties break in narrative order) and record
    where each gold chapter first appears.
 4. Print five tables (1 and 3–5 mirror `sweep_vector.py` so the two retrievers read
-   side by side; 2 is the per-question row-level view; 5 is the PLAN.md
+   side by side; 2 is the per-question row-level view; 5 is the dense-miss
    cross-reference).
 
 - **Input**: `questions-<lang>.jsonl` (50 questions, ROOT-level) and
@@ -117,8 +117,8 @@ BM25 matches dense retrieval on coverage@k but recovers almost all of dense's
 misses — the orthogonal-failure hypothesis holds, which is the precondition for
 a hybrid:
 
-- **BM25 recovers 6/7 dense retrieval misses at k≤5, 7/7 at k≤10.** PLAN.md's
-  named misses all land inside BM25's top band: the signet ring (Q31, Ch21/23
+- **BM25 recovers 6/7 dense retrieval misses at k≤5, 7/7 at k≤10.** The named
+  dense-retrieval misses all land inside BM25's top band: the signet ring (Q31, Ch21/23
   at rank 5/3 — all three gold chapters missed by dense's top-5), the Emperor
   of Delhi (Q49, Ch22 at rank 5), Muktiyar Khan's assassination (Q27, Ch33 at
   rank 9). The only miss not recovered at k=5 is Q43 (first gold rank 6), and
@@ -157,8 +157,8 @@ and asks whether a hybrid recovers both retrievers' misses *simultaneously*.
 Four strategies are compared so the choice between rank-blending and
 score-blending is empirical, not assumed:
 
-- **RRF (Reciprocal Rank Fusion)** — blends ranks, not scores. The PLAN.md
-  choice, because both retrievers' scores fail to separate gold (F1 ≈ 0.36–0.38)
+- **RRF (Reciprocal Rank Fusion)** — blends ranks, not scores, because both
+  retrievers' scores fail to separate gold (F1 ≈ 0.36–0.38)
   while rank (k) is the lever for both, and rank-blending sidesteps the
   unbounded-BM25 vs. bounded-cosine scale mismatch:
 
@@ -170,7 +170,7 @@ score-blending is empirical, not assumed:
   reciprocal shape (vs. any rank-blend) matters.
 
 - **CombSUM** — min-max normalizes each retriever's scores to [0, 1] and sums
-  them. The score-based baseline PLAN.md argues *against*: it inherits both
+  them. The score-based baseline argued *against*: it inherits both
   retrievers' score-blindness, so it should underperform the rank-blends.
 
 - **Union oracle** — the per-k set-theoretic upper bound: coverage if the
@@ -246,7 +246,7 @@ top-k.
 
 ### Dense-miss recovery
 
-For the seven questions dense top-5 dropped a gold chapter (the PLAN.md named
+For the seven questions dense top-5 dropped a gold chapter (the named dense
 misses plus Q49), the first-gold-rank under each method:
 
 | qid | gold | 1st Dense | 1st BM25 | 1st RRF | 1st Borda | 1st CombSUM |

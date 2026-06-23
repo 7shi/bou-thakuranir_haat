@@ -6,7 +6,7 @@ retrieval strategies — **Extraction** (summarize) and **Filter** (yes/maybe/no
 relevance) — as alternative ways to surface the chapters the answerer sees,
 with a **Ceiling** run (gold chapters fed directly as context) to establish a
 perfect-retrieval upper bound that isolates the answer model's reading
-comprehension. See [PLAN.md](PLAN.md) for the goal and remaining work.
+comprehension.
 
 The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 
@@ -77,8 +77,10 @@ Answering and judging complete for both languages for Vector and Extract (see
 Ceiling are wired into the pipeline and have been run for English (Japanese
 pending); run [`make filter2`](#pipeline-makefile) /
 [`make filter3`](#pipeline-makefile) / [`make ceiling`](#pipeline-makefile)
-with `-l ja` to fill the Japanese rows. The BM25 and hybrid retrieval analyses
-are standalone (English only); see [HYBRID.md](HYBRID.md).
+with `-l ja` to fill the Japanese rows. **Hybrid** (dense ∪ BM25 union) is
+English-only and built into the default `make` (via `make judge` for `LANG=en`);
+the BM25 and hybrid retrieval analyses remain standalone scripts
+(`bm25.py` / `hybrid.py`, run directly) — see [HYBRID.md](HYBRID.md).
 
 The scripts form the pipeline (Filter and Ceiling are opt-in):
 
@@ -87,6 +89,7 @@ The scripts form the pipeline (Filter and Ceiling are opt-in):
 - `answer_extract.py` — Per-chapter extraction answering → `results-<lang>/extract.jsonl`
 - `answer_filter.py` — Per-chapter relevance filter, the LLM as retriever (yes/no, yes/maybe/no, integer 0–10/0–100, or five-axis); see [FILTER.md](FILTER.md) for details → `results-<lang>/filter2.jsonl`, `filter3.jsonl`, or `filter{V}.tsv` verdict files (opt-in)
 - `answer_ceiling.py` — Gold-chapter context, no retrieval → `results-<lang>/ceiling.jsonl` (opt-in)
+- `answer_hybrid.py` — dense ∪ BM25 union ([HYBRID.md](HYBRID.md) Union approach), Phase 2 QA → `results-<lang>/hybrid<k>.jsonl` (English only; built into `make judge` for `LANG=en`)
 - `judge.py` — LLM grading of answers vs. gold → `results-<lang>/judge-<stem>.jsonl`
 - `report.py` — accuracy + chapter retrieval comparison + pairwise disagreement analysis (terminal table)
 - `sweep_vector.py` — retrieval-depth / threshold sweep vs. gold chapters
@@ -105,7 +108,8 @@ The scripts form the pipeline (Filter and Ceiling are opt-in):
   pipeline); see [FILTER.md](FILTER.md)
 
 `answer.py` holds the shared helpers (`LANGS`, `PART_RANGES`, `load_questions`,
-`load_chapters`, `answer_question`) imported by all four answer scripts.
+`load_chapters`, `answer_question`) imported by all five answer scripts
+(vector / extract / filter / ceiling / hybrid).
 
 ## Pipeline (`Makefile`)
 
@@ -114,12 +118,12 @@ whole evaluation runs with a single command (models left to each script's
 default). Run from this directory:
 
 ```sh
-make                    # full English pipeline (LANG=en, the default goal)
-make ja                 # full Japanese pipeline
-make all                # both languages
-make LANG=ja vector judge  # individual steps for one language
-make K=10 vector        # Vector at k=10 → results-<lang>/vector10.jsonl
-make clean              # remove generated answers/judgements (keeps the index)
+make                 # full English pipeline (LANG=en, the default goal; includes Hybrid k=5/10 via `make judge`)
+make ja              # full Japanese pipeline (no Hybrid — BM25 is English-only)
+make all             # both languages
+make vector K=10     # Vector at k=10 → results-<lang>/vector10.jsonl
+make vector LANG=ja  # individual steps for one language
+make clean           # remove generated answers/judgements (keeps the index)
 ```
 
 Standalone retrieval analyses (no LLM, independent of the pipeline):
@@ -127,7 +131,7 @@ Standalone retrieval analyses (no LLM, independent of the pipeline):
 ```sh
 make sweep              # dense retrieval depth/threshold sweep (needs ollama)
 make bm25               # BM25 sparse retrieval gold-coverage analysis
-make hybrid             # dense+BM25 fusion vs. union oracle (needs ollama)
+uv run hybrid.py -l en  # dense+BM25 fusion (RRF/Borda/CombSUM) vs. union oracle (needs ollama; no `make` alias — `make hybrid` drives the Phase 2 QA)
 ```
 
 Each step's **output file is the real target**, so Make skips anything already
@@ -294,6 +298,83 @@ chapter the retrieval step failed to surface, while a Ceiling loss (Ceiling
 `incorrect` but the retrieval method `correct`) would indicate the extra
 context the retriever surfaced actually helped more than the gold set alone.
 
+## `answer_hybrid.py`
+
+The Phase 2 QA realization of the **Union** approach proven in
+[HYBRID.md](HYBRID.md): the retrieval analysis showed fusing dense + BM25 into
+a single ranking (RRF/Borda/CombSUM) underperforms dense alone at k=5, while
+taking the set-theoretic **union** of the two retrievers' top-k chapter sets
+beats dense by +4 strict recall at both k=5 (40/50) and k=10 (46/50),
+parameter-free. This script turns that retrieval gain into an answer-accuracy
+measurement — does surfacing +4 gold chapters actually improve the answer, or
+does the ~1.4× larger context cause "lost in the middle" synthesis failures
+that offset it?
+
+It mirrors [`answer_vector.py`](#answer_vectorpy) almost exactly — the only
+difference is the retrieval step runs **both** retrievers and unions their hits
+before the same ±N expansion and answering:
+
+1. Embed the question (dense) and tokenize it (BM25).
+2. Retrieve dense top-k scenes and BM25 top-k scenes.
+3. **Union** the two hit sets (set-theoretic, deduped by scene).
+4. Expand each hit by ±N scenes within its chapter; merge overlapping ranges
+   (reusing [`answer_vector.expand_and_merge`](#answer_vectorpy)).
+5. Build a context block with `[Chapter N, Scene M — Title]` labels and answer
+   (reusing [`answer.answer_question`](#answerpy) with Vector RAG's preamble,
+   so the only difference from `vector<k>.jsonl` is the retrieved context).
+
+**Tie-breaking matters.** Both retrievers rank scenes with a **stable** sort
+(`sorted(range(n), ..., reverse=True)`), matching `bm25.py` / `sweep_vector.py`
+/ `hybrid.py` rather than `answer_vector.top_k_search`'s non-stable
+`np.argsort()[::-1]`. The [HYBRID.md](HYBRID.md) strict-recall numbers (40/50
+@ k=5, 46/50 @ k=10) were measured under the stable tie-break, so the union hit
+set must be selected identically here or the +4 retrieval gain may not
+reproduce.
+
+- **Input**: `questions-<lang>.jsonl` (50 questions, ROOT-level), the embedding
+  index `index-<lang>.safetensors` (dense side), and the raw scene text
+  `all/<lang>-gemini.jsonl` + `.tsv` (BM25 side).
+- **Output**: `results-<lang>/hybrid<k>.jsonl` (e.g. `hybrid5.jsonl` for the
+  default `k=5`, `hybrid10.jsonl` for `-k 10`) — one record per question:
+  - `question_id` — 1-origin line number in the input file
+  - `hits` — per-retriever top-k as `{"dense": {...}, "bm25": {...}}` (cosine
+    and BM25 scores are on incompatible scales, so they are kept separate
+    rather than fused into one dict)
+  - `expanded` — all scenes included in the context as `"chapter:segment"` strings
+  - `answer` — the model's answer
+- **English only**: BM25 tokenization is English-only (lowercase + `[a-z0-9]+`
+  + stopword removal, no morphology), so `-l ja` exits with an error, matching
+  `hybrid.py`. Japanese is deferred.
+
+Resume-safe: re-running skips question IDs already present in the output file.
+The k-aware filename mirrors `vector<k>.jsonl` so the two depths coexist;
+`judge-hybrid<k>.jsonl` follows automatically.
+
+### Pipeline integration
+
+Hybrid is built into the default English pipeline via `make judge` (the
+aggregate conditionally adds `judge-hybrid5.jsonl` / `judge-hybrid10.jsonl`
+when `LANG=en`, so `make ja` is unaffected). [`report.py`](#reportpy)
+auto-discovers `hybrid<k>.jsonl` with a matching judge file into a `Hybrid k=<k>`
+row, placed after the Vector variants and before Extract — so the union sits
+beside its dense-only peer as a direct retrieval comparison. Run
+`make hybrid` (k=5, the default) or `make hybrid K=10` to build just the answer
+file, or `make hybrid-judge` for both depths plus their judgements.
+
+### Relation to the retrieval analysis
+
+The retrieval coverage (40/50 strict @ k=5, 46/50 @ k=10) is the upper bound on
+what Hybrid Phase 2 can score — an answer cannot benefit from a chapter the
+retriever surfaced if the answerer then mis-synthesizes it. The gap between
+Hybrid's retrieval coverage and its Phase 2 accuracy is the **synthesis cost**
+of the ~1.4× larger context (~24 expanded scenes vs dense's ~17 at k=10). Per
+[FILTER.md](FILTER.md), Ceiling = 0.990 shows over-inclusion is harmless on the
+*gold* set, but Hybrid feeds a 11-chapter union rather than the ~1.7
+gold-chapter average — the Phase 2 run is the empirical test of whether that
+larger non-gold context triggers "lost in the middle" failures. See
+[HYBRID.md § Context size](HYBRID.md#context-size-with-±n-expansion) for the
+expansion counts.
+
 ## `judge.py`
 
 Grades the candidate answers in one or more result files against the gold
@@ -374,13 +455,16 @@ Both axes are broken down by gold `type` (`all` / `single` / `cross`).
 **Method discovery**: rows are auto-discovered from the results directory. Each
 `vector<k>.jsonl` with a matching `judge-vector<k>.jsonl` becomes a row —
 labelled `Vector k=<k>` (e.g. `vector5.jsonl` → `Vector k=5`,
-`vector10.jsonl` → `Vector k=10`) — and Extract, then Filter2, then Filter3,
-then Ceiling, are appended when both their files exist. Rows are ordered:
-`Vector k=5`, then `Vector k=<k>` by ascending `k`, then Extract, then Filter2,
-then Filter3, then Ceiling — so a newly judged retrieval depth or a new
-per-chapter method appears with no code change, the stricter two-level filter
-sits ahead of its looser three-level counterpart, and Ceiling anchors the table
-last as the perfect-retrieval upper bound that strips out retrieval entirely.
+`vector10.jsonl` → `Vector k=10`) — and `hybrid<k>.jsonl` with a matching
+`judge-hybrid<k>.jsonl` becomes `Hybrid k=<k>`. Then Extract, then Filter2,
+then Filter3, then Ceiling, are appended when both their files exist. Rows are
+ordered: `Vector k=5`, then `Vector k=<k>` by ascending `k`, then
+`Hybrid k=<k>` by ascending `k`, then Extract, then Filter2, then Filter3,
+then Ceiling — so a newly judged retrieval depth or a new per-chapter method
+appears with no code change, the union sits beside its dense-only Vector peer,
+the stricter two-level filter sits ahead of its looser three-level counterpart,
+and Ceiling anchors the table last as the perfect-retrieval upper bound that
+strips out retrieval entirely.
 
 ### Pairwise disagreement analysis
 
@@ -441,7 +525,7 @@ the frontier:
 - **A global cosine threshold is a poor lever.** Best `τ*≈0.50` (F1 0.38) —
   dense cosine barely separates gold scenes from topically-similar non-gold
   ones, so **rank (k), not score, is the lever.** Motivation for the BM25
-  hybrid in [PLAN.md](PLAN.md).
+  hybrid in [HYBRID.md](HYBRID.md).
 - **Per-question gaps confirm the case study.** The 6 Vector retrieval misses
   (Q27, 28, 31, 36, 43, 45; plus Q49) all rank gold >5 with gaps of just
   +0.00–+0.07.
@@ -464,7 +548,7 @@ tokenization (lowercase + `[a-z0-9]+` + stopword removal), so Japanese is
 deferred. The ranking functions (`BM25Index`, `rank_all_scenes`, `tokenize`)
 are importable so [`hybrid.py`](#hybridpy) reuses them without reimplementing.
 
-Read alongside `sweep_vector.py` to answer the question [PLAN.md](PLAN.md) poses —
+Read alongside `sweep_vector.py` to answer the question —
 does sparse lexical matching recover the chapters dense retrieval drops (the
 low-frequency proper nouns embeddings wash out)? **It does:** BM25 recovers
 6/7 of dense's top-5 misses at k≤5, 7/7 at k≤10 — the orthogonal-failure
@@ -489,6 +573,20 @@ running both retrievers independently and taking the union of their top-k
 chapters — which scores 40/50 (k=5) and 46/50 (k=10) with no tunable
 parameters. Four questions remain unrecoverable by either retriever. Full
 analysis in [HYBRID.md](HYBRID.md).
+
+## Out of scope
+
+Directions explicitly not pursued (see [HYBRID.md](HYBRID.md) and
+[FILTER.md](FILTER.md) for the analyses behind these boundaries):
+
+- **Whole-text-in-context baselines with cloud models.**
+- **Opening the 4 shared blind spots** (Q31 Ch22, Q32 Ch15, Q38 Ch32, Q42 Ch23
+  — gold chapters that both dense and BM25 rank outside the top-10; see
+  [HYBRID.md § Shared blind spots](HYBRID.md#shared-blind-spots)). No blend of
+  the two retrievers reaches them — opening them needs a different retrieval
+  mechanism (query expansion or multi-query), not a better blend. The
+  five-axis Filter does surface them but at a precision (0.120) that makes it
+  impractical ([FILTER.md](FILTER.md)).
 
 ## `ref/`
 

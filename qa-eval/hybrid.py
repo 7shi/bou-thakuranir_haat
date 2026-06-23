@@ -3,15 +3,15 @@
 
 Standalone script in the ``sweep_vector.py`` / ``bm25.py`` lineage (no LLM output,
 no answer file — terminal tables only). It fuses the two retrievers' rankings
-and asks the question [PLAN.md](PLAN.md) poses: does a hybrid recover both
+and asks the question: does a hybrid recover both
 retrievers' misses *simultaneously* — i.e. does its covered set equal the
 set-theoretic union of dense and BM25 coverage at each k?
 
 Four fusion strategies are compared so the choice between rank-blending and
 score-blending is empirical, not assumed:
 
-- **RRF (Reciprocal Rank Fusion)** — blends ranks, not scores. The PLAN.md
-  choice, because both retrievers' scores fail to separate gold (F1 ≈ 0.36–0.38)
+- **RRF (Reciprocal Rank Fusion)** — blends ranks, not scores, because both
+  retrievers' scores fail to separate gold (F1 ≈ 0.36–0.38)
   while rank (k) is the lever for both, and rank-blending sidesteps the
   unbounded-BM25 (≈ [0, 30]) vs. bounded-cosine ([-1, 1]) scale mismatch::
 
@@ -23,7 +23,7 @@ score-blending is empirical, not assumed:
   isolates whether RRF's reciprocal shape (vs. any rank-blend) matters.
 
 - **CombSUM** — min-max normalizes each retriever's scores to [0, 1] and sums
-  them. The score-based baseline PLAN.md argues *against*: it inherits both
+  them. The score-based baseline argued *against*: it inherits both
   retrievers' score-blindness, so it should underperform the rank-blends.
   Confirming that here is part of the comparison.
 
@@ -359,7 +359,7 @@ def print_provenance_table(method_recs: dict[str, dict[int, dict]],
 
     For each gold chapter, a three-letter code shows membership in the top-k
     of Dense (D), BM25 (B), and RRF (R); '·' means missed. The summary tallies
-    the PLAN.md union property: does RRF's covered set equal dense ∪ BM25, or
+    the union property: does RRF's covered set equal dense ∪ BM25, or
     does the rank-blend suppress some union hits / recover some neither finds?
     """
     rrf_recs = method_recs["RRF"]
