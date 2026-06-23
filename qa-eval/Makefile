@@ -29,6 +29,7 @@
 #   make ceiling    # opt-in: gold-chapter context ceiling (answer + judge)
 #   make sweep      # retrieval sweep (independent of the pipeline; no LLM)
 #   make bm25       # BM25/lexical retrieval gold-coverage analysis vs. dense (no LLM)
+#   make hybrid     # dense+BM25 fusion (RRF/Borda/CombSUM) vs. union oracle (no LLM output)
 #   make filter     # filter10 verdicts + score-distribution analysis (no LLM)
 #   make filter SCALE=100  # filter100 occurrence count only (no LLM)
 #   make filter5d   # five-axis verdicts + sum/per-axis/floor analysis (no LLM)
@@ -66,7 +67,7 @@ ifneq ($(K),)
 RAG_FILE := $(RESULTS)/rag-$(K).jsonl
 endif
 
-.PHONY: en ja all pipeline index rag extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter5d-tsv filter filter5d ceiling judge report sweep bm25 clean
+.PHONY: en ja all pipeline index rag extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter5d-tsv filter filter5d ceiling judge report sweep bm25 hybrid clean
 .DEFAULT_GOAL := en
 
 en:
@@ -111,6 +112,17 @@ sweep: $(INDEX) $(QUESTIONS)
 # the PLAN.md question that motivates the future hybrid. See bm25.py.
 bm25: $(SCENES) $(TSV) $(QUESTIONS)
 	uv run bm25.py -l $(LANG)
+
+# Hybrid retrieval (dense + BM25) gold-coverage analysis. Fuses the dense
+# (cosine) ranking from sweep_rag.py and the BM25 ranking from bm25.py via
+# several strategies — RRF (rank-blend, the PLAN.md choice), Borda (rank-blend,
+# linear decay), CombSUM (normalized score-sum) — and compares against the
+# per-k Union oracle (the set-theoretic upper bound). Answers the PLAN.md
+# question: does a rank-blend recover both retrievers' misses simultaneously?
+# No LLM output, terminal tables only. Needs the dense index (ollama embed for
+# the query side) and the raw scene text (BM25 side). English only.
+hybrid: $(INDEX) $(SCENES) $(TSV) $(QUESTIONS)
+	uv run hybrid.py -l $(LANG)
 
 # filter{10,100} score-distribution / threshold-sweep analysis (terminal output
 # only, no LLM). SCALE selects which verdict TSV to read: 10 → filter10.tsv

@@ -36,7 +36,7 @@ retrieval depth: **bumping RAG to `k=10`** (English) lifts 0.830 → 0.920,
 exactly what [`sweep_rag.py`](#sweep_ragpy) predicted (`k=5` was tight; deeper
 retrieval surfaces the chapters the top-5 missed). What `k=10` *cannot* fix is
 dense-retrieval blindness — load-bearing chapters that rank outside the top-10
-at both depths, which motivates the BM25/lexical hybrid in [PLAN.md](PLAN.md).
+at both depths, which motivates the BM25/lexical hybrid in [HYBRID.md](HYBRID.md).
 
 The **Filter** rows use the LLM itself as the retriever (per-chapter relevance,
 answer from the full text of the kept chapters). Filter3 posts the table's top
@@ -77,7 +77,8 @@ Answering and judging complete for both languages for RAG and Extract (see
 Ceiling are wired into the pipeline and have been run for English (Japanese
 pending); run [`make filter2`](#pipeline-makefile) /
 [`make filter3`](#pipeline-makefile) / [`make ceiling`](#pipeline-makefile)
-with `-l ja` to fill the Japanese rows.
+with `-l ja` to fill the Japanese rows. The BM25 and hybrid retrieval analyses
+are standalone (English only); see [HYBRID.md](HYBRID.md).
 
 The scripts form the pipeline (Filter and Ceiling are opt-in):
 
@@ -92,7 +93,10 @@ The scripts form the pipeline (Filter and Ceiling are opt-in):
   (terminal tables only; no LLM, independent of the pipeline)
 - `bm25.py` — BM25/lexical retrieval gold-coverage analysis vs. dense
   (terminal tables only; no LLM, independent of the pipeline);
-  the sparse-retrieval sibling of sweep_rag.py
+  the sparse-retrieval sibling of sweep_rag.py; see [HYBRID.md](HYBRID.md)
+- `hybrid.py` — dense+BM25 fusion (RRF/Borda/CombSUM) vs. union oracle
+  (terminal tables only; no LLM, independent of the pipeline);
+  see [HYBRID.md](HYBRID.md)
 - `filter.py` — Filter10 score-distribution / threshold-sweep analysis and
   filter2/3 crosstab (terminal tables only; no LLM, independent of the
   pipeline); see [FILTER.md](FILTER.md)
@@ -116,6 +120,14 @@ make all                # both languages
 make LANG=ja rag judge  # individual steps for one language
 make K=10 rag           # RAG at k=10 → results-<lang>/rag-10.jsonl
 make clean              # remove generated answers/judgements (keeps the index)
+```
+
+Standalone retrieval analyses (no LLM, independent of the pipeline):
+
+```sh
+make sweep              # dense retrieval depth/threshold sweep (needs ollama)
+make bm25               # BM25 sparse retrieval gold-coverage analysis
+make hybrid             # dense+BM25 fusion vs. union oracle (needs ollama)
 ```
 
 Each step's **output file is the real target**, so Make skips anything already
@@ -446,86 +458,37 @@ fraction of gold chapters in the top-k — because the goal is the coverage-vs-k
 Standalone BM25/lexical retrieval script (no LLM, no output file — terminal
 tables only). Sibling of [`sweep_rag.py`](#sweep_ragpy): same scene unit, same
 gold-coverage lens, but ranks scenes by **Okapi BM25** on the literal scene
-text instead of cosine on the dense embedding index. Read the two side by side
-to answer the question [PLAN.md](PLAN.md) poses — does sparse lexical matching
-recover the chapters dense retrieval drops (the low-frequency proper nouns
-embeddings wash out)?
+text instead of cosine on the dense embedding index. Pure stdlib (`re` +
+`collections` + `math`), k1=1.5, b=0.75 (standard Okapi defaults); English-only
+tokenization (lowercase + `[a-z0-9]+` + stopword removal), so Japanese is
+deferred. The ranking functions (`BM25Index`, `rank_all_scenes`, `tokenize`)
+are importable so [`hybrid.py`](#hybridpy) reuses them without reimplementing.
 
-The BM25 implementation is pure stdlib (`re` + `collections` + `math`), k1=1.5,
-b=0.75 (standard Okapi defaults). Tokenization is English-only (lowercase +
-`[a-z0-9]+` + stopword removal); no morphology, so Japanese is deferred. The
-ranking functions (`BM25Index`, `rank_all_scenes`, `tokenize`) are importable so
-the future hybrid (RRF or a weighted blend of cosine + BM25) can reuse them
-without reimplementing.
+Read alongside `sweep_rag.py` to answer the question [PLAN.md](PLAN.md) poses —
+does sparse lexical matching recover the chapters dense retrieval drops (the
+low-frequency proper nouns embeddings wash out)? **It does:** BM25 recovers
+6/7 of dense's top-5 misses at k≤5, 7/7 at k≤10 — the orthogonal-failure
+precondition for a hybrid. But the two retrievers also share 4 blind spots
+neither can reach. Full findings, the five-table breakdown, and the fusion
+analysis are in [HYBRID.md](HYBRID.md).
 
-**Algorithm**
+## `hybrid.py`
 
-1. Tokenize each scene document (title + body) and build a BM25 index over the
-   corpus.
-2. For each question, tokenize the question and score every scene.
-3. Rank all 82 scenes by BM25 score (ties break in narrative order) and record
-   where each gold chapter first appears.
-4. Print five tables.
+Standalone fusion analysis script (no LLM, no output file — terminal tables
+only). Fuses the dense (cosine) ranking from [`sweep_rag.py`](#sweep_ragpy) and
+the BM25 ranking from [`bm25.py`](#bm25py) via several strategies — **RRF**
+(rank-blend, reciprocal decay), **Borda** (rank-blend, linear decay), and
+**CombSUM** (normalized score-sum) — and compares against the per-k **Union
+oracle** (the set-theoretic upper bound). Needs the dense index (ollama embed
+for the query side) and the raw scene text (BM25 side); English only.
 
-- **Input**: `questions-<lang>.jsonl` (50 questions, ROOT-level) and
-  `all/<lang>-gemini.jsonl` + `.tsv` (scene text + titles). No embedding index,
-  no ollama — reads the raw scene text directly.
-
-Five terminal tables (1 and 3–5 mirror `sweep_rag.py` so the two retrievers read
-side by side; 2 is the per-question row-level view; 5 is the PLAN.md
-cross-reference):
-
-1. **Chapter coverage@k** — fraction of gold chapters with a scene in the
-   top-k (k = 1…82), broken down by `type`.
-2. **Per-question gold coverage at k=5 and k=10** — `|gold ∩ top-k chapters| /
-   |gold|` per question in `x/y` form, with `✓` on full coverage. This is the
-   row-level view behind Table 1's means: which questions each depth fully
-   covers and which it drops.
-3. **BM25-score threshold sweep** — pooling `scene.chapter ∈ gold` as
-   positives, sweep percentiles of the pooled BM25-score distribution for
-   P/R/F1; best `τ*` tests whether a global cutoff can separate relevant from
-   irrelevant scenes.
-4. **Per-question ranks + separation gap** — first gold rank, best gold-chapter
-   score, and the gap to the next non-gold hit. Questions whose first gold hit
-   lands outside k=5 are flagged (`*`) — BM25's retrieval misses.
-5. **Dense-miss cross-reference** — for the questions dense retrieval dropped
-   (the six genuine misses of [PLAN.md](PLAN.md) plus Q49), where BM25 ranks
-   each gold chapter — the direct "does BM25 recover what dense dropped?" view.
-
-### Findings
-
-English run. BM25 matches dense retrieval on coverage@k but recovers almost
-all of dense's misses — the orthogonal-failure hypothesis holds, which is the
-precondition for a hybrid:
-
-- **BM25 recovers 6/7 dense retrieval misses at k≤5, 7/7 at k≤10.** PLAN.md's
-  named misses all land inside BM25's top band: the signet ring (Q31, Ch21/23
-  at rank 5/3 — all three gold chapters missed by dense's top-5), the Emperor
-  of Delhi (Q49, Ch22 at rank 5), Muktiyar Khan's assassination (Q27, Ch33 at
-  rank 9). The only miss not recovered at k=5 is Q43 (first gold rank 6), and
-  it enters at k≤10. Dense and sparse fail on orthogonal cases — exactly the
-  precondition for a rank-blended hybrid to recover what either alone misses.
-- **Per-question coverage (Table 2).** Global gold coverage is **64/86 at k=5
-  (0.744), 74/86 at k=10 (0.860)**; strict recall (gold ⊆ top-k) is **33/50
-  → 41/50**. Every `single` question is fully covered at both depths; all the
-  drops are `cross`. At k=5, 17 of 25 cross questions lose at least one gold
-  chapter, and four cross questions (Q32, Q42, Q44, Q50) still miss gold at
-  k=10 — the same indirectly-relevant chapters dense retrieval also struggles
-  with, where the literal question terms do not appear in the gold scene.
-- **Coverage@k parity with dense.** BM25 at k=5: single 1.00, cross 0.66
-  (dense: single 1.00, cross 0.71). Single is trivial for both; cross is the
-  frontier for both, and the two retrievers drop *different* cross chapters —
-  so the residual gap each leaves is exactly what the other fills.
-- **A global BM25 threshold is also a poor lever.** Best `τ*≈9.69` (F1 0.36),
-  on par with cosine's F1≈0.38. Neither score separates gold from
-  topically-similar non-gold scenes, so **rank (k) is the lever for both
-  retrievers** — and rank-blending two rankings (RRF) is the natural next step
-  rather than a score-weighted blend of unbounded BM25 vs. bounded cosine.
-- **Per-question gaps are large for single, thin for cross.** Single questions
-  sit at first-gold rank 1–2 with gaps of +8 to +29; cross questions hover at
-  rank 1–6 with gaps of +0.05 to +0.72 — BM25, like dense, finds cross
-  chapters but interleaves them with near-misses. The thin cross margin is
-  where a hybrid earns its keep.
+The verdict: **fusing into a single ranking does not beat dense alone at k=5**
+(RRF suppresses more hits than it recovers), and the RRF parameter sweep's
+gains are overfit to the 50-question test set. The robust win is the Union —
+running both retrievers independently and taking the union of their top-k
+chapters — which scores 40/50 (k=5) and 46/50 (k=10) with no tunable
+parameters. Four questions remain unrecoverable by either retriever. Full
+analysis in [HYBRID.md](HYBRID.md).
 
 ## `ref/`
 

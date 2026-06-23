@@ -8,6 +8,29 @@ variants (**Filter2 / Filter3 / Filter10 / Filter100 / Filter5d**), the
 standalone analysis scripts, the findings from the English run, and the final
 verdict on where this strategy lands relative to Vector RAG.
 
+## Coverage at a glance
+
+Retrieval metrics by filter variant (50 questions, 86 gold chapter-pairs), with
+RAG and Ceiling as reference points. Strict recall = fraction of questions
+where gold ⊆ kept; partial recall = mean |gold ∩ kept| / |gold|; Phase 2
+score = `(correct + 0.5·partial) / 50` (from [README](README.md#results)).
+
+| method | strict recall | partial recall | avg kept | gold floor | Phase 2 score |
+|---|---:|---:|---:|---:|---:|
+| Filter2 (keep `yes`) | 0.60 | 0.73 | 1.3 | 33/86 | 0.790 |
+| Filter3 (keep ≠ `no`) | 0.88 | 0.92 | 2.3 | 12/86 | 0.930 |
+| Filter10 ≥3 (F1 peak) | 0.76 | 0.86 | 1.7 | 7/86 | — |
+| Filter100 (any threshold) | — | — | — | 11/86 | — |
+| Filter5d sum ≥5 | **1.00** | **1.00** | 14.3 | **0/86** | — |
+| *RAG k=10 (reference)* | — | 0.84 | — | — | 0.920 |
+| *Ceiling (reference)* | 1.00 | 1.00 | — | 0 | 0.990 |
+
+Gold floor = gold chapters unrecoverable at any keep threshold (scored 0 under
+the numeric variants, or marked `no` under the verdict variants). Filter5d
+eliminates the floor (0/86) but only by keeping ~14 chapters/question — the
+floor-vs-excess trade-off that is the method's hard limit (see
+[Verdict](#verdict)).
+
 ## Verdict
 
 **The LLM-as-retriever has no practical advantage over Vector RAG.**
