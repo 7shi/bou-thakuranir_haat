@@ -21,6 +21,8 @@ with `ollama:qwen3.6`. The table reports `correct`/50 with the weighted score
 | --- | --- | --- |
 | Vector k=5 | 39/50 (0.830) | 38/50 (0.810) |
 | Vector k=10 | 44/50 (0.920) | — |
+| Hybrid k=5 | 43/50 (0.910) | — |
+| Hybrid k=10 | 47/50 (0.960) | — |
 | Extract | 39/50 (0.830) | 40/50 (0.850) |
 | Filter2 | 36/50 (0.790) | — |
 | Filter3 | 45/50 (0.930) | — |
@@ -36,13 +38,18 @@ retrieval depth: **bumping Vector to `k=10`** (English) lifts 0.830 → 0.920,
 exactly what [`sweep_vector.py`](#sweep_vectorpy) predicted (`k=5` was tight; deeper
 retrieval surfaces the chapters the top-5 missed). What `k=10` *cannot* fix is
 dense-retrieval blindness — load-bearing chapters that rank outside the top-10
-at both depths, which motivates the BM25/lexical hybrid in [HYBRID.md](HYBRID.md).
+at both depths. The **Hybrid** (dense ∪ BM25 union) breaks through that
+frontier: at `k=10` it reaches **0.960**, recovering the three
+lexically-distinctive cross-reference chapters that dense embedding cannot rank
+— see [HYBRID.md](HYBRID.md) for the retrieval analysis and
+[results-en/README.md](results-en/README.md#hybrid-dense--bm25-union) for the
+per-question breakdown.
 
 The **Filter** rows use the LLM itself as the retriever (per-chapter relevance,
-answer from the full text of the kept chapters). Filter3 posts the table's top
-Phase 2 score (0.930) but at hundreds of times Vector's cost, with no retrieval
-advantage once the gold floor is taken into account — see
-[FILTER.md](FILTER.md) for the full analysis and verdict. The per-question
+answer from the full text of the kept chapters). Filter3 posts the best
+per-chapter score (0.930) but at hundreds of times Vector's cost and trailing
+Hybrid k=10 (0.960) — see [FILTER.md](FILTER.md) for the full analysis and
+verdict. The per-question
 detail is in the case studies:
 [English](results-en/README.md) · [Japanese](results-ja/README.md).
 
@@ -52,9 +59,11 @@ gold chapters verbatim as context (no retrieval at all) lands at **0.990** —
 precision both 1.000 by construction. No method ever beats Ceiling: its lead
 over each is the pure cost of that method's retrieval, and the gradient tracks
 retrieval quality exactly — Ceiling beats Filter2 on 14, Extract on 11, Vector k=5
-on 10, Vector k=10 on 5, and Filter3 on just 4. That four-question gap to Filter3
-is the whole remaining retrieval residual: three are the confident-wrong-`no`
-wipeouts (Q32, Q34, Q42) and one a synthesis slip (Q37). The lone Ceiling loss
+on 10, Hybrid k=5 on 6, Vector k=10 on 5, Filter3 on 4, and Hybrid k=10 on just 2.
+**Hybrid k=10 is the closest retrieval method to Ceiling**: its two-question residual
+is one synthesis regression (Q22, where the wider union context confuses the answerer
+on a single-passage question) and one shared blind spot neither retriever can reach
+(Q32, Ch15). The lone Ceiling loss
 (Q48, partial) is a pure synthesis failure — the paranoid "whisper-to-servant
 = insult plot" detail is *in* Chapter 19's text, yet the model reads it as
 "acting for his sister's sake," confirming that Q48's resistance is an
@@ -77,8 +86,10 @@ Answering and judging complete for both languages for Vector and Extract (see
 Ceiling are wired into the pipeline and have been run for English (Japanese
 pending); run [`make filter2`](#pipeline-makefile) /
 [`make filter3`](#pipeline-makefile) / [`make ceiling`](#pipeline-makefile)
-with `-l ja` to fill the Japanese rows. **Hybrid** (dense ∪ BM25 union) is
-English-only and built into the default `make` (via `make judge` for `LANG=en`);
+with `-l ja` to fill the Japanese rows. **Hybrid** (dense ∪ BM25 union)
+answering and judging complete for English at k=5 and k=10 (built into the
+default `make` via `make judge` for `LANG=en`; BM25 is English-only so Japanese
+is deferred);
 the BM25 and hybrid retrieval analyses remain standalone scripts
 (`bm25.py` / `hybrid.py`, run directly) — see [HYBRID.md](HYBRID.md).
 
