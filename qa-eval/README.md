@@ -14,13 +14,16 @@ The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 
 50 questions per language, judged against a Gemini full-text gold standard
 with `ollama:qwen3.6`. The table reports `correct`/50 with the weighted score
-`(correct + 0.5·partial) / 50` in parentheses. Vector `k=10`, **Filter2**,
-**Filter3**, and **Ceiling** have been run for English only (Japanese pending).
+`(correct + 0.5·partial) / 50` in parentheses. **Vector-line** has been run for
+both languages; Vector `k=10`, **Hybrid**, **Filter2**, **Filter3**, and
+**Ceiling** are English only (Japanese pending).
 
 | Method | English | Japanese |
 | --- | --- | --- |
 | Vector k=5 | 39/50 (0.830) | 38/50 (0.810) |
 | Vector k=10 | 44/50 (0.920) | — |
+| Vector-line k=5 | 35/50 (0.800) | 35/50 (0.790) |
+| Vector-line k=10 | 41/50 (0.890) | 40/50 (0.840) |
 | Hybrid k=5 | 43/50 (0.910) | — |
 | Hybrid k=10 | 47/50 (0.960) | — |
 | Extract | 39/50 (0.830) | 40/50 (0.850) |
@@ -44,6 +47,26 @@ lexically-distinctive cross-reference chapters that dense embedding cannot rank
 — see [HYBRID.md](HYBRID.md) for the retrieval analysis and
 [results-en/README.md](results-en/README.md#hybrid-dense--bm25-union) for the
 per-question breakdown.
+
+**Line-level retrieval trades recall for precision and nets out below segment
+Vector.** `Vector-line` embeds one vector per line (rather than per scene) and
+resolves each line hit back to its containing segment for context; it scores
+0.800 (k=5) and 0.890 (k=10), below the segment-level 0.830 / 0.920 at both
+depths. The finer unit raises chapter precision (k=5 0.34→0.40, k=10 0.21→0.27)
+but lowers recall (k=5 0.72→0.66, k=10 0.84→0.78): single-passage saturates to
+1.000 at both depths (above segment k=5's 0.960), while every loss is a
+cross-reference retrieval miss where a gold chapter's relevant content is too
+diffuse for a single line to rank. The misses are *orthogonal* to segment
+Vector's — line granularity recovers a few chapters segment search drops (Q49
+Ch22, Q34 Ch31) while dropping others — but the net is negative, so segment-level
+retrieval remains the stronger dense baseline. **Japanese replicates the
+pattern**: line k=5 (0.790) sits just below segment k=5 (0.810) with the same
+precision-up / recall-down trade, and the orthogonal recoveries are even more
+pronounced (union strict recall lifts the segment k=5 baseline from 36/50 to
+41/50 at line k=5, 43/50 at line k=10). See
+[results-en/README.md](results-en/README.md#vector-line-line-level-retrieval) and
+[results-ja/README.md](results-ja/README.md#vector-line-line-level-retrieval) for
+the per-question breakdowns.
 
 The **Filter** rows use the LLM itself as the retriever (per-chapter relevance,
 answer from the full text of the kept chapters). Filter3 posts the best
@@ -174,6 +197,13 @@ Embeds every scene into a single `index-<lang>.safetensors`.
 - **Output**: a `[N, dim]` float32 `embeddings` tensor plus metadata —
   `embed_model`, `count`, and `scenes` (JSON array of
   `{chapter, segment, title, text}` in row order).
+- **`--line`**: embeds one vector per **non-blank line** (split on `\n`) instead
+  of per scene, each with the document prompt `title: "none" | text: {line}` (a
+  per-line title is more overhead than signal at this granularity). Output is
+  `index-line-<lang>.safetensors`; `scenes` then holds the per-line entries
+  (`{chapter, segment, line, text}`) and a new `segments` key holds the full
+  segment list so [`answer_vector.py --line`](#answer_vectorpy) can build
+  segment-level context from a line hit.
 
 ## `answer_vector.py`
 
@@ -202,6 +232,17 @@ Resume-safe: re-running skips question IDs already present in the output file.
 The k-aware filename lets a deeper retrieval run (e.g. `-k 10`) coexist with the
 `k=5` baseline rather than overwriting it; `judge.py` derives its output stem
 from the input, so `judge-vector10.jsonl` follows automatically.
+
+`--line` switches to **line-level** retrieval: it loads
+`index-line-<lang>.safetensors` (one vector per line, built by
+[`build_index.py --line`](#build_indexpy)), ranks lines instead of scenes, then
+resolves each hit line back to its containing segment before the same ±N
+expansion and answering. The only new step is the line→segment conversion;
+everything after it reuses the segment path verbatim. Output goes to
+`vector-line<k>.jsonl` (so it coexists with the segment-level `vector<k>.jsonl`),
+with `hits` keyed `chapter:segment:line` to preserve line provenance.
+Build/run with `make index LINE=1` / `make vector LINE=1`; plain `make judge`
+grades any `vector-line<k>.jsonl` already present.
 
 ## `answer_extract.py`
 

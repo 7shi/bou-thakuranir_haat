@@ -22,7 +22,8 @@ synthesis-only upper bound.
 
 Run: answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`, 50 questions
 (`questions-en.jsonl`, 25 single-passage + 25 cross-reference). Vector k=5 →
-`vector5.jsonl`; Vector k=10 → `vector10.jsonl`; Hybrid k=5 → `hybrid5.jsonl`;
+`vector5.jsonl`; Vector k=10 → `vector10.jsonl`; Vector-line k=5/k=10 →
+`vector-line5.jsonl` / `vector-line10.jsonl`; Hybrid k=5 → `hybrid5.jsonl`;
 Hybrid k=10 → `hybrid10.jsonl`; Filter2 → `filter2.jsonl`; Filter3 →
 `filter3.jsonl`; Ceiling → `ceiling.jsonl`.
 
@@ -31,32 +32,38 @@ Hybrid k=10 → `hybrid10.jsonl`; Filter2 → `filter2.jsonl`; Filter3 →
 ```
 scope    method         n correct partial incorrect  weighted ch.recall  ch.prec
 --------------------------------------------------------------------------------
-all      Vector k=5    50      39       5         6     0.830     0.720    0.337
-all      Vector k=10   50      44       4         2     0.920     0.840    0.205
-all      Hybrid k=5    50      43       5         2     0.910     0.800    0.251
-all      Hybrid k=10   50      47       2         1     0.960     0.920    0.154
-all      Extract       50      39       5         6     0.830     0.740    0.843
-all      Filter2       50      36       7         7     0.790     0.600    0.808
-all      Filter3       50      45       3         2     0.930     0.880    0.775
-all      Ceiling       50      49       1         0     0.990     1.000    1.000
+all      Vector k=5        50      39       5         6     0.830     0.720    0.337
+all      Vector k=10       50      44       4         2     0.920     0.840    0.205
+all      Vector-line k=5   50      35      10         5     0.800     0.660    0.401
+all      Vector-line k=10  50      41       7         2     0.890     0.780    0.274
+all      Hybrid k=5        50      43       5         2     0.910     0.800    0.251
+all      Hybrid k=10       50      47       2         1     0.960     0.920    0.154
+all      Extract           50      39       5         6     0.830     0.740    0.843
+all      Filter2           50      36       7         7     0.790     0.600    0.808
+all      Filter3           50      45       3         2     0.930     0.880    0.775
+all      Ceiling           50      49       1         0     0.990     1.000    1.000
 
-single   Vector k=5    25      24       0         1     0.960     1.000    0.263
-single   Vector k=10   25      25       0         0     1.000     1.000    0.136
-single   Hybrid k=5    25      24       0         1     0.960     1.000    0.178
-single   Hybrid k=10   25      24       0         1     0.960     1.000    0.097
-single   Extract       25      24       0         1     0.960     1.000    1.000
-single   Filter2       25      24       1         0     0.980     1.000    1.000
-single   Filter3       25      25       0         0     1.000     1.000    0.940
-single   Ceiling       25      25       0         0     1.000     1.000    1.000
+single   Vector k=5        25      24       0         1     0.960     1.000    0.263
+single   Vector k=10       25      25       0         0     1.000     1.000    0.136
+single   Vector-line k=5   25      25       0         0     1.000     1.000    0.392
+single   Vector-line k=10  25      25       0         0     1.000     1.000    0.244
+single   Hybrid k=5        25      24       0         1     0.960     1.000    0.178
+single   Hybrid k=10       25      24       0         1     0.960     1.000    0.097
+single   Extract           25      24       0         1     0.960     1.000    1.000
+single   Filter2           25      24       1         0     0.980     1.000    1.000
+single   Filter3           25      25       0         0     1.000     1.000    0.940
+single   Ceiling           25      25       0         0     1.000     1.000    1.000
 
-cross    Vector k=5    25      15       5         5     0.700     0.440    0.411
-cross    Vector k=10   25      19       4         2     0.840     0.680    0.274
-cross    Hybrid k=5    25      19       5         1     0.860     0.600    0.325
-cross    Hybrid k=10   25      23       2         0     0.960     0.840    0.211
-cross    Extract       25      15       5         5     0.700     0.480    0.686
-cross    Filter2       25      12       6         7     0.600     0.200    0.617
-cross    Filter3       25      20       3         2     0.860     0.760    0.611
-cross    Ceiling       25      24       1         0     0.980     1.000    1.000
+cross    Vector k=5        25      15       5         5     0.700     0.440    0.411
+cross    Vector k=10       25      19       4         2     0.840     0.680    0.274
+cross    Vector-line k=5   25      10      10         5     0.600     0.320    0.409
+cross    Vector-line k=10  25      16       7         2     0.780     0.560    0.305
+cross    Hybrid k=5        25      19       5         1     0.860     0.600    0.325
+cross    Hybrid k=10       25      23       2         0     0.960     0.840    0.211
+cross    Extract           25      15       5         5     0.700     0.480    0.686
+cross    Filter2           25      12       6         7     0.600     0.200    0.617
+cross    Filter3           25      20       3         2     0.860     0.760    0.611
+cross    Ceiling           25      24       1         0     0.980     1.000    1.000
 ```
 
 The sweep's prediction holds: deepening retrieval lifts the cross-reference
@@ -341,6 +348,66 @@ Ceiling beats Hybrid k=10 on just two questions:
 These two together pin Hybrid k=10's residual: one precision problem (the union
 is too wide for a single-passage question), one shared blind spot no retrieval
 blend fixes.
+
+## Vector-line (line-level retrieval)
+
+`Vector-line` keeps the dense pipeline but shrinks the retrieval unit from a
+scene to a **single line**: [`build_index.py --line`](../README.md#build_indexpy)
+embeds one vector per non-blank line, and
+[`answer_vector.py --line`](../README.md#answer_vectorpy) ranks lines, then
+resolves each hit line back to its containing segment before the same ±N
+expansion and answering. The question is whether a finer unit — matching the one
+sentence that answers the question, rather than diluting it across a whole scene
+— retrieves better.
+
+It does not, on balance. The headline is **0.800 (k=5) / 0.890 (k=10)**, below
+segment Vector's 0.830 / 0.920 at both depths. The line unit does exactly what
+finer granularity should — it lifts **chapter precision** (k=5 0.337→0.401, k=10
+0.205→0.274, the highest of any dense method) and **saturates single-passage to
+1.000 at both depths**, beating segment k=5's 0.960. But it lowers **chapter
+recall** (k=5 0.720→0.660, k=10 0.840→0.780), and the entire deficit is
+cross-reference: cross drops to 0.600 (k=5) and 0.780 (k=10).
+
+### Why cross-reference suffers
+
+Every Vector-line loss against segment Vector is a **missed-context** retrieval
+miss — never a synthesis slip:
+
+| direction | n | missed-context | synthesis |
+| --- | --- | --- | --- |
+| Vector k=5 beats Vector-line k=5 | 8 | 8 | 0 |
+| Vector-line k=5 beats Vector k=5 | 5 | 3 | 2 |
+| Vector k=10 beats Vector-line k=10 | 5 | 5 | 0 |
+| Vector-line k=10 beats Vector k=10 | 2 | 2 | 0 |
+
+The mechanism is the flip side of the precision gain. When a gold chapter's
+relevance is carried by **one distinctive line**, the line unit surfaces it
+cleanly; but when the relevant content is **diffuse across a scene**, no single
+line accumulates enough similarity to crack the top-k, whereas the scene-level
+average still ranks. Cross-reference questions lean on the diffuse case, so they
+lose the most (e.g. Q26 Ch11/29, Q40 Ch13/27, Q42 Ch23/29 — all dropped by
+Vector-line k=5 but held by segment k=5).
+
+### The misses are orthogonal
+
+Crucially, Vector-line is not strictly worse retrieval — it has its **own** wins
+that segment search drops. At k=10 it recovers **Q34 (Ch31)** and **Q49 (Ch22)**
+— the latter a [Class A](#both-wrong-what-k10-cannot-fix) chapter (the forged
+Delhi petition) that dense *segment* search misses at both depths, here surfaced
+because one lexically sharp line ranks where the averaged scene did not. At k=5
+it additionally fixes Q21/Q29 by synthesis and Q28/Q45 by retrieval. So line and
+segment granularity fail on **orthogonal chapters** — the same dense-vs-lexical
+tension [Hybrid](#hybrid-dense--bm25-union) exploits, in miniature — but the line
+unit drops more cross chapters than it recovers, so the net is negative and
+segment-level retrieval stays the stronger dense baseline.
+
+### Depth still helps
+
+Like segment Vector, deepening k=5→k=10 is a pure retrieval gain: Vector-line
+k=10 beats k=5 on 7 questions, **all missed-context**, against a single
+regression (Q50, Ch23). The k=5 unit is simply too tight for cross-reference —
+the same lesson [`sweep_vector.py`](../README.md#sweep_vectorpy) drew for the
+segment index, only sharper here because the line unit retrieves less per hit.
 
 ## Filter (LLM-as-retriever)
 

@@ -257,6 +257,19 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
         if (results / judge).exists():
             found.append((label, ans.name, judge))
 
+    # Vector-line: line-level retrieval (build_index.py --line / answer_vector.py
+    # --line). Same discovery shape as Vector — vector-line<k>.jsonl with a
+    # matching judge — grouped right after the segment Vector variants.
+    line_files = [p for p in results.glob("vector-line*.jsonl")
+                  if re.fullmatch(r"vector-line\d+", p.stem)]
+    for ans in sorted(line_files, key=lambda p: int(re.fullmatch(r"vector-line(\d+)", p.stem).group(1))):
+        stem = ans.stem
+        k = int(re.fullmatch(r"vector-line(\d+)", stem).group(1))
+        label = f"Vector-line k={k}"  # vector-line5 → "Vector-line k=5"
+        judge = f"judge-{stem}.jsonl"
+        if (results / judge).exists():
+            found.append((label, ans.name, judge))
+
     # Hybrid: dense ∪ BM25 union (Phase 2 QA of the HYBRID.md Union approach).
     # Same discovery shape as Vector — hybrid<k>.jsonl with a matching judge.
     # English only (BM25 is English-only), so no Japanese results are expected.
@@ -319,7 +332,7 @@ def main():
     loaded = {label: (load_jsonl(results / ans_file), load_jsonl(results / judge_file))
               for label, ans_file, judge_file in methods}
 
-    header = (f"{'scope':<8} {'method':<12} {'n':>3} {'correct':>7} {'partial':>7} "
+    header = (f"{'scope':<8} {'method':<16} {'n':>3} {'correct':>7} {'partial':>7} "
               f"{'incorrect':>9} {'weighted':>9} {'ch.recall':>9} {'ch.prec':>8}")
     print(header)
     print("-" * len(header))
@@ -327,7 +340,7 @@ def main():
         for name, (answers, judge) in loaded.items():
             acc = accuracy(judge, subset)
             ret = retrieval(answers, gold, subset)
-            print(f"{scope_name:<8} {name:<12} {acc['total']:>3} "
+            print(f"{scope_name:<8} {name:<16} {acc['total']:>3} "
                   f"{acc['correct']:>7} {acc['partial']:>7} {acc['incorrect']:>9} "
                   f"{acc['weighted']:>9.3f} {ret['recall']:>9.3f} {ret['precision']:>8.3f}")
         print()

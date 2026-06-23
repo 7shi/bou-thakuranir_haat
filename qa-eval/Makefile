@@ -42,7 +42,22 @@ RESULTS := results-$(LANG)
 QUESTIONS := $(ROOT)/questions-$(LANG).jsonl
 SCENES    := $(ROOT)/all/$(LANG)-gemini.jsonl
 TSV       := $(ROOT)/all/$(LANG)-gemini.tsv
-INDEX     := index-$(LANG).safetensors
+# Set LINE=1 for line-level retrieval. It toggles the same `index` / `vector`
+# targets (no separate targets): build_index.py --line writes
+# index-line-<lang>.safetensors and answer_vector.py --line writes
+# results-<lang>/vector-line<k>.jsonl. Unset (default) = segment-level.
+#   make index LINE=1        → index-line-<lang>.safetensors
+#   make vector LINE=1 K=10  → results-<lang>/vector-line10.jsonl
+LINE ?=
+ifeq ($(LINE),)
+INDEX       := index-$(LANG).safetensors
+LINE_FLAG   :=
+VECTOR_STEM := vector
+else
+INDEX       := index-line-$(LANG).safetensors
+LINE_FLAG   := --line
+VECTOR_STEM := vector-line
+endif
 
 PARTS         := 1 2 3 4
 EXTRACT_PARTS  := $(patsubst %,$(RESULTS)/extract-%.jsonl,$(PARTS))
@@ -64,7 +79,7 @@ SCALE := 10
 # outputs are results-<lang>/vector5.jsonl / hybrid5.jsonl. Set K=10 for the
 # k=10 variants.
 K ?= 5
-VECTOR_FILE := $(RESULTS)/vector$(K).jsonl
+VECTOR_FILE := $(RESULTS)/$(VECTOR_STEM)$(K).jsonl
 HYBRID_FILE := $(RESULTS)/hybrid$(K).jsonl
 
 .PHONY: en ja all pipeline index vector hybrid extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter5d-tsv filter filter5d ceiling judge hybrid-judge report sweep bm25 clean
@@ -117,10 +132,18 @@ ceiling: $(RESULTS)/judge-ceiling.jsonl
 # when LANG=en. `make` (LANG=en, the default) thus builds Hybrid rows into
 # `make report`; `make ja` skips them. `make hybrid-judge` remains a standalone
 # alias for the two hybrid judge files.
+# The canonical aggregate is the segment vector5 baseline plus extract (and
+# Hybrid under LANG=en). It is LINE-independent: `make judge` always grades
+# vector5, regardless of LINE.
 JUDGE_FILES := $(RESULTS)/judge-vector5.jsonl $(RESULTS)/judge-extract.jsonl
 ifeq ($(LANG),en)
 JUDGE_FILES += $(RESULTS)/judge-hybrid5.jsonl $(RESULTS)/judge-hybrid10.jsonl
 endif
+# Also grade any line-mode answers already produced by `make vector LINE=1`
+# (vector-line<k>.jsonl → judge-vector-line<k>.jsonl, via the judge-vector%
+# pattern rule). wildcard only matches files already present, so plain
+# `make judge` picks them up without needing LINE=1.
+JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge-%.jsonl,$(wildcard $(RESULTS)/vector-line*.jsonl))
 judge: $(JUDGE_FILES)
 sweep: $(INDEX) $(QUESTIONS)
 	uv run sweep_vector.py -l $(LANG)
@@ -163,9 +186,10 @@ report: judge
 
 # --- file targets ---
 
-# Scene embedding index.
+# Scene embedding index. $(LINE_FLAG) is `--line` when LINE=1 (and $(INDEX) is
+# then index-line-<lang>.safetensors), empty otherwise.
 $(INDEX): $(SCENES) $(TSV)
-	uv run build_index.py -l $(LANG)
+	uv run build_index.py -l $(LANG) $(LINE_FLAG)
 
 # Vector RAG answering.
 #   make vector         → results-<lang>/vector5.jsonl   (default k=5)
@@ -174,6 +198,13 @@ $(INDEX): $(SCENES) $(TSV)
 # not needed; the pattern rule just passes -k $* (the stem, e.g. "10").
 $(RESULTS)/vector%.jsonl: $(INDEX) $(QUESTIONS)
 	uv run answer_vector.py -l $(LANG) -k $*
+
+# Line-mode variant (LINE=1). Same `make vector` target, but VECTOR_FILE becomes
+# vector-line<k>.jsonl, which this rule builds with --line. Kept as its own
+# pattern only because the filename prefix differs; the user-facing target is
+# still just `vector`.
+$(RESULTS)/vector-line%.jsonl: $(INDEX) $(QUESTIONS)
+	uv run answer_vector.py -l $(LANG) --line -k $*
 
 # Hybrid retrieval (dense ∪ BM25 union) answering. Mirrors the vector pattern
 # rule: answer_hybrid.py derives the output filename from k, so the pattern
@@ -249,9 +280,11 @@ $(FILTER5D_TSV): $(SCENES) $(QUESTIONS)
 $(RESULTS)/ceiling.jsonl: $(SCENES) $(QUESTIONS)
 	uv run answer_ceiling.py -l $(LANG)
 
-# LLM grading of each answer file.
-$(RESULTS)/judge-vector5.jsonl: $(RESULTS)/vector5.jsonl $(QUESTIONS)
-	uv run judge.py -l $(LANG) $(RESULTS)/vector5.jsonl
+# LLM grading of each answer file. One pattern rule serves both modes: the `%`
+# absorbs the whole stem, so judge-vector5.jsonl ← vector5.jsonl (segment) and
+# judge-vector-line5.jsonl ← vector-line5.jsonl (LINE=1, % = "-line5").
+$(RESULTS)/judge-vector%.jsonl: $(RESULTS)/vector%.jsonl $(QUESTIONS)
+	uv run judge.py -l $(LANG) $(RESULTS)/vector$*.jsonl
 
 $(RESULTS)/judge-extract.jsonl: $(RESULTS)/extract.jsonl $(QUESTIONS)
 	uv run judge.py -l $(LANG) $(RESULTS)/extract.jsonl
@@ -286,6 +319,7 @@ $(RESULTS)/judge-hybrid10.jsonl: $(RESULTS)/hybrid10.jsonl $(QUESTIONS)
 # rm -f silently ignores them when no match exists.
 clean:
 	rm -f $(RESULTS)/vector[0-9]*.jsonl \
+	      $(RESULTS)/vector-line[0-9]*.jsonl \
 	      $(RESULTS)/hybrid[0-9]*.jsonl \
 	      $(RESULTS)/extract.jsonl \
 	      $(RESULTS)/filter2.jsonl $(RESULTS)/filter3.jsonl \
@@ -293,6 +327,7 @@ clean:
 	      $(EXTRACT_PARTS) \
 	      $(FILTER2_TSV) $(FILTER3_TSV) $(FILTER10_TSV) $(FILTER100_TSV) $(FILTER5D_TSV) \
 	      $(RESULTS)/judge-vector[0-9]*.jsonl \
+	      $(RESULTS)/judge-vector-line[0-9]*.jsonl \
 	      $(RESULTS)/judge-hybrid[0-9]*.jsonl \
 	      $(RESULTS)/judge-extract.jsonl \
 	      $(RESULTS)/judge-filter2.jsonl $(RESULTS)/judge-filter3.jsonl \

@@ -191,6 +191,67 @@ full picture. The Japanese run adds four more (29, 34, 36, 43):
 None of the seven is a gold problem; all are coverage or synthesis failures on
 hard cross questions.
 
+## Vector-line (line-level retrieval)
+
+The line-level dense variant —
+[`build_index.py --line`](../README.md#build_indexpy) embeds one vector per
+non-blank line, [`answer_vector.py --line`](../README.md#answer_vectorpy) ranks
+lines and resolves each hit back to its containing segment for context — was run
+for Japanese too, reproducing the English finding
+([results-en/README.md](../results-en/README.md#vector-line-line-level-retrieval)).
+
+```
+scope    method             n correct partial incorrect  weighted ch.recall  ch.prec
+all      Vector k=5        50      38       5         7     0.810     0.720    0.332
+all      Vector-line k=5   50      35       9         6     0.790     0.620    0.387
+all      Vector-line k=10  50      40       4         6     0.840     0.760    0.260
+single   Vector k=5        25      24       0         1     0.960     1.000    0.255
+single   Vector-line k=5   25      24       0         1     0.960     0.960    0.376
+single   Vector-line k=10  25      25       0         0     1.000     1.000    0.228
+cross    Vector k=5        25      14       5         6     0.660     0.440    0.408
+cross    Vector-line k=5   25      11       9         5     0.620     0.280    0.398
+cross    Vector-line k=10  25      15       4         6     0.680     0.520    0.293
+```
+
+The trade is the same as English: the finer unit **raises chapter precision**
+(k=5 0.332→0.387) but **lowers recall** (k=5 0.720→0.620), so line k=5 (0.790)
+sits just below segment k=5 (0.810). Single-passage stays solved (line k=10
+saturates to 1.000); the deficit is entirely cross-reference, where a gold
+chapter's relevance is too diffuse across a scene for a single line to rank.
+(Japanese has no segment Vector k=10 baseline, so the like-for-like comparison is
+at k=5; line k=10 reaches 0.840 by the same depth gain segment retrieval shows in
+English.)
+
+### The orthogonal recoveries are stronger than in English
+
+The key cross-language result: line retrieval **surfaces gold chapters segment
+search drops**, and in Japanese this is more pronounced than in English. Against
+the segment k=5 baseline, line retrieval pulls these gold chapters into context
+that segment k=5 misses:
+
+```
+line-only gold chapters (vs segment k=5):
+  k=5 : Q28 Ch37 · Q31 Ch23 · Q34 Ch31 · Q45 Ch18 · Q48 Ch19 · Q49 Ch22   (6)
+  k=10: above + Q38 Ch32 · Q50 Ch23                                        (8)
+
+strict recall (subset coverage):
+  segment k=5            = 36/50
+  segment k=5 ∪ line k=5  = 41/50   (+5)
+  segment k=5 ∪ line k=10 = 43/50   (+7)
+```
+
+The recovered set includes the named-entity cross misses §3a traces to dense
+top-5 recall — **Q31 Ch23** (the signet-ring/seal chain) and **Q49 Ch22** (the
+Delhi-petition forgery) — the same chapters Extract reads in full to win those
+questions. Notably **Q38 Ch32**, one of the four shared blind spots both dense
+*and* BM25 miss in the English [HYBRID.md](../HYBRID.md) analysis, is recovered by
+line retrieval at k=10 here, exactly as in English. So segment and line
+granularity fail on orthogonal chapters, and the union upper bound (+5 / +7
+strict recall) makes the **section+line hybrid** — mixing same-model cosine
+scores from both granularities — a concrete retrieval lever, distinct from the
+dense∪BM25 hybrid because no second model or score-scale reconciliation is
+needed.
+
 ## 5. Takeaways and cross-language comparison
 
 - **The headline findings hold across languages.** Single-passage QA is solved

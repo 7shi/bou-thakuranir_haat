@@ -25,13 +25,28 @@ from answer import ROOT, LANGS, load_questions, answer_question, print_banner
 DEFAULT_K = 5
 
 
+def _normalize(embeddings: np.ndarray) -> np.ndarray:
+    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+    return embeddings / np.where(norms == 0, 1.0, norms)
+
+
 def load_index(index_path: Path):
     with safe_open(str(index_path), framework="numpy") as f:
         embeddings = f.get_tensor("embeddings").astype(np.float32)
         scenes = json.loads(f.metadata()["scenes"])
-    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
-    normed = embeddings / np.where(norms == 0, 1.0, norms)
-    return normed, scenes
+    return _normalize(embeddings), scenes
+
+
+def load_line_index(index_path: Path):
+    """Load a line-mode index: normalized line embeddings, the per-line entries
+    (each with chapter/segment/line/text), and the full segment list used for
+    segment-level context."""
+    with safe_open(str(index_path), framework="numpy") as f:
+        embeddings = f.get_tensor("embeddings").astype(np.float32)
+        meta = f.metadata()
+        lines = json.loads(meta["scenes"])
+        segments = json.loads(meta["segments"])
+    return _normalize(embeddings), lines, segments
 
 
 def embed_query(question: str, model: str) -> np.ndarray:
@@ -106,18 +121,22 @@ def main():
                         help="evaluation language (selects default questions/index/output paths and answer language)")
     parser.add_argument("-m", "--model", default="ollama:gemma4:31b-it-qat", help="llm7shi model string")
     parser.add_argument("-e", "--embed", default="embeddinggemma", help="embedding model")
-    parser.add_argument("-k", type=int, default=DEFAULT_K, help="top-k scenes to retrieve")
-    parser.add_argument("-N", type=int, default=1, help="context expansion window ±N")
+    parser.add_argument("-k", type=int, default=DEFAULT_K, help="top-k units to retrieve")
+    parser.add_argument("-N", type=int, default=1, help="context expansion window ±N segments")
+    parser.add_argument("--line", action="store_true",
+                        help="retrieve at the line level (uses index-line-<lang>.safetensors; "
+                             "hits resolve to segments for context)")
     parser.add_argument("-i", "--input", default=None, help="questions JSONL (default: questions-<lang>.jsonl)")
-    parser.add_argument("--index", default=None, help="index safetensors (default: qa-eval/index-<lang>.safetensors)")
-    parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/vector<k>.jsonl)")
+    parser.add_argument("--index", default=None, help="index safetensors (default: qa-eval/index[-line]-<lang>.safetensors)")
+    parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/vector[-line]<k>.jsonl)")
     args = parser.parse_args()
 
     lang = args.lang
     lang_name = LANGS[lang]
     args.input = args.input or str(ROOT / f"questions-{lang}.jsonl")
-    args.index = args.index or str(ROOT / "qa-eval" / f"index-{lang}.safetensors")
-    vector_name = f"vector{args.k}.jsonl"
+    index_stem = "index-line" if args.line else "index"
+    args.index = args.index or str(ROOT / "qa-eval" / f"{index_stem}-{lang}.safetensors")
+    vector_name = f"vector-line{args.k}.jsonl" if args.line else f"vector{args.k}.jsonl"
     output_path = Path(args.output) if args.output else ROOT / "qa-eval" / f"results-{lang}" / vector_name
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -131,10 +150,19 @@ def main():
     if done_ids:
         print(f"Resuming: {len(done_ids)} questions already done")
 
-    # Load index
+    # Load index. In line mode the embeddings are per-line, while `scenes` (the
+    # context units) is the full segment list; a (chapter, segment) map lets us
+    # resolve each line hit back to its segment.
     print(f"Loading index from {args.index}")
-    normed, scenes = load_index(Path(args.index))
-    print(f"Index: {normed.shape[0]} scenes, dim={normed.shape[1]}")
+    seg_pos: dict[tuple[int, int], int] = {}
+    if args.line:
+        normed, lines, scenes = load_line_index(Path(args.index))
+        seg_pos = {(s["chapter"], s["segment"]): i for i, s in enumerate(scenes)}
+        print(f"Index: {normed.shape[0]} lines, {len(scenes)} segments, dim={normed.shape[1]}")
+    else:
+        normed, scenes = load_index(Path(args.index))
+        lines = scenes
+        print(f"Index: {normed.shape[0]} scenes, dim={normed.shape[1]}")
 
     # Load questions
     questions = load_questions(Path(args.input))
@@ -149,23 +177,42 @@ def main():
             question_text = q["question"]
             print_banner(f"[{qid}/{total}] {question_text}")
 
-            # Embed and search
+            # Embed and search (over lines in line mode, scenes otherwise)
             q_vec = embed_query(question_text, args.embed)
             hits = top_k_search(normed, q_vec, args.k)
 
-            # Expand ±N and merge
-            expanded = expand_and_merge(hits, scenes, args.N)
+            if args.line:
+                # Resolve each line hit to its segment, keeping each segment once
+                # at its best (first/highest) score, then expand at segment level.
+                seg_hits: list[tuple[int, float]] = []
+                seen: set[int] = set()
+                for li, score in hits:
+                    seg_idx = seg_pos[(lines[li]["chapter"], lines[li]["segment"])]
+                    if seg_idx not in seen:
+                        seen.add(seg_idx)
+                        seg_hits.append((seg_idx, score))
+            else:
+                seg_hits = hits
+
+            # Expand ±N segments and merge
+            expanded = expand_and_merge(seg_hits, scenes, args.N)
             context = build_context(expanded, scenes)
 
             # Get answer
             answer = answer_question(question_text, context, args.model, lang_name,
                                      preamble=VECTOR_PREAMBLE, context_prefix="Context:\n")
 
-            # Build hit metadata
-            hit_records = {
-                f"{scenes[i]['chapter']}:{scenes[i]['segment']}": score
-                for i, score in hits
-            }
+            # Build hit metadata: line-level in line mode, scene-level otherwise.
+            if args.line:
+                hit_records = {
+                    f"{lines[i]['chapter']}:{lines[i]['segment']}:{lines[i]['line']}": score
+                    for i, score in hits
+                }
+            else:
+                hit_records = {
+                    f"{scenes[i]['chapter']}:{scenes[i]['segment']}": score
+                    for i, score in hits
+                }
             expanded_scenes = [
                 f"{scenes[i]['chapter']}:{scenes[i]['segment']}"
                 for i in expanded

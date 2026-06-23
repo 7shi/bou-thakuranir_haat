@@ -69,6 +69,28 @@ def load_scenes(jsonl_path, titles):
     return scenes
 
 
+def split_lines(scenes):
+    """Return per-line entries from the segment list (line mode).
+
+    Each segment's text is split on newlines; blank lines are dropped. The
+    1-based index within the segment is recorded as ``line``.
+    """
+    lines = []
+    for scene in scenes:
+        for i, line in enumerate(
+            (l for l in scene["text"].split("\n") if l.strip()), start=1
+        ):
+            lines.append(
+                {
+                    "chapter": scene["chapter"],
+                    "segment": scene["segment"],
+                    "line": i,
+                    "text": line,
+                }
+            )
+    return lines
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -79,6 +101,10 @@ def main():
         "-e", "--embed", default="embeddinggemma", help="embedding model"
     )
     parser.add_argument(
+        "--line", action="store_true",
+        help="embed one vector per line (default: index-line-<lang>.safetensors)",
+    )
+    parser.add_argument(
         "-i", "--input", default=None, help="scenes JSONL (default: all/<lang>-gemini.jsonl)"
     )
     parser.add_argument(
@@ -86,22 +112,30 @@ def main():
     )
     parser.add_argument(
         "-o", "--output", default=None,
-        help="output safetensors path (default: qa-eval/index-<lang>.safetensors)",
+        help="output safetensors path (default: qa-eval/index[-line]-<lang>.safetensors)",
     )
     args = parser.parse_args()
 
     lang = args.lang
     args.input = args.input or str(ROOT / "all" / f"{lang}-gemini.jsonl")
     args.tsv = args.tsv or str(ROOT / "all" / f"{lang}-gemini.tsv")
-    args.output = args.output or str(ROOT / "qa-eval" / f"index-{lang}.safetensors")
+    stem = "index-line" if args.line else "index"
+    args.output = args.output or str(ROOT / "qa-eval" / f"{stem}-{lang}.safetensors")
 
     titles = load_titles(args.tsv)
     scenes = load_scenes(args.input, titles)
     print(f"Loaded {len(scenes)} scenes from {args.input}")
 
+    if args.line:
+        units = split_lines(scenes)
+        print(f"Split into {len(units)} lines")
+        prompts = [f'title: "none" | text: {u["text"]}' for u in units]
+    else:
+        units = scenes
+        prompts = [f"title: {u['title']} | text: {u['text']}" for u in units]
+
     vectors = []
-    for scene in tqdm(scenes, desc="Embedding"):
-        prompt = f"title: {scene['title']} | text: {scene['text']}"
+    for prompt in tqdm(prompts, desc="Embedding"):
         response = embed(model=args.embed, input=prompt)
         vectors.append(response["embeddings"][0])
 
@@ -110,9 +144,12 @@ def main():
 
     metadata = {
         "embed_model": args.embed,
-        "count": str(len(scenes)),
-        "scenes": json.dumps(scenes, ensure_ascii=False),
+        "count": str(len(units)),
+        "scenes": json.dumps(units, ensure_ascii=False),
     }
+    # Line mode also stores the full segment list for segment-level context.
+    if args.line:
+        metadata["segments"] = json.dumps(scenes, ensure_ascii=False)
     save_file({"embeddings": matrix}, args.output, metadata=metadata)
     print(f"Saved {args.output}")
 
@@ -126,17 +163,20 @@ def main():
     print(f"loaded shape: {loaded.shape}")
     print(f"embed_model: {meta['embed_model']}")
     print(f"metadata count: {meta['count']}")
-    print(f"restored scenes: {len(restored)}")
+    print(f"restored units: {len(restored)}")
     first = restored[0]
+    extra = f" line={first['line']}" if args.line else ""
     print(
-        f"first scene: chapter={first['chapter']} segment={first['segment']} "
+        f"first unit: chapter={first['chapter']} segment={first['segment']}{extra} "
         f"dim={loaded.shape[1]}"
     )
-    print(f"  title: {first['title']}")
+    if args.line:
+        segs = json.loads(meta["segments"])
+        print(f"restored segments: {len(segs)}")
 
     ok = (
         loaded.shape[0]
-        == len(scenes)
+        == len(units)
         == int(meta["count"])
         == len(restored)
     )
