@@ -15,9 +15,9 @@ The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 50 questions per language, judged against a Gemini full-text gold standard
 with `ollama:qwen3.6`. The table reports `correct`/50 with the weighted score
 `(correct + 0.5·partial) / 50` in parentheses. **Vector** (`k=5`/`k=10`),
-**Vector-line**, **V-hybrid**, and **Ceiling** have been run for both languages;
-**Hybrid**, **Filter2**, and **Filter3** are English only (Hybrid because BM25
-tokenization is English-only).
+**Vector-line**, **V-hybrid**, **Filter2**, **Filter3**, and **Ceiling** have been
+run for both languages; **Hybrid** is English only (BM25 tokenization is
+English-only).
 
 | Method | English | Japanese |
 | --- | --- | --- |
@@ -30,8 +30,8 @@ tokenization is English-only).
 | Hybrid k=5 | 43/50 (0.910) | — |
 | Hybrid k=10 | 47/50 (0.960) | — |
 | Extract | 39/50 (0.830) | 40/50 (0.850) |
-| Filter2 | 36/50 (0.790) | — |
-| Filter3 | 45/50 (0.930) | — |
+| Filter2 | 36/50 (0.790) | 39/50 (0.820) |
+| Filter3 | 45/50 (0.930) | 43/50 (0.880) |
 | Ceiling | 49/50 (0.990) | 47/50 (0.970) |
 
 The pipeline behind these rows — build the index, answer each question, grade,
@@ -111,11 +111,11 @@ per-question breakdowns:
 [Japanese](results-ja/README.md#v-hybrid-segment--line-dense-union).
 
 The **Filter** rows use the LLM itself as the retriever (per-chapter relevance,
-answer from the full text of the kept chapters). Filter3 posts the best
+answer from the full text of the kept chapters). English Filter3 posts the best
 per-chapter score (0.930) but at hundreds of times Vector's cost and trailing
-Hybrid k=10 (0.960) — see [FILTER.md](FILTER.md) for the full analysis and
-verdict. The per-question
-detail is in the case studies:
+Hybrid k=10 (0.960); Japanese Filter3 (0.880) ties V-hybrid k=10 and falls just
+short of Vector k=10 (0.890) — see [FILTER.md](FILTER.md) for the full analysis
+and verdict. The per-question detail is in the case studies:
 [English](results-en/README.md) · [Japanese](results-ja/README.md).
 
 **Ceiling pins the frontier to retrieval, not comprehension.** Feeding the
@@ -136,7 +136,9 @@ answering-model limit, not a retrieval one. **Japanese tells the same story:**
 Ceiling 0.970 (47 correct, three partial, zero incorrect) sits 0.080 above the
 best Japanese retriever (Vector k=10 = V-hybrid k=5 = 0.890), so the Japanese
 frontier is retrieval, not comprehension — the model reads the gold chapters
-nearly perfectly in both languages. See the
+nearly perfectly in both languages. The gradient mirrors English: Ceiling beats
+Filter2 on 11, Vector k=5 on 11, Extract on 8, V-hybrid k=10 on 8,
+Vector k=10 = V-hybrid k=5 = Filter3 on 6. See the
 [Ceiling case study](results-en/README.md#ceiling-the-perfect-retrieval-upper-bound).
 
 ## Retrieval analyses

@@ -311,6 +311,48 @@ incorrect — sits 0.080 above that best retriever, so the Japanese frontier is
 retrieval, not comprehension: given the right chapters the answer model reads
 them nearly perfectly, and the ~8-point headroom is all retrieval recall.
 
+## Filter2 / Filter3 (LLM-as-retriever)
+
+The per-chapter relevance filter variants — Phase 1 classifies each chapter as
+yes/no (Filter2) or yes/maybe/no (Filter3), Phase 2 answers from the full text of
+the kept chapters — were run on Japanese, replicating the English analysis in
+[FILTER.md](../FILTER.md).
+
+```
+scope    method             n correct partial incorrect  weighted ch.recall  ch.prec
+all      Vector k=5        50      38       5         7     0.810     0.720    0.332
+all      Vector k=10       50      42       5         3     0.890     0.900    0.206
+all      Extract           50      40       5         5     0.850     0.760    0.807
+all      Filter2           50      39       4         7     0.820     0.640    0.809
+all      Filter3           50      43       2         5     0.880     0.880    0.783
+all      Ceiling           50      47       3         0     0.970     1.000    1.000
+single   Filter2           25      25       0         0     1.000     1.000    1.000
+single   Filter3           25      25       0         0     1.000     1.000    0.980
+cross    Filter2           25      14       4         7     0.640     0.280    0.619
+cross    Filter3           25      18       2         5     0.760     0.760    0.586
+```
+
+**Filter3 (0.880) leads Filter2 (0.820) by 4 questions**, driven by the same
+mechanism as English: Filter3's "keep ≠ no" rule retains chapters the strict
+"yes-only" Filter2 drops. Filter3 beats Filter2 on 6 (all missed-context: Q26
+Ch11/29, Q28 Ch37, Q31 Ch23, Q35 Ch8/19, Q38 Ch28/32, Q45 Ch18/25); Filter2
+beats Filter3 on 2 (both synthesis: Q36, Q40). Single-passage is perfect under
+both variants (25/25 each); all losses are cross-reference.
+
+**Filter3 (0.880) ties V-hybrid k=10 (0.880) and falls just short of Vector k=10
+(0.890)** — the reverse of English, where Filter3 (0.930) topped Vector k=10
+(0.920). The two methods are tied 4–4 on pairwise disagreements: Filter3 wins Q31
+(Ch21/22 ring-seal chain), Q32 (Ch11/15/16 secret-stipend), Q43 (Ch37 Rammohan
+rescue), Q46 (synthesis); Vector k=10 wins Q34 (Ch30/31/33 Lukmini accusation),
+Q40 (synthesis), Q42 (Ch22/23/29 prison-break chapters), Q48 (Ch11). Both sides
+are symmetric — the LLM judge surfaces chapters dense retrieval drops but misses
+others dense search finds — and neither fully closes the cross-reference gap.
+
+**Ceiling (0.970) beats Filter3 by 6 questions** (Q29, Q40 synthesis;
+Q32/Q34/Q42/Q48 missed-context) — the same lead as over Vector k=10 — confirming
+the Japanese frontier is retrieval recall and synthesis quality on hard cross
+questions, not a language barrier.
+
 ## 5. Takeaways and cross-language comparison
 
 - **The headline findings hold across languages.** Single-passage QA is solved
@@ -336,6 +378,11 @@ them nearly perfectly, and the ~8-point headroom is all retrieval recall.
   (most starkly Q29, the covert cause, and Q43, full recall but wrong synthesis),
   not to a capability gap. Retrieval-side findings (which gold chapters dense
   search drops) are identical because the embedding model is the same.
+- **Filter3 (0.880) replicates the English ordering** but narrows relative to
+  Vector k=10 (0.890 in both languages; English Filter3 topped Vector k=10 by one
+  question, Japanese ties V-hybrid k=10). The strict-vs-lenient pattern holds:
+  Filter3 beats Filter2 by 4 questions, all missed-context. Filter is still
+  impractical at ~1,850× Vector's call cost.
 - The retrieval levers are unchanged: Vector's residual losses are dense top-5
   misses on rare proper nouns / second-side facts, the target of `sweep_vector.py`
   and the BM25 hybrid follow-up in [HYBRID.md](../HYBRID.md).
