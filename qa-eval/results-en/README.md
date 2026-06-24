@@ -461,8 +461,12 @@ The disagreement pass pins why V-hybrid lands between Vector k=10 and Hybrid:
 So in English V-hybrid is a clean, parameter-free dense-only retriever with the
 lowest incorrect rate of any Vector variant, yet it sits below both segment
 Vector k=10 (synthesis cost) and the lexical Hybrid (dense-blind Class A
-chapters). Its decisive value shows in **Japanese**, where no BM25 hybrid exists
-— there V-hybrid is the top method (see
+chapters). The matched-budget reading makes this sharper: V-hybrid k=5 pools
+`seg5 ∪ line5`, a ~k=10 segment context, so its real baseline is Vector k=10
+(0.920) — which it trails. **Japanese confirms the pattern rather than reversing
+it:** there V-hybrid k=5 only *ties* plain Vector k=10 (both 0.890), never beating
+it — the segment∪line union has no BM25-equivalent lever for the dense-blind
+chapters, so it buys no accuracy over the simpler single-index retriever (see
 [results-ja/README.md](../results-ja/README.md#v-hybrid-segment--line-dense-union)).
 
 ## Filter (LLM-as-retriever)

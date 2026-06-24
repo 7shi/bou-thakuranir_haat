@@ -218,8 +218,8 @@ The trade is the same as English: the finer unit **raises chapter precision**
 sits just below segment k=5 (0.810). Single-passage stays solved (line k=10
 saturates to 1.000); the deficit is entirely cross-reference, where a gold
 chapter's relevance is too diffuse across a scene for a single line to rank.
-(Japanese has no segment Vector k=10 baseline, so the like-for-like comparison is
-at k=5; line k=10 reaches 0.840 by the same depth gain segment retrieval shows in
+(Segment Vector k=10 reaches 0.890 here — see the V-hybrid section below — so line
+k=10 at 0.840 trails plain segment retrieval at the same depth, just as in
 English.)
 
 ### The orthogonal recoveries are stronger than in English
@@ -256,49 +256,60 @@ needed.
 
 The section+line union the Vector-line analysis above proposed as a "concrete
 retrieval lever" is realized as `V-hybrid` (`answer_vector.py --hybrid`): segment
-top-k ∪ line top-k, resolved to segments, then the usual answering. It turns the
-segment∪line strict-recall gain from [VECTOR-HYBRID.md](../VECTOR-HYBRID.md) (ja
-+5 @ k=5, +7 @ k=10 — larger than English's +2/+3) into answer accuracy, and in
-Japanese the payoff is decisive:
+top-k ∪ line top-k, resolved to segments, then the usual answering. It delivers
+the segment∪line strict-recall gain [VECTOR-HYBRID.md](../VECTOR-HYBRID.md)
+measured (ja +5 @ k=5, +7 @ k=10 — larger than English's +2/+3), but graded
+against the right baseline that gain does **not** beat plain segment Vector:
 
 ```
 scope    method             n correct partial incorrect  weighted ch.recall  ch.prec
 all      Vector k=5        50      38       5         7     0.810     0.720    0.332
-all      Vector-line k=10  50      40       4         6     0.840     0.760    0.260
+all      Vector k=10       50      42       5         3     0.890     0.900    0.206
 all      Extract           50      40       5         5     0.850     0.760    0.807
 all      V-hybrid k=5      50      42       5         3     0.890     0.820    0.298
 all      V-hybrid k=10     50      42       4         4     0.880     0.900    0.179
+all      Ceiling           50      47       3         0     0.970     1.000    1.000
 single   V-hybrid k=5      25      25       0         0     1.000     1.000    0.213
-single   V-hybrid k=10     25      25       0         0     1.000     1.000    0.121
+cross    Vector k=10       25      17       5         3     0.780     0.800    0.276
 cross    V-hybrid k=5      25      17       5         3     0.780     0.640    0.383
 cross    V-hybrid k=10     25      17       4         4     0.760     0.800    0.237
 ```
 
-**V-hybrid k=5 (0.890) is the top Japanese method** — above Extract (0.850),
-Vector-line k=10 (0.840), and Vector k=5 (0.810). It saturates single-passage to
-1.000 and lifts cross-reference to **0.780 (17/25)**, the best cross result of any
-Japanese method (Extract 0.700, Vector-line k=10 0.680).
+**V-hybrid k=5 (0.890) ties plain Vector k=10 (0.890) exactly — same 42/5/3** —
+and V-hybrid k=10 (0.880) sits just under it. The reason is budget: V-hybrid k=5
+pools `seg5 ∪ line5`, a ~k=10 segment context, so the fair baseline is Vector
+k=10, not Vector k=5. At that matched budget the dense union has no edge over the
+single-index retriever.
 
-The disagreement pass shows it is a clean retrieval win, not a wash:
+The tie is a genuine trade, not an identity — across the five questions where
+they disagree, V-hybrid k=5 wins 3 and Vector k=10 wins 2, netting the exact
+aggregate tie:
 
-- **vs Vector k=5 — strict domination.** V-hybrid k=5 beats Vector k=5 on **6**
-  questions (5 missed-context, 1 synthesis) and loses **none**. The five
-  missed-context wins are the union surfacing gold chapters Vector's top-5 drops
-  (Q28 Ch37, Q32 Ch15/16, Q34 Ch31, Q48 Ch19, Q49 Ch22) — including **Q49 Ch22**,
-  the forged-Delhi-petition miss §3a traces to dense recall, which Extract could
-  only reach by reading Ch22 in full.
-- **vs Extract — net +4.** V-hybrid k=5 beats Extract on 7 (5 missed-context, 2
-  synthesis), loses 3. The union reaches by retrieval what Extract reached only by
-  reading every chapter — at a fraction of the cost.
+- **V-hybrid k=5 > Vector k=10 on 3** — Q32 (Ch15/16) and Q42 (Ch23/29) are
+  missed-context wins where the line side surfaces a cross chapter segment k=10
+  drops; Q46 is synthesis.
+- **Vector k=10 > V-hybrid k=5 on 2** — Q27 (Ch4/33, missed-context: the union's
+  precision pressure pushes a gold chapter out) and Q47 (synthesis).
 
-k=5 slightly edges k=10 (0.890 vs 0.880): at k=10 cross dips 0.780→0.760 as the
-~1.4× wider union context starts to cost synthesis (the "lost in the middle"
-effect [VECTOR-HYBRID.md](../VECTOR-HYBRID.md) flagged), so k=5 is the Japanese
-sweet spot. **This is the key cross-language result**: English gets its
-top-retrieval lever from the dense∪BM25 Hybrid, which is unavailable in Japanese
-(BM25 tokenization is English-only); the segment∪line dense union — needing no
-second model and no score-scale reconciliation — is the Japanese equivalent, and
-the larger ja union gain makes it the strongest Japanese retriever outright.
+They reach 0.890 by opposite routes: Vector k=10 is broader (ch.recall 0.900),
+V-hybrid k=5 is tighter (ch.prec 0.298 vs 0.206). V-hybrid's clean 6–0 domination
+of Vector *k=5* still holds (surfacing Q28 Ch37, Q32 Ch15/16, Q34 Ch31, Q48 Ch19,
+Q49 Ch22), but that is the wrong, under-budget baseline: simply running plain
+Vector to k=10 recovers the same orthogonal chapters on its own, with one index
+and no stable-tie-break path.
+
+**The cross-language conclusion holds in Japanese too:** as in English, the
+segment∪line dense union does not beat plain Vector at a matched context budget.
+The earlier hope that it would be the Japanese counterpart to English's dense∪BM25
+Hybrid does not survive — BM25's actual lever is the dense-blind chapters no dense
+granularity can rank, and a union of two dense views cannot manufacture that. So
+Japanese has no Hybrid-equivalent; its best retriever is just Vector k=10 (=
+V-hybrid k=5 = 0.890), and V-hybrid adds complexity without accuracy.
+
+**Ceiling (0.970)** — gold chapters fed verbatim, 47 correct, three partial, zero
+incorrect — sits 0.080 above that best retriever, so the Japanese frontier is
+retrieval, not comprehension: given the right chapters the answer model reads
+them nearly perfectly, and the ~8-point headroom is all retrieval recall.
 
 ## 5. Takeaways and cross-language comparison
 

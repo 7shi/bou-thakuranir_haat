@@ -156,6 +156,10 @@ JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge-%.jsonl,$(wildcard
 # judge-vector-hybrid<k>.jsonl, via the judge-vector% pattern rule). Works for
 # both languages; plain `make judge` grades any present without forcing creation.
 JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge-%.jsonl,$(wildcard $(RESULTS)/vector-hybrid*.jsonl))
+# Same depth-agnostic pickup for plain segment Vector at non-default depths
+# (vector10.jsonl etc.). vector5 duplicates the hardcoded entry above (make
+# dedups); the [0-9] right after "vector" excludes vector-line/vector-hybrid.
+JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge-%.jsonl,$(wildcard $(RESULTS)/vector[0-9]*.jsonl))
 judge: $(JUDGE_FILES)
 sweep: $(INDEX) $(QUESTIONS)
 	uv run sweep_vector.py -l $(LANG)
