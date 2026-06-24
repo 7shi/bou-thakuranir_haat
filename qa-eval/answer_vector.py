@@ -8,8 +8,20 @@ For each question in questions-en.jsonl:
   4. Build a labeled context block and ask the model to answer the question.
 
 Output: results-<lang>/vector<k>.jsonl (e.g. vector5.jsonl for the default k=5),
-one record per question. Resume-safe: skips question IDs already present in the
-output file.
+one record per question — `question_id`, `hits` (top-k scenes as
+`{"chapter:segment": score}`), `expanded` (all scenes in the context as
+`"chapter:segment"` strings), and `answer`. Resume-safe: skips question IDs
+already present in the output file. The k-aware filename lets a deeper run
+(e.g. `-k 10`) coexist with the k=5 baseline; judge.py derives its stem from the
+input, so `judge-vector10.jsonl` follows automatically.
+
+`--line` switches to **line-level** retrieval: it loads
+`index-line-<lang>.safetensors` (one vector per line, built by `build_index.py
+--line`), ranks lines instead of scenes, then resolves each hit line back to its
+containing segment before the same ±N expansion and answering. Output goes to
+`vector-line<k>.jsonl`, with `hits` keyed `chapter:segment:line` to preserve line
+provenance. Build/run with `make index LINE=1` / `make vector LINE=1`; plain
+`make judge` grades any `vector-line<k>.jsonl` present.
 """
 
 import argparse

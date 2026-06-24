@@ -14,8 +14,19 @@ Chapter groups:
   Part 3: chapters 21-30
   Part 4: chapters 31-37
 
+Phase 1 is 37 chapters × 50 questions = 1,850 calls; the outer loop iterates
+chapters and the inner loop questions, so the same chapter text stays in the KV
+cache across all questions for that chapter. The Phase 2 output record holds
+`question_id`, `expanded` (chapter numbers with relevant content, as
+`["5", "10", ...]`), and `answer`; each part file row holds `chapter`,
+`question_id`, and `text` (the summary, or `"None"`).
+
 Resume-safe: skips question IDs already in the output; skips (qid, chapter)
 pairs already in the part file.
+
+Its main failure mode is a Phase 1 false negative: a wrong `None` drops a gold
+chapter unrecoverably, so Phase 2 never sees it (the missed-context losses
+report.py attributes to Extract).
 """
 
 import argparse

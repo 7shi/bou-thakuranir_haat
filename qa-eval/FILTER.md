@@ -62,80 +62,16 @@ BM25/lexical hybrid in [HYBRID.md](HYBRID.md) — not a better LLM prompt.
 
 ## `answer_filter.py`
 
-A trimmed variant of per-chapter extraction that plays the same role as Vector
-RAG — a **retrieval step that selects chapters** — but uses the LLM itself as
-the retriever instead of dense embeddings. Where Extract summarizes each chapter
-and answers from the summaries, Filter asks only "is this chapter relevant?" and
-answers from the **full text** of the kept chapters.
-
-The `--verdicts {2,3,10,100,5d}` switch selects the classification granularity:
-
-- **`--verdicts 2` (→ Filter2)**: two-level verdict `yes` / `no`. Phase 2 keeps
-  only `yes`, a high bar that drops anything the model is not sure about.
-- **`--verdicts 3` (default → Filter3)**: three-level verdict `yes` / `maybe` /
-  `no`. Phase 2 keeps every chapter whose verdict is not `no` (both `yes` and
-  `maybe`), so uncertainty is resolved toward inclusion. The `maybe` label is a
-  trick for shifting the threshold: routing uncertain chapters through a middle
-  verdict instead of forcing a yes/no call raises the effective `no` bar and
-  lets more chapters survive into Phase 2.
-- **`--verdicts 10` (→ Filter10, Phase 1 only)**: eleven-level verdict (integer
-  `0`–`10`). Phase 1 records the raw score per `(chapter, question)` pair so the
-  keep/drop threshold can be chosen *after* the distribution is observed — one
-  Phase 1 run feeds every threshold under test, instead of one run per threshold
-  as with the 2- and 3-level variants.
-- **`--verdicts 100` (→ Filter100, Phase 1 only)**: 101-level verdict (integer
-  `0`–`100`). Tried as a finer-grained counterpart of Filter10, but the model
-  self-quantized to multiples of 10 (only 13 of 101 values used), so Filter100
-  is effectively Filter10 scaled ×10 — sparse, with a *worse* floor (11 gold
-  scored 0 vs 7). See [Filter100: filter10 ×10](#filter100-filter10-x10).
-- **`--verdicts 5d` (→ Filter5d, Phase 1 only)**: five-axis verdict (five
-  integers `0`–`10`). Decomposes relevance across orthogonal axes to attack the
-  gold-scored-0 floor. See [Filter5d: multi-axis scoring](#filter5d-multi-axis-relevance-scoring).
-
-The 2- and 3-level variants ultimately reduce Phase 2 to a binary keep/drop
-decision; the difference is only where the drop threshold sits.
-
-**Algorithm**
-
-Phase 1 — Relevance classification (37 chapters × 50 questions = 1,850 calls):
-
-1. Outer loop iterates over chapters; inner loop iterates over questions. This
-   keeps the same chapter text in the KV cache across all questions for that
-   chapter, mirroring `answer_extract.py`.
-2. For each (chapter, question) pair, pass the chapter text as context and ask
-   the model whether the chapter is relevant. CoT is disabled
-   (`include_thoughts=False`). For V=2/3 the reply is a single token parsed by
-   first character; for V=10/100 the first integer in `[0, scale]`; for V=5d a
-   structured `AxisScores` object (five `int` fields, `ge=0 le=10`). On an
-   unclear reply it retries up to 3 times, then falls back to the **inclusion**
-   side of the chosen granularity (`yes` for V=2, `maybe` for V=3, mid-scale for
-   V=10/100), so an unparseable answer keeps the chapter rather than dropping it.
-3. Write the result immediately to the checkpoint file and flush.
-
-Phase 2 — Answer (50 calls):
-
-4. Collect the kept chapters for the question. For `--verdicts 2` that is only
-   `yes`; for `--verdicts 3` it is every chapter whose verdict is not `no`. (The
-   numeric variants V=10/100/5d are Phase 1 only — see the verdict above for why
-   Phase 2 was not pursued.)
-5. Build a context block with the **full chapter text** (not a summary) labeled
-   `[Chapter N]`, and ask the model to answer using only that context.
-
-- **Input**: `questions-<lang>.jsonl` (50 questions, ROOT-level) and
-  `../all/<lang>-gemini.jsonl` (scenes — needed in Phase 2 because Phase 1 stored
-  only verdicts, unlike Extract which kept the summary text).
-- **Output (Phase 2)**: `results-<lang>/filter{V}.jsonl` (`filter2.jsonl` /
-  `filter3.jsonl`) — one record per question with `question_id`, `expanded`
-  (kept chapter numbers), and `answer`.
-- **Verdict file (Phase 1)**: `results-<lang>/filter{V}.tsv` — one row per
-  classified `(chapter, question_id)` pair. For V=2/3/10/100 the columns are
-  `chapter`, `question_id`, `verdict`; for V=5d the columns are `chapter`,
-  `question_id`, and the five axis scores `factual entity causal reference
-  thematic` (the sum is derived on read, not stored).
-
-Resume-safe at two levels: question IDs already in the output file are skipped
-entirely; `(question_id, chapter)` pairs already in the verdict file are skipped
-in Phase 1.
+The filter strategy itself: a per-chapter relevance step that uses the LLM as the
+retriever, then answers from the **full text** of the kept chapters (Extract, by
+contrast, answers from summaries). The `--verdicts {2,3,10,100,5d}` switch sets
+the granularity — Filter2 (`yes`/`no`) and Filter3 (`yes`/`maybe`/`no`) reduce
+Phase 2 to a keep/drop decision at different thresholds, while Filter10/100/5d are
+Phase 1 only and feed the score analyses below (Filter100 =
+[filter10 ×10](#filter100-filter10-10), Filter5d =
+[multi-axis scoring](#filter5d-multi-axis-relevance-scoring)). The two-phase
+algorithm (1,850-call classification + 50-call answer), the parse/fallback rules,
+the I/O, and the verdict-file layout are in the script's docstring.
 
 ### Failure mode
 
@@ -155,18 +91,9 @@ forced into a binary call, the model marks 33 of 86 gold chapters `no` and only
 
 ### `filter.py`
 
-Standalone analysis script (no LLM, no output file — terminal tables only). It
-reads the Phase 1 verdict TSVs and the gold chapters from `questions-<lang>.jsonl`
-to answer three questions:
-
-1. How are the scores distributed, and do they separate gold from non-gold?
-2. Which keep/drop threshold maximizes recall / precision / F1, by question type?
-3. How do the filter2/filter3 verdicts map onto the score scale, and which
-   threshold reproduces each variant's keep/drop boundary?
-
-The `--scale {10,100}` switch selects which verdict TSV to read. Scale 10 runs
-the full eight-table suite; scale 100 prints only the raw score occurrence count
-and stops, because filter100 is filter10 scaled ×10. Run:
+Grades the Phase 1 verdict TSVs against the gold chapters — score distribution,
+threshold sweep, and the filter2/3-vs-filter10 crosstab (the table list and the
+`--scale {10,100}` switch are in the docstring). Run:
 
 ```sh
 make filter                  # filter10 verdicts + full analysis (LANG=en default)
@@ -297,20 +224,14 @@ single snap-to-0.
 
 ### `filter5d.py`
 
-Standalone analysis script (no LLM, terminal tables only). It reads
-`filter5d.tsv` and the gold chapters to answer: how many gold pairs land at
-sum=0 (the floor)? does a sum threshold separate gold from non-gold? which axes
-carry the gold signal? Run:
+Grades the five-axis scores in `filter5d.tsv` against the gold chapters — the
+floor (gold pairs at sum=0), sum-threshold separation, and per-axis signal (see
+the docstring, including the **excess**-not-precision posture). Run:
 
 ```sh
 make filter5d              # builds filter5d.tsv if missing, then runs this
 make filter5d LANG=ja      # Japanese
 ```
-
-A design note specific to this script: **absence is the failure, surfeit is
-not.** Since Ceiling (0.990) shows over-inclusion does not hurt accuracy, the
-analysis reports an **excess** column (non-gold chapters kept) as a cost metric,
-not a correctness one.
 
 ### The floor: eliminated
 

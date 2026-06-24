@@ -8,7 +8,17 @@ correct / partial / incorrect.
 
 The `reason` field is declared before `verdict` in the schema so the model
 writes its justification first and the verdict follows from it, rather than
-being a post-hoc rationalization.
+being a post-hoc rationalization. The default judge model is `ollama:qwen3.6`,
+since Gemma 4 is weak at structured output. A too-short `reason` (< 20 chars —
+blank, or just echoing the verdict) is retried up to 3 times (4 attempts total),
+printing a `retrying (n/3)` notice; after that the short result is kept.
+
+The judge compares only against the gold `answer`/`rationale`, **not** the
+chapter source text — feeding the source would give the judge two competing
+authorities and muddy the verdict. The gold answers are not ground truth (Gemini
+2.5 Pro produced them with the whole text in context), so treat the metric as
+*agreement with the Gemini full-text baseline*, not absolute accuracy; any
+systematic gold bias cancels when two methods are judged against the same gold.
 
 Output: judge-<input-stem>.jsonl next to each input (e.g. judge-vector5.jsonl), one
 record per question. Resume-safe: skips question IDs already present in the

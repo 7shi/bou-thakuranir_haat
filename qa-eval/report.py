@@ -22,6 +22,16 @@ Both axes are broken down by the gold `type` field (single / cross), with an
 `all` scope covering every question, so single-passage vs. cross-reference
 performance can be compared side by side.
 
+**Method discovery** is automatic from the results directory, so a newly judged
+depth or method appears with no code change. Each `vector<k>.jsonl` with a
+matching `judge-vector<k>.jsonl` becomes a `Vector k=<k>` row, each
+`hybrid<k>.jsonl` a `Hybrid k=<k>` row; then Extract, Filter2, Filter3, and
+Ceiling are appended when their files exist. Rows are ordered `Vector k=5`,
+remaining `Vector k=<k>` by ascending k, `Hybrid k=<k>` by ascending k, Extract,
+Filter2, Filter3, Ceiling — so the union sits beside its dense-only Vector peer,
+the stricter filter ahead of the looser one, and Ceiling anchors the table last
+as the perfect-retrieval upper bound.
+
 A second pass then prints a pairwise **disagreement analysis** for every pair
 of methods: a 3x3 verdict agreement matrix plus, for each question where one
 method strictly beats the other, whether the loser actually had every gold

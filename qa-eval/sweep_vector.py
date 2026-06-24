@@ -22,6 +22,16 @@ Note on "recall": report.py uses strict subset recall (1 iff gold ⊆ used). Thi
 script instead reports partial coverage — the fraction of gold chapters with at
 least one scene in the top-k — because the goal is the coverage-vs-k CURVE, not
 a single pass/fail. The two notions agree only when coverage = 1.0.
+
+Findings (English run; Japanese within ±0.02):
+- k=5 is tight for cross. Single coverage hits 1.00 at k=4; cross only reaches
+  0.71 at k=5, 0.86 at k=10, 0.93 at k=15 — bumping -k toward ~10–15 surfaces
+  most dropped cross chapters.
+- A global cosine threshold is a poor lever. Best tau*≈0.50 (F1 0.38) — cosine
+  barely separates gold scenes from topically-similar non-gold ones, so rank
+  (k), not score, is the lever. This motivates the BM25 hybrid in HYBRID.md.
+- The 6 Vector retrieval misses (Q27, 28, 31, 36, 43, 45; plus Q49) all rank
+  gold > 5 with separation gaps of just +0.00–+0.07.
 """
 
 import argparse

@@ -9,6 +9,14 @@ prompt ``title: {title} | text: {text}``. The resulting ``[N, dim]`` float32
 matrix is saved as a single ``embeddings`` tensor, with per-scene metadata
 (chapter, segment, title, text) and the embedding model name stored as JSON in
 the safetensors metadata (which only accepts str->str entries).
+
+``--line`` embeds one vector per **non-blank line** (split on ``\n``) instead of
+per scene, each with the document prompt ``title: "none" | text: {line}`` (a
+per-line title is more overhead than signal at this granularity). Output is
+``index-line-<lang>.safetensors``; ``scenes`` then holds the per-line entries
+(``{chapter, segment, line, text}``) and a new ``segments`` key holds the full
+segment list so ``answer_vector.py --line`` can build segment-level context from
+a line hit. Build/run with ``make index LINE=1`` / ``make vector LINE=1``.
 """
 
 import argparse

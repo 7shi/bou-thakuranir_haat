@@ -1,13 +1,13 @@
 # Hybrid: dense + BM25 retrieval
 
 The Hybrid analysis covers two standalone scripts —
-[`bm25.py`](README.md#bm25py) and [`hybrid.py`](README.md#hybridpy) — that
+[`bm25.py`](bm25.py) and [`hybrid.py`](hybrid.py) — that
 together answer the question: **does combining sparse
 lexical (BM25) and dense semantic (cosine) retrieval recover the gold chapters
 each alone drops?**
 
 The retrieval unit is a **scene** (segment), identical to Vector RAG,
-[`sweep_vector.py`](README.md#sweep_vectorpy), `bm25.py`, and `hybrid.py`, so
+[`sweep_vector.py`](sweep_vector.py), `bm25.py`, and `hybrid.py`, so
 coverage@k and the per-question metrics read on identical axes across all
 retrievers. Neither script calls an LLM or writes an output file — both are
 pure terminal-table ranking analyses over the 82-scene English corpus.
@@ -82,34 +82,12 @@ union of their top-k chapters — which is parameter-free and robust.**
 
 ## `bm25.py` — sparse lexical standalone
 
-Sibling of [`sweep_vector.py`](README.md#sweep_vectorpy): same scene unit, same
-gold-coverage lens, but ranks scenes by **Okapi BM25** on the literal scene
-text instead of cosine on the dense embedding index. Read the two side by side
-to answer the question — does sparse lexical matching recover the
-chapters dense retrieval drops (the low-frequency proper nouns embeddings wash
-out)?
-
-The BM25 implementation is pure stdlib (`re` + `collections` + `math`), k1=1.5,
-b=0.75 (standard Okapi defaults), using the Lucene/Elasticsearch IDF variant
-`ln(1 + (N − n + 0.5)/(n + 0.5))` so IDF is always non-negative. Tokenization is
-English-only (lowercase + `[a-z0-9]+` + stopword removal); no morphology, so
-Japanese is deferred. The ranking functions (`BM25Index`, `rank_all_scenes`,
-`tokenize`) are importable so `hybrid.py` reuses them without reimplementing.
-
-**Algorithm**
-
-1. Tokenize each scene document (title + body) and build a BM25 index over the
-   corpus.
-2. For each question, tokenize the question and score every scene.
-3. Rank all 82 scenes by BM25 score (ties break in narrative order) and record
-   where each gold chapter first appears.
-4. Print five tables (1 and 3–5 mirror `sweep_vector.py` so the two retrievers read
-   side by side; 2 is the per-question row-level view; 5 is the dense-miss
-   cross-reference).
-
-- **Input**: `questions-<lang>.jsonl` (50 questions, ROOT-level) and
-  `all/<lang>-gemini.jsonl` + `.tsv` (scene text + titles). No embedding index,
-  no ollama — reads the raw scene text directly.
+Ranks the same scenes by **Okapi BM25** on the literal text instead of dense
+cosine — the sparse-lexical sibling of [`sweep_vector.py`](sweep_vector.py), read
+side by side to ask whether lexical matching recovers the chapters dense
+retrieval drops (the low-frequency proper nouns embeddings wash out). The BM25
+implementation, the English-only tokenization, and the five output tables are in
+the docstring.
 
 ### Findings
 
@@ -148,39 +126,12 @@ a hybrid:
 
 ## `hybrid.py` — fusion analysis
 
-Standalone analysis script in the `sweep_vector.py` / `bm25.py` lineage (no LLM,
-no output file — terminal tables only). It fuses the two retrievers' rankings
-and asks whether a hybrid recovers both retrievers' misses *simultaneously*.
-
-### Fusion strategies
-
-Four strategies are compared so the choice between rank-blending and
-score-blending is empirical, not assumed:
-
-- **RRF (Reciprocal Rank Fusion)** — blends ranks, not scores, because both
-  retrievers' scores fail to separate gold (F1 ≈ 0.36–0.38)
-  while rank (k) is the lever for both, and rank-blending sidesteps the
-  unbounded-BM25 vs. bounded-cosine scale mismatch:
-
-  `RRF(scene) = w_d / (K + rank_dense) + w_b / (K + rank_bm25)`
-
-- **Borda Count** — the other classic rank-fusion method, with a linear decay
-  `(N − rank)` instead of RRF's reciprocal. Both are rank-based; Borda weights
-  the top of the list more heavily. Including it isolates whether RRF's
-  reciprocal shape (vs. any rank-blend) matters.
-
-- **CombSUM** — min-max normalizes each retriever's scores to [0, 1] and sums
-  them. The score-based baseline argued *against*: it inherits both
-  retrievers' score-blindness, so it should underperform the rank-blends.
-
-- **Union oracle** — the per-k set-theoretic upper bound: coverage if the
-  hybrid kept every chapter *either* retriever surfaced in its top-k. Not a
-  ranking (the kept set changes with k), but the ceiling any fusion could
-  reach at depth k. RRF's goal was to match it from a single ranking.
-
-`hybrid.py` reuses `bm25.BM25Index` / `rank_all_scenes` / `tokenize` (sparse),
-`answer_vector.load_index` / `embed_query` / `expand_and_merge` (dense), and
-`bm25.coverage_at_k` / `precision_at_k` / `scopes_from_questions` (analysis).
+Fuses the two retrievers' rankings and asks whether a hybrid recovers both
+retrievers' misses *simultaneously*. Four combiners are compared (defined in the
+docstring): **RRF** and **Borda** (rank blends — both retrievers' scores fail to
+separate gold, so rank is the lever), **CombSUM** (a min-max score blend, the
+baseline argued against), and the **Union oracle** (the per-k set-theoretic upper
+bound — not a ranking, but the ceiling any fusion could reach at depth k).
 
 ### Retrieval comparison at k=5 and k=10
 
@@ -273,7 +224,7 @@ gold chapter enters top-k (coverage > 0). It is **not** strict recall (all gold
 chapters ⊆ top-k). Q31's first gold chapter enters at rank 2, but its third
 gold chapter (Ch22) sits at dense rank 38 / BM25 rank 24, so Q31 still fails
 strict recall at k=10. The two notions agree only when coverage = 1.0 (see
-[`sweep_vector.py`](README.md#sweep_vectorpy) § "Note on the two recall notions").
+[`sweep_vector.py`](sweep_vector.py) § "Note on the two recall notions").
 
 ### Context size with ±1 expansion
 

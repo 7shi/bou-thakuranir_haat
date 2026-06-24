@@ -20,8 +20,18 @@ For each question in questions-en.jsonl:
      `answer.answer_question` with the same preamble as Vector RAG).
 
 Output: results-<lang>/hybrid<k>.jsonl (e.g. hybrid5.jsonl for the default k=5),
-one record per question. Resume-safe: skips question IDs already present in the
-output file.
+one record per question — `question_id`, `hits` (per-retriever top-k as
+`{"dense": {...}, "bm25": {...}}`, kept separate because cosine and BM25 scores
+are on incompatible scales), `expanded`, and `answer`. Resume-safe: skips
+question IDs already present in the output file.
+
+Pipeline: built into the default English pipeline via `make judge` (the
+aggregate adds `judge-hybrid5/10.jsonl` only when `LANG=en`, so `make ja` is
+unaffected); report.py auto-discovers `hybrid<k>.jsonl` into a `Hybrid k=<k>`
+row beside the Vector variants. Run `make hybrid` (k=5) / `make hybrid K=10` for
+the answer file, or `make hybrid-judge` for both depths plus judgements. The
+retrieval coverage (40/50 @ k=5, 46/50 @ k=10) is the upper bound on Phase 2
+accuracy; the gap to it is the synthesis cost of the ~1.4× larger context.
 
 English only — BM25 tokenization is English-only (lowercase + `[a-z0-9]+` +
 stopword removal, no morphology), so Japanese is deferred; passing `-l ja`

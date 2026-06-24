@@ -8,6 +8,10 @@ perfect-retrieval ceiling that isolates the answer model's comprehension from
 retrieval quality. Where the other methods answer "which chapters should the
 answerer see?", Ceiling answers "given the right chapters, how well does the
 model read and synthesize?" — the upper bound the retrieval strategies chase.
+Because Ceiling's `expanded` is always exactly the gold set, report.py's pairwise
+disagreement analysis classifies all its losses as synthesis, and every question
+where Ceiling beats a retrieval method with a non-empty `dropped` set exposes a
+chapter that method failed to surface.
 
 For each question in questions-<lang>.jsonl:
   Load the full text of every chapter in the gold `chapters` field, concatenate
