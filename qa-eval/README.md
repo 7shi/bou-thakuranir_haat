@@ -14,9 +14,9 @@ The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 
 50 questions per language, judged against a Gemini full-text gold standard
 with `ollama:qwen3.6`. The table reports `correct`/50 with the weighted score
-`(correct + 0.5·partial) / 50` in parentheses. **Vector-line** has been run for
-both languages; Vector `k=10`, **Hybrid**, **Filter2**, **Filter3**, and
-**Ceiling** are English only (Japanese pending).
+`(correct + 0.5·partial) / 50` in parentheses. **Vector-line** and **V-hybrid**
+have been run for both languages; Vector `k=10`, **Hybrid**, **Filter2**,
+**Filter3**, and **Ceiling** are English only (Japanese pending).
 
 | Method | English | Japanese |
 | --- | --- | --- |
@@ -24,6 +24,8 @@ both languages; Vector `k=10`, **Hybrid**, **Filter2**, **Filter3**, and
 | Vector k=10 | 44/50 (0.920) | — |
 | Vector-line k=5 | 35/50 (0.800) | 35/50 (0.790) |
 | Vector-line k=10 | 41/50 (0.890) | 40/50 (0.840) |
+| V-hybrid k=5 | 40/50 (0.890) | 42/50 (0.890) |
+| V-hybrid k=10 | 43/50 (0.910) | 42/50 (0.880) |
 | Hybrid k=5 | 43/50 (0.910) | — |
 | Hybrid k=10 | 47/50 (0.960) | — |
 | Extract | 39/50 (0.830) | 40/50 (0.850) |
@@ -35,7 +37,7 @@ The pipeline behind these rows — build the index, answer each question, grade,
 aggregate (Filter and Ceiling are opt-in):
 
 - `build_index.py` — scene embedding index → `index-<lang>.safetensors`
-- `answer_vector.py` — Vector k=5/10, and Vector-line (`--line`) → `results-<lang>/vector<k>.jsonl`
+- `answer_vector.py` — Vector k=5/10, Vector-line (`--line`), and V-hybrid (`--hybrid`, segment ∪ line dense Union; see [VECTOR-HYBRID.md](VECTOR-HYBRID.md)) → `results-<lang>/vector[-line|-hybrid]<k>.jsonl`
 - `answer_extract.py` — Extract → `results-<lang>/extract.jsonl`
 - `answer_filter.py` — Filter2 / Filter3 (LLM as retriever; see [FILTER.md](FILTER.md)) → `results-<lang>/filter{2,3}.jsonl`
 - `answer_hybrid.py` — Hybrid k=5/10 (dense ∪ BM25; see [HYBRID.md](HYBRID.md)) → `results-<lang>/hybrid<k>.jsonl`
@@ -84,6 +86,24 @@ pronounced (union strict recall lifts the segment k=5 baseline from 36/50 to
 [results-en/README.md](results-en/README.md#vector-line-line-level-retrieval) and
 [results-ja/README.md](results-ja/README.md#vector-line-line-level-retrieval) for
 the per-question breakdowns.
+
+**The segment ∪ line dense union (`V-hybrid`) converts that orthogonality into
+accuracy — and is the top *Japanese* method.** Unioning the segment and line
+top-k (`answer_vector.py --hybrid`; the same union idea as Hybrid, but two
+same-model cosines instead of dense + BM25, so no second model and both
+languages) scores 0.890 / 0.910 (English) and 0.890 / 0.880 (Japanese). In
+English it nearly eliminates wrong answers (k=5: 1 incorrect vs Vector k=5's 6)
+and lifts cross-reference chapter recall to 0.800 at k=10, but lands between
+segment Vector k=10 (the wider union context costs two synthesis losses) and the
+lexical Hybrid (which alone reaches the dense-blind [Class
+A](results-en/README.md#both-wrong-what-k10-cannot-fix) chapters that no dense
+granularity can rank). In **Japanese**, where no BM25 hybrid exists, V-hybrid k=5
+(0.890) is the strongest retriever outright — above Extract (0.850) and every
+Vector variant — because the larger Japanese union gain (+5 / +7 strict recall)
+converts directly to answers. See [VECTOR-HYBRID.md](VECTOR-HYBRID.md) and the
+per-question breakdowns:
+[English](results-en/README.md#v-hybrid-segment--line-dense-union) ·
+[Japanese](results-ja/README.md#v-hybrid-segment--line-dense-union).
 
 The **Filter** rows use the LLM itself as the retriever (per-chapter relevance,
 answer from the full text of the kept chapters). Filter3 posts the best

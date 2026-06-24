@@ -12,7 +12,11 @@ gold, two independent readers confirm the answer. **Hybrid** (dense ∪ BM25
 union, [§ Hybrid](#hybrid-dense--bm25-union)) adds the Phase 2 answer
 measurement for the retrieval analysis in [HYBRID.md](../HYBRID.md): does the
 +4 strict-recall gain from unioning both retrievers translate to answer
-accuracy? **Filter**, the fourth strategy, is summarized at
+accuracy? **V-hybrid** (segment ∪ line dense union,
+[§ V-hybrid](#v-hybrid-segment--line-dense-union)) is the same union idea applied
+to two *dense* granularities instead of dense+BM25 — the Phase 2 QA for
+[VECTOR-HYBRID.md](../VECTOR-HYBRID.md). **Filter**, the fifth strategy, is
+summarized at
 ([§ Filter](#filter-llm-as-retriever)) and analyzed in full in
 [FILTER.md](../FILTER.md): a looser variant of Extract that reads the full text
 of every chapter not marked `no`. **Ceiling** closes the study
@@ -23,7 +27,8 @@ synthesis-only upper bound.
 Run: answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`, 50 questions
 (`questions-en.jsonl`, 25 single-passage + 25 cross-reference). Vector k=5 →
 `vector5.jsonl`; Vector k=10 → `vector10.jsonl`; Vector-line k=5/k=10 →
-`vector-line5.jsonl` / `vector-line10.jsonl`; Hybrid k=5 → `hybrid5.jsonl`;
+`vector-line5.jsonl` / `vector-line10.jsonl`; V-hybrid k=5/k=10 →
+`vector-hybrid5.jsonl` / `vector-hybrid10.jsonl`; Hybrid k=5 → `hybrid5.jsonl`;
 Hybrid k=10 → `hybrid10.jsonl`; Filter2 → `filter2.jsonl`; Filter3 →
 `filter3.jsonl`; Ceiling → `ceiling.jsonl`.
 
@@ -36,6 +41,8 @@ all      Vector k=5        50      39       5         6     0.830     0.720    0
 all      Vector k=10       50      44       4         2     0.920     0.840    0.205
 all      Vector-line k=5   50      35      10         5     0.800     0.660    0.401
 all      Vector-line k=10  50      41       7         2     0.890     0.780    0.274
+all      V-hybrid k=5      50      40       9         1     0.890     0.760    0.297
+all      V-hybrid k=10     50      43       5         2     0.910     0.900    0.182
 all      Hybrid k=5        50      43       5         2     0.910     0.800    0.251
 all      Hybrid k=10       50      47       2         1     0.960     0.920    0.154
 all      Extract           50      39       5         6     0.830     0.740    0.843
@@ -47,6 +54,8 @@ single   Vector k=5        25      24       0         1     0.960     1.000    0
 single   Vector k=10       25      25       0         0     1.000     1.000    0.136
 single   Vector-line k=5   25      25       0         0     1.000     1.000    0.392
 single   Vector-line k=10  25      25       0         0     1.000     1.000    0.244
+single   V-hybrid k=5      25      25       0         0     1.000     1.000    0.226
+single   V-hybrid k=10     25      24       0         1     0.960     1.000    0.119
 single   Hybrid k=5        25      24       0         1     0.960     1.000    0.178
 single   Hybrid k=10       25      24       0         1     0.960     1.000    0.097
 single   Extract           25      24       0         1     0.960     1.000    1.000
@@ -58,6 +67,8 @@ cross    Vector k=5        25      15       5         5     0.700     0.440    0
 cross    Vector k=10       25      19       4         2     0.840     0.680    0.274
 cross    Vector-line k=5   25      10      10         5     0.600     0.320    0.409
 cross    Vector-line k=10  25      16       7         2     0.780     0.560    0.305
+cross    V-hybrid k=5      25      15       9         1     0.780     0.520    0.369
+cross    V-hybrid k=10     25      19       5         1     0.860     0.800    0.245
 cross    Hybrid k=5        25      19       5         1     0.860     0.600    0.325
 cross    Hybrid k=10       25      23       2         0     0.960     0.840    0.211
 cross    Extract           25      15       5         5     0.700     0.480    0.686
@@ -408,6 +419,51 @@ k=10 beats k=5 on 7 questions, **all missed-context**, against a single
 regression (Q50, Ch23). The k=5 unit is simply too tight for cross-reference —
 the same lesson [`sweep_vector.py`](../README.md#sweep_vectorpy) drew for the
 segment index, only sharper here because the line unit retrieves less per hit.
+
+## V-hybrid (segment ∪ line dense union)
+
+`V-hybrid` (`answer_vector.py --hybrid`) unions the two *dense* retrievers —
+segment top-k ∪ line top-k, resolved to segments — converting the segment∪line
+strict-recall gain from [VECTOR-HYBRID.md](../VECTOR-HYBRID.md) (en +2 @ k=5, +3
+@ k=10) into answer accuracy. It is the same union idea as
+[Hybrid](#hybrid-dense--bm25-union), but with two same-model cosines instead of
+dense + BM25, so it needs no score-scale reconciliation and works in both
+languages.
+
+It scores **0.890 (k=5) / 0.910 (k=10)** — above plain Vector k=5 (0.830) and
+Vector-line (0.800 / 0.890), below segment Vector k=10 (0.920) and the dense∪BM25
+Hybrid (0.910 / 0.960). The most striking column is `incorrect`: V-hybrid k=5
+has just **1** (vs Vector k=5's 6, Vector-line k=5's 5), with 9 partials. The
+union surfaces so many gold chapters that almost nothing is fully missed — chapter
+recall on cross-reference reaches **0.800 at k=10** (vs Vector k=10's 0.680) —
+but the recovered chapters convert to *partial* more often than *correct*: the
+right chapter is present, yet the wider context dilutes synthesis.
+
+### Two ceilings it does not break
+
+The disagreement pass pins why V-hybrid lands between Vector k=10 and Hybrid:
+
+- **vs segment Vector k=10 (loses by 1).** V-hybrid k=10 beats Vector k=10 on one
+  question (a missed-context recovery) but loses two — both **synthesis**, where
+  the ~1.4× larger union context makes the answerer lose a chapter it already
+  had. This is exactly the "lost in the middle" cost
+  [VECTOR-HYBRID.md](../VECTOR-HYBRID.md) flagged: the retrieval gain is real, but
+  net answer accuracy dips slightly because synthesis pays for the extra context.
+- **vs dense∪BM25 Hybrid k=10 (loses 4–0).** Hybrid strictly dominates: it wins
+  four questions (two missed-context, two synthesis), V-hybrid wins none. The two
+  missed-context losses are the [Class A](#both-wrong-what-k10-cannot-fix)
+  chapters — Q31 Ch21/22, Q43 Ch37 — that dense embedding cannot rank at *any*
+  granularity because they are lexically distinctive but semantically generic.
+  Unioning two dense granularities cannot reach them; only BM25's lexical signal
+  does. **This is the ceiling of dense∪dense union**: it recovers chapters that
+  differ by granularity, but not chapters that are dense-blind.
+
+So in English V-hybrid is a clean, parameter-free dense-only retriever with the
+lowest incorrect rate of any Vector variant, yet it sits below both segment
+Vector k=10 (synthesis cost) and the lexical Hybrid (dense-blind Class A
+chapters). Its decisive value shows in **Japanese**, where no BM25 hybrid exists
+— there V-hybrid is the top method (see
+[results-ja/README.md](../results-ja/README.md#v-hybrid-segment--line-dense-union)).
 
 ## Filter (LLM-as-retriever)
 

@@ -129,10 +129,14 @@ actual answer score depends on:
 ## Conclusion
 
 Approach **B (union)** is the only direction worth implementing; approach A does
-not help coverage. The downstream answering script (`answer_seg_line.py` in
-[PLAN.md](PLAN.md)) should be union-based. The final method ranking still requires
-running the answers through the judge — these numbers bound retrieval, not answer
-quality.
+not help coverage. It ships as `answer_vector.py --hybrid`
+([answer_vector.py](answer_vector.py)), which loads both indexes, unions the
+segment + line top-k (stable tie-break, so the strict-recall numbers above
+reproduce exactly), and writes `vector-hybrid<k>.jsonl`. Run it with
+`make vector-hybrid` / `make vector-hybrid K=10`; `make vector-hybrid-judge`
+answers and judges both depths so `V-hybrid k=5` / `V-hybrid k=10` appear in
+`make report`. The numbers above bound retrieval, not answer quality — the final
+method ranking still requires running the answers through the judge.
 
 ## Reproduce
 

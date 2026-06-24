@@ -252,6 +252,54 @@ scores from both granularities — a concrete retrieval lever, distinct from the
 dense∪BM25 hybrid because no second model or score-scale reconciliation is
 needed.
 
+## V-hybrid (segment ∪ line dense union)
+
+The section+line union the Vector-line analysis above proposed as a "concrete
+retrieval lever" is realized as `V-hybrid` (`answer_vector.py --hybrid`): segment
+top-k ∪ line top-k, resolved to segments, then the usual answering. It turns the
+segment∪line strict-recall gain from [VECTOR-HYBRID.md](../VECTOR-HYBRID.md) (ja
++5 @ k=5, +7 @ k=10 — larger than English's +2/+3) into answer accuracy, and in
+Japanese the payoff is decisive:
+
+```
+scope    method             n correct partial incorrect  weighted ch.recall  ch.prec
+all      Vector k=5        50      38       5         7     0.810     0.720    0.332
+all      Vector-line k=10  50      40       4         6     0.840     0.760    0.260
+all      Extract           50      40       5         5     0.850     0.760    0.807
+all      V-hybrid k=5      50      42       5         3     0.890     0.820    0.298
+all      V-hybrid k=10     50      42       4         4     0.880     0.900    0.179
+single   V-hybrid k=5      25      25       0         0     1.000     1.000    0.213
+single   V-hybrid k=10     25      25       0         0     1.000     1.000    0.121
+cross    V-hybrid k=5      25      17       5         3     0.780     0.640    0.383
+cross    V-hybrid k=10     25      17       4         4     0.760     0.800    0.237
+```
+
+**V-hybrid k=5 (0.890) is the top Japanese method** — above Extract (0.850),
+Vector-line k=10 (0.840), and Vector k=5 (0.810). It saturates single-passage to
+1.000 and lifts cross-reference to **0.780 (17/25)**, the best cross result of any
+Japanese method (Extract 0.700, Vector-line k=10 0.680).
+
+The disagreement pass shows it is a clean retrieval win, not a wash:
+
+- **vs Vector k=5 — strict domination.** V-hybrid k=5 beats Vector k=5 on **6**
+  questions (5 missed-context, 1 synthesis) and loses **none**. The five
+  missed-context wins are the union surfacing gold chapters Vector's top-5 drops
+  (Q28 Ch37, Q32 Ch15/16, Q34 Ch31, Q48 Ch19, Q49 Ch22) — including **Q49 Ch22**,
+  the forged-Delhi-petition miss §3a traces to dense recall, which Extract could
+  only reach by reading Ch22 in full.
+- **vs Extract — net +4.** V-hybrid k=5 beats Extract on 7 (5 missed-context, 2
+  synthesis), loses 3. The union reaches by retrieval what Extract reached only by
+  reading every chapter — at a fraction of the cost.
+
+k=5 slightly edges k=10 (0.890 vs 0.880): at k=10 cross dips 0.780→0.760 as the
+~1.4× wider union context starts to cost synthesis (the "lost in the middle"
+effect [VECTOR-HYBRID.md](../VECTOR-HYBRID.md) flagged), so k=5 is the Japanese
+sweet spot. **This is the key cross-language result**: English gets its
+top-retrieval lever from the dense∪BM25 Hybrid, which is unavailable in Japanese
+(BM25 tokenization is English-only); the segment∪line dense union — needing no
+second model and no score-scale reconciliation — is the Japanese equivalent, and
+the larger ja union gain makes it the strongest Japanese retriever outright.
+
 ## 5. Takeaways and cross-language comparison
 
 - **The headline findings hold across languages.** Single-passage QA is solved

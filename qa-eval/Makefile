@@ -16,24 +16,24 @@
 # but is kept opt-in to match the experimental posture of Filter.
 #
 # Usage:
-#   make            # full English pipeline (LANG=en)
-#   make ja         # full Japanese pipeline
-#   make all        # both languages
-#   make report     # build whatever is missing, then print the table
+#   make            		# full English pipeline (LANG=en)
+#   make ja         		# full Japanese pipeline
+#   make all        		# both languages
+#   make report     		# build whatever is missing, then print the table
 #   make LANG=ja vector judge
-#   make filter2    # opt-in: per-chapter yes/no filter (Phase 1 + 2 + judge)
-#   make filter3    # opt-in: per-chapter yes/maybe/no filter (Phase 1 + 2 + judge)
-#   make filter10-tsv   # opt-in: per-chapter 0-10 score → filter10.tsv (Phase 1 only)
-#   make filter100-tsv  # opt-in: per-chapter 0-100 score → filter100.tsv (Phase 1 only)
-#   make filter5d-tsv   # opt-in: per-chapter five-axis 0-10 scores → filter5d.tsv (Phase 1 only)
-#   make ceiling    # opt-in: gold-chapter context ceiling (answer + judge)
-#   make sweep      # retrieval sweep (independent of the pipeline; no LLM)
-#   make bm25               # BM25 sparse retrieval gold-coverage analysis (no LLM)
-#   make hybrid             # dense ∪ BM25 union QA answering (English only; see hybrid-judge)
-#   make hybrid-judge       # hybrid k=5 + k=10 answering + judging → rows in `make report`
-#   make filter     # filter10 verdicts + score-distribution analysis (no LLM)
-#   make filter SCALE=100  # filter100 occurrence count only (no LLM)
-#   make filter5d   # five-axis verdicts + sum/per-axis/floor analysis (no LLM)
+#   make filter2    		# opt-in: per-chapter yes/no filter (Phase 1 + 2 + judge)
+#   make filter3    		# opt-in: per-chapter yes/maybe/no filter (Phase 1 + 2 + judge)
+#   make filter10-tsv   	# opt-in: per-chapter 0-10 score → filter10.tsv (Phase 1 only)
+#   make filter100-tsv  	# opt-in: per-chapter 0-100 score → filter100.tsv (Phase 1 only)
+#   make filter5d-tsv   	# opt-in: per-chapter five-axis 0-10 scores → filter5d.tsv (Phase 1 only)
+#   make ceiling    		# opt-in: gold-chapter context ceiling (answer + judge)
+#   make sweep      	   	# retrieval sweep (independent of the pipeline; no LLM)
+#   make bm25              	# BM25 sparse retrieval gold-coverage analysis (no LLM)
+#   make hybrid            	# dense ∪ BM25 union QA answering (English only; see hybrid-judge)
+#   make hybrid-judge      	# hybrid k=5 + k=10 answering + judging → rows in `make report`
+#   make filter     	   	# filter10 verdicts + score-distribution analysis (no LLM)
+#   make filter SCALE=100  	# filter100 occurrence count only (no LLM)
+#   make filter5d   	   	# five-axis verdicts + sum/per-axis/floor analysis (no LLM)
 
 LANG    := en
 ROOT    := ..
@@ -82,7 +82,7 @@ K ?= 5
 VECTOR_FILE := $(RESULTS)/$(VECTOR_STEM)$(K).jsonl
 HYBRID_FILE := $(RESULTS)/hybrid$(K).jsonl
 
-.PHONY: en ja all pipeline index vector hybrid extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter5d-tsv filter filter5d ceiling judge hybrid-judge report sweep bm25 clean
+.PHONY: en ja all pipeline index vector hybrid vector-hybrid vector-hybrid-judge extract-parts extract filter2-tsv filter2 filter3-tsv filter3 filter10-tsv filter100-tsv filter5d-tsv filter filter5d ceiling judge hybrid-judge report sweep bm25 clean
 .DEFAULT_GOAL := en
 
 en:
@@ -111,6 +111,14 @@ hybrid: $(HYBRID_FILE)
 # `make hybrid-judge` runs answering at k=5 and k=10 then judges both, so
 # Hybrid k=5 / Hybrid k=10 appear in `make report` after a single command.
 hybrid-judge: $(RESULTS)/judge-hybrid5.jsonl $(RESULTS)/judge-hybrid10.jsonl
+# Segment ∪ line dense Union answering (answer_vector.py --hybrid). Mirrors
+# `make vector`: the pattern rule derives the filename from k. Both languages.
+# Not part of the default pipeline; plain `make judge` grades any present
+# vector-hybrid<k>.jsonl via the wildcard pickup below.
+vector-hybrid: $(RESULTS)/vector-hybrid$(K).jsonl
+# `make vector-hybrid-judge` answers k=5 and k=10 then judges both, so
+# V-hybrid k=5 / V-hybrid k=10 appear in `make report` after a single command.
+vector-hybrid-judge: $(RESULTS)/judge-vector-hybrid5.jsonl $(RESULTS)/judge-vector-hybrid10.jsonl
 extract-parts: $(EXTRACT_PARTS)
 extract: $(RESULTS)/extract.jsonl
 filter2-tsv: $(FILTER2_TSV)
@@ -144,6 +152,10 @@ endif
 # pattern rule). wildcard only matches files already present, so plain
 # `make judge` picks them up without needing LINE=1.
 JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge-%.jsonl,$(wildcard $(RESULTS)/vector-line*.jsonl))
+# Same wildcard pickup for the segment ∪ line Union (vector-hybrid<k>.jsonl →
+# judge-vector-hybrid<k>.jsonl, via the judge-vector% pattern rule). Works for
+# both languages; plain `make judge` grades any present without forcing creation.
+JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge-%.jsonl,$(wildcard $(RESULTS)/vector-hybrid*.jsonl))
 judge: $(JUDGE_FILES)
 sweep: $(INDEX) $(QUESTIONS)
 	uv run sweep_vector.py -l $(LANG)
@@ -186,10 +198,15 @@ report: judge
 
 # --- file targets ---
 
-# Scene embedding index. $(LINE_FLAG) is `--line` when LINE=1 (and $(INDEX) is
-# then index-line-<lang>.safetensors), empty otherwise.
-$(INDEX): $(SCENES) $(TSV)
-	uv run build_index.py -l $(LANG) $(LINE_FLAG)
+# Scene embedding indexes. Two explicit named rules (segment / line) rather than
+# one $(LINE_FLAG)-parameterized rule, because `vector-hybrid` needs BOTH indexes
+# present at once. `make index` still builds just $(INDEX) (segment, or line under
+# LINE=1) via the alias above; the vector-hybrid answer rule depends on both.
+index-$(LANG).safetensors: $(SCENES) $(TSV)
+	uv run build_index.py -l $(LANG)
+
+index-line-$(LANG).safetensors: $(SCENES) $(TSV)
+	uv run build_index.py -l $(LANG) --line
 
 # Vector RAG answering.
 #   make vector         → results-<lang>/vector5.jsonl   (default k=5)
@@ -205,6 +222,15 @@ $(RESULTS)/vector%.jsonl: $(INDEX) $(QUESTIONS)
 # still just `vector`.
 $(RESULTS)/vector-line%.jsonl: $(INDEX) $(QUESTIONS)
 	uv run answer_vector.py -l $(LANG) --line -k $*
+
+# Segment ∪ line dense Union answering (answer_vector.py --hybrid). Needs BOTH
+# the segment and line indexes regardless of LINE, so it depends on the two named
+# index files directly (not $(INDEX)). The longer `vector-hybrid%` stem takes
+# precedence over `vector%` for vector-hybrid<k>.jsonl. Both languages.
+#   make vector-hybrid       → results-<lang>/vector-hybrid5.jsonl   (default k=5)
+#   make vector-hybrid K=10  → results-<lang>/vector-hybrid10.jsonl  (k=10)
+$(RESULTS)/vector-hybrid%.jsonl: index-$(LANG).safetensors index-line-$(LANG).safetensors $(QUESTIONS)
+	uv run answer_vector.py -l $(LANG) --hybrid -k $*
 
 # Hybrid retrieval (dense ∪ BM25 union) answering. Mirrors the vector pattern
 # rule: answer_hybrid.py derives the output filename from k, so the pattern
@@ -320,6 +346,7 @@ $(RESULTS)/judge-hybrid10.jsonl: $(RESULTS)/hybrid10.jsonl $(QUESTIONS)
 clean:
 	rm -f $(RESULTS)/vector[0-9]*.jsonl \
 	      $(RESULTS)/vector-line[0-9]*.jsonl \
+	      $(RESULTS)/vector-hybrid[0-9]*.jsonl \
 	      $(RESULTS)/hybrid[0-9]*.jsonl \
 	      $(RESULTS)/extract.jsonl \
 	      $(RESULTS)/filter2.jsonl $(RESULTS)/filter3.jsonl \
@@ -328,6 +355,7 @@ clean:
 	      $(FILTER2_TSV) $(FILTER3_TSV) $(FILTER10_TSV) $(FILTER100_TSV) $(FILTER5D_TSV) \
 	      $(RESULTS)/judge-vector[0-9]*.jsonl \
 	      $(RESULTS)/judge-vector-line[0-9]*.jsonl \
+	      $(RESULTS)/judge-vector-hybrid[0-9]*.jsonl \
 	      $(RESULTS)/judge-hybrid[0-9]*.jsonl \
 	      $(RESULTS)/judge-extract.jsonl \
 	      $(RESULTS)/judge-filter2.jsonl $(RESULTS)/judge-filter3.jsonl \

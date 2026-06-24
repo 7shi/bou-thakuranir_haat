@@ -22,6 +22,26 @@ containing segment before the same ±N expansion and answering. Output goes to
 `vector-line<k>.jsonl`, with `hits` keyed `chapter:segment:line` to preserve line
 provenance. Build/run with `make index LINE=1` / `make vector LINE=1`; plain
 `make judge` grades any `vector-line<k>.jsonl` present.
+
+`--hybrid` runs the **segment ∪ line** dense Union proven in
+[VECTOR-HYBRID.md](VECTOR-HYBRID.md): it loads *both* indexes
+(`index-<lang>.safetensors` and `index-line-<lang>.safetensors`), ranks each side
+top-k, resolves the line hits to their segments, and takes the set-theoretic
+**union** of the two segment sets before the identical ±N expansion and
+answering. Output goes to `vector-hybrid<k>.jsonl`, with `hits` split per source
+(`{"segment": {chapter:segment→score}, "line": {chapter:segment:line→score}}`).
+This recovers gold chapters either granularity drops (+2/+3 strict recall en,
++5/+7 ja) — parameter-free and, unlike dense∪BM25, working in **both** languages
+(no second model, same embeddinggemma cosine). Run with `make vector-hybrid` /
+`make vector-hybrid K=10`; plain `make judge` grades any `vector-hybrid<k>.jsonl`
+present. Mutually exclusive with `--line`.
+
+The hybrid path ranks with a **stable** tie-break (`top_k_stable`), matching the
+`hybrid-vector.py` measurement that produced the published numbers; the plain and
+`--line` paths keep `top_k_search`'s `np.argsort` (non-stable) so their committed
+results are unchanged. The distinction is load-bearing: strict recall flips 0↔1
+when a score tie lands on the k-th slot, so the union must be selected the same
+way it was measured.
 """
 
 import argparse
@@ -73,6 +93,20 @@ def top_k_search(normed_embeddings: np.ndarray, query_vec: np.ndarray, k: int):
     scores = normed_embeddings @ query_vec
     idx = np.argsort(scores)[::-1][:k]
     return [(int(i), float(scores[i])) for i in idx]
+
+
+def top_k_stable(scores: np.ndarray, k: int):
+    """Top-k indices by score, ties broken in narrative (index) order.
+
+    Mirrors the ranking in ``hybrid-vector.py`` / ``bm25.py`` / ``sweep_vector.py``
+    / ``answer_hybrid.top_k_stable`` (stable sort, reverse=True). Used only by the
+    ``--hybrid`` union path: the VECTOR-HYBRID.md strict-recall numbers were
+    measured under this stable tie-break, so the union hit set must be selected
+    identically. ``top_k_search`` (``np.argsort``) is *not* stable and is kept for
+    the plain / ``--line`` paths to leave their committed results untouched.
+    """
+    order = sorted(range(len(scores)), key=lambda i: float(scores[i]), reverse=True)
+    return [(i, float(scores[i])) for i in order[:k]]
 
 
 def expand_and_merge(hits: list, scenes: list, N: int):
@@ -138,17 +172,32 @@ def main():
     parser.add_argument("--line", action="store_true",
                         help="retrieve at the line level (uses index-line-<lang>.safetensors; "
                              "hits resolve to segments for context)")
+    parser.add_argument("--hybrid", action="store_true",
+                        help="segment ∪ line dense Union: rank both indexes top-k, resolve line "
+                             "hits to segments, union the segment sets (both languages; see "
+                             "VECTOR-HYBRID.md). Mutually exclusive with --line.")
     parser.add_argument("-i", "--input", default=None, help="questions JSONL (default: questions-<lang>.jsonl)")
-    parser.add_argument("--index", default=None, help="index safetensors (default: qa-eval/index[-line]-<lang>.safetensors)")
-    parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/vector[-line]<k>.jsonl)")
+    parser.add_argument("--index", default=None, help="segment index safetensors (default: qa-eval/index[-line]-<lang>.safetensors; in --hybrid this is the segment side)")
+    parser.add_argument("--line-index", default=None, help="line index safetensors for --hybrid (default: qa-eval/index-line-<lang>.safetensors)")
+    parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/vector[-line|-hybrid]<k>.jsonl)")
     args = parser.parse_args()
+
+    if args.hybrid and args.line:
+        raise SystemExit("answer_vector.py: --hybrid and --line are mutually exclusive "
+                         "(--hybrid already unions segment + line retrieval).")
 
     lang = args.lang
     lang_name = LANGS[lang]
     args.input = args.input or str(ROOT / f"questions-{lang}.jsonl")
-    index_stem = "index-line" if args.line else "index"
-    args.index = args.index or str(ROOT / "qa-eval" / f"{index_stem}-{lang}.safetensors")
-    vector_name = f"vector-line{args.k}.jsonl" if args.line else f"vector{args.k}.jsonl"
+    if args.hybrid:
+        # Segment side from --index, line side from --line-index; both always loaded.
+        args.index = args.index or str(ROOT / "qa-eval" / f"index-{lang}.safetensors")
+        args.line_index = args.line_index or str(ROOT / "qa-eval" / f"index-line-{lang}.safetensors")
+        vector_name = f"vector-hybrid{args.k}.jsonl"
+    else:
+        index_stem = "index-line" if args.line else "index"
+        args.index = args.index or str(ROOT / "qa-eval" / f"{index_stem}-{lang}.safetensors")
+        vector_name = f"vector-line{args.k}.jsonl" if args.line else f"vector{args.k}.jsonl"
     output_path = Path(args.output) if args.output else ROOT / "qa-eval" / f"results-{lang}" / vector_name
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -167,7 +216,26 @@ def main():
     # resolve each line hit back to its segment.
     print(f"Loading index from {args.index}")
     seg_pos: dict[tuple[int, int], int] = {}
-    if args.line:
+    normed_line = None  # only set in hybrid mode (the line-side search matrix)
+    if args.hybrid:
+        # Load BOTH indexes. The segment list is the context unit on both sides;
+        # `lines` is the per-line index used only to rank the line side.
+        normed, scenes = load_index(Path(args.index))
+        print(f"Index: {normed.shape[0]} segments, dim={normed.shape[1]}")
+        normed_line, lines, line_segments = load_line_index(Path(args.line_index))
+        print(f"Line index: {normed_line.shape[0]} lines, {len(line_segments)} segments, "
+              f"dim={normed_line.shape[1]} (from {args.line_index})")
+        # The two segment lists must be identical and in the same order so a
+        # segment index means the same thing on both sides (same guard as
+        # hybrid-vector.py / answer_hybrid.py).
+        assert len(scenes) == len(line_segments), (
+            f"segment count mismatch: index={len(scenes)} vs line-index={len(line_segments)}")
+        for i, (a, b) in enumerate(zip(scenes, line_segments)):
+            assert a["chapter"] == b["chapter"] and a["segment"] == b["segment"], (
+                f"segment {i} mismatch: index={(a['chapter'], a['segment'])} "
+                f"vs line-index={(b['chapter'], b['segment'])}")
+        seg_pos = {(s["chapter"], s["segment"]): i for i, s in enumerate(scenes)}
+    elif args.line:
         normed, lines, scenes = load_line_index(Path(args.index))
         seg_pos = {(s["chapter"], s["segment"]): i for i, s in enumerate(scenes)}
         print(f"Index: {normed.shape[0]} lines, {len(scenes)} segments, dim={normed.shape[1]}")
@@ -189,14 +257,31 @@ def main():
             question_text = q["question"]
             print_banner(f"[{qid}/{total}] {question_text}")
 
-            # Embed and search (over lines in line mode, scenes otherwise)
+            # Embed once; reuse the query vector on both sides in hybrid mode.
             q_vec = embed_query(question_text, args.embed)
-            hits = top_k_search(normed, q_vec, args.k)
 
-            if args.line:
+            if args.hybrid:
+                # Segment ∪ line dense Union, stable tie-break on both sides so the
+                # union reproduces the VECTOR-HYBRID.md numbers (see top_k_stable).
+                seg_top = top_k_stable(normed @ q_vec, args.k)
+                line_top = top_k_stable(normed_line @ q_vec, args.k)
+                # Resolve each line hit to its segment, keeping each segment once.
+                line_seg: list[tuple[int, float]] = []
+                seen_line: set[int] = set()
+                for li, score in line_top:
+                    seg_idx = seg_pos[(lines[li]["chapter"], lines[li]["segment"])]
+                    if seg_idx not in seen_line:
+                        seen_line.add(seg_idx)
+                        line_seg.append((seg_idx, score))
+                # Union the two segment-index sets; expand_and_merge ignores the
+                # score component, so 0.0 is a position-only placeholder.
+                union_idx = sorted({i for i, _ in seg_top} | {i for i, _ in line_seg})
+                seg_hits = [(i, 0.0) for i in union_idx]
+            elif args.line:
+                hits = top_k_search(normed, q_vec, args.k)
                 # Resolve each line hit to its segment, keeping each segment once
                 # at its best (first/highest) score, then expand at segment level.
-                seg_hits: list[tuple[int, float]] = []
+                seg_hits = []
                 seen: set[int] = set()
                 for li, score in hits:
                     seg_idx = seg_pos[(lines[li]["chapter"], lines[li]["segment"])]
@@ -204,6 +289,7 @@ def main():
                         seen.add(seg_idx)
                         seg_hits.append((seg_idx, score))
             else:
+                hits = top_k_search(normed, q_vec, args.k)
                 seg_hits = hits
 
             # Expand ±N segments and merge
@@ -214,8 +300,24 @@ def main():
             answer = answer_question(question_text, context, args.model, lang_name,
                                      preamble=VECTOR_PREAMBLE, context_prefix="Context:\n")
 
-            # Build hit metadata: line-level in line mode, scene-level otherwise.
-            if args.line:
+            # Build hit metadata: per-source dicts in hybrid mode, line-level in
+            # line mode, scene-level otherwise.
+            if args.hybrid:
+                # Kept per-source (like answer_hybrid). Both are embeddinggemma
+                # cosines so the scales are comparable, but splitting preserves
+                # which retriever surfaced each hit. report.py reads only
+                # `expanded`, so `hits` is informational.
+                hit_records = {
+                    "segment": {
+                        f"{scenes[i]['chapter']}:{scenes[i]['segment']}": score
+                        for i, score in seg_top
+                    },
+                    "line": {
+                        f"{lines[i]['chapter']}:{lines[i]['segment']}:{lines[i]['line']}": score
+                        for i, score in line_top
+                    },
+                }
+            elif args.line:
                 hit_records = {
                     f"{lines[i]['chapter']}:{lines[i]['segment']}:{lines[i]['line']}": score
                     for i, score in hits

@@ -25,12 +25,15 @@ performance can be compared side by side.
 **Method discovery** is automatic from the results directory, so a newly judged
 depth or method appears with no code change. Each `vector<k>.jsonl` with a
 matching `judge-vector<k>.jsonl` becomes a `Vector k=<k>` row, each
-`hybrid<k>.jsonl` a `Hybrid k=<k>` row; then Extract, Filter2, Filter3, and
+`vector-line<k>.jsonl` a `Vector-line k=<k>` row, each `vector-hybrid<k>.jsonl`
+a `V-hybrid k=<k>` row (segment ∪ line dense Union), each `hybrid<k>.jsonl` a
+`Hybrid k=<k>` row (dense ∪ BM25 union); then Extract, Filter2, Filter3, and
 Ceiling are appended when their files exist. Rows are ordered `Vector k=5`,
-remaining `Vector k=<k>` by ascending k, `Hybrid k=<k>` by ascending k, Extract,
-Filter2, Filter3, Ceiling — so the union sits beside its dense-only Vector peer,
-the stricter filter ahead of the looser one, and Ceiling anchors the table last
-as the perfect-retrieval upper bound.
+remaining `Vector k=<k>` by ascending k, `Vector-line k=<k>`, `V-hybrid k=<k>`,
+`Hybrid k=<k>` by ascending k, Extract, Filter2, Filter3, Ceiling — so each
+union sits beside its dense Vector peers, the stricter filter ahead of the
+looser one, and Ceiling anchors the table last as the perfect-retrieval upper
+bound.
 
 A second pass then prints a pairwise **disagreement analysis** for every pair
 of methods: a 3x3 verdict agreement matrix plus, for each question where one
@@ -238,16 +241,19 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
     A variant is included only when its judge-vector<k>.jsonl also exists, so a
     not-yet-judged vector15.jsonl simply doesn't appear. Hybrid variants
     (dense ∪ BM25 union, the Phase 2 QA of the HYBRID.md Union approach) are
-    discovered the same way from hybrid<k>.jsonl → "Hybrid k=<k>". Extract
-    (per-chapter summary) and Filter (per-chapter relevance) are appended when
-    both their answer and judge files exist. Filter has two verdict
+    discovered the same way from hybrid<k>.jsonl → "Hybrid k=<k>". Between the
+    Vector-line and Hybrid groups, vector-hybrid<k>.jsonl → "V-hybrid k=<k>"
+    (segment ∪ line dense Union, answer_vector.py --hybrid; both languages).
+    Extract (per-chapter summary) and Filter (per-chapter relevance) are appended
+    when both their answer and judge files exist. Filter has two verdict
     granularities: filter2.jsonl (yes/no) and filter3.jsonl (yes/maybe/no, the
     default), and both are appended when present. Order: Vector k=5 first, then
-    Vector k=<k> by ascending k, then Hybrid k=<k> by ascending k, then
-    Extract, then Filter2, then Filter3, then Ceiling (perfect-retrieval
-    ceiling) — so the k=5 baseline sits beside its deeper-retrieval variants,
-    the hybrid union sits beside its Vector peers as a direct retrieval
-    comparison, the per-chapter methods sit next to each other for direct
+    Vector k=<k> by ascending k, then Vector-line k=<k>, then V-hybrid k=<k>,
+    then Hybrid k=<k> by ascending k, then Extract, then Filter2, then Filter3,
+    then Ceiling (perfect-retrieval ceiling) — so the k=5 baseline sits beside
+    its deeper-retrieval variants, the dense unions (V-hybrid = segment∪line,
+    Hybrid = dense∪BM25) sit beside their Vector peers as direct retrieval
+    comparisons, the per-chapter methods sit next to each other for direct
     comparison, the stricter two-level filter sits ahead of its looser
     three-level counterpart, and Ceiling anchors the table as the upper bound
     that strips out retrieval entirely.
@@ -276,6 +282,22 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
         stem = ans.stem
         k = int(re.fullmatch(r"vector-line(\d+)", stem).group(1))
         label = f"Vector-line k={k}"  # vector-line5 → "Vector-line k=5"
+        judge = f"judge-{stem}.jsonl"
+        if (results / judge).exists():
+            found.append((label, ans.name, judge))
+
+    # Vector-hybrid: segment ∪ line dense Union (answer_vector.py --hybrid, the
+    # VECTOR-HYBRID.md approach). Same discovery shape as Vector —
+    # vector-hybrid<k>.jsonl with a matching judge — grouped right after the
+    # dense Vector / Vector-line variants since it unions the two. Both
+    # languages (no BM25). The vector\d+ / vector-line\d+ fullmatch filters above
+    # already exclude vector-hybrid*, so there is no collision.
+    vh_files = [p for p in results.glob("vector-hybrid*.jsonl")
+                if re.fullmatch(r"vector-hybrid\d+", p.stem)]
+    for ans in sorted(vh_files, key=lambda p: int(re.fullmatch(r"vector-hybrid(\d+)", p.stem).group(1))):
+        stem = ans.stem
+        k = int(re.fullmatch(r"vector-hybrid(\d+)", stem).group(1))
+        label = f"V-hybrid k={k}"  # vector-hybrid5 → "V-hybrid k=5"
         judge = f"judge-{stem}.jsonl"
         if (results / judge).exists():
             found.append((label, ans.name, judge))
