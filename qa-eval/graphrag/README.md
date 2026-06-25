@@ -1,7 +1,11 @@
 # GraphRAG Evaluation
 
-Runs the 50 English QA questions through [Microsoft GraphRAG](https://github.com/microsoft/graphrag)
-and saves the answers for comparison with the retrieval methods in the parent `qa-eval` pipeline.
+Runs the 50 English QA questions through a fork of Microsoft GraphRAG
+with structured output support for Gemma 4:
+
+* https://github.com/7shi/graphrag
+
+Saves the answers for comparison with the retrieval methods in the parent `qa-eval` pipeline.
 
 ## Model and configuration
 
