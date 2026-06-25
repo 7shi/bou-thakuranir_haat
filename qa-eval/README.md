@@ -19,22 +19,22 @@ with `ollama:qwen3.6`. The table reports `correct`/50 with the weighted score
 run for both languages; **Hybrid** is English only (BM25 tokenization is
 English-only).
 
-| Method | English | Japanese |
-| --- | --- | --- |
-| Vector k=5 | 39/50 (0.830) | 38/50 (0.810) |
-| Vector k=10 | 44/50 (0.920) | 42/50 (0.890) |
-| Vector-line k=5 | 35/50 (0.800) | 35/50 (0.790) |
-| Vector-line k=10 | 41/50 (0.890) | 40/50 (0.840) |
-| V-hybrid k=5 | 40/50 (0.890) | 42/50 (0.890) |
-| V-hybrid k=10 | 43/50 (0.910) | 42/50 (0.880) |
-| Hybrid k=5 | 43/50 (0.910) | — |
-| Hybrid k=10 | 47/50 (0.960) | — |
-| Extract | 39/50 (0.830) | 40/50 (0.850) |
-| Filter2 | 36/50 (0.790) | 39/50 (0.820) |
-| Filter3 | 45/50 (0.930) | 43/50 (0.880) |
-| Ceiling | 49/50 (0.990) | 47/50 (0.970) |
-| GraphRAG local | 28/50 (0.660) | — |
-| GraphRAG global | 5/50 (0.170) | — |
+| Method | English | Japanese | Description |
+| --- | --- | --- | --- |
+| Vector k=5 | 39/50 (0.830) | 38/50 (0.810) | Standard dense vector search (k=5) |
+| Vector k=10 | 44/50 (0.920) | 42/50 (0.890) | Standard dense vector search (k=10) |
+| Vector-line k=5 | 35/50 (0.800) | 35/50 (0.790) | Line-level dense vector search (k=5) |
+| Vector-line k=10 | 41/50 (0.890) | 40/50 (0.840) | Line-level dense vector search (k=10) |
+| V-hybrid k=5 | 40/50 (0.890) | 42/50 (0.890) | Segment ∪ Line dense union (k=5) |
+| V-hybrid k=10 | 43/50 (0.910) | 42/50 (0.880) | Segment ∪ Line dense union (k=10) |
+| Hybrid k=5 | 43/50 (0.910) | — | Dense ∪ BM25 union (k=5) |
+| Hybrid k=10 | 47/50 (0.960) | — | Dense ∪ BM25 union (k=10) |
+| Extract | 39/50 (0.830) | 40/50 (0.850) | Per-chapter summarization-based extraction |
+| Filter2 | 36/50 (0.790) | 39/50 (0.820) | LLM-as-retriever (binary: yes/no) |
+| Filter3 | 45/50 (0.930) | 43/50 (0.880) | LLM-as-retriever (ternary: yes/maybe/no) |
+| Ceiling | 49/50 (0.990) | 47/50 (0.970) | Perfect-retrieval upper bound (gold chapters directly) |
+| GraphRAG local | 28/50 (0.660) | — | Microsoft GraphRAG (local entity search) |
+| GraphRAG global | 5/50 (0.170) | — | Microsoft GraphRAG (global community search) |
 
 The pipeline behind these rows — build the index, answer each question, grade,
 aggregate (Filter and Ceiling are opt-in):
@@ -50,92 +50,19 @@ aggregate (Filter and Ceiling are opt-in):
 
 `answer.py` holds the shared helpers (`LANGS`, `PART_RANGES`, `load_questions`,
 `load_chapters`, `answer_question`) imported by all five answer scripts
-(vector / extract / filter / ceiling / hybrid). The standalone retrieval-analysis
-scripts (no LLM) are indexed under [Retrieval analyses](#retrieval-analyses).
+(vector / extract / filter / ceiling / hybrid).
 
 Both languages use the same answer model `google:gemma-4-31b-it`, the same
 `embeddinggemma` index, and the same judge.
 
-**Retrieval depth is the main lever; language barely matters.** At `k=5`,
-Vector and Extract sit within two questions in both languages (English 0.830;
-Japanese 0.810 vs 0.850). Bumping Vector to `k=10` lifts English 0.830 → 0.920
-and Japanese 0.810 → 0.890 — most of the gain is simply deeper retrieval, as
-[`sweep_vector.py`](sweep_vector.py) predicted. What `k=10` *cannot* fix is
-**dense-retrieval blindness**: load-bearing cross-reference chapters that rank
-outside the top-10 in the embedding at both depths.
+> [!IMPORTANT]
+> **Practical Optimal Solution**
+> For English, **Dense ∪ BM25 Union** (`Hybrid k=10`) is the best practical solution, achieving the highest accuracy (**0.960**).
+> For Japanese, because BM25 tokenization is currently English-only, plain **Vector k=10** (or `V-hybrid k=5`) serves as the most practical optimal solution at **0.890**.
 
-**English — the dense ∪ BM25 union (Hybrid) is the practical best.** Running
-dense and BM25 independently and taking the set-theoretic union of their top-k
-chapters reaches **0.960** at `k=10`, recovering the lexically-distinctive
-cross-reference chapters dense embedding alone cannot rank. Don't fuse the
-rankings (RRF/Borda/CombSUM all underperform dense at `k=5`) — union. Full
-retrieval analysis and per-question breakdown in [HYBRID.md](HYBRID.md) and
-[results-en/README.md](results-en/README.md#hybrid-dense--bm25-union).
+## Key Findings by Strategy
 
-**The dense-only variants don't pay off.** `Vector-line` (one vector per line)
-and `V-hybrid` (segment ∪ line dense union) both trade chapter precision for
-recall and net out at or below segment Vector `k=10` in both languages — the
-strict-recall gain over Vector `k=5` is a depth effect that single-index Vector
-`k=10` reaches on its own, without the second index, and neither reaches the
-dense-blind chapters that only the lexical Hybrid recovers. Details in
-[VECTOR-HYBRID.md](VECTOR-HYBRID.md), with per-question breakdowns for
-[Vector-line](results-en/README.md#vector-line-line-level-retrieval) and
-[V-hybrid](results-en/README.md#v-hybrid-segment--line-dense-union)
-([Japanese](results-ja/README.md#v-hybrid-segment--line-dense-union)).
-
-**Filter (LLM-as-retriever) is impractical regardless of score.** Asking the
-model to judge every chapter's relevance costs **~1,850 LLM calls per language**
-in Phase 1 (37 chapters × 50 questions) against Vector's single embedding +
-cosine pass — hundreds of times the runtime. English Filter3 posts a high 0.930
-and Japanese 0.880, but it still trails English Hybrid `k=10` (0.960) and only
-ties Vector `k=10` in Japanese, so the score never justifies the cost. Full
-analysis and verdict in [FILTER.md](FILTER.md); per-question detail in the case
-studies ([English](results-en/README.md) · [Japanese](results-ja/README.md)).
-
-**Ceiling is a reference upper bound, not a usable method.** It feeds the gold
-chapters verbatim as context — i.e. it works backwards from the known answer and
-retrieves nothing, so it cannot run in production; its only purpose is to pin the
-frontier. English **0.990** (49 correct, one partial, zero incorrect) and
-Japanese **0.970** sit above every retrieval method, and the gap to each is the
-pure cost of that method's retrieval. Because the model reads the gold chapters
-nearly perfectly in both languages, **the frontier is retrieval, not
-comprehension** (the lone English residual, Q48, is the single true synthesis
-floor). See the
-[Ceiling case study](results-en/README.md#ceiling-the-perfect-retrieval-upper-bound).
-
-**GraphRAG (local/global) does not match the pipeline on this task overall.**
-GraphRAG excels at structural queries ("how does this relationship evolve?");
-questions here mostly require specific microdetail from individual chapters —
-a granularity the entity/relationship graph abstracts away. GraphRAG local posts
-0.660 (28/50) — below Filter2 (0.790). Entity-graph expansion pulls in most
-chapters (recall 0.860), but precision collapses to 0.135 and the answerer
-drowns in noise: **16 of its 21 losses to Ceiling are synthesis**. Where the
-graph does help — questions about character arcs and narrative causality — it
-sometimes answers correctly with zero chapters retrieved (pure graph traversal),
-and it independently recovers the Class A questions Q31/Q49 that dense embedding
-cannot rank. It never beats Hybrid k=10 overall. GraphRAG global (0.170, 5/50)
-is non-functional: community summaries are too abstract for passage-level QA
-(37 of 45 losses are missed context). See [graphrag/README.md](graphrag/README.md)
-and the [GraphRAG section](results-en/README.md#graphrag) of the English case
-study.
-
-**Practical solution.** Setting aside Filter (too slow) and Ceiling (a
-back-computed upper bound, not a real retriever), the realistic best is **Hybrid
-(BM25 + Vector union) for English** and **Vector `k=10` for Japanese**: BM25
-tokenization is English-only, so the union is unavailable in Japanese, and there
-Vector `k=10` (0.890) ties the best Japanese retriever (V-hybrid `k=5`) at the
-lowest cost and complexity — a single index, one embedding pass, no second
-model.
-
-## Retrieval analyses
-
-Three standalone studies measure **retrieval strict recall** (gold ⊆ top-k, out
-of 50 questions) — the upper bound on Phase 2 QA, since Ceiling = 0.990 means a
-surfaced gold chapter almost always converts. All three share the same
-**Vector / dense-segment baseline** (36 @ k=5, 42 @ k=10, English) and the same
-**Ceiling** (50/50), so their tables line up on one axis.
-[`sweep_vector.py`](sweep_vector.py) supplies that dense baseline (depth/threshold
-sweep); each study below adds one retrieval idea on top of it.
+### Filter (LLM-as-Retriever) — [FILTER.md](FILTER.md)
 
 Filter (LLM-as-retriever), English, at each variant's keep rule:
 
@@ -146,18 +73,11 @@ Filter (LLM-as-retriever), English, at each variant's keep rule:
 | Filter10 (≥3) | 38 |
 | Filter5d (sum ≥5) | 50 |
 
-**[FILTER.md](FILTER.md)** — does the LLM judging each chapter's relevance beat
-dense retrieval? **No practical advantage**: the floor-vs-excess trade-off is a
-hard limit, and Filter3's 0.930 Phase 2 tops Vector k=10 (0.920) by one question
-at ~1,850× the cost. (The answering script `answer_filter.py` is listed under
-[Results](#results).)
+* **No Practical Advantage:** LLM-as-retriever does not justify its cost over Vector RAG.
+* **Granularity and Floor Limits:** Single-axis variants (Filter2/3/10) leave a "gold floor" (8–12% of gold chapters unrecoverable due to wrong "no" verdicts). Multi-axis scoring (Filter5d) eliminates the floor but only by keeping ~14 chapters per question, destroying precision.
+* **Inefficient Scaling:** The practical numerical variant, Filter10, only matches Vector k=10 recall but demands ~1,850 Phase 1 LLM calls per language vs. a single embedding pass—hundreds of times the runtime.
 
-- **[filter.py](filter.py)** — single-axis score-distribution / threshold-sweep
-  / filter2-3-vs-filter10 crosstab. → scores bimodal (91% score 0), F1 peak at
-  threshold 3, gold floor 7/86; one Filter10 run reproduces every variant.
-- **[filter5d.py](filter5d.py)** — five-axis relevance decomposition. → floor
-  eliminated (0/86) at sum ≥5, but ~14 chapters/question (precision 0.12):
-  floor-0 and a tight keep set are mutually exclusive.
+### Hybrid (Dense + BM25) — [HYBRID.md](HYBRID.md)
 
 Dense ∪ BM25 (HYBRID), English:
 
@@ -170,17 +90,11 @@ Dense ∪ BM25 (HYBRID), English:
 | CombSUM | 35 | 42 |
 | **Union** | 40 | **46** |
 
-**[HYBRID.md](HYBRID.md)** — does combining sparse lexical (BM25) and dense
-semantic retrieval recover the chapters each alone drops? **Don't fuse — union**:
-rank-fusion underperforms dense at k=5; the set-theoretic union wins (40/50 @ k=5,
-46/50 @ k=10, +4 parameter-free). Four shared blind spots remain.
+* **Don't Fuse — Union:** Rank-fusion algorithms (RRF, Borda, CombSUM) suppress more hits than they recover, underperforming dense-only at k=5. Taking the set-theoretic union of independent dense and BM25 top-k sets is parameter-free, robust, and wins (+4 strict recall at both depths).
+* **Dense-Blind Recovery:** BM25 lexical matching recovers nearly all proper-noun/distinctive terms (Class A misses like the signet ring or Delhi petition) that dense embedding fails to rank.
+* **Shared Blind Spots:** Four cross-reference questions (Q31, Q32, Q38, Q42) remain unrecoverable by both retrievers, requiring query expansion or multi-query techniques instead of a better blend.
 
-- **[bm25.py](bm25.py)** — Okapi BM25 sparse-lexical gold-coverage analysis
-  (sibling of sweep_vector.py). → 33/50 → 41/50; recovers 6/7 dense misses at
-  k≤5, 7/7 at k≤10 (orthogonal failures, the hybrid precondition).
-- **[hybrid.py](hybrid.py)** — dense+BM25 fusion (RRF/Borda/CombSUM) vs. the
-  union oracle. → no fusion beats dense at k=5 (RRF: 0 pure wins, 9
-  suppressions); union is the robust winner.
+### Segment ∪ Line Dense Hybrid (`V-hybrid`) — [VECTOR-HYBRID.md](VECTOR-HYBRID.md)
 
 Segment ∪ Line (VECTOR-HYBRID), en / ja:
 
@@ -191,65 +105,34 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 | Mix | 32 | 36 | 32 | 38 |
 | **Union** | 38 | **45** | 41 | **45** |
 
-**[VECTOR-HYBRID.md](VECTOR-HYBRID.md)** — does line-level retrieval recover the
-chapters segment-level drops, using the same cosine? en + ja. **Union helps**
-(en 38/50, ja 41/50 @ k=5 vs the 36 baseline); **mix-and-sort hurts**; line is
-valuable only inside the union.
+* **Granularity Union:** Unioning segment-level and line-level dense retrieval improves strict recall. Line search recovers distinctive single lines, while segment search handles diffuse context.
+* **Budget Trade-off:** However, at a matched context budget (V-hybrid k=5 vs Vector k=10), V-hybrid does not outperform the plain single-index retriever. The retrieval gains are offset by synthesis regressions ("lost in the middle") due to larger context.
 
-- **[hybrid-vector.py](hybrid-vector.py)** — segment vs line vs mix vs union
-  gold-coverage measurement (print-only, en + ja). → Union(B) beats Segment at
-  every k in both languages; Mix(A) drops below Segment (32/50); misses are
-  orthogonal.
+### Case Studies & Language Comparison — [results-en/README.md](results-en/README.md) & [results-ja/README.md](results-ja/README.md)
 
-## Languages
+* **Retrieval is the Frontier:** Single-passage QA is essentially solved. The remaining difficulty lies entirely in cross-reference questions.
+* **Ceiling Verification:** The Ceiling run (gold chapters verbatim) scores 0.990 (en) and 0.970 (ja), proving that given the correct context, LLM comprehension is near-perfect. Q48 remains the lone synthesis floor.
+* **Extract Failures:** Extract’s losses are predominantly Phase 1 false negatives (where the summary drops the gold chapter) rather than synthesis errors.
+* **Language Invariance:** Language makes negligible difference to accuracy (EN and JA totals match within 1-2 questions). Retrieval misses are identical because they share the same embedding model.
 
-Every script takes `-l/--lang {en,ja}` (default `en`), which selects the
-language-specific defaults in one switch: the gold questions
-(`questions-<lang>.jsonl`), scene sources (`all/<lang>-gemini.jsonl` /
-`all/<lang>-gemini.tsv`), the index (`index-<lang>.safetensors`), the output
-directory (`results-<lang>/`), and the answer language. The individual path
-options (`-i`/`-o`/`--index`/`--scenes`/`-t`) still override these defaults.
+### GraphRAG — [graphrag/README.md](graphrag/README.md)
+
+* **Synthesis Collapse:** GraphRAG local (0.660) falls below flat retrieval. While recall is high (0.860), precision collapses (0.135), overloading the context and causing synthesis failure.
+* **Structural Strengths:** It excels at answering entity-relationship arcs (answering Q26/Q28 with zero context passages) and resolves Class A questions through graph traversal.
+* **Global Search Failure:** Global community summaries are too abstract (0.170) for passage-level QA.
+* **Extreme Cost:** Building the graph and running queries takes over 13 hours—impractical compared to minutes for flat vector indexing.
+
+## Overall Conclusions and Practical Takeaways
+
+1. **Evaluation Collapses to Retrieval:** The `Ceiling` run proves that as long as the correct chapters are included in the context, the model can generate answers with high accuracy. Therefore, improving a QA system is almost entirely equivalent to improving retrieval recall.
+2. **Don't Fuse — Union:** When combining different retrievers (e.g., Dense and BM25, or Segment and Line), algorithms that blend scores into a single ranking (like RRF) often push correct answers out. Taking the set-theoretic union of their individual top-k results is the safest and most effective approach.
+3. **Divergence in Optimal Strategy by Language:**
+   * **English:** `Hybrid k=10` (Dense ∪ BM25 Union) is the best approach, scoring 0.960. It effectively breaks the limitations of pure dense retrieval and comes closest to the Ceiling.
+   * **Japanese:** Since BM25 sparse matching is not available, the optimal solution is the simpler **Vector k=10** (0.890). More complex methods like `V-hybrid` do not outperform plain `Vector k=10` under a matched context size budget.
 
 ## Pipeline (`Makefile`)
 
-The [`Makefile`](Makefile) wires the scripts into one dependency chain, so the
-whole evaluation runs with a single command (models left to each script's
-default). Run from this directory:
-
-```sh
-make                 # full English pipeline (LANG=en, the default goal; includes Hybrid k=5/10 via `make judge`)
-make ja              # full Japanese pipeline (no Hybrid — BM25 is English-only)
-make all             # both languages
-make vector K=10     # Vector at k=10 → results-<lang>/vector10.jsonl
-make vector LANG=ja  # individual steps for one language
-make clean           # remove generated answers/judgements (keeps the index)
-```
-
-Standalone retrieval analyses (no LLM, independent of the pipeline):
-
-```sh
-make sweep              # dense retrieval depth/threshold sweep (needs ollama)
-make bm25               # BM25 sparse retrieval gold-coverage analysis
-uv run hybrid.py -l en  # dense+BM25 fusion (RRF/Borda/CombSUM) vs. union oracle (needs ollama; no `make` alias — `make hybrid` drives the Phase 2 QA)
-```
-
-Each step's **output file is the real target**, so Make skips anything already
-up to date and an interrupted `make` resumes where it stopped (each script is
-also internally resume-safe). Extraction Phase 1 uses a pattern rule (one chapter
-group per part), so the parts build in parallel with `make -j`. Filter writes a
-single consolidated verdict TSV per variant instead (the files are small and
-fast to generate, so the part split is unnecessary); it is **opt-in** (not in
-`make`, `make all`, or `make <lang>`) because Phase 1 costs ~1,850 LLM calls
-per language — run
-`make filter2` (two-level, yes/no) or `make filter3` (three-level,
-yes/maybe/no) after the default pipeline to add a per-chapter retrieval
-strategy, or `make filter10-tsv` (eleven-level, integer 0–10) to collect raw
-relevance scores whose keep/drop threshold is chosen afterwards (see
-[FILTER.md](FILTER.md)). Ceiling is **opt-in** for a different reason — it is
-not a retrieval method at all but a perfect-retrieval reference run, so it sits
-outside the default retrieval comparison; run `make ceiling` to feed the gold
-chapters directly as context and measure the answer model's reading
-comprehension in isolation (~50 calls, no Phase 1).
+The build pipeline is wired via `Makefile`. For detailed target descriptions, usage, options (such as `LANG`, `LINE`, and `K`), and opt-in strategies, please refer directly to the comments in [Makefile](Makefile).
 
 ## Out of scope
 

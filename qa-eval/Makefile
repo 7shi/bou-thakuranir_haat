@@ -16,24 +16,24 @@
 # but is kept opt-in to match the experimental posture of Filter.
 #
 # Usage:
-#   make            		# full English pipeline (LANG=en)
-#   make ja         		# full Japanese pipeline
-#   make all        		# both languages
-#   make report     		# build whatever is missing, then print the table
-#   make LANG=ja vector judge
-#   make filter2    		# opt-in: per-chapter yes/no filter (Phase 1 + 2 + judge)
-#   make filter3    		# opt-in: per-chapter yes/maybe/no filter (Phase 1 + 2 + judge)
-#   make filter10-tsv   	# opt-in: per-chapter 0-10 score → filter10.tsv (Phase 1 only)
-#   make filter100-tsv  	# opt-in: per-chapter 0-100 score → filter100.tsv (Phase 1 only)
-#   make filter5d-tsv   	# opt-in: per-chapter five-axis 0-10 scores → filter5d.tsv (Phase 1 only)
-#   make ceiling    		# opt-in: gold-chapter context ceiling (answer + judge)
-#   make sweep      	   	# retrieval sweep (independent of the pipeline; no LLM)
-#   make bm25              	# BM25 sparse retrieval gold-coverage analysis (no LLM)
-#   make hybrid            	# dense ∪ BM25 union QA answering (English only; see hybrid-judge)
-#   make hybrid-judge      	# hybrid k=5 + k=10 answering + judging → rows in `make report`
-#   make filter     	   	# filter10 verdicts + score-distribution analysis (no LLM)
-#   make filter SCALE=100  	# filter100 occurrence count only (no LLM)
-#   make filter5d   	   	# five-axis verdicts + sum/per-axis/floor analysis (no LLM)
+#   make                    # full English pipeline (LANG=en)
+#   make ja                 # full Japanese pipeline
+#   make all                # both languages
+#   make report             # build whatever is missing, then print the table
+#   make LANG=ja vector     # individual steps for one language
+#   make filter2            # opt-in: per-chapter yes/no filter (Phase 1 + 2 + judge)
+#   make filter3            # opt-in: per-chapter yes/maybe/no filter (Phase 1 + 2 + judge)
+#   make filter10-tsv       # opt-in: per-chapter 0-10 score → filter10.tsv (Phase 1 only)
+#   make filter100-tsv      # opt-in: per-chapter 0-100 score → filter100.tsv (Phase 1 only)
+#   make filter5d-tsv       # opt-in: per-chapter five-axis 0-10 scores → filter5d.tsv (Phase 1 only)
+#   make ceiling            # opt-in: gold-chapter context ceiling (answer + judge)
+#   make sweep              # retrieval sweep (independent of the pipeline; no LLM)
+#   make bm25               # BM25 sparse retrieval gold-coverage analysis (no LLM)
+#   make hybrid             # dense ∪ BM25 union QA answering (English only; see hybrid-judge)
+#   make hybrid-judge       # hybrid k=5 + k=10 answering + judging → rows in `make report`
+#   make filter             # filter10 verdicts + score-distribution analysis (no LLM)
+#   make filter SCALE=100   # filter100 occurrence count only (no LLM)
+#   make filter5d           # five-axis verdicts + sum/per-axis/floor analysis (no LLM)
 
 LANG    := en
 ROOT    := ..
