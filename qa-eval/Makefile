@@ -107,9 +107,9 @@ vector: $(VECTOR_FILE)
 # Note: `make hybrid` previously drove the standalone fusion analysis
 # (hybrid.py); that script is now run directly via `uv run hybrid.py -l en`.
 hybrid: $(HYBRID_FILE)
-# `make hybrid-judge` runs answering at k=5 and k=10 then judges both, so
-# Hybrid k=5 / Hybrid k=10 appear in `make report` after a single command.
-hybrid-judge: $(RESULTS)/judge-hybrid5.jsonl $(RESULTS)/judge-hybrid10.jsonl
+# `make hybrid-judge` runs answering at k=5, k=8, and k=10 then judges them, so
+# they appear in `make report` after a single command.
+hybrid-judge: $(RESULTS)/judge-hybrid5.jsonl $(RESULTS)/judge-hybrid8.jsonl $(RESULTS)/judge-hybrid10.jsonl
 # Segment ∪ line dense Union answering (answer_vector.py --hybrid). Mirrors
 # `make vector`: the pattern rule derives the filename from k. Both languages.
 # Not part of the default pipeline; plain `make judge` grades any present
@@ -140,7 +140,7 @@ ceiling: $(RESULTS)/judge-ceiling.jsonl
 # The canonical aggregate is the segment vector5 baseline plus extract (and
 # Hybrid). It is LINE-independent: `make judge` always grades
 # vector5, regardless of LINE.
-JUDGE_FILES := $(RESULTS)/judge-vector5.jsonl $(RESULTS)/judge-extract.jsonl $(RESULTS)/judge-hybrid5.jsonl $(RESULTS)/judge-hybrid10.jsonl
+JUDGE_FILES := $(RESULTS)/judge-vector5.jsonl $(RESULTS)/judge-extract.jsonl $(RESULTS)/judge-hybrid5.jsonl $(RESULTS)/judge-hybrid8.jsonl $(RESULTS)/judge-hybrid10.jsonl
 ifeq ($(LANG),en)
 JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge-%.jsonl,$(wildcard $(RESULTS)/graphrag-*.jsonl))
 endif
@@ -331,11 +331,14 @@ $(RESULTS)/judge-filter3.jsonl: $(RESULTS)/filter3.jsonl $(QUESTIONS)
 $(RESULTS)/judge-ceiling.jsonl: $(RESULTS)/ceiling.jsonl $(QUESTIONS)
 	uv run judge.py -l $(LANG) $(RESULTS)/ceiling.jsonl
 
-# Opt-in: hybrid (dense ∪ BM25 union) judging. Not built by the default `judge`
-# aggregate (English only). Run `make hybrid-judge` (or `make judge-hybrid<k>`
-# explicitly) to grade the hybrid answers; `make report` then shows the rows.
+# Opt-in: hybrid (dense ∪ BM25 union) judging. Run `make hybrid-judge` (or `make
+# judge-hybrid<k>` explicitly) to grade the hybrid answers; `make report` then
+# shows the rows.
 $(RESULTS)/judge-hybrid5.jsonl: $(RESULTS)/hybrid5.jsonl $(QUESTIONS)
 	uv run judge.py -l $(LANG) $(RESULTS)/hybrid5.jsonl
+
+$(RESULTS)/judge-hybrid8.jsonl: $(RESULTS)/hybrid8.jsonl $(QUESTIONS)
+	uv run judge.py -l $(LANG) $(RESULTS)/hybrid8.jsonl
 
 $(RESULTS)/judge-hybrid10.jsonl: $(RESULTS)/hybrid10.jsonl $(QUESTIONS)
 	uv run judge.py -l $(LANG) $(RESULTS)/hybrid10.jsonl

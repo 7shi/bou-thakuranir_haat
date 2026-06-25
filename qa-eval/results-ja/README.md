@@ -311,7 +311,7 @@ them nearly perfectly, and the ~5-point headroom is all retrieval recall.
 
 ## Hybrid (dense ∪ BM25 union)
 
-Following the implementation of the Japanese morphological tokenizer using spaCy, the union approach from [HYBRID.md](../HYBRID.md) converts the strict-recall retrieval gain into answer accuracy. At both depths, it becomes the top retrieval method for Japanese at **0.920**, recovering every dense-blind Class A chapter and beating the plain Vector baseline.
+Following the implementation of the Japanese morphological tokenizer using spaCy, the union approach from [HYBRID.md](../HYBRID.md) converts the strict-recall retrieval gain into answer accuracy. At `k=8`, it hits the optimal sweet spot, achieving the highest QA accuracy for Japanese at **45/50 (0.940)**, recovering dense-blind Class A chapters and beating the plain Vector baseline.
 
 ```
 scope    method             n correct partial incorrect  weighted ch.recall  ch.prec
@@ -319,6 +319,7 @@ all      Vector k=5        50      38       5         7     0.810     0.720    0
 all      Vector k=10       50      42       5         3     0.890     0.900    0.206
 all      Extract           50      40       5         5     0.850     0.760    0.807
 all      Hybrid k=5        50      44       4         2     0.920     0.860    0.248
+all      Hybrid k=8        50      45       4         1     0.940     0.940    0.173
 all      Hybrid k=10       50      44       4         2     0.920     0.960    0.148
 all      Ceiling           50      47       3         0     0.970     1.000    1.000
 ```
@@ -332,20 +333,22 @@ Hybrid k=5 (0.920) outperforms Vector k=10 (0.890) by two questions (44/50 vs 42
 
 On cross-reference questions, Hybrid k=5 lifts the score to **0.840** (vs Vector k=10's 0.780), confirming that the lexical hybrid recovers the proper-noun-heavy contexts where dense search is blind.
 
+### Hybrid k=8: The Optimal Sweet Spot
+
+Setting the retrieval depth to **`k=8`** balances retrieval recall and context precision perfectly, yielding the best retriever performance of **45/50 (0.940)**:
+- **Retrieval Gains:** It expands the context enough to retrieve the missing gold chapters for **Q27** (Ch33) and **Q36** (Ch17), upgrading both to correct.
+- **Precision Retention:** At the same time, it keeps the context tight enough (~20 scenes) to avoid the "lost in the middle" synthesis errors that plague `k=10` (such as on **Q34**), resolving the trade-off.
+
 ### Hybrid k=10 and the Synthesis Trade-off
 
 At `k=10`, the Union reaches a near-perfect retrieval recall (Strict Recall **48/50**, chapter recall **0.960**). The two questions where Hybrid k=10 beats Vector k=10 are the same Class A cases: Q31 and Q49.
 
-However, Hybrid k=10 does *not* beat Hybrid k=5 overall; both land on **44/50 (0.920)**. This is a classic RAG trade-off:
-- **Retrieval Gains:** Deepening the search to `k=10` successfully retrieves missing context for questions like **Q27** (Ch33) and **Q36** (Ch17), lifting them to correct.
-- **Lost in the Middle:** But the larger context size (~25 scenes vs ~13 scenes, a 1.8× increase) dilutes the signal. For **Q34**, the extra noise confuses the answerer, causing a synthesis regression (`synthesis` error) and dropping it from correct to incorrect/partial compared to `k=5`.
+However, Hybrid k=10 does *not* beat Hybrid k=5 or k=8 overall, landing back on **44/50 (0.920)**. This is a classic RAG trade-off: deepening the search to `k=10` successfully retrieves more contexts, but the larger context size (~25 scenes vs ~13 scenes, a 1.8× increase) dilutes the signal. For **Q34**, the extra noise confuses the answerer, causing a synthesis regression (`synthesis` error) and dropping it from correct to incorrect/partial compared to `k=5` and `k=8`.
 
-These two effects perfectly offset each other in the aggregate score.
+### The two-question gap to Ceiling
 
-### The four-question gap to Ceiling
-
-Ceiling (0.970) beats Hybrid k=10 on four questions (Q29, Q32, Q34, Q37), highlighting the remaining synthesis and retrieval frontier:
-- **Q29, Q34, Q37 (synthesis):** The union's larger context size triggers synthesis errors on these questions; Ceiling, with only the gold context, answers them correctly (or partial).
+Ceiling (0.970) beats Hybrid k=8 on only two questions (Q29, Q37), representing the remaining synthesis frontier:
+- **Q29, Q37 (synthesis):** The union's supporting context still occasionally confuses the synthesis on these cross-reference questions; Ceiling, with only the gold context, answers them correctly (or partial).
 - **Q32 (missed context):** Ch15 (the secret monthly stipend) remains a Class B unreachable, ranked outside both retrievers' top-k even at `k=10`.
 
 

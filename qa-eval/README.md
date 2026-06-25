@@ -27,6 +27,7 @@ and **Ceiling** have been run for both languages.
 | V-hybrid k=5 | 40/50 (0.890) | 42/50 (0.890) | Segment ∪ Line dense union (k=5) |
 | V-hybrid k=10 | 43/50 (0.910) | 42/50 (0.880) | Segment ∪ Line dense union (k=10) |
 | Hybrid k=5 | 43/50 (0.910) | 44/50 (0.920) | Dense ∪ BM25 union (k=5) |
+| Hybrid k=8 | 46/50 (0.940) | 45/50 (0.940) | Dense ∪ BM25 union (k=8) |
 | Hybrid k=10 | 47/50 (0.960) | 44/50 (0.920) | Dense ∪ BM25 union (k=10) |
 | Extract | 39/50 (0.830) | 40/50 (0.850) | Per-chapter summarization-based extraction |
 | Filter2 | 36/50 (0.790) | 39/50 (0.820) | LLM-as-retriever (binary: yes/no) |
@@ -56,7 +57,8 @@ Both languages use the same answer model `google:gemma-4-31b-it`, the same
 
 > [!IMPORTANT]
 > **Practical Optimal Solution**
-> For both English and Japanese, **Dense ∪ BM25 Union** (`Hybrid k=10` or `k=5`) is the best practical solution, achieving the highest accuracy (**0.960** for English, **0.920** for Japanese).
+> For English, **Dense ∪ BM25 Union** (`Hybrid k=10`) is the best practical solution, achieving the highest accuracy (**0.960**).
+> For Japanese, **Dense ∪ BM25 Union** (`Hybrid k=8`) is the best practical solution, achieving the highest accuracy (**0.940**).
 
 ## Key Findings by Strategy
 
@@ -91,7 +93,7 @@ Dense ∪ BM25 (HYBRID), en / ja:
 * **Don't Fuse — Union:** Rank-fusion algorithms (RRF, Borda, CombSUM) suppress more hits than they recover, underperforming dense-only at k=5. Taking the set-theoretic union of independent dense and BM25 top-k sets is parameter-free, robust, and wins (+4 strict recall at both depths).
 * **Dense-Blind Recovery:** BM25 lexical matching recovers nearly all proper-noun/distinctive terms (Class A misses like the signet ring or Delhi petition) that dense embedding fails to rank.
 * **Shared Blind Spots:** Four cross-reference questions (Q31, Q32, Q38, Q42) remain unrecoverable by both retrievers, requiring query expansion or multi-query techniques instead of a better blend.
-* **Parity between Japanese k=5 and k=10:** For Japanese, both `Hybrid k=5` and `Hybrid k=10` achieve the identical QA accuracy of **44/50 (0.920)** despite the latter having higher retrieval recall (48/50 vs 43/50). Disagreement analysis shows that while `k=10` resolves context misses in questions like Q27 and Q36, the larger context size (~25 scenes vs ~13 scenes) introduces synthesis errors due to "lost in the middle" effects in questions like Q34, perfectly offsetting the retrieval gains.
+* **Sweet Spot at Japanese k=8 vs English k=10:** For Japanese, `k=8` hits the optimal sweet spot achieving **45/50 (0.940)**, as `k=10` suffers from synthesis regressions (Q34) due to larger contexts. For English, however, the answerer manages the larger context better, allowing `Hybrid k=10` to sustain its peak accuracy of **47/50 (0.960)**, while `Hybrid k=8` scores **46/50 (0.940)**.
 
 ### Segment ∪ Line Dense Hybrid (`V-hybrid`) — [VECTOR-HYBRID.md](VECTOR-HYBRID.md)
 
@@ -126,7 +128,7 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 1. **Evaluation Collapses to Retrieval:** The `Ceiling` run proves that as long as the correct chapters are included in the context, the model can generate answers with high accuracy. Therefore, improving a QA system is almost entirely equivalent to improving retrieval recall.
 2. **Don't Fuse — Union:** When combining different retrievers (e.g., Dense and BM25, or Segment and Line), algorithms that blend scores into a single ranking (like RRF) often push correct answers out. Taking the set-theoretic union of their individual top-k results is the safest and most effective approach.
 3. **Convergence in Optimal Strategy by Language:**
-   * For both **English** (0.960) and **Japanese** (0.920), **Dense ∪ BM25 Union** (`Hybrid`) is the best approach. It effectively breaks the limitations of pure dense retrieval and comes closest to the Ceiling by recovering proper-noun/distinctive terms.
+   * For both **English** and **Japanese**, **Dense ∪ BM25 Union** (`Hybrid`) is the best approach, achieving the highest accuracy (**0.960** at `k=10` for English, **0.940** at `k=8` for Japanese). It effectively breaks the limitations of pure dense retrieval by recovering proper-noun/distinctive terms.
 
 ## Pipeline (`Makefile`)
 

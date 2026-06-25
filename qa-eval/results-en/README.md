@@ -44,6 +44,7 @@ all      Vector-line k=10  50      41       7         2     0.890     0.780    0
 all      V-hybrid k=5      50      40       9         1     0.890     0.760    0.297
 all      V-hybrid k=10     50      43       5         2     0.910     0.900    0.182
 all      Hybrid k=5        50      43       5         2     0.910     0.800    0.251
+all      Hybrid k=8        50      46       2         2     0.940     0.900    0.179
 all      Hybrid k=10       50      47       2         1     0.960     0.920    0.154
 all      Extract           50      39       5         6     0.830     0.740    0.843
 all      Filter2           50      36       7         7     0.790     0.600    0.808
@@ -59,6 +60,7 @@ single   Vector-line k=10  25      25       0         0     1.000     1.000    0
 single   V-hybrid k=5      25      25       0         0     1.000     1.000    0.226
 single   V-hybrid k=10     25      24       0         1     0.960     1.000    0.119
 single   Hybrid k=5        25      24       0         1     0.960     1.000    0.178
+single   Hybrid k=8        25      24       0         1     0.960     1.000    0.117
 single   Hybrid k=10       25      24       0         1     0.960     1.000    0.097
 single   Extract           25      24       0         1     0.960     1.000    1.000
 single   Filter2           25      24       1         0     0.980     1.000    1.000
@@ -74,6 +76,7 @@ cross    Vector-line k=10  25      16       7         2     0.780     0.560    0
 cross    V-hybrid k=5      25      15       9         1     0.780     0.520    0.369
 cross    V-hybrid k=10     25      19       5         1     0.860     0.800    0.245
 cross    Hybrid k=5        25      19       5         1     0.860     0.600    0.325
+cross    Hybrid k=8        25      22       2         1     0.920     0.800    0.242
 cross    Hybrid k=10       25      23       2         0     0.960     0.840    0.211
 cross    Extract           25      15       5         5     0.700     0.480    0.686
 cross    Filter2           25      12       6         7     0.600     0.200    0.617
@@ -95,12 +98,11 @@ accuracy (0.92 vs 0.83) while Extract still leads sharply on chapter precision
 at 0.960 overtakes Filter3 (0.930) by recovering the three lexically-distinctive
 cross-reference chapters that dense-only search cannot rank (Q31, Q43, Q49 —
 the Class A cases from [§ Both wrong](#both-wrong-what-k10-cannot-fix)). The
-cross-reference score rises from 0.840 to 0.960 (incorrect 2→0). Hybrid k=5
-(0.910) already lifts cross to 0.860 and gets Q31/Q49 right, but introduces a
-single-passage synthesis regression (Q17) that keeps it one question below
-Vector k=10 overall. Single-passage does *not* saturate to 1.00 under either
-Hybrid depth — both land at 24/25 — because the wider union context occasionally
-confuses synthesis on single-passage questions.
+cross-reference score rises from 0.840 to 0.960 (incorrect 2→0). Hybrid k=8
+(0.940) recovers all three Class A chapters and lifts cross to 0.920, sitting
+between k=5 (0.910) and k=10 (0.960). Single-passage does *not* saturate to 1.00
+under any Hybrid depth — all three land at 24/25 — because the wider union context
+occasionally confuses synthesis on single-passage questions.
 
 The **Filter** rows use the LLM as retriever rather than dense embeddings:
 Filter3 posts 0.930, Filter2 0.790. The `maybe`-verdict mechanism, cost/gold-floor
@@ -246,13 +248,13 @@ Five questions stay not-correct at both depths (Q31, Q32, Q43, Q48, Q49) — all
 cross-reference. The decisive cross-check is what **Extract**, reading every
 chapter independently, makes of them:
 
-| Q | gold | load-bearing chapter vector search misses | Vector k=5 | Vector k=10 | Hybrid k=10 | Extract |
-| --- | --- | --- | --- | --- | --- | --- |
-| 31 | 21,22,23 | Ch21,22 — the ring gift and the seal-forgery | incorrect | incorrect | **correct** | **correct** |
-| 43 | 11,37 | Ch37 — the Chandradwip palanquin extraction | partial | partial | **correct** | **correct** |
-| 49 | 2,22 | Ch22 — the forged petition to the Emperor of Delhi | incorrect | incorrect | **correct** | **correct** |
-| 32 | 11,15,16 | Ch15 — the secret stipend to the dismissed guards | partial | partial | partial | partial |
-| 48 | 11,19 | (Ch19 *is* retrieved; the paranoid detail is misread) | partial | partial | partial | incorrect |
+| Q | gold | load-bearing chapter vector search misses | Vector k=5 | Vector k=10 | Hybrid k=8 | Hybrid k=10 | Extract |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 31 | 21,22,23 | Ch21,22 — the ring gift and the seal-forgery | incorrect | incorrect | **correct** | **correct** | **correct** |
+| 43 | 11,37 | Ch37 — the Chandradwip palanquin extraction | partial | partial | **correct** | **correct** | **correct** |
+| 49 | 2,22 | Ch22 — the forged petition to the Emperor of Delhi | incorrect | incorrect | **correct** | **correct** | **correct** |
+| 32 | 11,15,16 | Ch15 — the secret stipend to the dismissed guards | partial | partial | partial | partial | partial |
+| 48 | 11,19 | (Ch19 *is* retrieved; the paranoid detail is misread) | partial | partial | partial | partial | incorrect |
 
 This splits the residual frontier cleanly into two classes.
 
@@ -277,7 +279,7 @@ proper-noun/term-heavy queries where dense embedding is blind. Ch22 is the
 standout — load-bearing for *two* of these questions (Q31 and Q49) and
 resistant to retrieval in both.
 
-**Hybrid k=10 recovers all three.** The BM25 component ranks Ch21/22 (Q31),
+**Hybrid k=8 and k=10 recover all three.** The BM25 component ranks Ch21/22 (Q31),
 Ch37 (Q43), and Ch22 (Q49) high enough to enter the union top-k — confirming
 that the failure was lexical invisibility, not gold ambiguity. See
 [§ Hybrid](#hybrid-dense--bm25-union) for the per-question breakdown.
@@ -310,10 +312,10 @@ reader, sharper extraction, or a second look at the gold.
 
 ## Hybrid (dense ∪ BM25 union)
 
-The union approach from [HYBRID.md](../HYBRID.md) converts the +4 strict-recall
-retrieval gain into answer accuracy. At k=10 it becomes the top retrieval method
-at **0.960**, recovering every Class A chapter that dense-only search cannot
-reach.
+The union approach from [HYBRID.md](../HYBRID.md) converts the strict-recall
+retrieval gain into answer accuracy. At k=10, it achieves the top retrieval
+accuracy of **0.960** (with k=8 at **0.940**), recovering the Class A chapters
+that dense-only search cannot reach.
 
 ### Hybrid k=5 vs Vector k=10
 
@@ -349,8 +351,15 @@ Vector k=10 beats Hybrid k=10 on only **one** question: Q22 (gold Ch11,
 single-passage), where the larger union context triggers a "lost in the middle"
 synthesis regression. This is the trade-off HYBRID.md predicted — the ~1.4×
 larger context occasionally confuses synthesis even when the gold chapter is
-present. Note that Hybrid k=5 gets Q22 right; the regression is introduced by the
+present. Note that Hybrid k=5 and k=8 get Q22 right; the regression is introduced by the
 additional scenes at k=10.
+
+### Hybrid k=8: Performance and Trade-offs
+
+Expanding the retrieval depth to `k=8` yields a weighted score of **46/50 (0.940)**, sitting directly between `k=5` (**0.910**) and `k=10` (**0.960**). 
+
+- **Retrieval Gains over k=5:** Deepening the search to `k=8` expands the retrieved context sufficiently to recover the missing gold chapters for **Q27** (Ch33), **Q28** (Ch9), **Q43** (Ch37), and **Q50** (Ch23), upgrading all of them from partial/incorrect to correct. While it suffers a single synthesis regression on **Q29** (dropping from correct at `k=5` to incorrect), it nets a +3 correct answer gain.
+- **Comparison to k=10:** Unlike Japanese, where context dilution at `k=10` offsets retrieval gains and pulls the overall score down to `0.920` (below `k=8`'s `0.940`), English shows greater synthesis resilience. Moving from `k=8` to `k=10` retrieves no new missing contexts (both share identical performance on the missed-context questions above), but `k=10` recovers the regression on **Q29** and improves **Q17** to correct. Although `k=10` triggers the regression on **Q22** (which `k=8` gets correct), it still nets +1 correct answer overall (**47/50** vs. **46/50**), confirming that English LLM synthesis handles the larger context at `k=10` (~25 scenes) successfully.
 
 ### The two-question residual
 
