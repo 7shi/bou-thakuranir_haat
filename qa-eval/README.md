@@ -54,92 +54,60 @@ scripts (no LLM) are indexed under [Retrieval analyses](#retrieval-analyses).
 Both languages use the same answer model `google:gemma-4-31b-it`, the same
 `embeddinggemma` index, and the same judge.
 
-**Retrieval strategy is the lever; language barely is.** At `k=5`, Vector and
-Extract tie on English (0.830) and sit within two questions on Japanese (0.810
-vs 0.850) — the language makes almost no difference. The main lever is
-retrieval depth: **bumping Vector to `k=10`** (English) lifts 0.830 → 0.920,
-exactly what [`sweep_vector.py`](sweep_vector.py) predicted (`k=5` was tight; deeper
-retrieval surfaces the chapters the top-5 missed). What `k=10` *cannot* fix is
-dense-retrieval blindness — load-bearing chapters that rank outside the top-10
-at both depths. The **Hybrid** (dense ∪ BM25 union) breaks through that
-frontier: at `k=10` it reaches **0.960**, recovering the three
-lexically-distinctive cross-reference chapters that dense embedding cannot rank
-— see [HYBRID.md](HYBRID.md) for the retrieval analysis and
-[results-en/README.md](results-en/README.md#hybrid-dense--bm25-union) for the
-per-question breakdown.
+**Retrieval depth is the main lever; language barely matters.** At `k=5`,
+Vector and Extract sit within two questions in both languages (English 0.830;
+Japanese 0.810 vs 0.850). Bumping Vector to `k=10` lifts English 0.830 → 0.920
+and Japanese 0.810 → 0.890 — most of the gain is simply deeper retrieval, as
+[`sweep_vector.py`](sweep_vector.py) predicted. What `k=10` *cannot* fix is
+**dense-retrieval blindness**: load-bearing cross-reference chapters that rank
+outside the top-10 in the embedding at both depths.
 
-**Line-level retrieval trades recall for precision and nets out below segment
-Vector.** `Vector-line` embeds one vector per line (rather than per scene) and
-resolves each line hit back to its containing segment for context; it scores
-0.800 (k=5) and 0.890 (k=10), below the segment-level 0.830 / 0.920 at both
-depths. The finer unit raises chapter precision (k=5 0.34→0.40, k=10 0.21→0.27)
-but lowers recall (k=5 0.72→0.66, k=10 0.84→0.78): single-passage saturates to
-1.000 at both depths (above segment k=5's 0.960), while every loss is a
-cross-reference retrieval miss where a gold chapter's relevant content is too
-diffuse for a single line to rank. The misses are *orthogonal* to segment
-Vector's — line granularity recovers a few chapters segment search drops (Q49
-Ch22, Q34 Ch31) while dropping others — but the net is negative, so segment-level
-retrieval remains the stronger dense baseline. **Japanese replicates the
-pattern**: line k=5 (0.790) sits just below segment k=5 (0.810) with the same
-precision-up / recall-down trade, and the orthogonal recoveries are even more
-pronounced (union strict recall lifts the segment k=5 baseline from 36/50 to
-41/50 at line k=5, 43/50 at line k=10). See
-[results-en/README.md](results-en/README.md#vector-line-line-level-retrieval) and
-[results-ja/README.md](results-ja/README.md#vector-line-line-level-retrieval) for
-the per-question breakdowns.
+**English — the dense ∪ BM25 union (Hybrid) is the practical best.** Running
+dense and BM25 independently and taking the set-theoretic union of their top-k
+chapters reaches **0.960** at `k=10`, recovering the lexically-distinctive
+cross-reference chapters dense embedding alone cannot rank. Don't fuse the
+rankings (RRF/Borda/CombSUM all underperform dense at `k=5`) — union. Full
+retrieval analysis and per-question breakdown in [HYBRID.md](HYBRID.md) and
+[results-en/README.md](results-en/README.md#hybrid-dense--bm25-union).
 
-**The segment ∪ line dense union (`V-hybrid`) does not beat plain Vector at a
-matched context budget.** Unioning the segment and line top-k
-(`answer_vector.py --hybrid`; the same union idea as Hybrid, but two same-model
-cosines instead of dense + BM25, so no second model and both languages) scores
-0.890 / 0.910 (English) and 0.890 / 0.880 (Japanese). It does what
-[VECTOR-HYBRID.md](VECTOR-HYBRID.md) measured — surfacing the orthogonal chapters
-each granularity misses, so it nearly eliminates wrong answers in English (k=5: 1
-incorrect vs Vector k=5's 6). But the fair comparison is by context size, not by
-`k`: V-hybrid k=5 pools `seg5 ∪ line5`, a ~`k=10` segment budget, so its real
-baseline is plain Vector k=10. At that budget the union does not win in either
-language — English V-hybrid k=5 (0.890) trails Vector k=10 (0.920), and Japanese
-V-hybrid k=5 (0.890) merely **ties** Vector k=10 (0.890; identical 42/5/3),
-while V-hybrid k=10 (0.880) falls just under it. So the strict-recall gain over
-Vector k=5 is a depth effect that the simpler single-index Vector k=10 reaches on
-its own — the granularity union adds complexity (two indexes, stable tie-break)
-without a payoff. The one lever V-hybrid cannot supply is the dense-blind [Class
-A](results-en/README.md#both-wrong-what-k10-cannot-fix) chapters, which only the
-lexical Hybrid reaches. See [VECTOR-HYBRID.md](VECTOR-HYBRID.md) and the
-per-question breakdowns:
-[English](results-en/README.md#v-hybrid-segment--line-dense-union) ·
-[Japanese](results-ja/README.md#v-hybrid-segment--line-dense-union).
+**The dense-only variants don't pay off.** `Vector-line` (one vector per line)
+and `V-hybrid` (segment ∪ line dense union) both trade chapter precision for
+recall and net out at or below segment Vector `k=10` in both languages — the
+strict-recall gain over Vector `k=5` is a depth effect that single-index Vector
+`k=10` reaches on its own, without the second index, and neither reaches the
+dense-blind chapters that only the lexical Hybrid recovers. Details in
+[VECTOR-HYBRID.md](VECTOR-HYBRID.md), with per-question breakdowns for
+[Vector-line](results-en/README.md#vector-line-line-level-retrieval) and
+[V-hybrid](results-en/README.md#v-hybrid-segment--line-dense-union)
+([Japanese](results-ja/README.md#v-hybrid-segment--line-dense-union)).
 
-The **Filter** rows use the LLM itself as the retriever (per-chapter relevance,
-answer from the full text of the kept chapters). English Filter3 posts the best
-per-chapter score (0.930) but at hundreds of times Vector's cost and trailing
-Hybrid k=10 (0.960); Japanese Filter3 (0.880) ties V-hybrid k=10 and falls just
-short of Vector k=10 (0.890) — see [FILTER.md](FILTER.md) for the full analysis
-and verdict. The per-question detail is in the case studies:
-[English](results-en/README.md) · [Japanese](results-ja/README.md).
+**Filter (LLM-as-retriever) is impractical regardless of score.** Asking the
+model to judge every chapter's relevance costs **~1,850 LLM calls per language**
+in Phase 1 (37 chapters × 50 questions) against Vector's single embedding +
+cosine pass — hundreds of times the runtime. English Filter3 posts a high 0.930
+and Japanese 0.880, but it still trails English Hybrid `k=10` (0.960) and only
+ties Vector `k=10` in Japanese, so the score never justifies the cost. Full
+analysis and verdict in [FILTER.md](FILTER.md); per-question detail in the case
+studies ([English](results-en/README.md) · [Japanese](results-ja/README.md)).
 
-**Ceiling pins the frontier to retrieval, not comprehension.** Feeding the
-gold chapters verbatim as context (no retrieval at all) lands at **0.990** —
-49 correct, one partial (Q48), zero incorrect — with chapter recall and
-precision both 1.000 by construction. No method ever beats Ceiling: its lead
-over each is the pure cost of that method's retrieval, and the gradient tracks
-retrieval quality exactly — Ceiling beats Filter2 on 14, Extract on 11, Vector k=5
-on 10, Hybrid k=5 on 6, Vector k=10 on 5, Filter3 on 4, and Hybrid k=10 on just 2.
-**Hybrid k=10 is the closest retrieval method to Ceiling**: its two-question residual
-is one synthesis regression (Q22, where the wider union context confuses the answerer
-on a single-passage question) and one shared blind spot neither retriever can reach
-(Q32, Ch15). The lone Ceiling loss
-(Q48, partial) is a pure synthesis failure — the paranoid "whisper-to-servant
-= insult plot" detail is *in* Chapter 19's text, yet the model reads it as
-"acting for his sister's sake," confirming that Q48's resistance is an
-answering-model limit, not a retrieval one. **Japanese tells the same story:**
-Ceiling 0.970 (47 correct, three partial, zero incorrect) sits 0.080 above the
-best Japanese retriever (Vector k=10 = V-hybrid k=5 = 0.890), so the Japanese
-frontier is retrieval, not comprehension — the model reads the gold chapters
-nearly perfectly in both languages. The gradient mirrors English: Ceiling beats
-Filter2 on 11, Vector k=5 on 11, Extract on 8, V-hybrid k=10 on 8,
-Vector k=10 = V-hybrid k=5 = Filter3 on 6. See the
+**Ceiling is a reference upper bound, not a usable method.** It feeds the gold
+chapters verbatim as context — i.e. it works backwards from the known answer and
+retrieves nothing, so it cannot run in production; its only purpose is to pin the
+frontier. English **0.990** (49 correct, one partial, zero incorrect) and
+Japanese **0.970** sit above every retrieval method, and the gap to each is the
+pure cost of that method's retrieval. Because the model reads the gold chapters
+nearly perfectly in both languages, **the frontier is retrieval, not
+comprehension** (the lone English residual, Q48, is the single true synthesis
+floor). See the
 [Ceiling case study](results-en/README.md#ceiling-the-perfect-retrieval-upper-bound).
+
+**Practical solution.** Setting aside Filter (too slow) and Ceiling (a
+back-computed upper bound, not a real retriever), the realistic best is **Hybrid
+(BM25 + Vector union) for English** and **Vector `k=10` for Japanese**: BM25
+tokenization is English-only, so the union is unavailable in Japanese, and there
+Vector `k=10` (0.890) ties the best Japanese retriever (V-hybrid `k=5`) at the
+lowest cost and complexity — a single index, one embedding pass, no second
+model.
 
 ## Retrieval analyses
 
