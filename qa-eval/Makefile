@@ -102,9 +102,8 @@ vector: $(VECTOR_FILE)
 # Hybrid retrieval (dense ∪ BM25 union) answering — Phase 2 QA of the HYBRID.md
 # Union approach. Mirrors `make vector`: the pattern rule derives the output
 # filename from k, so `make hybrid` → results-<lang>/hybrid5.jsonl,
-# `make hybrid K=10` → results-<lang>/hybrid10.jsonl. English only (BM25
-# tokenization is English-only — passing LANG=ja exits with an error from
-# answer_hybrid.py). Not part of the default pipeline / `judge` aggregate.
+# `make hybrid K=10` → results-<lang>/hybrid10.jsonl. Both languages. Not
+# part of the default pipeline / `judge` aggregate.
 # Note: `make hybrid` previously drove the standalone fusion analysis
 # (hybrid.py); that script is now run directly via `uv run hybrid.py -l en`.
 hybrid: $(HYBRID_FILE)
@@ -135,17 +134,14 @@ filter100-tsv: $(FILTER100_TSV)
 filter5d-tsv: $(FILTER5D_TSV)
 ceiling: $(RESULTS)/judge-ceiling.jsonl
 # `judge` aggregates the judged answer files for the default pipeline. Hybrid
-# (dense ∪ BM25 union) is English-only — answer_hybrid.py exits with an error
-# under LANG=ja — so its k=5/k=10 judge files are added to the aggregate only
-# when LANG=en. `make` (LANG=en, the default) thus builds Hybrid rows into
-# `make report`; `make ja` skips them. `make hybrid-judge` remains a standalone
-# alias for the two hybrid judge files.
+# (dense ∪ BM25 union) is supported for both languages. `make` thus builds Hybrid
+# rows into `make report` for both en and ja. `make hybrid-judge` remains a
+# standalone alias for the two hybrid judge files.
 # The canonical aggregate is the segment vector5 baseline plus extract (and
-# Hybrid under LANG=en). It is LINE-independent: `make judge` always grades
+# Hybrid). It is LINE-independent: `make judge` always grades
 # vector5, regardless of LINE.
-JUDGE_FILES := $(RESULTS)/judge-vector5.jsonl $(RESULTS)/judge-extract.jsonl
+JUDGE_FILES := $(RESULTS)/judge-vector5.jsonl $(RESULTS)/judge-extract.jsonl $(RESULTS)/judge-hybrid5.jsonl $(RESULTS)/judge-hybrid10.jsonl
 ifeq ($(LANG),en)
-JUDGE_FILES += $(RESULTS)/judge-hybrid5.jsonl $(RESULTS)/judge-hybrid10.jsonl
 JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge-%.jsonl,$(wildcard $(RESULTS)/graphrag-*.jsonl))
 endif
 # Also grade any line-mode answers already produced by `make vector LINE=1`

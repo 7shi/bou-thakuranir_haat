@@ -15,9 +15,8 @@ The retrieval unit is a **scene** (segment), not a paragraph or a chapter.
 50 questions per language, judged against a Gemini full-text gold standard
 with `ollama:qwen3.6`. The table reports `correct`/50 with the weighted score
 `(correct + 0.5·partial) / 50` in parentheses. **Vector** (`k=5`/`k=10`),
-**Vector-line**, **V-hybrid**, **Filter2**, **Filter3**, and **Ceiling** have been
-run for both languages; **Hybrid** is English only (BM25 tokenization is
-English-only).
+**Vector-line**, **V-hybrid**, **Filter2**, **Filter3**, **Hybrid** (Dense ∪ BM25),
+and **Ceiling** have been run for both languages.
 
 | Method | English | Japanese | Description |
 | --- | --- | --- | --- |
@@ -27,8 +26,8 @@ English-only).
 | Vector-line k=10 | 41/50 (0.890) | 40/50 (0.840) | Line-level dense vector search (k=10) |
 | V-hybrid k=5 | 40/50 (0.890) | 42/50 (0.890) | Segment ∪ Line dense union (k=5) |
 | V-hybrid k=10 | 43/50 (0.910) | 42/50 (0.880) | Segment ∪ Line dense union (k=10) |
-| Hybrid k=5 | 43/50 (0.910) | — | Dense ∪ BM25 union (k=5) |
-| Hybrid k=10 | 47/50 (0.960) | — | Dense ∪ BM25 union (k=10) |
+| Hybrid k=5 | 43/50 (0.910) | 44/50 (0.920) | Dense ∪ BM25 union (k=5) |
+| Hybrid k=10 | 47/50 (0.960) | 44/50 (0.920) | Dense ∪ BM25 union (k=10) |
 | Extract | 39/50 (0.830) | 40/50 (0.850) | Per-chapter summarization-based extraction |
 | Filter2 | 36/50 (0.790) | 39/50 (0.820) | LLM-as-retriever (binary: yes/no) |
 | Filter3 | 45/50 (0.930) | 43/50 (0.880) | LLM-as-retriever (ternary: yes/maybe/no) |
@@ -57,8 +56,7 @@ Both languages use the same answer model `google:gemma-4-31b-it`, the same
 
 > [!IMPORTANT]
 > **Practical Optimal Solution**
-> For English, **Dense ∪ BM25 Union** (`Hybrid k=10`) is the best practical solution, achieving the highest accuracy (**0.960**).
-> For Japanese, because BM25 tokenization is currently English-only, plain **Vector k=10** (or `V-hybrid k=5`) serves as the most practical optimal solution at **0.890**.
+> For both English and Japanese, **Dense ∪ BM25 Union** (`Hybrid k=10` or `k=5`) is the best practical solution, achieving the highest accuracy (**0.960** for English, **0.920** for Japanese).
 
 ## Key Findings by Strategy
 
@@ -79,20 +77,21 @@ Filter (LLM-as-retriever), English, at each variant's keep rule:
 
 ### Hybrid (Dense + BM25) — [HYBRID.md](HYBRID.md)
 
-Dense ∪ BM25 (HYBRID), English:
+Dense ∪ BM25 (HYBRID), en / ja:
 
-| method | k=5 | k=10 |
-|---|---:|---:|
-| Dense | 36 | 42 |
-| BM25 | 33 | 41 |
-| RRF | 32 | 43 |
-| Borda | 33 | 43 |
-| CombSUM | 35 | 42 |
-| **Union** | 40 | **46** |
+| method | en k=5 | en k=10 | ja k=5 | ja k=10 |
+|---|---:|---:|---:|---:|
+| Dense | 36 | 42 | 36 | 45 |
+| BM25 | 33 | 41 | 33 | 40 |
+| RRF | 32 | 43 | 36 | 44 |
+| Borda | 33 | 43 | 36 | 44 |
+| CombSUM | 35 | 42 | 38 | 45 |
+| **Union** | 40 | **46** | 43 | **48** |
 
 * **Don't Fuse — Union:** Rank-fusion algorithms (RRF, Borda, CombSUM) suppress more hits than they recover, underperforming dense-only at k=5. Taking the set-theoretic union of independent dense and BM25 top-k sets is parameter-free, robust, and wins (+4 strict recall at both depths).
 * **Dense-Blind Recovery:** BM25 lexical matching recovers nearly all proper-noun/distinctive terms (Class A misses like the signet ring or Delhi petition) that dense embedding fails to rank.
 * **Shared Blind Spots:** Four cross-reference questions (Q31, Q32, Q38, Q42) remain unrecoverable by both retrievers, requiring query expansion or multi-query techniques instead of a better blend.
+* **Parity between Japanese k=5 and k=10:** For Japanese, both `Hybrid k=5` and `Hybrid k=10` achieve the identical QA accuracy of **44/50 (0.920)** despite the latter having higher retrieval recall (48/50 vs 43/50). Disagreement analysis shows that while `k=10` resolves context misses in questions like Q27 and Q36, the larger context size (~25 scenes vs ~13 scenes) introduces synthesis errors due to "lost in the middle" effects in questions like Q34, perfectly offsetting the retrieval gains.
 
 ### Segment ∪ Line Dense Hybrid (`V-hybrid`) — [VECTOR-HYBRID.md](VECTOR-HYBRID.md)
 
@@ -126,9 +125,8 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 
 1. **Evaluation Collapses to Retrieval:** The `Ceiling` run proves that as long as the correct chapters are included in the context, the model can generate answers with high accuracy. Therefore, improving a QA system is almost entirely equivalent to improving retrieval recall.
 2. **Don't Fuse — Union:** When combining different retrievers (e.g., Dense and BM25, or Segment and Line), algorithms that blend scores into a single ranking (like RRF) often push correct answers out. Taking the set-theoretic union of their individual top-k results is the safest and most effective approach.
-3. **Divergence in Optimal Strategy by Language:**
-   * **English:** `Hybrid k=10` (Dense ∪ BM25 Union) is the best approach, scoring 0.960. It effectively breaks the limitations of pure dense retrieval and comes closest to the Ceiling.
-   * **Japanese:** Since BM25 sparse matching is not available, the optimal solution is the simpler **Vector k=10** (0.890). More complex methods like `V-hybrid` do not outperform plain `Vector k=10` under a matched context size budget.
+3. **Convergence in Optimal Strategy by Language:**
+   * For both **English** (0.960) and **Japanese** (0.920), **Dense ∪ BM25 Union** (`Hybrid`) is the best approach. It effectively breaks the limitations of pure dense retrieval and comes closest to the Ceiling by recovering proper-noun/distinctive terms.
 
 ## Pipeline (`Makefile`)
 

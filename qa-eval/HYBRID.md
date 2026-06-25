@@ -295,3 +295,63 @@ with a two-retriever union at the same k, feed the merged chapter set as
 context, and accept the +40% token cost for +4 questions of retrieval coverage.
 The four residual questions are the next frontier, and they require changing
 the query, not the ranking.
+
+## Japanese Hybrid Analysis
+
+Following the implementation of the Japanese morphological tokenizer using spaCy (`ja_core_news_sm`), the Hybrid analysis was executed for Japanese (`LANG=ja`) via `hybrid.py`. 
+
+The results confirm that the "don't fuse — union" verdict holds true for Japanese, yielding even higher strict recall gains compared to the English run.
+
+### Retrieval comparison (Japanese, n=50)
+
+Strict recall (gold ⊆ top-k) and coverage (mean |gold ∩ top-k| / |gold|) for each method:
+
+| method | k=5 strict | k=5 cov | k=5 prec | k=10 strict | k=10 cov |
+|---|---:|---:|---:|---:|---:|
+| Dense (cosine) | 36/50 | 0.857 | 0.332 | 45/50 | 0.943 |
+| BM25 (lexical) | 33/50 | 0.823 | 0.300 | 40/50 | 0.910 |
+| RRF (K=60, equal) | 36/50 | 0.860 | 0.330 | 44/50 | 0.953 |
+| Borda | 36/50 | 0.860 | 0.328 | 44/50 | 0.953 |
+| CombSUM | 38/50 | 0.883 | 0.344 | 45/50 | 0.960 |
+| **Union (oracle)** | **43/50** | **0.943** | 0.248 | **48/50** | **0.980** |
+
+* Dense (cosine) ja values are matched to the segment baseline.
+* At both depths, the set-theoretic **Union** outperforms all other methods, achieving **43/50** strict recall at `k=5` (+7 over Dense) and **48/50** at `k=10` (+3 over Dense).
+
+### RRF Parameter Sweep (Japanese)
+
+A post-hoc parameter sweep for RRF over K and weights yields:
+
+| K | w_d | w_b | k=5 strict | k=5 cov | k=10 strict | k=10 cov |
+|---:|---:|---:|---:|---:|---:|---:|
+| 5 | 1.0 | 1.0 | 37/50 | 0.880 | 46/50 | 0.967 |
+| 5 | 0.7 | 1.3 | 38/50 | 0.870 | 45/50 | 0.960 |
+| 5 | 1.3 | 0.7 | 39/50 | 0.893 | **46/50** | **0.967** |
+| 30 | 1.0 | 1.0 | 36/50 | 0.860 | 44/50 | 0.953 |
+| 30 | 0.7 | 1.3 | 37/50 | 0.860 | 45/50 | 0.960 |
+| 30 | 1.3 | 0.7 | 39/50 | 0.893 | 45/50 | 0.953 |
+| **60** | **1.0** | **1.0** | **36/50** | **0.860** | **44/50** | **0.953** |
+| 60 | 0.7 | 1.3 | 36/50 | 0.853 | **46/50** | **0.967** |
+| 60 | 1.3 | 0.7 | **40/50** | **0.900** | 44/50 | 0.947 |
+
+Similar to English, biasing toward Dense improves strict recall slightly because Dense is the stronger retriever in this set, but it fails to beat the Union oracle (**48/50** at `k=10`).
+
+### Context Size with ±1 Expansion (Japanese)
+
+The context size cost (actual expanded scenes the answerer receives) of taking the Union at `k=10` remains highly practical:
+
+| method | expanded scenes (mean) | chapters (mean) |
+|---|---:|---:|
+| Dense k=10 | 16.9 | 7.6 |
+| BM25 k=10 | 17.0 | 8.2 |
+| **Union k=10** | **24.8** | **11.5** |
+
+The Union context yields around 25 expanded scenes, representing a **1.47×** increase in token cost over Dense alone (comparable to the 1.4× increase in the English run). In return, the strict recall coverage jumps from **45/50** (Dense) to **48/50** (Union).
+
+### Shared Blind Spots (Japanese)
+
+For Japanese, only two questions remain unrecoverable by the Union oracle at `k≤10`:
+- **Q32** (gold `[11, 15, 16]`; Ch15 ranks outside top-10 for both)
+- **Q42** (gold `[22, 23, 29]`; Ch23 and Ch29 rank outside top-10 for both)
+
+By introducing the Union of spaCy-driven BM25 and Dense vector search, we successfully resolved the other two blind spots (Q31 and Q38) that were previously unrecoverable in English at `k≤10` (refer to the `provenance` codes where those gold chapters were successfully ranked inside the top-10 by BM25 or RRF).

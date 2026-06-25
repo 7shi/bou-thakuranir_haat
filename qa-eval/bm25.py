@@ -140,20 +140,40 @@ you your
 """.split())
 
 
-def tokenize(text: str, lang: str = "en", remove_stop: bool = True) -> list[str]:
-    """Lowercase + alphanumeric token extraction (English; no morphology).
+_nlp_ja = None
 
-    Japanese is deferred — the ``lang`` switch is a placeholder so a future
-    morphological-analysis branch can plug in without changing call sites.
+
+def get_nlp_ja():
+    global _nlp_ja
+    if _nlp_ja is None:
+        import spacy
+        _nlp_ja = spacy.load("ja_core_news_sm")
+    return _nlp_ja
+
+
+def tokenize(text: str, lang: str = "en", remove_stop: bool = True) -> list[str]:
+    """Lowercase + alphanumeric token extraction.
+
+    Japanese morphological analysis uses spaCy (ja_core_news_sm).
     """
-    if lang != "en":
+    if lang == "ja":
+        nlp = get_nlp_ja()
+        doc = nlp(text)
+        # Extract nouns, proper nouns, verbs, adjectives, and adverbs
+        allowed_pos = {"NOUN", "PROPN", "VERB", "ADJ", "ADV"}
+        tokens = [t.text.lower() for t in doc if t.pos_ in allowed_pos]
+        if remove_stop:
+            # Simple cleanup for Japanese tokens
+            tokens = [t for t in tokens if not t.isspace()]
+        return tokens
+    elif lang == "en":
+        tokens = _TOKEN_RE.findall(text.lower())
+        if remove_stop:
+            tokens = [t for t in tokens if t not in STOPWORDS]
+        return tokens
+    else:
         raise NotImplementedError(
-            f"tokenize: lang={lang!r} not implemented (English only for now; "
-            f"Japanese deferred — needs morphological analysis)")
-    tokens = _TOKEN_RE.findall(text.lower())
-    if remove_stop:
-        tokens = [t for t in tokens if t not in STOPWORDS]
-    return tokens
+            f"tokenize: lang={lang!r} not implemented")
 
 
 # ---------------------------------------------------------------------------

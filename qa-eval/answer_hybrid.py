@@ -94,10 +94,6 @@ def main():
     args = parser.parse_args()
 
     lang = args.lang
-    if lang != "en":
-        raise SystemExit(
-            f"answer_hybrid.py: lang={lang!r} not supported (BM25 is English-only; "
-            f"Japanese deferred — needs morphological analysis).")
     lang_name = LANGS[lang]
     args.input = args.input or str(ROOT / f"questions-{lang}.jsonl")
     args.index = args.index or str(ROOT / "qa-eval" / f"index-{lang}.safetensors")
