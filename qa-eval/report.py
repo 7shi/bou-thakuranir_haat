@@ -250,13 +250,15 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
     default), and both are appended when present. Order: Vector k=5 first, then
     Vector k=<k> by ascending k, then Vector-line k=<k>, then V-hybrid k=<k>,
     then Hybrid k=<k> by ascending k, then Extract, then Filter2, then Filter3,
-    then Ceiling (perfect-retrieval ceiling) — so the k=5 baseline sits beside
-    its deeper-retrieval variants, the dense unions (V-hybrid = segment∪line,
-    Hybrid = dense∪BM25) sit beside their Vector peers as direct retrieval
-    comparisons, the per-chapter methods sit next to each other for direct
-    comparison, the stricter two-level filter sits ahead of its looser
-    three-level counterpart, and Ceiling anchors the table as the upper bound
-    that strips out retrieval entirely.
+    then Ceiling (perfect-retrieval ceiling), then GraphRAG local/global —
+    so the k=5 baseline sits beside its deeper-retrieval variants, the dense
+    unions (V-hybrid = segment∪line, Hybrid = dense∪BM25) sit beside their
+    Vector peers as direct retrieval comparisons, the per-chapter methods sit
+    next to each other for direct comparison, the stricter two-level filter
+    sits ahead of its looser three-level counterpart, Ceiling anchors the
+    pipeline table as the upper bound that strips out retrieval entirely, and
+    GraphRAG (an external knowledge-graph retriever) is appended after Ceiling
+    for cross-system comparison.
     """
     def vector_key(stem: str) -> int:
         m = re.fullmatch(r"vector(\d+)", stem)
@@ -331,6 +333,15 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
     # they chase.
     if (results / "ceiling.jsonl").exists() and (results / "judge-ceiling.jsonl").exists():
         found.append(("Ceiling", "ceiling.jsonl", "judge-ceiling.jsonl"))
+    # GraphRAG (Microsoft GraphRAG, external knowledge-graph retriever). Two
+    # search modes: local (entity-anchored) and global (community summaries).
+    # Appended after Ceiling for cross-system comparison; English only in
+    # practice (the graphrag/ sub-project was run on the English corpus only).
+    for mode in ("local", "global"):
+        ans = f"graphrag-{mode}.jsonl"
+        judge = f"judge-graphrag-{mode}.jsonl"
+        if (results / ans).exists() and (results / judge).exists():
+            found.append((f"GraphRAG {mode}", ans, judge))
     return found
 
 

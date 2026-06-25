@@ -49,6 +49,8 @@ all      Extract           50      39       5         6     0.830     0.740    0
 all      Filter2           50      36       7         7     0.790     0.600    0.808
 all      Filter3           50      45       3         2     0.930     0.880    0.775
 all      Ceiling           50      49       1         0     0.990     1.000    1.000
+all      GraphRAG local    50      28      10        12     0.660     0.860    0.135
+all      GraphRAG global   50       5       7        38     0.170     0.220    0.029
 
 single   Vector k=5        25      24       0         1     0.960     1.000    0.263
 single   Vector k=10       25      25       0         0     1.000     1.000    0.136
@@ -62,6 +64,8 @@ single   Extract           25      24       0         1     0.960     1.000    1
 single   Filter2           25      24       1         0     0.980     1.000    1.000
 single   Filter3           25      25       0         0     1.000     1.000    0.940
 single   Ceiling           25      25       0         0     1.000     1.000    1.000
+single   GraphRAG local    25      15       1         9     0.620     0.880    0.201
+single   GraphRAG global   25       2       1        22     0.100     0.080    0.005
 
 cross    Vector k=5        25      15       5         5     0.700     0.440    0.411
 cross    Vector k=10       25      19       4         2     0.840     0.680    0.274
@@ -75,6 +79,8 @@ cross    Extract           25      15       5         5     0.700     0.480    0
 cross    Filter2           25      12       6         7     0.600     0.200    0.617
 cross    Filter3           25      20       3         2     0.860     0.760    0.611
 cross    Ceiling           25      24       1         0     0.980     1.000    1.000
+cross    GraphRAG local    25      13       9         3     0.700     0.840    0.069
+cross    GraphRAG global   25       3       6        16     0.240     0.360    0.053
 ```
 
 The sweep's prediction holds: deepening retrieval lifts the cross-reference
@@ -574,6 +580,111 @@ possibly a gold that over-weights a fleeting detail.
   correct, confirming the detail *is* in the chapter and the gold is sound;
   the other methods' failures are retrieval/extraction, not gold ambiguity.
 
+## GraphRAG
+
+[Microsoft GraphRAG](https://github.com/microsoft/graphrag) builds a knowledge
+graph over the corpus and answers queries through two distinct search modes —
+`local` (entity-anchored, traverses the graph from the nearest entity nodes) and
+`global` (community-summary based, aggregates across cluster summaries). Both
+modes run on `ollama:gemma4:31b-it-qat` with the same corpus; details in
+[graphrag/README.md](../graphrag/README.md).
+
+### GraphRAG local (0.660)
+
+Local search posts 28/50 (0.660) — below Filter2 (0.790) and far below Hybrid
+k=10 (0.960). The chapter-retrieval numbers tell the story: **recall 0.860,
+precision 0.135** (the lowest of any non-global method). Entity-graph expansion
+tends to pull in nearly all 37 chapters as expanded context, so gold chapters
+are almost always present — but the answerer is forced to synthesize from an
+overloaded context with minimal signal-to-noise.
+
+The failure mode is therefore **synthesis-dominated**. Of GraphRAG local's 21
+losses to Ceiling, **16 are synthesis** (the gold chapter is present but the
+answer is wrong or vague) and only 5 are missed context. This is the inverse of
+Vector k=5 (where most losses are retrieval misses) and is structurally similar
+to the "lost in the middle" effect: the right content is there, but buried under
+noise. Hybrid k=10 keeps its context to the union top-k and avoids this;
+GraphRAG local has no equivalent precision control.
+
+The synthesis collapse is sharpest on **single-passage questions** (15/25,
+0.620) — the category every retrieval method with adequate recall saturates to
+≥24/25. GraphRAG local drops 9 of those 25 to incorrect (and 1 to partial),
+producing the worst single-passage score of any method. On cross-reference it
+matches Vector k=5 (13/25, 0.700) — the chapter-graph's entity links provide
+no structural advantage when the bottleneck is synthesis over a noisy context.
+
+GraphRAG local **never beats Hybrid k=10** on any question. Hybrid k=10 wins 19
+questions against it (14 synthesis, 5 missed context); GraphRAG local wins 0.
+
+### What GraphRAG local gets right
+
+Despite the poor overall score, examining which questions GraphRAG local
+answers correctly reveals a coherent pattern: it succeeds on questions whose
+answers are encoded as **entity relationships or narrative arcs**, and fails on
+questions requiring **specific microdetail from the raw text**.
+
+**Pure graph traversal (0 chapters retrieved, yet correct).** Two cross-reference
+questions — Q26 and Q28 — receive correct answers with `expanded=[]`: no chapter
+text is retrieved at all. Q26 asks how the dynamic between Udayaditya and the
+guard Sitaram *reverses* across two escapes; Q28 asks in what two locations and
+disguises Ramai Bhand faces retaliation. Both turns on the *shape of a
+relationship arc* — exactly what a knowledge graph's entity/relationship edges
+encode. The graph answered without needing any passage context.
+
+**Class A recovery (Q31, Q49).** The two Class A questions that every Vector
+depth and Hybrid misses — Q31 (signet ring → seal forgery → imprisonment) and
+Q49 (Emperor of Delhi → forged petition → imprisonment) — are answered correctly
+by GraphRAG local (with 37 chapters retrieved). Dense embedding is lexically
+blind to Ch21/22 and Ch22 because those chapters are semantically generic; BM25
+recovers them via lexical matching. GraphRAG takes a third path: the
+knowledge graph explicitly encodes the entity chain (ring → conspiracy →
+imprisonment) as relationship edges, so local graph traversal reaches the answer
+independently of chapter ranking. The same mechanism explains why Q26/Q28 need
+zero chapters — entity chains suffice.
+
+**The entity-vs-procedural boundary (Q43).** Q43 (Class A, Ch37 — palanquin
+extraction) is partial: the graph correctly identifies *who* was rescued by
+Rammohan Mal on two occasions, but misses *how* — the bedsheet rope from the
+Jessore rooftop and the carried-unconscious-to-palanquin detail in Chandradwip.
+Physical procedures are not entity-relationship edges; they live in the raw
+text. GraphRAG captures entity actions but not the fine-grained procedural
+specifics of those actions.
+
+**The general pattern.** Questions GraphRAG local answers correctly tend to ask
+about *character dynamics and their evolution*, *causal chains between named
+entities*, or *narrative arc reversals* — all things the knowledge graph
+represents explicitly. Questions it fails tend to ask for specific words, objects,
+or physical actions at a particular scene — microdetails that entity extraction
+abstracts away. This is exactly the mismatch described above: the graph encodes
+relationships, not passages.
+
+### GraphRAG global (0.170)
+
+Global search is essentially non-functional for passage-level QA. It scores
+5/50 (0.170) — the lowest of any method by a wide margin — and the mechanism is
+clear from the chapter-retrieval numbers: **recall 0.220, precision 0.029**.
+Community summaries operate at the wrong granularity: they abstract away the
+specific chapter details the questions turn on. Of the 45 questions where
+Ceiling beats GraphRAG global, **37 are missed context** — the relevant textual
+evidence is simply absent from the retrieved context, not merely mis-synthesized.
+
+Single-passage (2/25, 0.100) is almost a complete failure: community-level
+summaries cannot anchor a question to the specific scene where an event occurs.
+Cross-reference (3/25, 0.240) fares slightly better because a handful of
+prominent cross-cutting themes appear in the community summaries, but the score
+is still far below every other method including Filter2 (0.600).
+
+### Summary
+
+Neither GraphRAG mode reaches the level of the simplest pipeline method (Vector
+k=5, 0.830). The local mode's high recall does not translate to accuracy because
+synthesis degrades over an overloaded context; the global mode's community
+abstractions miss the passage-level details entirely. For a chapter-structured
+novel QA task with specific factual questions, the flat embedding pipeline —
+especially with the BM25 union — outperforms the knowledge-graph approach at a
+fraction of the indexing cost (4 h+ for GraphRAG vs. minutes for the embedding
+index).
+
 ## Takeaways
 
 - **k=10 delivers the sweep's promise on cross-reference** (0.700→0.840),
@@ -639,3 +750,14 @@ possibly a gold that over-weights a fleeting detail.
   most often miss: Q31/Q43/Q49 (the vector-unreachable trio, all correct
   under Ceiling) and Q32 (the secret-stipend question, correct under Ceiling
   despite being partial for every retrieval method).
+- **GraphRAG does not match the pipeline on this task overall, but reveals what
+  graph structure can and cannot do.** Local search (0.660) falls below Filter2:
+  entity-graph expansion overloads context (recall 0.860, precision 0.135) and
+  16 of 21 losses to Ceiling are synthesis failures, not missed context. Yet it
+  has a coherent strength — questions about *character relationship arcs and
+  narrative causality* (e.g. Q26/Q28, answered with 0 chapters from pure graph
+  traversal; Q31/Q49, the Class A cases that dense+BM25 also recovers via
+  lexical matching, here recovered via entity chains). It fails on microdetail
+  questions requiring specific text. Global search (0.170) is non-functional:
+  community summaries are the wrong granularity (37 of 45 losses to Ceiling are
+  missed context). Neither mode beats Hybrid k=10 on any question.

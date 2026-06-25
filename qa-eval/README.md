@@ -33,6 +33,8 @@ English-only).
 | Filter2 | 36/50 (0.790) | 39/50 (0.820) |
 | Filter3 | 45/50 (0.930) | 43/50 (0.880) |
 | Ceiling | 49/50 (0.990) | 47/50 (0.970) |
+| GraphRAG local | 28/50 (0.660) | — |
+| GraphRAG global | 5/50 (0.170) | — |
 
 The pipeline behind these rows — build the index, answer each question, grade,
 aggregate (Filter and Ceiling are opt-in):
@@ -100,6 +102,22 @@ nearly perfectly in both languages, **the frontier is retrieval, not
 comprehension** (the lone English residual, Q48, is the single true synthesis
 floor). See the
 [Ceiling case study](results-en/README.md#ceiling-the-perfect-retrieval-upper-bound).
+
+**GraphRAG (local/global) does not match the pipeline on this task overall.**
+GraphRAG excels at structural queries ("how does this relationship evolve?");
+questions here mostly require specific microdetail from individual chapters —
+a granularity the entity/relationship graph abstracts away. GraphRAG local posts
+0.660 (28/50) — below Filter2 (0.790). Entity-graph expansion pulls in most
+chapters (recall 0.860), but precision collapses to 0.135 and the answerer
+drowns in noise: **16 of its 21 losses to Ceiling are synthesis**. Where the
+graph does help — questions about character arcs and narrative causality — it
+sometimes answers correctly with zero chapters retrieved (pure graph traversal),
+and it independently recovers the Class A questions Q31/Q49 that dense embedding
+cannot rank. It never beats Hybrid k=10 overall. GraphRAG global (0.170, 5/50)
+is non-functional: community summaries are too abstract for passage-level QA
+(37 of 45 losses are missed context). See [graphrag/README.md](graphrag/README.md)
+and the [GraphRAG section](results-en/README.md#graphrag) of the English case
+study.
 
 **Practical solution.** Setting aside Filter (too slow) and Ceiling (a
 back-computed upper bound, not a real retriever), the realistic best is **Hybrid
