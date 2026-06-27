@@ -596,7 +596,7 @@ graph over the corpus and answers queries through two distinct search modes —
 `local` (entity-anchored, traverses the graph from the nearest entity nodes) and
 `global` (community-summary based, aggregates across cluster summaries). Both
 modes run on `ollama:gemma4:31b-it-qat` with the same corpus; details in
-[graphrag/README.md](../graphrag/README.md).
+[graphrag-en/README.md](../graphrag-en/README.md).
 
 ### GraphRAG local (0.660)
 

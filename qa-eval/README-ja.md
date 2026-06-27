@@ -101,7 +101,7 @@ Segment ∪ Line (VECTOR-HYBRID), 英語 / 日本語:
 * **Extract の失敗原因:** Extract 手法での失点は、回答生成時の失敗ではなく、そのほとんどが Phase 1 の偽陰性（False negative: 要約が正解チャプターを切り捨ててしまうこと）によるものです。
 * **言語による差異なし:** 使用する言語は精度にほとんど影響を与えません（英語と日本語の総計スコアの差は1〜2問に収まっています）。同じ埋め込みモデルを使用しているため、検索で取りこぼす箇所も同一です。
 
-### GraphRAG — [graphrag/README.md](graphrag/README.md)
+### GraphRAG — [graphrag-en/README.md](graphrag-en/README.md)
 
 * **回答生成の崩壊:** GraphRAG の `local` 検索 (0.660) は単純なベクトル検索を下回りました。再現率（Recall 0.860）は高いものの、適合率（Precision）が 0.135 と崩壊しており、コンテキストにノイズが溢れて回答生成の失敗（synthesis failure）を引き起こしました。
 * **構造的強み:** エンティティの関係性を示す質問（Q26/Q28）に対しては、パッセージのコンテキストがゼロでも完璧に回答でき、またグラフの探索を通じて Class A の質問を自己解決できる強みがあります。

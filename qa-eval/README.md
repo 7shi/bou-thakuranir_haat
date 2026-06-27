@@ -116,7 +116,7 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 * **Extract Failures:** Extract’s losses are predominantly Phase 1 false negatives (where the summary drops the gold chapter) rather than synthesis errors.
 * **Language Invariance:** Language makes negligible difference to accuracy (EN and JA totals match within 1-2 questions). Retrieval misses are identical because they share the same embedding model.
 
-### GraphRAG — [graphrag/README.md](graphrag/README.md)
+### GraphRAG — [graphrag-en/README.md](graphrag-en/README.md)
 
 * **Synthesis Collapse:** GraphRAG local (0.660) falls below flat retrieval. While recall is high (0.860), precision collapses (0.135), overloading the context and causing synthesis failure.
 * **Structural Strengths:** It excels at answering entity-relationship arcs (answering Q26/Q28 with zero context passages) and resolves Class A questions through graph traversal.
