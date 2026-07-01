@@ -33,8 +33,8 @@ and **Ceiling** have been run for both languages.
 | Filter2 | 36/50 (0.790) | 39/50 (0.820) | LLM-as-retriever (binary: yes/no) |
 | Filter3 | 45/50 (0.930) | 43/50 (0.880) | LLM-as-retriever (ternary: yes/maybe/no) |
 | Ceiling | 49/50 (0.990) | 47/50 (0.970) | Perfect-retrieval upper bound (gold chapters directly) |
-| GraphRAG local | 28/50 (0.660) | — | Microsoft GraphRAG (local entity search) |
-| GraphRAG global | 5/50 (0.170) | — | Microsoft GraphRAG (global community search) |
+| GraphRAG local | 28/50 (0.660) | 28/50 (0.640) | Microsoft GraphRAG (local entity search) |
+| GraphRAG global | 5/50 (0.170) | 8/50 (0.240) | Microsoft GraphRAG (global community search) |
 
 The pipeline behind these rows — build the index, answer each question, grade,
 aggregate (Filter and Ceiling are opt-in):
@@ -116,12 +116,12 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 * **Extract Failures:** Extract’s losses are predominantly Phase 1 false negatives (where the summary drops the gold chapter) rather than synthesis errors.
 * **Language Invariance:** Language makes negligible difference to accuracy (EN and JA totals match within 1-2 questions). Retrieval misses are identical because they share the same embedding model.
 
-### GraphRAG — [graphrag-en/README.md](graphrag-en/README.md)
+### GraphRAG — [graphrag-en/README.md](graphrag-en/README.md) & [graphrag-ja/README.md](graphrag-ja/README.md)
 
-* **Synthesis Collapse:** GraphRAG local (0.660) falls below flat retrieval. While recall is high (0.860), precision collapses (0.135), overloading the context and causing synthesis failure.
-* **Structural Strengths:** It excels at answering entity-relationship arcs (answering Q26/Q28 with zero context passages) and resolves Class A questions through graph traversal.
-* **Global Search Failure:** Global community summaries are too abstract (0.170) for passage-level QA.
-* **Extreme Cost:** Building the graph and running queries takes over 13 hours—impractical compared to minutes for flat vector indexing.
+* **Synthesis Collapse:** GraphRAG local scores 0.660 (EN) / 0.640 (JA), well below flat retrieval in both languages. Recall is high (0.860 EN / 0.880 JA) but precision collapses (0.135 EN / 0.239 JA), overloading the context and causing synthesis failure.
+* **Structural Strengths Don't Transfer:** In English it answers entity-relationship arcs with zero context passages (Q26/Q28) and resolves both Class A questions (signet ring, Delhi petition) through graph traversal. In Japanese no question is answered from zero context, and only one of the two Class A questions (the Delhi petition) is recovered — the signet-ring chain is missed even though the graph clearly encodes it, since it surfaces in the *other* question's own answer. See [results-ja/README.md § GraphRAG](results-ja/README.md#graphrag) for the case study.
+* **Global Search Failure:** Global community summaries are too abstract for passage-level QA in either language (0.170 EN, 0.240 JA — the weakest score in each language).
+* **Extreme Cost:** Building the graph and running all 100 queries takes 13h 6m (EN) / 20h 19m (JA)—impractical compared to minutes for flat vector indexing. Japanese takes longer because the same token-based chunk size splits the (larger, denser) Japanese text into more chunks, cascading into more LLM calls throughout indexing and querying.
 
 ## Overall Conclusions and Practical Takeaways
 

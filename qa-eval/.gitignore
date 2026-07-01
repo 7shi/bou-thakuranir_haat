@@ -1,0 +1,10 @@
+graphrag-*/cache/
+graphrag-*/input/
+graphrag-*/logs/
+graphrag-*/output/
+graphrag-*/prompts/
+graphrag-*/rawlogs/
+graphrag-*/local/
+graphrag-*/global/
+graphrag-*/.env
+graphrag-*/settings.yaml

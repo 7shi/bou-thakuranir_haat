@@ -1,0 +1,211 @@
+$ time make init; time make run
+graphrag init -m gemma4:31b-it-qat -e embeddinggemma
+ln -sf ../../../all/ja-gemini.md input/ja-gemini.txt
+cp settings-1.yaml settings.yaml
+GRAPHRAG_RAWLOG_DIR=rawlogs/1-tune  graphrag prompt-tune --language Japanese
+GRAPHRAG_RAWLOG_DIR=rawlogs/2-index graphrag index
+Starting pipeline with workflows: load_input_documents, create_base_text_units, create_final_documents, extract_graph, finalize_graph, extract_covariates, create_communities, create_final_text_units, create_community_reports, generate_text_embeddings
+Starting workflow: load_input_documents
+
+Workflow complete: load_input_documents
+Starting workflow: create_base_text_units
+  1 / 1 ............................................................................................
+Workflow complete: create_base_text_units
+Starting workflow: create_final_documents
+
+Workflow complete: create_final_documents
+Starting workflow: extract_graph
+  749 / 749 ........................................................................................
+Workflow complete: extract_graph
+Starting workflow: finalize_graph
+
+Workflow complete: finalize_graph
+Starting workflow: extract_covariates
+
+Workflow complete: extract_covariates
+Starting workflow: create_communities
+
+Workflow complete: create_communities
+Starting workflow: create_final_text_units
+
+Workflow complete: create_final_text_units
+Starting workflow: create_community_reports
+  44 / 44 ..........................................................................................
+Workflow complete: create_community_reports
+Starting workflow: generate_text_embeddings
+[2026-06-28T00:20:03Z WARN  lance::dataset::write::insert] No existing dataset at /home/7shi/repos/bou-thakuranir_haat/qa-eval/graphrag-ja/output/lancedb/entity_description.lance, it will be created
+[2026-06-28T00:20:12Z WARN  lance::dataset::write::insert] No existing dataset at /home/7shi/repos/bou-thakuranir_haat/qa-eval/graphrag-ja/output/lancedb/community_full_content.lance, it will be created
+[2026-06-28T00:20:16Z WARN  lance::dataset::write::insert] No existing dataset at /home/7shi/repos/bou-thakuranir_haat/qa-eval/graphrag-ja/output/lancedb/text_unit_text.lance, it will be created
+  2 / 2 ............................................................................................
+Workflow complete: generate_text_embeddings
+Pipeline complete
+Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x733c1b7c7230>
+Unclosed connector
+connections: ['deque([(<aiohttp.client_proto.ResponseHandler object at 0x733c1316add0>, 277880.781043973)])']
+connector: <aiohttp.connector.TCPConnector object at 0x733c1b7c6e40>
+
+real    349m34.022s
+user    1m29.003s
+sys     0m3.627s
+cp settings-2.yaml settings.yaml
+sh run_queries.sh
+[1] 主要な道を外れて濡れた野原に降りた後、ウダヤディティヤの馬であるスグリーヴァは前足に体重をかけて何回転んだか。
+  run    local/01.txt
+  run    global/01.txt
+[2] パターン人と共に人気のない道端で待っている間、バサンタ・ライは「ケヤセ・カトンギ・ラヤン、ソ・ピヤ・ビナ」の一節を歌う前に、具体的にどのラーガでアラープを奏でたか？
+  run    local/02.txt
+  run    global/02.txt
+[3] ビバは薄いトルコ石色の腕輪を3本着けることを望んでいたにもかかわらず、ラーマチャンドラ・ライの到着の準備として、王妃は彼女の左右の腕にそれぞれ、具体的にどのような宝飾品の組み合わせを無理やり着けさせたか。
+  run    local/03.txt
+  run    global/03.txt
+[4] ラーマチャンドラ・ライがジョソールの宮殿の屋上から脱出する際、階下の運河までの指定された距離はどれだけであり、布の綱はどの具体的な建築的特徴部分に結びつけられているか？
+  run    local/04.txt
+  run    global/04.txt
+[5] シタラムが「冗談」として背中を殴りつけた時、見張り中に居眠りをしていた王宮の衛兵の名前は何か？
+  run    local/05.txt
+  run    global/05.txt
+[6] 8歳のサマラディティヤは、一日中バサンタ・ライの後をついて回る間、彼の楽器に対してどのような具体的な2つのことを行うか？
+  run    local/06.txt
+  run    global/06.txt
+[7] ラマイが語る、司令官の家に泥棒が押し入る滑稽な話の中で、泥棒は盗みを終えた後、ご主人に具体的に何を出してほしいと頼むか？
+  run    local/07.txt
+  run    global/07.txt
+[8] マンガラが、侍女のマータンギニーに夫へパーンと一緒に食べさせるために取り出して手渡した、具体的な物は何か。
+  run    local/08.txt
+  run    global/08.txt
+[9] ビバは、ウダヤディティヤの牢獄の部屋を少しでも快適にするために、どのような種類の鳥を連れてきて吊るしたか？
+  run    local/09.txt
+  run    global/09.txt
+[10] 火事でウダヤディティヤの死を偽装するために、シタラムが燃え盛る牢獄の部屋に投げ込んだ3つの具体的な物は何であるか。
+  run    local/10.txt
+  run    global/10.txt
+[11] ウダヤディティヤは、政務を学ぶためにホセンカリ管区の統治を任された時、何歳であったか。
+  run    local/11.txt
+  run    global/11.txt
+[12] ラマイ・タクールが中年の女性に変装して奥御殿に入ったとき、ラムモハンに正体を見破られる直前に、彼は王妃のことを具体的に何という名前で呼んだか？
+  run    local/12.txt
+  run    global/12.txt
+[13] ラーマチャンドラ・ライの輿に対して立ち上がらず、彼が大騒ぎを起こす原因となった二人の未熟な人物の職業は何であるか。
+  run    local/13.txt
+  run    global/13.txt
+[14] ナレーターによると、バーガヴァタは困窮した時期に溜まった借金をどのようにして返済したか？
+  run    local/14.txt
+  run    global/14.txt
+[15] ライガルのベランダで、日が沈む中、バサンタ・ライがカーン・サーヘブに歌ってほしいと熱心に求めた特定の歌は何か。
+  run    local/15.txt
+  run    global/15.txt
+[16] 大臣と法（dharma）について議論している際、プラタパディティヤは、父親の求めに応じて自身の母親を殺害した神話上のどの人物を引用しているか？
+  run    local/16.txt
+  run    global/16.txt
+[17] マンガラは、スルマのための毒を調合するために、切る、浸す、すり潰す、混ぜ合わせる、呪文を唱えるといった作業に何日間を費やすか。
+  run    local/17.txt
+  run    global/17.txt
+[18] プラタパディティヤの一族に対する宮廷の嘲笑の中で、ラマイ・バンドはプラタパディティヤの娘に甘味の一皿とともに具体的に何の果物を送ることを提案しているか。
+  run    local/18.txt
+  run    global/18.txt
+[19] 王位からの解放を交渉し、カーシー行きを願い出る際、ウダヤディティヤは要求した資金を使ってどのような2つの具体的な建造物を建立したいと述べているか？
+  run    local/19.txt
+  run    global/19.txt
+[20] チャンドラドウィープの宮殿でラマイ・バンドがビバを嘲笑した後、ラムモハンはラマイを都から追い出す前に、彼の頭に対してどのような具体的な行為を行うと脅したか？
+  run    local/20.txt
+  run    global/20.txt
+[21] プラタパディティヤが大臣の政務における怠慢を叱責する際、彼が犯したと非難する2つの具体的な過去の過ちは何か？
+  run    local/21.txt
+  run    global/21.txt
+[22] 奥御殿からの脱出の試みの際、ウダヤディティヤは従順な衛兵シタラムを縛るために、具体的にどのアイテムを使用するか？
+  run    local/22.txt
+  run    global/22.txt
+[23] なぜシタラムの遠縁の未亡人の姉は、最終的に息子を仕事に出さないことにしたのか？
+  run    local/23.txt
+  run    global/23.txt
+[24] ラムモハンがジョソールへ離縁の手紙を届けることを明確に拒否した後、ラーマチャンドラ・ライ王は代わりに誰に手紙を手渡したか？
+  run    local/24.txt
+  run    global/24.txt
+[25] ムクティヤール・カーンが死刑の執行を遅らせることを拒否し、兵士たちが野原でウダヤディティヤを取り囲んだ直後、ウダヤディティヤが暗闇に向かって叫んだ正確な警告は何であったか？
+  run    local/25.txt
+  run    global/25.txt
+[26] ウダヤディティヤと宮殿の衛兵シタラムとの関係性は、ラーマチャンドラ・ライが脱出した夜と、ウダヤディティヤ自身が牢獄から脱出した夜との間で、どのように逆転しているか。
+  run    local/26.txt
+  run    global/26.txt
+[27] プラタパディティヤが叔父のバサンタ・ライを暗殺しようとした、最初の失敗に終わった計画はどのようなものであり、最終的にどのような方法でこの老王の命を奪うことに成功したのか？
+  run    local/27.txt
+  run    global/27.txt
+[28] 道化のラマイ・バンドがジョソールの王室の女性たちを侮辱したとして、ラムモハン・マールから物理的な報復を受ける2つの異なる場所と変装は何か？
+  run    local/28.txt
+  run    global/28.txt
+[29] プラタパディティヤの公式の命令は、スルマを実家に帰らせることで彼女とウダヤディティヤを引き離すことを目的としているが、実際に彼女の去る原因となった秘密の行動とは何か？
+  run    local/29.txt
+  run    global/29.txt
+[30] ビバが、自分をチャンドラドウィープへと送り届けようとしたラムモハン・マールの最初の試みを拒んだ決断から、どのような悲劇的な結末が生じるか？
+  run    local/30.txt
+  run    global/30.txt
+[31] ウダヤディティヤの印章指輪は、どのようにして彼の投獄を正当化する証拠として使われることになるのか？
+  run    local/31.txt
+  run    global/31.txt
+[32] ラーマチャンドラ・ライの真夜中の脱出の影響は、どのようにして間接的にスルマの追放命令を引き起こしたのか？
+  run    local/32.txt
+  run    global/32.txt
+[33] 「私だけが、ただ一人残された」という歌にはどのような感情的な意味合いがあるか。また、バサンタ・ライはどのような2つの対照的な状況でこの歌を歌うか。
+  run    local/33.txt
+  run    global/33.txt
+[34] ルクミニーがウダヤディティヤの深夜の逃亡を阻止できなかったことが、どのようにしてバサンタ・ライの死に直接つながるのか？
+  run    local/34.txt
+  run    global/34.txt
+[35] プラタパディティヤが最初にラーマチャンドラ・ライを出迎えた時の様子は、後にラーマチャンドラが自身の宮廷でプラタパディティヤの地位を扱う様子と、どのように対比されるか？
+  run    local/35.txt
+  run    global/35.txt
+[36] ウダヤディティヤの過去の告白に登場する、ライガルの年上の未亡人は、どのようにして彼の人生に再び現れ、ジョソールで悲劇を引き起こすのか？
+  run    local/36.txt
+  run    global/36.txt
+[37] ウダヤディティヤが自分が王太子であることについて初期に吐露した嘆きは、最終的にどのようにして王位の正式な放棄へと至るのか？
+  run    local/37.txt
+  run    global/37.txt
+[38] ラーマチャンドラ・ライが妻に関して書いた悪意に満ちた手紙は、どのようにして途中で遮られ、その後どのようにビバに対して事実を歪めて伝えられたのか？
+  run    local/38.txt
+  run    global/38.txt
+[39] 真夜中の脱出の際、地元の地理を利用してラーマチャンドラ・ライを罠にかけようとしたプラタパディティヤの試みは、どのようにして失敗するのか？
+  run    local/39.txt
+  run    global/39.txt
+[40] バサンタ・ライが愛用するシタールとの関係は、ウダヤディティヤの状況に対する彼の深まる絶望をどのように反映しているか？
+  run    local/40.txt
+  run    global/40.txt
+[41] 虐げられた民のために介入しようとするウダヤディティヤの姿勢は、かつての評判と、スルマの死後の行動との間でどのように変化したか？
+  run    local/41.txt
+  run    global/41.txt
+[42] 衛兵のシタラムは、バーガヴァタと共謀して自らが引き起こした具体的な被害を、最終的にどのようにして取り返したか？
+  run    local/42.txt
+  run    global/42.txt
+[43] ラムモハン・マールは、差し迫った2つの異なる場面において、敵意に満ちた王宮からどのようにして王族のメンバーを物理的に連れ出しているか？
+  run    local/43.txt
+  run    global/43.txt
+[44] ビバの装いや見え方は、ジョソールでラーマチャンドラ・ライを迎える準備をしていたときから、チャンドラドウィープでついに彼を訪ねて行ったときにかけて、どのように劇的に変化しているか？
+  run    local/44.txt
+  run    global/44.txt
+[45] スルマの死後に寝室にいた時期と、牢獄にいた時期とで、ウダヤディティヤにとっての窓の象徴性はどのように変化するか？
+  run    local/45.txt
+  run    global/45.txt
+[46] 衛兵のシタラムとルクミニー（マンガラ）の関係は、戯れのような金銭のやり取りから、どのようにして命を脅かす衝突へと悪化していくのか。
+  run    local/46.txt
+  run    global/46.txt
+[47] シタラムの衛兵詰所の火事を用いた戦略は、単なる目くらましから、どのようにしてウダヤディティヤの逃亡を完全に隠蔽する工作へと発展するのか？
+  run    local/47.txt
+  run    global/47.txt
+[48] 真夜中の暗殺未遂の際、ウダヤディティヤが身を挺して守る行動をとったにもかかわらず、ラーマチャンドラ・ライは後に自身の宮廷で義兄の行動をどのように解釈したか。
+  run    local/48.txt
+  run    global/48.txt
+[49] 当初はプラタパディティヤによって脅威として一蹴されていたデリー皇帝という政治的脅威が、最終的にどのようにして彼の息子を投獄するための手段となるのか？
+  run    local/49.txt
+  run    global/49.txt
+[50] ビバの髪の結い方は、ジョソールの王宮におけるスルマの存在と、その後の彼女の悲劇的な不在を示すどのような目印となっているか？
+  run    local/50.txt
+  run    global/50.txt
+done.
+uv run build_jsonl.py
+Installed 9 packages in 90ms
+local: 50 件 -> /home/7shi/repos/bou-thakuranir_haat/qa-eval/graphrag-ja/../results-ja/graphrag-local.jsonl  (expanded 空: 5)
+global: 50 件 -> /home/7shi/repos/bou-thakuranir_haat/qa-eval/graphrag-ja/../results-ja/graphrag-global.jsonl  (expanded 空: 26)
+
+real    868m56.263s
+user    8m34.158s
+sys     1m37.328s

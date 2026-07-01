@@ -394,6 +394,124 @@ Q32/Q34/Q42/Q48 missed-context) — the same lead as over Vector k=10 — confir
 the Japanese frontier is retrieval recall and synthesis quality on hard cross
 questions, not a language barrier.
 
+## GraphRAG
+
+[Microsoft GraphRAG](https://github.com/microsoft/graphrag) builds a knowledge
+graph over the corpus and answers queries through two search modes — `local`
+(entity-anchored) and `global` (community-summary based). Both modes run on
+`ollama:gemma4:31b-it-qat`, the same model used for every other Japanese method
+here; the Japanese config additionally swaps in `extractor_type:
+syntactic_parser` (instead of `regex_english`) for entity extraction. Details
+in [graphrag-ja/README.md](../graphrag-ja/README.md).
+
+```
+scope    method             n correct partial incorrect  weighted ch.recall  ch.prec
+all      Vector k=5        50      38       5         7     0.810     0.720    0.332
+all      Extract           50      40       5         5     0.850     0.760    0.807
+all      Hybrid k=8        50      45       4         1     0.940     0.940    0.173
+all      Ceiling           50      47       3         0     0.970     1.000    1.000
+all      GraphRAG local    50      28       8        14     0.640     0.880    0.239
+all      GraphRAG global   50       8       8        34     0.240     0.280    0.081
+single   GraphRAG local    25      19       1         5     0.780     0.880    0.341
+single   GraphRAG global   25       3       1        21     0.140     0.240    0.061
+cross    GraphRAG local    25       9       7         9     0.500     0.880    0.137
+cross    GraphRAG global   25       5       7        13     0.340     0.320    0.101
+```
+
+### GraphRAG local (0.640)
+
+Local search scores 28/50 (0.640) — just below the English run (0.660), below
+Filter2 (0.820), and far below Hybrid k=8 (0.940). As in English, the
+chapter-retrieval numbers explain why: **recall 0.880** (nearly every gold
+chapter is somewhere in the expanded context) but **precision 0.239** — low,
+though notably *higher* than English's 0.135. The Japanese local search
+expands a narrower context on average (mean 14.5 chapters vs. English's 21.1
+out of 37), so the signal-to-noise ratio is somewhat better, but still far
+below the pipeline methods.
+
+The failure mode is the same **synthesis-dominated** pattern as English: of
+GraphRAG local's 20 losses to Ceiling, **14 are synthesis** (the gold chapter
+is present but the answer is wrong or vague) and only 6 are missed context.
+GraphRAG local never beats Ceiling and never beats Hybrid k=8 on any question
+(0 wins in both pairwise comparisons).
+
+**Single vs. cross diverges from English in opposite directions.** Japanese
+local search is *stronger* on single-passage (19/25, 0.780) than English
+(15/25, 0.620) — the single-passage synthesis collapse that dominates the
+English write-up is much milder here. But it is *weaker* on cross-reference
+(9/25, 0.500 vs. English's 13/25, 0.700). Net effect: the two shifts largely
+cancel, leaving the overall score close to English's.
+
+### Where the English "structural strengths" don't transfer
+
+The English study found two mechanisms that let GraphRAG local win despite its
+low overall score: answering purely from graph traversal with zero retrieved
+chapters (Q26, Q28), and recovering both Class A questions (the signet ring and
+the Delhi-petition chains) that every Vector depth and Hybrid variant misses.
+Neither holds cleanly in Japanese:
+
+- **No question is answered from zero context.** Japanese local search has 5
+  zero-context questions (Q9, Q14, Q16, Q30, Q33); all 5 are wrong (4
+  incorrect, 1 partial) — compared to English's 6 zero-context questions, 2 of
+  which (Q26, Q28) were correct. Q26 in Japanese is answered correctly, but
+  only after expanding *all 37 chapters* — it wins on volume, not on pure graph
+  traversal.
+- **Only one of the two Class A questions is recovered.** Q49 (デリー皇帝の脅威
+  が投獄の手段になる経緯, gold Ch2/22) is correct, with all 37 chapters
+  expanded — the answer traces the forged-petition scheme in detail, including
+  "ルクミニーが持ってきた指輪にある王太子の印章がこの文書に押印されました" (the
+  signet on the ring Rukmini brought was stamped onto the document). But Q31
+  (asking specifically how the signet ring becomes evidence, gold Ch21–23) is
+  **incorrect** even with the same full 37-chapter context: the answer states
+  outright that "指輪に関する具体的な言及は見当たりませんでした" (no specific
+  mention of the ring was found). The graph clearly encodes the ring→seal→
+  forged-petition edge — it surfaces unprompted in Q49's own answer — but Q31's
+  query anchors to a different entity path and fails to reach it. The knowledge
+  is present in the graph; retrieval is inconsistent across query framings of
+  the same fact, which is a sharper failure mode than the clean "graph doesn't
+  encode this" story in English.
+
+### GraphRAG global (0.240)
+
+Global search scores 8/50 (0.240) — the weakest of any Japanese method, but
+noticeably better than English's global score (0.170). The mechanism is the
+same: community summaries operate at the wrong granularity, abstracting away
+the chapter-level detail the questions turn on. **Recall 0.280, precision
+0.081** — the lowest precision of any method — with a mean of only 7.2
+chapters expanded (vs. local's 14.5). Half the questions (26/50) expand *zero*
+chapters, and every one of those 26 is incorrect.
+
+Single-passage (3/25, 0.140) is nearly a complete failure, matching English
+(2/25, 0.100). Cross-reference (5/25, 0.340) fares a little better than English
+(3/25, 0.240), for the same reason as local search: a handful of prominent
+cross-cutting themes surface in community summaries even when specific scene
+detail does not.
+
+**Q49 recovers even under global search** (correct, with only 4 chapters
+expanded) — the Delhi-petition chain is the one fact that survives every
+GraphRAG configuration in both languages (local and global, English and
+Japanese), suggesting it is unusually well-represented as a graph relationship
+regardless of search mode or language.
+
+Within Japanese, local clearly beats global (25 wins to 1) — the same
+ordering as English — confirming entity-anchored traversal is the more useful
+of the two modes when it is available at all.
+
+### Summary
+
+Neither GraphRAG mode reaches the simplest pipeline method (Vector k=5, 0.810),
+let alone Hybrid k=8 (0.940). Local search's language-comparison story is
+mixed — slightly weaker overall than English (0.640 vs 0.660), stronger on
+single-passage, weaker on cross-reference, and missing the "zero-context
+graph traversal" mechanism that made English's local search occasionally
+outperform its overall score. Global search is uniformly the weakest method in
+both languages. The cost asymmetry is also larger for Japanese: building the
+graph and running all 100 queries takes 20h 19m here vs. 13h 6m in English (see
+[graphrag-ja/README.md § Measured runtime](../graphrag-ja/README.md#measured-runtime-evo-x2--ryzen-ai-max-395)),
+against minutes for the flat embedding index — reinforcing that the
+knowledge-graph approach is not a practical alternative to the pipeline for
+this task in either language.
+
 ## 5. Takeaways and cross-language comparison
 
 - **The headline findings hold across languages.** Single-passage QA is solved
@@ -427,3 +545,10 @@ questions, not a language barrier.
 - The retrieval levers are unchanged: Vector's residual losses are dense top-5
   misses on rare proper nouns / second-side facts, the target of `sweep_vector.py`
   and the BM25 hybrid follow-up in [HYBRID.md](../HYBRID.md).
+- **GraphRAG's language comparison is mixed, not uniform.** Local search scores
+  close to English overall (0.640 vs 0.660) but the composition differs:
+  stronger on single-passage (0.780 vs 0.620), weaker on cross-reference (0.500
+  vs 0.700), and missing English's "answer from zero retrieved context"
+  mechanism entirely (0/5 vs 2/6 zero-context questions correct). Global search
+  is weak in both languages but less so in Japanese (0.240 vs 0.170). See
+  [§ GraphRAG](#graphrag) above.

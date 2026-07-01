@@ -335,8 +335,8 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
         found.append(("Ceiling", "ceiling.jsonl", "judge-ceiling.jsonl"))
     # GraphRAG (Microsoft GraphRAG, external knowledge-graph retriever). Two
     # search modes: local (entity-anchored) and global (community summaries).
-    # Appended after Ceiling for cross-system comparison; English only in
-    # practice (the graphrag/ sub-project was run on the English corpus only).
+    # Appended after Ceiling for cross-system comparison. Works for both
+    # languages (graphrag-en/ and graphrag-ja/ sub-projects).
     for mode in ("local", "global"):
         ans = f"graphrag-{mode}.jsonl"
         judge = f"judge-graphrag-{mode}.jsonl"

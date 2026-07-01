@@ -141,9 +141,9 @@ ceiling: $(RESULTS)/judge-ceiling.jsonl
 # Hybrid). It is LINE-independent: `make judge` always grades
 # vector5, regardless of LINE.
 JUDGE_FILES := $(RESULTS)/judge-vector5.jsonl $(RESULTS)/judge-extract.jsonl $(RESULTS)/judge-hybrid5.jsonl $(RESULTS)/judge-hybrid8.jsonl $(RESULTS)/judge-hybrid10.jsonl
-ifeq ($(LANG),en)
+# GraphRAG wildcard pickup (graphrag-*.jsonl → judge-graphrag-*.jsonl). Works
+# for both languages; plain `make judge` grades any present without forcing creation.
 JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge-%.jsonl,$(wildcard $(RESULTS)/graphrag-*.jsonl))
-endif
 # Also grade any line-mode answers already produced by `make vector LINE=1`
 # (vector-line<k>.jsonl → judge-vector-line<k>.jsonl, via the judge-vector%
 # pattern rule). wildcard only matches files already present, so plain
@@ -343,8 +343,9 @@ $(RESULTS)/judge-hybrid8.jsonl: $(RESULTS)/hybrid8.jsonl $(QUESTIONS)
 $(RESULTS)/judge-hybrid10.jsonl: $(RESULTS)/hybrid10.jsonl $(QUESTIONS)
 	uv run judge.py -l $(LANG) $(RESULTS)/hybrid10.jsonl
 
-# GraphRAG (local / global search) judging. English only; included in the
-# default `judge` aggregate via wildcard pickup when the answer files exist.
+# GraphRAG (local / global search) judging. Works for both languages;
+# included in the default `judge` aggregate via wildcard pickup when the
+# answer files exist.
 $(RESULTS)/judge-graphrag-%.jsonl: $(RESULTS)/graphrag-%.jsonl $(QUESTIONS)
 	uv run judge.py -l $(LANG) $(RESULTS)/graphrag-$*.jsonl
 
