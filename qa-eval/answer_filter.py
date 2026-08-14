@@ -330,7 +330,7 @@ def classify_chapter_5d(question: str, chapter: int, chapter_text: str,
 
 # Filter's Phase 2 reads full chapter text (not summaries), so the wording
 # matches RAG's neutral "context provided" phrasing rather than Extract's
-# "chapter excerpts below".
+# "chapter excerpts above".
 FILTER_PREAMBLE = (
     "Answer the following question in {lang_name} based ONLY on the context provided. "
     "Do not use any outside knowledge. "

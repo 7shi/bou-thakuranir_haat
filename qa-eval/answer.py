@@ -84,25 +84,31 @@ def answer_question(
 ) -> str:
     """Answer a question using the provided context.
 
-    The prompt is built as `{preamble}\n\nQuestion: {question}\n\n{context_prefix}{context}`,
-    where `preamble` carries the full first paragraph (answer instruction +
-    "do not use outside knowledge" + "answer only" clauses) and may use
-    `{lang_name}` as a format placeholder. This keeps each caller's prompt
-    wording verbatim — RAG ("context provided"), Extract ("chapter excerpts
-    below"), Filter — without duplicating the retry-on-empty loop.
+    The request is sent as three content parts — `{context_prefix}{context}`,
+    then `{preamble}`, then `Question: {question}` — so the instructions and
+    the question stay adjacent to the answer position rather than being buried
+    around ~10-24k tokens of context. With a single merged prompt, models with
+    weak long-range attention (observed with ollama:qwen3.6 on hybrid8 runs)
+    lost the question entirely and replied to the context as a pasted excerpt.
+    `preamble` carries the answer instruction ("answer ... based ONLY on the
+    context provided/above", "do not use outside knowledge", "answer only"
+    clauses) and may use `{lang_name}` as a format placeholder. This keeps each
+    caller's prompt wording verbatim — RAG ("context provided"), Extract
+    ("chapter excerpts above"), Filter — without duplicating the retry-on-empty
+    loop.
 
     The model occasionally returns an empty answer; retry up to 3 times
     (4 attempts total), then keep the empty result rather than loop forever.
     """
-    prompt = (
-        f"{preamble.format(lang_name=lang_name)}\n\n"
-        f"Question: {question}\n\n"
-        f"{context_prefix}{context}"
-    )
+    contents = [
+        f"{context_prefix}{context}",
+        preamble.format(lang_name=lang_name),
+        f"Question: {question}",
+    ]
     max_retries = 3
     answer = ""
     for attempt in range(max_retries + 1):
-        result = generate_with_schema([prompt], model=model, show_params=False)
+        result = generate_with_schema(contents, model=model, show_params=False)
         answer = result.text.strip()
         if answer:
             return answer

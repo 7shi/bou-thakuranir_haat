@@ -40,7 +40,7 @@ from answer import (
 
 # Ceiling reads full chapter text (like Filter's Phase 2), so the wording
 # matches the neutral "context provided" phrasing shared by RAG and Filter,
-# rather than Extract's "chapter excerpts below".
+# rather than Extract's "chapter excerpts above".
 CEILING_PREAMBLE = (
     "Answer the following question in {lang_name} based ONLY on the context provided. "
     "Do not use any outside knowledge. "

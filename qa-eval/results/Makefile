@@ -1,9 +1,10 @@
 # Per-model Hybrid k=8 (dense ∪ BM25 union) runs — try different answerer
 # models without touching the canonical results-<lang>/ trees.
 #
-# Each run writes <MODEL>-<LANG>-hybrid8.jsonl here in results/ (" :" in MODEL
-# replaced by "_"), so the existing results stay as they are. Resume-safe:
-# answer_hybrid.py appends to the output and skips already-answered question IDs.
+# Each run writes <MODEL>-<LANG>-hybrid8.jsonl here in results/ (":" and "/"
+# in MODEL replaced by "_"), so the existing results stay as they are.
+# Resume-safe: answer_hybrid.py appends to the output and skips
+# already-answered question IDs.
 #
 # Usage:
 #   make hybrid8 MODEL=... LANG={en,ja}   # answer 50 questions → <MODEL>-<LANG>-hybrid8.jsonl
@@ -21,10 +22,11 @@ K := 8
 
 ROOT := ..
 INDEX := $(ROOT)/index-$(LANG).safetensors
-# ":" in MODEL (e.g. "ollama:qwen3.6") is not filename-safe — sanitized to "_"
-# here, at the layer that defines this directory's naming convention. The
-# scripts write exactly the path given by -o / derived from the input stem.
-SAFE_MODEL := $(subst :,_,$(MODEL))
+# ":" and "/" in MODEL (e.g. "ollama:qwen3.6", "hf.co/unsloth/gemma-4") are not
+# filename-safe — sanitized to "_" here, at the layer that defines this
+# directory's naming convention. The scripts write exactly the path given by
+# -o / derived from the input stem.
+SAFE_MODEL := $(subst /,_,$(subst :,_,$(MODEL)))
 ANSWER := $(SAFE_MODEL)-$(LANG)-hybrid$(K).jsonl
 
 .PHONY: help hybrid8 judge
