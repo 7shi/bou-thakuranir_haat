@@ -6,9 +6,11 @@ This directory holds **Hybrid k=8** (dense ∪ BM25 union;
 trees — the existing per-strategy results stay as they are, and each new
 (model, language) pair gets its own file here.
 
-Filenames encode the model and language so multiple experiments coexist:
+Filenames encode the model and language so multiple experiments coexist
+("`:`" in the model string is replaced by "`_`"):
 
-- `<MODEL>-<LANG>-hybrid8.jsonl` — answers (`answer_hybrid.py -k 8`)
+- `<MODEL>-<LANG>-hybrid8.jsonl` — answers (`answer_hybrid.py -k 8`), e.g.
+  `google_gemini-4-31b-it-ja-hybrid8.jsonl`
 - `judge-<MODEL>-<LANG>-hybrid8.jsonl` — verdicts (`judge.py`, opt-in)
 
 Retrieval itself is model-independent (same `embeddinggemma` dense index +
