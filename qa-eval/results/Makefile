@@ -9,6 +9,7 @@
 # Usage:
 #   make hybrid8 MODEL=... LANG={en,ja}   # answer 50 questions → <MODEL>-<LANG>-hybrid8.jsonl
 #   make judge   MODEL=... LANG={en,ja}   # opt-in: grade → judge-<MODEL>-<LANG>-hybrid8.jsonl
+#   make report                           # aggregate every judged run → report.md
 #
 #   MODEL — llm7shi model string of the answerer (e.g. google:gemini-4-31b-it)
 #   LANG  — en | ja
@@ -29,11 +30,12 @@ INDEX := $(ROOT)/index-$(LANG).safetensors
 SAFE_MODEL := $(subst /,_,$(subst :,_,$(MODEL)))
 ANSWER := $(SAFE_MODEL)-$(LANG)-hybrid$(K).jsonl
 
-.PHONY: help hybrid8 judge
+.PHONY: help hybrid8 judge report
 .DEFAULT_GOAL := help
 
 help:
 	@echo "Usage: make hybrid8 MODEL=... LANG={en,ja}"
+	@echo "       make report"
 
 hybrid8:
 	@if [ -z "$(MODEL)" ] || [ -z "$(LANG)" ]; then \
@@ -48,3 +50,10 @@ hybrid8:
 # (judge.py's default judge-<stem>.jsonl naming).
 judge: hybrid8
 	cd $(ROOT) && uv run judge.py -l $(LANG) results/$(ANSWER)
+
+# Aggregate every <MODEL>-<LANG>-hybrid<k>.jsonl that has a matching judge file
+# into report.md (and print the same table to the terminal). Mechanical, no LLM
+# and no MODEL/LANG needed — this directory's own report, independent of the
+# parent report.py, which scans only results-<lang>/ and ignores these runs.
+report:
+	cd $(ROOT) && uv run results/report.py
