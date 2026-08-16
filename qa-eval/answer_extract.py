@@ -64,7 +64,7 @@ def extract_chapter(question: str, chapter: int, chapter_text: str, model: str, 
 
 
 EXTRACT_PREAMBLE = (
-    "Answer the following question in {lang_name} based ONLY on the chapter excerpts above.\n"
+    "Answer the following question in {lang_name} based ONLY on the chapter excerpts below.\n"
     "Do not use any outside knowledge.\n"
     "Reply with the answer only — no preamble, no reasoning, no closing remarks."
 )

@@ -44,6 +44,12 @@ make hybrid8 MODEL=google:gemini-4-31b-it LANG=ja
 
 ## `ollama:qwen3.8` vs. the default `google:gemma-4-31b-it`
 
+> **Provisional — re-run in progress.** The numbers in this section come from
+> the earlier qwen3.8 hybrid8 runs, which are currently being redone. Treat the
+> table, the flip list, and the commentary below as unconfirmed until the runs
+> finish and `make report` is re-run; both this section and
+> [report.md](report.md) are to be updated from the fresh verdicts.
+
 Both answerers were run on the identical Hybrid k=8 context — the `expanded`
 lists match on all 50 questions in both languages — so every difference below is
 **synthesis**, not retrieval.
@@ -92,6 +98,34 @@ Questions whose verdict flips:
 
 Caveat: the judge is `ollama:qwen3.6`, the same family as the tested answerer.
 A same-family preference cannot be ruled out from these runs alone.
+
+## Prompt ordering: the ROCm red herring
+
+An early `ollama:qwen3.6` hybrid8 run appeared to lose the question entirely:
+instead of answering, the model replied to the context as if it were a pasted
+excerpt. The obvious reading was weak long-range attention over the ~10-24k
+token hybrid8 context, so `answer_question` was restructured to send
+`[context, preamble, question]` as separate parts — the RAG convention of
+putting the question last, next to the answer position.
+
+That diagnosis was wrong. The failure is specific to the **ROCm** backend; with
+the **Vulkan** backend the original single merged prompt (question first,
+context after) answers correctly on the same model and the same contexts. The
+restructuring is therefore reverted, for two reasons beyond it being
+unnecessary:
+
+1. **Question-first is itself the more interesting test.** Putting the question
+   last makes it harder to lose, which is precisely why it hides the failure
+   mode worth measuring here — whether a model loses the *beginning* of a long
+   prompt.
+2. **Changing the prompt invalidates the existing answers.** Every result in
+   `results-<lang>/` and in this directory was produced with the question-first
+   prompt; a prompt change should come with a full re-run, not a silent mix of
+   two prompt shapes in one table.
+
+So the prompt shape stays as originally written, and backend choice — not
+prompt engineering — is what to check when a local model appears to ignore the
+question.
 
 ## Notes
 
