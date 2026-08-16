@@ -1,9 +1,15 @@
-# Memo: chunk granularity, and why it stays as it is
+# Memo: retrieval-side questions from the per-model runs
 
-A working note on a question that came up while comparing answerer models:
-would a finer segmentation help, given that the answerer degrades on larger
-contexts? Conclusion first: **no change to segmentation.** The evidence says
-recall is the binding constraint and finer units cost recall.
+A working note on two questions raised while comparing answerer models in
+[results/README.md](results/README.md), both about retrieval rather than about
+any model. Conclusions first:
+
+- **How much of the gold coverage is won on the k=8 boundary?** A real but
+  bounded amount — 5% en / 2% ja of covered gold chapters. Not enough to
+  undermine an answerer comparison.
+- **Would a finer segmentation help, given that the answerer degrades on larger
+  contexts?** No change to segmentation. Recall is the binding constraint and
+  finer units cost recall.
 
 ## The observation that started it
 
@@ -21,6 +27,45 @@ and recall rises with it. No question loses gold coverage. The three Japanese
 questions that regress at k=10 (Q32, Q34, Q37) all keep full gold coverage while
 doing so. The damage is done by the *non-gold* chapters that come along: pure
 synthesis degradation from a larger context.
+
+## How much gold coverage sits on the k=8 boundary
+
+A separate worry about the same cutoff. Query embeddings are not bit-stable
+across ollama backends — ROCm vs Vulkan moves cosines in the 4th decimal — and
+that was enough to change four Japanese `expanded` lists, because the affected
+chapters sat within ~0.0002 of the k=8 cutoff. Which raises the question of how
+much gold coverage was won by that kind of margin in the first place. A gold
+chapter held at rank 7-8 by a single retriever is in the context by a thin
+accident of ranking, not because retrieval solidly found it.
+
+Counting gold chapters that no retriever ranks above 7 and that only one
+retriever surfaces at all:
+
+| Lang | Q | gold ch. | held by |
+| --- | --- | --- | --- |
+| en | 27 | 33 | dense rank 7, BM25 absent |
+| en | 41 | 5 | dense rank 8, BM25 absent |
+| en | 42 | 29 | dense rank 7, BM25 absent |
+| en | 48 | 11 | BM25 rank 8, dense absent |
+| ja | 36 | 17 | BM25 rank 7, dense absent |
+| ja | 43 | 37 | BM25 rank 8, dense absent |
+
+Against 81 covered gold chapters in English and 82 in Japanese, that is **5% en
+/ 2% ja** riding on one boundary slot. Most gold coverage has room to spare, so
+the tail is a real but bounded fragility. Note also that only the three
+dense-held English cases are exposed to embedding drift at all; the BM25 side is
+bit-identical across runs in both languages.
+
+Two responses, one adopted and one rejected:
+
+- **Adopted: stop recomputing retrieval when the answerer is the variable.**
+  `answer_hybrid.py --retrieval` replays a stored run's `hits` and `expanded`,
+  which is what the per-model `make hybrid8` now does. The drift then cannot
+  occur at all, and a ceiling run avoids the whole question by construction.
+- **Rejected: raise `k` to give these cases margin.** It would work, but the
+  cost is the k=10 regression above: a larger `k` only ever adds chapters, so
+  the margin is bought with non-gold context that the answerer then has to
+  survive.
 
 ## The hypothesis: units are too coarse
 

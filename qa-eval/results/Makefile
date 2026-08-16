@@ -6,7 +6,9 @@
 # are. Resume-safe: the answer scripts append to the output and skip
 # already-answered question IDs.
 #
-#   hybrid8 — Hybrid k=8 (dense u BM25 union) retrieval, then answer
+#   hybrid8 — Hybrid k=8 (dense u BM25 union) context, replayed from the
+#             canonical results-<lang>/hybrid8.jsonl so every model here gets a
+#             byte-identical context (see REFERENCE below)
 #   ceiling — no retrieval at all: the gold chapters as context. Retrieval is
 #             model-independent, so hybrid8 feeds every model the same context;
 #             ceiling isolates the same comprehension difference with a much
@@ -29,7 +31,13 @@ LANG ?=
 K := 8
 
 ROOT := ..
-INDEX := $(ROOT)/index-$(LANG).safetensors
+# hybrid8 replays this run's retrieval instead of recomputing it. Retrieval is
+# supposed to be model-independent, but the dense side embeds the question at
+# run time and that is not bit-stable across ollama backends (ROCm vs Vulkan
+# moves cosines in the 4th decimal, enough to swap a chapter sitting near the
+# top-8 cutoff). Pinning it to the canonical run makes the context identical for
+# every model here, so a verdict difference is synthesis by construction.
+REFERENCE := results-$(LANG)/hybrid$(K).jsonl
 # ":" and "/" in MODEL (e.g. "ollama:qwen3.6", "hf.co/unsloth/gemma-4") are not
 # filename-safe — sanitized to "_" here, at the layer that defines this
 # directory's naming convention. The scripts write exactly the path given by
@@ -60,8 +68,8 @@ check-args:
 	fi
 
 hybrid8: check-args
-	@test -f $(INDEX) || $(MAKE) -C .. LANG=$(LANG) index-$(LANG).safetensors
-	cd $(ROOT) && uv run answer_hybrid.py -l $(LANG) -k $(K) -m $(MODEL) -o results/$(HYBRID_ANSWER)
+	cd $(ROOT) && uv run answer_hybrid.py -l $(LANG) -m $(MODEL) \
+		--retrieval $(REFERENCE) -o results/$(HYBRID_ANSWER)
 
 # Perfect-retrieval ceiling: the gold chapters fed verbatim as context. No
 # index needed — there is no retrieval step at all.

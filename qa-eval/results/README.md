@@ -8,14 +8,19 @@ trees — the existing per-strategy results stay as they are, and each new
 Two methods are available:
 
 - **hybrid8** — Hybrid k=8 (dense ∪ BM25 union; [HYBRID.md](../HYBRID.md))
-  retrieval, then answer.
+  context, **replayed** from the canonical `results-<lang>/hybrid8.jsonl` via
+  `answer_hybrid.py --retrieval` rather than recomputed. Retrieval is supposed to
+  be model-independent, but the dense side embeds the question at run time and
+  that is not bit-stable across ollama backends — ROCm vs Vulkan moves cosines in
+  the 4th decimal, enough to swap a chapter sitting near the top-8 cutoff (see
+  [MEMO.md](../MEMO.md)). Replaying pins `hits` and `expanded`, so every model
+  here answers a byte-identical context and only the answer is generated.
 - **ceiling** — no retrieval at all: the gold chapters as context
   (`answer_ceiling.py`). This is the cleaner model comparison: the context is
   fixed by the gold annotation, so it is byte-identical for every model and
-  every run, and the whole difference is synthesis. It is also much smaller than
-  a hybrid8 context, hence cheaper and faster per question. hybrid8 is nominally
-  model-independent too, but its context is *computed* — see the drift noted
-  [below](#ollamaqwen38-vs-the-default-googlegemma-4-31b-it).
+  every run with nothing to pin, and the whole difference is synthesis. It is
+  also much smaller than a hybrid8 context, hence cheaper and faster per
+  question.
 
 Filenames encode the method, model and language so multiple experiments coexist
 ("`:`" and "`/`" in the model string are replaced by "`_`"):
@@ -48,7 +53,8 @@ make report                           # aggregate every judged run → report.md
 
 - `MODEL` — llm7shi model string of the answerer (e.g.
   `google:gemini-4-31b-it`, `ollama:gemma4:31b-it-qat`)
-- `LANG` — `en` | `ja` (selects the questions file and, for hybrid8, the index)
+- `LANG` — `en` | `ja` (selects the questions file and, for hybrid8, the
+  reference run whose retrieval is replayed)
 
 `make judge` needs neither: it scans this directory for answer files that have
 no `judge-` counterpart yet and reads the language off each filename.
@@ -72,9 +78,19 @@ BM25 is bit-identical on all 50 questions, and the chapter embeddings come from
 the stored `index-<lang>.safetensors`; only the *query* embedding is computed at
 run time, and it shifts in the 4th decimal between the ROCm and Vulkan backends
 (en Q1 `3:1`: 0.49382 vs 0.49330). That is enough to swap the 8th-ranked chapter
-where two candidates sit within ~0.0002 of each other, and nothing else. Ceiling
-runs are immune to this by construction — no retrieval, no query embedding —
-which is the other reason to prefer them for model-vs-model comparison.
+where two candidates sit within ~0.0002 of each other, and nothing else.
+
+This is what `make hybrid8` now replays away: it takes `hits` and `expanded`
+straight from `results-<lang>/hybrid8.jsonl`, so a later run cannot drift no
+matter which backend it uses. Ceiling runs need no pin at all — no retrieval, no
+query embedding.
+
+> **To do — regenerate the hybrid8 runs under the pin.** The qwen3.8 numbers
+> below were produced before `--retrieval` existed and still carry the
+> four-question difference. They stand for now, since gold coverage is identical
+> either way, but every hybrid8 file here is to be re-run against the pinned
+> reference so the whole directory shares one context. This section and
+> [report.md](report.md) are then to be regenerated from the fresh verdicts.
 
 | Model | English | Japanese |
 | --- | --- | --- |
@@ -117,50 +133,17 @@ Questions whose verdict flips:
   and Japanese 44/49 → 47/49: qwen3.8 answers every question whose gold context
   it was actually given in English, and the direction is unchanged.
 
+A flip could in principle be a retrieval accident rather than a synthesis
+difference, since a few gold chapters sit right on the k=8 cutoff. They do not
+explain the result: the two flips that improved a verdict, en Q48 and ja Q36,
+are both held by BM25, which is bit-identical across runs in both languages.
+The cutoff analysis behind that — how much gold coverage rests on a single
+boundary slot, and why raising `k` is not the answer — is in
+[MEMO.md](../MEMO.md), as it is a property of retrieval rather than of any
+answerer.
+
 Caveat: the judge is `ollama:qwen3.6`, the same family as the tested answerer.
 A same-family preference cannot be ruled out from these runs alone.
-
-## How much of hybrid8's gold coverage sits on the boundary
-
-The query-embedding drift above only mattered because chapters were sitting
-within ~0.0002 of the k=8 cutoff. That raises the fair question of how much of
-the gold coverage was won by that kind of margin in the first place — a gold
-chapter held at rank 7-8 by a single retriever is in the context by a thin
-accident of ranking, not because retrieval solidly found it.
-
-Counting gold chapters that no retriever ranks above 7 and that only one
-retriever surfaces at all:
-
-| Lang | Q | gold ch. | held by |
-| --- | --- | --- | --- |
-| en | 27 | 33 | dense rank 7, BM25 absent |
-| en | 41 | 5 | dense rank 8, BM25 absent |
-| en | 42 | 29 | dense rank 7, BM25 absent |
-| en | 48 | 11 | BM25 rank 8, dense absent |
-| ja | 36 | 17 | BM25 rank 7, dense absent |
-| ja | 43 | 37 | BM25 rank 8, dense absent |
-
-Against 81 covered gold chapters in English and 82 in Japanese, that is **5% en
-/ 2% ja** riding on one boundary slot. Most gold coverage has room to spare, so
-the tail is a real but bounded fragility. Two things follow:
-
-* **The measured synthesis win is not an artifact of it.** Only the three
-  dense-held English cases are exposed to embedding drift at all. The two flips
-  that improved a verdict — en Q48 and ja Q36 — both hang on BM25, which is
-  bit-identical across all 50 questions in both languages.
-* **Raising `k` is not the fix.** These 6 cases would gain margin at k=10, but
-  the union is monotone — top-8 ⊆ top-10 — so a larger `k` only ever adds
-  chapters, and gold recall rises with it (en 45 → 46, ja 47 → 48, with no
-  question losing coverage). What it costs is synthesis: the mean context grows
-  from ~20 segments to ~25, and the three Japanese questions that regress at
-  k=10 (Q32, Q34, Q37) all keep full gold coverage while doing so. The extra
-  non-gold chapters are the damage, which is why the main
-  [README.md](../README.md) settles on k=8 for Japanese.
-
-The clean way past all of it is to stop measuring retrieval when the question is
-about the model. In a ceiling run the context is the gold annotation itself —
-no ranking, no cutoff, no query embedding, byte-identical for every model and
-every backend.
 
 **Ceiling runs for `ollama:qwen3.8` are being measured; the numbers go here when
 they land.** For comparison, the Gemma 4 ceiling in the main table is 49/50
@@ -199,9 +182,15 @@ question.
 - Both scripts are **resume-safe**: they append and skip question IDs already
   present in the output file, so an interrupted run is continued by re-running
   the same command.
-- The embedding index is reused from `qa-eval/index-<lang>.safetensors` and
-  built via the parent Makefile only if missing (hybrid8 only — ceiling does no
-  retrieval).
+- **Neither method needs the embedding index.** hybrid8 replays a stored
+  retrieval and ceiling does none, so no run here loads
+  `qa-eval/index-<lang>.safetensors`, builds a BM25 index, or calls the
+  embedding model. The reference run `results-<lang>/hybrid8.jsonl` must exist;
+  it is produced by the parent Makefile, not by this one.
+- The replay resolves the reference `expanded` list against
+  `all/<lang>-gemini.jsonl` and asserts every scene is found, so a reference run
+  built on a different scene set fails loudly instead of silently answering a
+  different context.
 - The parent `report.py` does not scan this directory (its method discovery
   reads only `results-<lang>/hybrid<k>.jsonl`), so these runs never leak into
   the main table. `make report` here is the independent aggregation: it reuses

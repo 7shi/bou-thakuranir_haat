@@ -10,7 +10,7 @@ that retrieval gain into an answer-accuracy measurement — does surfacing +4 go
 chapters actually improve the answer, or does the ~1.4× larger context cause
 "lost in the middle" synthesis failures that offset it?
 
-For each question in questions-en.jsonl:
+For each question in questions-<lang>.jsonl:
   1. Embed the question (dense) and tokenize it (BM25).
   2. Retrieve dense top-k scenes and BM25 top-k scenes.
   3. **Union** the two hit sets (set-theoretic, deduped by scene).
@@ -25,17 +25,18 @@ one record per question — `question_id`, `hits` (per-retriever top-k as
 are on incompatible scales), `expanded`, and `answer`. Resume-safe: skips
 question IDs already present in the output file.
 
-Pipeline: built into the default English pipeline via `make judge` (the
-aggregate adds `judge-hybrid5/10.jsonl` only when `LANG=en`, so `make ja` is
-unaffected); report.py auto-discovers `hybrid<k>.jsonl` into a `Hybrid k=<k>`
-row beside the Vector variants. Run `make hybrid` (k=5) / `make hybrid K=10` for
-the answer file, or `make hybrid-judge` for both depths plus judgements. The
-retrieval coverage (40/50 @ k=5, 46/50 @ k=10) is the upper bound on Phase 2
-accuracy; the gap to it is the synthesis cost of the ~1.4× larger context.
+Pipeline: built into `make judge` for both languages (the aggregate includes
+`judge-hybrid5/8/10.jsonl`); report.py auto-discovers `hybrid<k>.jsonl` into a
+`Hybrid k=<k>` row beside the Vector variants. Run `make hybrid` (k=5) /
+`make hybrid K=10` for the answer file, or `make hybrid-judge` for k=5, 8 and 10
+plus judgements. The retrieval coverage (40/50 @ k=5, 46/50 @ k=10) is the upper
+bound on Phase 2 accuracy; the gap to it is the synthesis cost of the ~1.4×
+larger context.
 
-English only — BM25 tokenization is English-only (lowercase + `[a-z0-9]+` +
-stopword removal, no morphology), so Japanese is deferred; passing `-l ja`
-exits with an error, matching `hybrid.py`.
+Both languages are supported. BM25 tokenization is language-specific
+(`bm25.tokenize`): English is lowercase + `[a-z0-9]+` + stopword removal with no
+morphology, Japanese goes through spaCy (`ja_core_news_sm`) keeping content POS
+(noun, proper noun, verb, adjective, adverb).
 
 Tie-breaking: scene rankings use a stable sort (`sorted(range(n), ...,
 reverse=True)`), matching `bm25.py` / `sweep_vector.py` / `hybrid.py` rather
@@ -43,6 +44,18 @@ than `answer_vector.top_k_search`'s `np.argsort()[::-1]` (non-stable). This is
 load-bearing — the HYBRID.md strict-recall numbers (40/50, 46/50) were measured
 under the stable tie-break, so the union hits must be selected the same way or
 the +4 retrieval gain may not reproduce.
+
+`--retrieval <jsonl>` replays the retrieval of an earlier run instead of
+computing it: `hits` and `expanded` are copied verbatim from the reference file
+and only the answer is generated. Retrieval is meant to be model-independent, so
+when the variable under test is the *answerer*, recomputing it is pure risk —
+the dense side embeds the question at run time, and that embedding is not
+bit-stable across ollama backends (ROCm vs Vulkan moves cosines in the 4th
+decimal, which is enough to swap a chapter sitting near the top-k cutoff). With
+`--retrieval` the context is identical by construction, so a verdict difference
+can only come from synthesis. No index, no BM25 index, and no embedding call are
+needed in this mode; only the scene text is loaded, to rebuild the context from
+the reference `expanded` list.
 """
 
 import argparse
@@ -78,6 +91,23 @@ def top_k_stable(scores, k: int):
     return [(i, float(scores[i])) for i in order[:k]]
 
 
+def load_retrieval(path: Path) -> dict[int, dict]:
+    """Return {question_id: {"hits": ..., "expanded": [...]}} from an earlier run.
+
+    Only the retrieval fields are taken; the reference run's `answer` is
+    deliberately ignored, since generating a new answer is the whole point.
+    """
+    replay = {}
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            rec = json.loads(line)
+            replay[rec["question_id"]] = {"hits": rec["hits"], "expanded": rec["expanded"]}
+    assert replay, f"no records in {path}"
+    return replay
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-l", "--lang", default="en", choices=sorted(LANGS),
@@ -91,6 +121,9 @@ def main():
     parser.add_argument("--scenes", default=None, help="scenes JSONL for BM25 (default: all/<lang>-gemini.jsonl)")
     parser.add_argument("-t", "--tsv", default=None, help="scene titles TSV (default: all/<lang>-gemini.tsv)")
     parser.add_argument("-o", "--output", default=None, help="output JSONL path (default: qa-eval/results-<lang>/hybrid<k>.jsonl)")
+    parser.add_argument("--retrieval", default=None,
+                        help="reuse hits/expanded from this earlier run instead of retrieving "
+                             "(pins the context so only the answerer varies; -k/-N/--index/--scenes unused)")
     args = parser.parse_args()
 
     lang = args.lang
@@ -113,31 +146,42 @@ def main():
     if done_ids:
         print(f"Resuming: {len(done_ids)} questions already done")
 
-    # Dense side: embedding index (matches answer_vector.py / sweep_vector.py).
-    print(f"Loading index from {args.index}")
-    normed, dense_scenes = load_index(Path(args.index))
-    print(f"Index: {normed.shape[0]} scenes, dim={normed.shape[1]}")
-
-    # Sparse side: raw scene text (matches bm25.py).
+    # Scene text: needed in both modes, to build the context block.
     titles = load_titles(Path(args.tsv))
     bm25_scenes = load_scenes(Path(args.scenes), titles)
     print(f"Loaded {len(bm25_scenes)} scenes from {args.scenes}")
 
-    # The two scene lists must be identical and in the same order, so that scene
-    # index i refers to the same scene for the dense score array (normed row i)
-    # and the BM25 score array (doc i). Same check as hybrid.py.
-    assert len(dense_scenes) == len(bm25_scenes), (
-        f"scene count mismatch: index={len(dense_scenes)} vs jsonl={len(bm25_scenes)}")
-    for i, (d, b) in enumerate(zip(dense_scenes, bm25_scenes)):
-        assert d["chapter"] == b["chapter"] and d["segment"] == b["segment"], (
-            f"scene {i} mismatch: index={(d['chapter'], d['segment'])} "
-            f"vs jsonl={(b['chapter'], b['segment'])}")
-    scenes = dense_scenes  # common list, identical order
+    replay = load_retrieval(Path(args.retrieval)) if args.retrieval else None
+    if replay is not None:
+        # Replay mode: no retrieval at all, so no index, no BM25, no embedding.
+        print(f"Replaying retrieval of {args.retrieval} ({len(replay)} questions)")
+        scenes = bm25_scenes
+        normed = bm25 = None
+    else:
+        # Dense side: embedding index (matches answer_vector.py / sweep_vector.py).
+        print(f"Loading index from {args.index}")
+        normed, dense_scenes = load_index(Path(args.index))
+        print(f"Index: {normed.shape[0]} scenes, dim={normed.shape[1]}")
 
-    # Build the BM25 index once (title + body document, matching bm25.py).
-    docs = [tokenize(f"{s['title']} {s['text']}", lang=lang) for s in scenes]
-    bm25 = BM25Index(docs)
-    print(f"BM25 index: {bm25.n_docs} docs, avgdl={bm25.avgdl:.1f} tokens, vocab={len(bm25.idf)}")
+        # The two scene lists must be identical and in the same order, so that
+        # scene index i refers to the same scene for the dense score array
+        # (normed row i) and the BM25 score array (doc i). Same check as
+        # hybrid.py.
+        assert len(dense_scenes) == len(bm25_scenes), (
+            f"scene count mismatch: index={len(dense_scenes)} vs jsonl={len(bm25_scenes)}")
+        for i, (d, b) in enumerate(zip(dense_scenes, bm25_scenes)):
+            assert d["chapter"] == b["chapter"] and d["segment"] == b["segment"], (
+                f"scene {i} mismatch: index={(d['chapter'], d['segment'])} "
+                f"vs jsonl={(b['chapter'], b['segment'])}")
+        scenes = dense_scenes  # common list, identical order
+
+        # Build the BM25 index once (title + body document, matching bm25.py).
+        docs = [tokenize(f"{s['title']} {s['text']}", lang=lang) for s in scenes]
+        bm25 = BM25Index(docs)
+        print(f"BM25 index: {bm25.n_docs} docs, avgdl={bm25.avgdl:.1f} tokens, vocab={len(bm25.idf)}")
+
+    # "<chapter>:<segment>" → scene index, to resolve a replayed `expanded` list.
+    scene_index = {f"{s['chapter']}:{s['segment']}": i for i, s in enumerate(scenes)}
 
     # Load questions
     questions = load_questions(Path(args.input))
@@ -152,21 +196,49 @@ def main():
             question_text = q["question"]
             print_banner(f"[{qid}/{total}] {question_text}")
 
-            # Dense retrieval: cosine similarity against the embedding index.
-            q_vec = embed_query(question_text, args.embed)
-            dense_scores = normed @ q_vec
-            dense_top = top_k_stable(dense_scores, args.k)
+            if replay is not None:
+                # Replayed retrieval: take the reference run's context verbatim.
+                ref = replay.get(qid)
+                assert ref is not None, f"question {qid} missing from {args.retrieval}"
+                hits = ref["hits"]
+                expanded_scenes = ref["expanded"]
+                missing = [s for s in expanded_scenes if s not in scene_index]
+                assert not missing, (
+                    f"question {qid}: scenes {missing} in {args.retrieval} are not in "
+                    f"{args.scenes} — the reference run used a different scene set")
+                expanded = [scene_index[s] for s in expanded_scenes]
+            else:
+                # Dense retrieval: cosine similarity against the embedding index.
+                q_vec = embed_query(question_text, args.embed)
+                dense_scores = normed @ q_vec
+                dense_top = top_k_stable(dense_scores, args.k)
 
-            # Sparse retrieval: BM25 on the literal scene text.
-            q_tokens = tokenize(question_text, lang=lang)
-            bm25_scores = bm25.score_query(q_tokens)
-            bm25_top = top_k_stable(bm25_scores, args.k)
+                # Sparse retrieval: BM25 on the literal scene text.
+                q_tokens = tokenize(question_text, lang=lang)
+                bm25_scores = bm25.score_query(q_tokens)
+                bm25_top = top_k_stable(bm25_scores, args.k)
 
-            # Union the two hit sets (deduped by scene index). expand_and_merge
-            # ignores the score component of each (idx, score) pair, so 0.0 is
-            # a placeholder — it ranks scenes only by position to expand.
-            union_idx = sorted({i for i, _ in dense_top} | {i for i, _ in bm25_top})
-            expanded = expand_and_merge([(i, 0.0) for i in union_idx], scenes, args.N)
+                # Union the two hit sets (deduped by scene index).
+                # expand_and_merge ignores the score component of each
+                # (idx, score) pair, so 0.0 is a placeholder — it ranks scenes
+                # only by position to expand.
+                union_idx = sorted({i for i, _ in dense_top} | {i for i, _ in bm25_top})
+                expanded = expand_and_merge([(i, 0.0) for i in union_idx], scenes, args.N)
+
+                # Hit metadata. Scores are kept per-retriever because dense
+                # (cosine, [-1,1]) and BM25 (unbounded) are on incompatible
+                # scales; fusing them into one dict would be misleading.
+                # report.py reads only `expanded` for chapter recall, so `hits`
+                # is informational.
+                hits = {
+                    "dense": {f"{scenes[i]['chapter']}:{scenes[i]['segment']}": score
+                              for i, score in dense_top},
+                    "bm25": {f"{scenes[i]['chapter']}:{scenes[i]['segment']}": score
+                             for i, score in bm25_top},
+                }
+                expanded_scenes = [f"{scenes[i]['chapter']}:{scenes[i]['segment']}"
+                                   for i in expanded]
+
             context = build_context(expanded, scenes)
 
             # Get answer (same preamble/context_prefix as Vector RAG so the only
@@ -174,29 +246,9 @@ def main():
             answer = answer_question(question_text, context, args.model, lang_name,
                                      preamble=VECTOR_PREAMBLE, context_prefix="Context:\n")
 
-            # Build hit metadata. Scores are kept per-retriever because dense
-            # (cosine, [-1,1]) and BM25 (unbounded) are on incompatible scales;
-            # fusing them into one dict would be misleading. report.py reads
-            # only `expanded` for chapter recall, so `hits` is informational.
-            dense_hits = {
-                f"{scenes[i]['chapter']}:{scenes[i]['segment']}": score
-                for i, score in dense_top
-            }
-            bm25_hits = {
-                f"{scenes[i]['chapter']}:{scenes[i]['segment']}": score
-                for i, score in bm25_top
-            }
-            expanded_scenes = [
-                f"{scenes[i]['chapter']}:{scenes[i]['segment']}"
-                for i in expanded
-            ]
-
             record = {
                 "question_id": qid,
-                "hits": {
-                    "dense": dense_hits,
-                    "bm25": bm25_hits,
-                },
+                "hits": hits,
                 "expanded": expanded_scenes,
                 "answer": answer,
             }
