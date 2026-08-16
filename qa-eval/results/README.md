@@ -120,6 +120,52 @@ Questions whose verdict flips:
 Caveat: the judge is `ollama:qwen3.6`, the same family as the tested answerer.
 A same-family preference cannot be ruled out from these runs alone.
 
+## How much of hybrid8's gold coverage sits on the boundary
+
+The query-embedding drift above only mattered because chapters were sitting
+within ~0.0002 of the k=8 cutoff. That raises the fair question of how much of
+the gold coverage was won by that kind of margin in the first place — a gold
+chapter held at rank 7-8 by a single retriever is in the context by a thin
+accident of ranking, not because retrieval solidly found it.
+
+Counting gold chapters that no retriever ranks above 7 and that only one
+retriever surfaces at all:
+
+| Lang | Q | gold ch. | held by |
+| --- | --- | --- | --- |
+| en | 27 | 33 | dense rank 7, BM25 absent |
+| en | 41 | 5 | dense rank 8, BM25 absent |
+| en | 42 | 29 | dense rank 7, BM25 absent |
+| en | 48 | 11 | BM25 rank 8, dense absent |
+| ja | 36 | 17 | BM25 rank 7, dense absent |
+| ja | 43 | 37 | BM25 rank 8, dense absent |
+
+Against 81 covered gold chapters in English and 82 in Japanese, that is **5% en
+/ 2% ja** riding on one boundary slot. Most gold coverage has room to spare, so
+the tail is a real but bounded fragility. Two things follow:
+
+* **The measured synthesis win is not an artifact of it.** Only the three
+  dense-held English cases are exposed to embedding drift at all. The two flips
+  that improved a verdict — en Q48 and ja Q36 — both hang on BM25, which is
+  bit-identical across all 50 questions in both languages.
+* **Raising `k` is not the fix.** These 6 cases would gain margin at k=10, but
+  the union is monotone — top-8 ⊆ top-10 — so a larger `k` only ever adds
+  chapters, and gold recall rises with it (en 45 → 46, ja 47 → 48, with no
+  question losing coverage). What it costs is synthesis: the mean context grows
+  from ~20 segments to ~25, and the three Japanese questions that regress at
+  k=10 (Q32, Q34, Q37) all keep full gold coverage while doing so. The extra
+  non-gold chapters are the damage, which is why the main
+  [README.md](../README.md) settles on k=8 for Japanese.
+
+The clean way past all of it is to stop measuring retrieval when the question is
+about the model. In a ceiling run the context is the gold annotation itself —
+no ranking, no cutoff, no query embedding, byte-identical for every model and
+every backend.
+
+**Ceiling runs for `ollama:qwen3.8` are being measured; the numbers go here when
+they land.** For comparison, the Gemma 4 ceiling in the main table is 49/50
+(0.990) en and 47/50 (0.970) ja.
+
 ## Prompt ordering: the ROCm red herring
 
 An early `ollama:qwen3.6` hybrid8 run appeared to lose the question entirely:
