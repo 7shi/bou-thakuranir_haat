@@ -10,10 +10,12 @@ Two methods are available:
 - **hybrid8** — Hybrid k=8 (dense ∪ BM25 union; [HYBRID.md](../HYBRID.md))
   retrieval, then answer.
 - **ceiling** — no retrieval at all: the gold chapters as context
-  (`answer_ceiling.py`). Retrieval is model-independent, so hybrid8 hands every
-  model the identical context and the whole difference is synthesis anyway;
-  ceiling measures that same difference on a much smaller context, which is
-  cheaper and faster per question.
+  (`answer_ceiling.py`). This is the cleaner model comparison: the context is
+  fixed by the gold annotation, so it is byte-identical for every model and
+  every run, and the whole difference is synthesis. It is also much smaller than
+  a hybrid8 context, hence cheaper and faster per question. hybrid8 is nominally
+  model-independent too, but its context is *computed* — see the drift noted
+  [below](#ollamaqwen38-vs-the-default-googlegemma-4-31b-it).
 
 Filenames encode the method, model and language so multiple experiments coexist
 ("`:`" and "`/`" in the model string are replaced by "`_`"):
@@ -59,57 +61,61 @@ make ceiling MODEL=google:gemini-4-31b-it LANG=ja
 
 ## `ollama:qwen3.8` vs. the default `google:gemma-4-31b-it`
 
-> **Provisional — re-run in progress.** The numbers in this section come from
-> the earlier qwen3.8 hybrid8 runs, which are currently being redone. Treat the
-> table, the flip list, and the commentary below as unconfirmed until the runs
-> finish and `make report` is re-run; both this section and
-> [report.md](report.md) are to be updated from the fresh verdicts.
+Both answerers were run on Hybrid k=8 contexts that carry the same gold
+coverage: in English the `expanded` lists are identical on all 50 questions, and
+in Japanese 46 of 50 are identical while the other four (Q21, Q34, Q36, Q49)
+differ only in tail chapters — per-question gold coverage is 47/50 either way.
+The difference below is therefore **synthesis**, not retrieval.
 
-Both answerers were run on the identical Hybrid k=8 context — the `expanded`
-lists match on all 50 questions in both languages — so every difference below is
-**synthesis**, not retrieval.
+The four Japanese differences are a backend artifact, not a retrieval change.
+BM25 is bit-identical on all 50 questions, and the chapter embeddings come from
+the stored `index-<lang>.safetensors`; only the *query* embedding is computed at
+run time, and it shifts in the 4th decimal between the ROCm and Vulkan backends
+(en Q1 `3:1`: 0.49382 vs 0.49330). That is enough to swap the 8th-ranked chapter
+where two candidates sit within ~0.0002 of each other, and nothing else. Ceiling
+runs are immune to this by construction — no retrieval, no query embedding —
+which is the other reason to prefer them for model-vs-model comparison.
 
 | Model | English | Japanese |
 | --- | --- | --- |
 | `google:gemma-4-31b-it` (main table) | 46/50 (0.940) — 46/2/2 | 45/50 (0.940) — 45/4/1 |
-| `ollama:qwen3.8` | **48/50 (0.970)** — 48/1/1 | **47/50 (0.970)** — 47/3/0 |
+| `ollama:qwen3.8` | **49/50 (0.980)** — 49/0/1 | **47/50 (0.960)** — 47/2/1 |
 
 (`correct`/50 with the weighted score in parentheses, then correct/partial/incorrect.)
 
-qwen3.8 gains +0.030 in both languages, and drops to zero `incorrect` in
-Japanese. For scale, Gemma 4's `Ceiling` run (gold chapters fed verbatim) scores
-0.990 EN / 0.970 JA — qwen3.8 reaches the Japanese ceiling while still going
-through retrieval.
+qwen3.8 gains +0.040 in English and +0.020 in Japanese, and leaves no `partial`
+at all in English — every English question is either fully answered or missed
+outright. For scale, Gemma 4's `Ceiling` run (gold chapters fed verbatim) scores
+0.990 EN / 0.970 JA, so qwen3.8 lands within one verdict of the ceiling in both
+languages while still going through retrieval.
 
 Questions whose verdict flips:
 
 | Lang | Q | type | Gemma 4 | qwen3.8 | gold in context |
 | --- | --- | --- | --- | --- | --- |
 | en | 17 | single | incorrect | correct | yes |
-| en | 28 | cross | correct | partial | yes |
 | en | 29 | cross | incorrect | correct | yes |
 | en | 31 | cross | correct | incorrect | **no** |
 | en | 32 | cross | partial | correct | **no** |
 | en | 48 | cross | partial | correct | yes |
-| ja | 28 | cross | correct | partial | yes |
 | ja | 29 | cross | incorrect | correct | yes |
 | ja | 36 | cross | partial | correct | yes |
+| ja | 42 | cross | correct | incorrect | **no** |
 | ja | 44 | cross | partial | correct | yes |
 
-* **Cross-reference synthesis is the whole gap:** 8 of the 10 flips are `cross`
+* **Cross-reference synthesis is the whole gap:** 8 of the 9 flips are `cross`
   questions, and most of qwen3.8's wins convert a Gemma `partial` (evidence
   present, elements dropped) into a `correct`.
-* **Q28 is the one consistent Gemma win** (both languages): the "two distinct
-  locations and disguises" enumeration, where qwen3.8 drops one of the pair.
-  Exhaustive enumeration looks like its weak spot.
 * **Q29 is the one consistent qwen3.8 win** (both languages): separating the
   decree's stated aim from the actual cause of Surma's departure, which Gemma 4
   misses in both languages.
-* **Discount the English Q31/Q32 flips:** both are the known shared blind spots
-  ([HYBRID.md § Shared blind spots](../HYBRID.md#shared-blind-spots)) whose gold
-  chapters are absent from the context, so a `correct` there reflects prior
-  knowledge or a lenient judge rather than reading comprehension. Excluding
-  them, English is 45 → 47 and the direction is unchanged.
+* **Every Gemma win is a blind-spot question:** en Q31, en Q32 and ja Q42 are
+  all shared blind spots ([HYBRID.md § Shared blind
+  spots](../HYBRID.md#shared-blind-spots)) whose gold chapters are absent from
+  the context, so a `correct` there reflects prior knowledge or a lenient judge
+  rather than reading comprehension. Excluding them, English is 45/48 → 48/48
+  and Japanese 44/49 → 47/49: qwen3.8 answers every question whose gold context
+  it was actually given in English, and the direction is unchanged.
 
 Caveat: the judge is `ollama:qwen3.6`, the same family as the tested answerer.
 A same-family preference cannot be ruled out from these runs alone.

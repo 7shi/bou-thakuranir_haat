@@ -9,7 +9,7 @@ are the filename-sanitized llm7shi strings (":" and "/" written as "_").
 
 | Model | Method | English | Japanese |
 | --- | --- | --- | --- |
-| `ollama_qwen3.8` | hybrid8 | 48/50 (0.970) | 47/50 (0.970) |
+| `ollama_qwen3.8` | hybrid8 | 49/50 (0.980) | 47/50 (0.960) |
 
 ## Breakdown
 
@@ -20,5 +20,5 @@ blank when the answer file is absent.
 
 | Model | Method | Lang | n | correct | partial | incorrect | weighted | ch.recall | ch.prec |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `ollama_qwen3.8` | hybrid8 | en | 50 | 48 | 1 | 1 | 0.970 | 0.900 | 0.179 |
-| `ollama_qwen3.8` | hybrid8 | ja | 50 | 47 | 3 | 0 | 0.970 | 0.940 | 0.173 |
+| `ollama_qwen3.8` | hybrid8 | en | 50 | 49 | 0 | 1 | 0.980 | 0.900 | 0.179 |
+| `ollama_qwen3.8` | hybrid8 | ja | 50 | 47 | 2 | 1 | 0.960 | 0.940 | 0.173 |
