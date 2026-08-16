@@ -6,9 +6,9 @@ the parent `report.py`, which scans only `results-<lang>/` and deliberately
 ignores this directory.
 
 Discovery is simply every `judge-*.jsonl` present. The judge stem is split as
-`<MODEL>-<LANG>-<METHOD>` (LANG = en|ja, MODEL is the filename-sanitized model
-string with ":" and "/" written as "_", METHOD is the rest, e.g. `hybrid8`), so
-a new run appears here as soon as it is graded. The matching answer file
+`<METHOD>-<MODEL>-<LANG>` (METHOD e.g. `hybrid8` or `ceiling`, LANG = en|ja,
+MODEL is the filename-sanitized model string with ":" and "/" written as "_"),
+so a new run appears here as soon as it is graded. The matching answer file
 (`<stem>.jsonl`) supplies the retrieval columns when present.
 
 Two axes, both computed the same way as the parent report:
@@ -36,28 +36,29 @@ ROOT = QA_EVAL.parent
 sys.path.insert(0, str(QA_EVAL))
 from report import accuracy, load_gold, load_jsonl, retrieval  # noqa: E402
 
-# <MODEL>-<LANG>-<METHOD>: MODEL may contain "-" (e.g. "google_gemma-4-31b-it"),
-# so anchor on the language in the middle. METHOD is optional.
-RUN_RE = re.compile(r"(?P<model>.+)-(?P<lang>en|ja)(?:-(?P<method>.+))?")
+# <METHOD>-<MODEL>-<LANG>: MODEL is the only field that may contain "-" (e.g.
+# "google_gemma-4-31b-it"), so METHOD is everything up to the first "-" and LANG
+# everything after the last one.
+RUN_RE = re.compile(r"(?P<method>[^-]+)-(?P<model>.+)-(?P<lang>en|ja)")
 LANGS = ("en", "ja")
 LANG_LABELS = {"en": "English", "ja": "Japanese"}
 
 
 def discover_runs(results: Path) -> list[dict]:
-    """One record per judge-*.jsonl, sorted by (model, method, lang)."""
+    """One record per judge-*.jsonl, sorted by (method, model, lang)."""
     found = []
     for judge in sorted(results.glob("judge-*.jsonl")):
         stem = judge.stem[len("judge-"):]
         m = RUN_RE.fullmatch(stem)
         if not m:
-            print(f"skipping {judge.name}: no language in the filename")
+            print(f"skipping {judge.name}: not <METHOD>-<MODEL>-<LANG>.jsonl")
             continue
         answer = results / f"{stem}.jsonl"
         found.append({"model": m["model"], "lang": m["lang"],
-                      "method": m["method"] or "",
+                      "method": m["method"],
                       "judge_path": judge,
                       "answer_path": answer if answer.exists() else None})
-    return sorted(found, key=lambda r: (r["model"], r["method"],
+    return sorted(found, key=lambda r: (r["method"], r["model"],
                                         LANGS.index(r["lang"])))
 
 
@@ -84,17 +85,17 @@ def print_table(rows: list[dict]) -> None:
     print(header)
     print("-" * len(header))
     for r in rows:
-        print(f"{r['model']:<{w}} {r['method'] or '—':<{wm}} {r['lang']:<4} "
+        print(f"{r['model']:<{w}} {r['method']:<{wm}} {r['lang']:<4} "
               f"{r['total']:>3} {r['correct']:>7} {r['partial']:>7} "
               f"{r['incorrect']:>9} {r['weighted']:>9.3f} "
               f"{_num(r['recall'], '9.3f'):>9} {_num(r['precision'], '8.3f'):>8}")
 
 
 def render_markdown(rows: list[dict]) -> str:
-    # (model, method) → lang → row, preserving the discovery order.
+    # (method, model) → lang → row, preserving the discovery order.
     by_run: dict[tuple[str, str], dict[str, dict]] = {}
     for r in rows:
-        by_run.setdefault((r["model"], r["method"]), {})[r["lang"]] = r
+        by_run.setdefault((r["method"], r["model"]), {})[r["lang"]] = r
 
     out = [
         "# Per-model report",
@@ -109,13 +110,13 @@ def render_markdown(rows: list[dict]) -> str:
         "| Model | Method | " + " | ".join(LANG_LABELS[l] for l in LANGS) + " |",
         "| --- | --- | " + " | ".join("---" for _ in LANGS) + " |",
     ]
-    for (model, method), per_lang in by_run.items():
+    for (method, model), per_lang in by_run.items():
         cells = []
         for lang in LANGS:
             r = per_lang.get(lang)
             cells.append(f"{r['correct']}/{r['total']} ({r['weighted']:.3f})"
                          if r else "—")
-        out.append(f"| `{model}` | {method or '—'} | " + " | ".join(cells) + " |")
+        out.append(f"| `{model}` | {method} | " + " | ".join(cells) + " |")
 
     out += [
         "",
@@ -131,7 +132,7 @@ def render_markdown(rows: list[dict]) -> str:
     ]
     for r in rows:
         out.append(
-            f"| `{r['model']}` | {r['method'] or '—'} | {r['lang']} | {r['total']} | "
+            f"| `{r['model']}` | {r['method']} | {r['lang']} | {r['total']} | "
             f"{r['correct']} | {r['partial']} | {r['incorrect']} | "
             f"{r['weighted']:.3f} | {_num(r['recall'], '.3f')} | "
             f"{_num(r['precision'], '.3f')} |"

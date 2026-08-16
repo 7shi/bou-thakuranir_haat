@@ -1,7 +1,7 @@
 # Per-model answerer runs — try different answerer models without touching the
 # canonical results-<lang>/ trees.
 #
-# Two methods, both writing <MODEL>-<LANG>-<METHOD>.jsonl here in results/
+# Two methods, both writing <METHOD>-<MODEL>-<LANG>.jsonl here in results/
 # (":" and "/" in MODEL replaced by "_"), so the existing results stay as they
 # are. Resume-safe: the answer scripts append to the output and skip
 # already-answered question IDs.
@@ -13,8 +13,8 @@
 #             smaller context, which is cheaper and faster per question.
 #
 # Usage:
-#   make hybrid8 MODEL=... LANG={en,ja}   # answer 50 questions -> <MODEL>-<LANG>-hybrid8.jsonl
-#   make ceiling MODEL=... LANG={en,ja}   # answer 50 questions -> <MODEL>-<LANG>-ceiling.jsonl
+#   make hybrid8 MODEL=... LANG={en,ja}   # answer 50 questions -> hybrid8-<MODEL>-<LANG>.jsonl
+#   make ceiling MODEL=... LANG={en,ja}   # answer 50 questions -> ceiling-<MODEL>-<LANG>.jsonl
 #   make judge                            # opt-in: grade every ungraded answer file
 #   make report                           # aggregate every judged run → report.md
 #
@@ -35,8 +35,11 @@ INDEX := $(ROOT)/index-$(LANG).safetensors
 # directory's naming convention. The scripts write exactly the path given by
 # -o / derived from the input stem.
 SAFE_MODEL := $(subst /,_,$(subst :,_,$(MODEL)))
-HYBRID_ANSWER := $(SAFE_MODEL)-$(LANG)-hybrid$(K).jsonl
-CEILING_ANSWER := $(SAFE_MODEL)-$(LANG)-ceiling.jsonl
+# <METHOD>-<MODEL>-<LANG>: the method leads so runs group by method, and LANG
+# trails so it can be read off the filename with a plain suffix split — MODEL is
+# the only field that may itself contain "-".
+HYBRID_ANSWER := hybrid$(K)-$(SAFE_MODEL)-$(LANG).jsonl
+CEILING_ANSWER := ceiling-$(SAFE_MODEL)-$(LANG).jsonl
 
 .PHONY: help check-args hybrid8 ceiling judge report
 .DEFAULT_GOAL := help
@@ -67,21 +70,21 @@ ceiling: check-args
 
 # Opt-in: LLM grading (same default judge as the main pipeline). Scans every
 # answer file here (*.jsonl not starting with "judge-"), skips the ones that
-# already have a judge-<stem>.jsonl, and takes LANG from the filename itself
-# (<MODEL>-<LANG>-<METHOD>.jsonl) — no MODEL/LANG needed. Output lands next to
-# the answer file via judge.py's default judge-<stem>.jsonl naming.
+# already have a judge-<stem>.jsonl, and takes LANG from the filename's trailing
+# field (<METHOD>-<MODEL>-<LANG>.jsonl) — no MODEL/LANG needed. Output lands
+# next to the answer file via judge.py's default judge-<stem>.jsonl naming.
 judge:
 	@for f in *.jsonl; do \
 		case "$$f" in judge-*) continue;; esac; \
 		[ -e "$$f" ] || continue; \
 		[ -e "judge-$$f" ] && { echo "skip $$f (judge-$$f exists)"; continue; }; \
-		lang=$$(echo "$${f%.jsonl}" | sed -n 's/.*-\(en\|ja\)\(-.*\)\{0,1\}$$/\1/p'); \
-		if [ -z "$$lang" ]; then echo "skip $$f (cannot infer LANG)"; continue; fi; \
+		lang=$${f%.jsonl}; lang=$${lang##*-}; \
+		case "$$lang" in en|ja) ;; *) echo "skip $$f (cannot infer LANG)"; continue;; esac; \
 		echo "judge $$f (LANG=$$lang)"; \
 		(cd $(ROOT) && uv run judge.py -l $$lang results/$$f) || exit $$?; \
 	done
 
-# Aggregate every <MODEL>-<LANG>-<METHOD>.jsonl that has a matching judge file
+# Aggregate every <METHOD>-<MODEL>-<LANG>.jsonl that has a matching judge file
 # into report.md (and print the same table to the terminal). Mechanical, no LLM
 # and no MODEL/LANG needed — this directory's own report, independent of the
 # parent report.py, which scans only results-<lang>/ and ignores these runs.

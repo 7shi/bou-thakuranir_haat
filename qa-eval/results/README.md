@@ -1,25 +1,36 @@
-# Per-model Hybrid k=8 runs
+# Per-model answerer runs
 
-This directory holds **Hybrid k=8** (dense ∪ BM25 union;
-[HYBRID.md](../HYBRID.md)) runs with **answerer models other than the default**
+This directory holds runs with **answerer models other than the default**
 `google:gemma-4-31b-it`, without touching the canonical `results-<lang>/`
 trees — the existing per-strategy results stay as they are, and each new
-(model, language) pair gets its own file here.
+(method, model, language) triple gets its own file here.
 
-Filenames encode the model and language so multiple experiments coexist
-("`:`" in the model string is replaced by "`_`"):
+Two methods are available:
 
-- `<MODEL>-<LANG>-hybrid8.jsonl` — answers (`answer_hybrid.py -k 8`), e.g.
-  `google_gemini-4-31b-it-ja-hybrid8.jsonl`
-- `judge-<MODEL>-<LANG>-hybrid8.jsonl` — verdicts (`judge.py`, opt-in)
+- **hybrid8** — Hybrid k=8 (dense ∪ BM25 union; [HYBRID.md](../HYBRID.md))
+  retrieval, then answer.
+- **ceiling** — no retrieval at all: the gold chapters as context
+  (`answer_ceiling.py`). Retrieval is model-independent, so hybrid8 hands every
+  model the identical context and the whole difference is synthesis anyway;
+  ceiling measures that same difference on a much smaller context, which is
+  cheaper and faster per question.
+
+Filenames encode the method, model and language so multiple experiments coexist
+("`:`" and "`/`" in the model string are replaced by "`_`"):
+
+- `<METHOD>-<MODEL>-<LANG>.jsonl` — answers, e.g.
+  `hybrid8-google_gemini-4-31b-it-ja.jsonl`
+- `judge-<METHOD>-<MODEL>-<LANG>.jsonl` — verdicts (`judge.py`, opt-in)
+
+The method leads so runs group by method, and the language trails so it can be
+read straight off the filename — the model is the only field that may itself
+contain "`-`".
 
 `report.py` aggregates every judged pair in this directory into
 [report.md](report.md).
 
-Retrieval itself is model-independent (same `embeddinggemma` dense index +
-BM25), so the only variable across these files is the answerer; the judge
-stays the default `ollama:qwen3.6` for comparability with the main table in
-[README.md](../README.md).
+The judge stays the default `ollama:qwen3.6` for comparability with the main
+table in [README.md](../README.md).
 
 ## Usage
 
@@ -27,19 +38,23 @@ Run via [Makefile](Makefile) (the directory's default target prints the usage
 line):
 
 ```
-make hybrid8 MODEL=... LANG={en,ja}   # answer 50 questions → <MODEL>-<LANG>-hybrid8.jsonl
-make judge   MODEL=... LANG={en,ja}   # opt-in: grade → judge-<MODEL>-<LANG>-hybrid8.jsonl
+make hybrid8 MODEL=... LANG={en,ja}   # answer 50 questions → hybrid8-<MODEL>-<LANG>.jsonl
+make ceiling MODEL=... LANG={en,ja}   # answer 50 questions → ceiling-<MODEL>-<LANG>.jsonl
+make judge                            # opt-in: grade every ungraded answer file
 make report                           # aggregate every judged run → report.md
 ```
 
 - `MODEL` — llm7shi model string of the answerer (e.g.
   `google:gemini-4-31b-it`, `ollama:gemma4:31b-it-qat`)
-- `LANG` — `en` | `ja` (selects the questions file and the index)
+- `LANG` — `en` | `ja` (selects the questions file and, for hybrid8, the index)
+
+`make judge` needs neither: it scans this directory for answer files that have
+no `judge-` counterpart yet and reads the language off each filename.
 
 Example:
 
 ```
-make hybrid8 MODEL=google:gemini-4-31b-it LANG=ja
+make ceiling MODEL=google:gemini-4-31b-it LANG=ja
 ```
 
 ## `ollama:qwen3.8` vs. the default `google:gemma-4-31b-it`
@@ -133,7 +148,8 @@ question.
   present in the output file, so an interrupted run is continued by re-running
   the same command.
 - The embedding index is reused from `qa-eval/index-<lang>.safetensors` and
-  built via the parent Makefile only if missing.
+  built via the parent Makefile only if missing (hybrid8 only — ceiling does no
+  retrieval).
 - The parent `report.py` does not scan this directory (its method discovery
   reads only `results-<lang>/hybrid<k>.jsonl`), so these runs never leak into
   the main table. `make report` here is the independent aggregation: it reuses
