@@ -75,11 +75,11 @@ questions and no index.
 
 | Answerer | Model | English | Japanese |
 | --- | --- | --- | --- |
-| `google:gemma-4-31b-it` | hosted (canonical run) | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
-| `ollama:qwen3.8` | 27.3B dense, Q4_K_M | 49/50 (0.990) — 49/1/0 | 48/50 (0.970) — 48/1/1 |
-| `ollama:qwen3.6` | 36B MoE, Q4_K_M | 48/50 (0.980) — 48/2/0 | 47/50 (0.960) — 47/2/1 |
-| `ollama:muse-glimmer` | 27.9B, Q4_K_M | 48/50 (0.980) — 48/2/0 | 46/50 (0.960) — 46/4/0 |
-| `ollama:gemma4:26b-a4b-it-qat` | 25.2B MoE, 4B active, Q4_0 | 46/50 (0.950) — 46/3/1 | 41/50 (0.900) — 41/8/1 |
+| `google:gemma-4-31b-it` | 31B dense | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
+| `ollama:qwen3.8` | 27B dense | 49/50 (0.990) — 49/1/0 | 48/50 (0.970) — 48/1/1 |
+| `ollama:qwen3.6` | 35B MoE, 3B active | 48/50 (0.980) — 48/2/0 | 47/50 (0.960) — 47/2/1 |
+| `ollama:muse-glimmer` | 30B | 48/50 (0.980) — 48/2/0 | 46/50 (0.960) — 46/4/0 |
+| `ollama:gemma4:26b-a4b-it-qat` | 26B MoE, 4B active | 46/50 (0.950) — 46/3/1 | 41/50 (0.900) — 41/8/1 |
 
 (`correct`/50 with the weighted score in parentheses, then correct/partial/incorrect.
 The Gemma 4 row is the canonical `results-<lang>/ceiling.jsonl` run; the other
