@@ -39,7 +39,7 @@
 
 `answer.py` は、5つのすべての回答スクリプト（vector / extract / filter / ceiling / hybrid）でインポートされる共有ヘルパー（`LANGS`, `PART_RANGES`, `load_questions`, `load_chapters`, `answer_question`）を保持しています。
 
-両言語ともに、回答モデルには `google:gemma-4-31b-it`、インデックスには `embeddinggemma`、そして判定には同じプロンプトを使用しています。
+両言語ともに、回答モデルには `google:gemma-4-31b-it`、インデックスには `embeddinggemma`、そして判定には同じプロンプトを使用しています。**別の回答モデル**を用いたランは [results/README.md](results/README.md) にまとめてあります（5モデルによる Ceiling の比較と、Hybrid k=8 と Ceiling の比較。いずれもコンテキストはバイト単位で同一のため、差は回答生成能力のみに由来します）。
 
 > [!IMPORTANT]
 > **実用的な最適解**
