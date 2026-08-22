@@ -73,13 +73,13 @@ is not a variable at all here and the whole difference is **synthesis**, which
 is what makes this the comparison worth growing: one more model costs 100
 questions and no index.
 
-| Answerer | Model | English | Japanese |
-| --- | --- | --- | --- |
-| `google:gemma-4-31b-it` | 31B dense | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
-| `ollama:qwen3.8` | 27B dense | 49/50 (0.990) — 49/1/0 | 48/50 (0.970) — 48/1/1 |
-| `ollama:qwen3.6` | 35B MoE, 3B active | 48/50 (0.980) — 48/2/0 | 47/50 (0.960) — 47/2/1 |
-| `ollama:muse-glimmer` | 30B dense | 48/50 (0.980) — 48/2/0 | 46/50 (0.960) — 46/4/0 |
-| `ollama:gemma4:26b-a4b-it-qat` | 26B MoE, 4B active | 46/50 (0.950) — 46/3/1 | 41/50 (0.900) — 41/8/1 |
+| Model | English | Japanese |
+| --- | --- | --- |
+| `google:gemma-4-31b-it` | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
+| `ollama:qwen3.8` | 49/50 (0.990) — 49/1/0 | 48/50 (0.970) — 48/1/1 |
+| `ollama:qwen3.6` | 48/50 (0.980) — 48/2/0 | 47/50 (0.960) — 47/2/1 |
+| `ollama:muse-glimmer` | 48/50 (0.980) — 48/2/0 | 46/50 (0.960) — 46/4/0 |
+| `ollama:gemma4:26b-a4b-it-qat` | 46/50 (0.950) — 46/3/1 | 41/50 (0.900) — 41/8/1 |
 
 (`correct`/50 with the weighted score in parentheses, then correct/partial/incorrect.
 The Gemma 4 row is the canonical `results-<lang>/ceiling.jsonl` run; the other
@@ -187,12 +187,12 @@ contexts** under each. The Gemma numbers are the canonical
 is not a variable *between the models* either, and the ceiling → hybrid8 step is
 the price of answering from a k=8 retrieved context instead of the gold one.
 
-| Language | Method | `google:gemma-4-31b-it` | `ollama:qwen3.8` |
+| Model | Method | English | Japanese |
 | --- | --- | --- | --- |
-| en | ceiling | 49/50 (0.990) — 49/1/0 | 49/50 (0.990) — 49/1/0 |
-| en | hybrid8 | 46/50 (0.940) — 46/2/2 | 49/50 (0.990) — 49/1/0 |
-| ja | ceiling | 47/50 (0.970) — 47/3/0 | 48/50 (0.970) — 48/1/1 |
-| ja | hybrid8 | 45/50 (0.940) — 45/4/1 | 46/50 (0.940) — 46/2/2 |
+| `google:gemma-4-31b-it` | ceiling | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
+| `google:gemma-4-31b-it` | hybrid8 | 46/50 (0.940) — 46/2/2 | 45/50 (0.940) — 45/4/1 |
+| `ollama:qwen3.8` | ceiling | 49/50 (0.990) — 49/1/0 | 48/50 (0.970) — 48/1/1 |
+| `ollama:qwen3.8` | hybrid8 | 49/50 (0.990) — 49/1/0 | 46/50 (0.940) — 46/2/2 |
 
 - **In English qwen3.8 pays nothing for retrieval.** Its hybrid8 verdicts are
   identical to its own ceiling verdicts on all 50 questions — same single
