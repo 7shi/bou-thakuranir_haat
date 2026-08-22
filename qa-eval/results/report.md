@@ -13,7 +13,9 @@ are the filename-sanitized llm7shi strings (":" and "/" written as "_").
 | `ollama_muse-glimmer` | ceiling | 48/50 (0.980) | 46/50 (0.960) |
 | `ollama_qwen3.6` | ceiling | 48/50 (0.980) | 47/50 (0.960) |
 | `ollama_qwen3.8` | ceiling | 49/50 (0.990) | 48/50 (0.970) |
+| `openrouter_stealth_ox-alpha` | ceiling | 48/50 (0.970) | 49/50 (0.990) |
 | `ollama_qwen3.8` | hybrid8 | 49/50 (0.990) | 46/50 (0.940) |
+| `openrouter_stealth_ox-alpha` | hybrid8 | 47/50 (0.970) | 48/50 (0.970) |
 
 ## Breakdown
 
@@ -32,5 +34,9 @@ blank when the answer file is absent.
 | `ollama_qwen3.6` | ceiling | ja | 50 | 47 | 2 | 1 | 0.960 | 1.000 | 1.000 |
 | `ollama_qwen3.8` | ceiling | en | 50 | 49 | 1 | 0 | 0.990 | 1.000 | 1.000 |
 | `ollama_qwen3.8` | ceiling | ja | 50 | 48 | 1 | 1 | 0.970 | 1.000 | 1.000 |
+| `openrouter_stealth_ox-alpha` | ceiling | en | 50 | 48 | 1 | 1 | 0.970 | 1.000 | 1.000 |
+| `openrouter_stealth_ox-alpha` | ceiling | ja | 50 | 49 | 1 | 0 | 0.990 | 1.000 | 1.000 |
 | `ollama_qwen3.8` | hybrid8 | en | 50 | 49 | 1 | 0 | 0.990 | 0.900 | 0.179 |
 | `ollama_qwen3.8` | hybrid8 | ja | 50 | 46 | 2 | 2 | 0.940 | 0.940 | 0.173 |
+| `openrouter_stealth_ox-alpha` | hybrid8 | en | 50 | 47 | 3 | 0 | 0.970 | 0.900 | 0.179 |
+| `openrouter_stealth_ox-alpha` | hybrid8 | ja | 50 | 48 | 1 | 1 | 0.970 | 0.940 | 0.173 |
