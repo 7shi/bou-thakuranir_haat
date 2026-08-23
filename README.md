@@ -36,7 +36,6 @@ file|description
 [all/en-gemini-lines.md](all/en-gemini-lines.md) | English translation with one sentence per line by Gemini 2.5 Pro
 [all/en-gemini.jsonl](all/en-gemini.jsonl) | per-segment English translation data (summary, notes, translation) by Gemini 2.5 Pro in JSONL
 [all/en-gemini.tsv](all/en-gemini.tsv) | per-segment English scene titles in TSV
-[all/en-google.md](all/en-google.md) | English translation from Bengali by [Google Translate](https://translate.google.com/)
 
 ### Japanese Translation
 
@@ -47,7 +46,6 @@ file|description
 [all/ja-gemini-summary.md](all/ja-gemini-summary.md) | per-segment Japanese summaries by Gemini 2.5 Pro
 [all/ja-gemini-lines.md](all/ja-gemini-lines.md) | Japanese translation with one sentence per line by Gemini 2.5 Pro
 [all/ja-gemini.jsonl](all/ja-gemini.jsonl) | per-segment Japanese translation data (summary, notes, translation) by Gemini 2.5 Pro in JSONL
-[all/ja-google.md](all/ja-google.md) | Japanese translation from English by [Google Translate](https://translate.google.com/)
 
 ### Hindi Translation
 
