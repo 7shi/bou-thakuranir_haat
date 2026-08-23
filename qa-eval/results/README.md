@@ -75,37 +75,36 @@ questions and no index.
 
 | Model | English | Japanese |
 | --- | --- | --- |
-| `google:gemma-4-31b-it` | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
-| `ollama:gemma4:26b-a4b-it-qat` | 46/50 (0.950) — 46/3/1 | 41/50 (0.900) — 41/8/1 |
-| `ollama:qwen3.6` | 48/50 (0.980) — 48/2/0 | 47/50 (0.960) — 47/2/1 |
-| `ollama:qwen3.8` | 49/50 (0.990) — 49/1/0 | 48/50 (0.970) — 48/1/1 |
-| `ollama:muse-glimmer` | 48/50 (0.980) — 48/2/0 | 46/50 (0.960) — 46/4/0 |
-| `openrouter:stealth/ox-alpha` | 48/50 (0.970) — 48/1/1 | 49/50 (0.990) — 49/1/0 |
+| `google:gemma-4-31b-it` | 49/50 (0.990) — 49/1/0 | 48/50 (0.980) — 48/2/0 |
+| `ollama:gemma4:26b-a4b-it-qat` | 47/50 (0.960) — 47/2/1 | 42/50 (0.920) — 42/8/0 |
+| `ollama:qwen3.6` | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
+| `ollama:qwen3.8` | 50/50 (1.000) — 50/0/0 | 49/50 (0.990) — 49/1/0 |
+| `ollama:muse-glimmer` | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
+| `openrouter:stealth/ox-alpha` | 49/50 (0.980) — 49/0/1 | 50/50 (1.000) — 50/0/0 |
 
 (`correct`/50 with the weighted score in parentheses, then correct/partial/incorrect.
 The Gemma 4 row is the canonical `results-<lang>/ceiling.jsonl` run; the other
 five live in this directory and are aggregated in [report.md](report.md).)
 
-* **The set is near-saturated in English for most models.** Five of the six
-  land within 0.020 of each other (0.970–0.990), and within that band every
-  miss is a `partial` except `stealth/ox-alpha`'s single outright error on Q22.
-  Ceiling is a ceiling: it measures whether a model can read two or three
-  chapters it has already been handed, and current models mostly can.
+* **English is saturated.** `qwen3.8` answers all 50; Gemma 4, `qwen3.6` and
+  `muse-glimmer` each drop a single `partial`; `stealth/ox-alpha`'s only loss is
+  one outright error. Five of the six land between 0.980 and 1.000. Ceiling is a
+  ceiling: it measures whether a model can read two or three chapters it has
+  already been handed, and current models can.
 * **Japanese costs every model something except `stealth/ox-alpha`**, from
-  0.020 (Gemma 4, muse-glimmer) to 0.050 (gemma4:26b-a4b). `stealth/ox-alpha`
-  runs the other way, gaining 0.020 in Japanese. The English miss list has 6
-  questions against Japanese's 11 — the same questions, the same gold, the
+  0.010 (Gemma 4, qwen3.8) to 0.040 (gemma4:26b-a4b). `stealth/ox-alpha` runs
+  the other way, gaining 0.020 and answering all 50. The English miss list has
+  6 questions against Japanese's 11 — the same questions, the same gold, the
   same gold chapters.
 * **`stealth/ox-alpha` is the one model that scores higher in Japanese than
-  English.** Its 0.990 Japanese ceiling — a single `partial`, on the disputed
-  Q48 — is the highest Japanese score of the six models, despite the model
-  sitting mid-table in English. No other model reverses direction between
-  languages.
+  English.** Its 50/50 Japanese ceiling is the only perfect Japanese run of the
+  six, while in English it sits mid-table on a single outright error (Q22). No
+  other model reverses direction between languages.
 * **Only the small MoE separates itself on magnitude.** `gemma4:26b-a4b-it-qat`
   activates 4B parameters per token and is the only model below 0.950; it loses
-  0.050 from English to Japanese — more than double any other model's loss
-  (0.020, aside from `stealth/ox-alpha`'s gain). Its failure mode is legible in
-  the verdicts: 8 `partial` and 1 `incorrect` in Japanese, i.e. it finds the
+  0.040 from English to Japanese — four times any other model's loss (0.010–0.020,
+  aside from `stealth/ox-alpha`'s gain). Its failure mode is legible in the
+  verdicts: 8 `partial` and no outright error in Japanese, i.e. it finds the
   passage and drops one of the two or three elements the gold answer enumerates
   (ja Q34 gives the escape → death chain but not Rukmini's denunciation; ja Q44
   contrasts the jewellery with the plain clothes but not the beggar-woman
@@ -120,9 +119,10 @@ five live in this directory and are aggregated in [report.md](report.md).)
   model, different question, same failure shape.
 * **The judge is `ollama:qwen3.6`, one of the answerers.** A same-family
   preference cannot be ruled out from these runs, though qwen3.6 does not top
-  either language — it sits mid-table behind Gemma 4 and qwen3.8 in English and
-  behind `stealth/ox-alpha` in Japanese too — which is weak evidence against a
-  strong self-preference rather than proof of none.
+  either language — it is behind qwen3.8 and level with two other models in
+  English, and behind Gemma 4, qwen3.8 and `stealth/ox-alpha` in Japanese —
+  which is weak evidence against a strong self-preference rather than proof of
+  none.
 
 ### Every question any model missed
 
@@ -133,7 +133,7 @@ five live in this directory and are aggregated in [report.md](report.md).)
 | en 22 | single | 1 | correct | correct | correct | correct | correct | **incorrect** |
 | en 33 | cross | 2 | correct | partial | correct | correct | correct | correct |
 | en 35 | cross | 2 | correct | partial | correct | correct | correct | correct |
-| en 48 † | cross | 2 | partial | partial | partial | partial | partial | partial |
+| en 48 | cross | 2 | partial | correct | correct | correct | correct | correct |
 | ja 29 | cross | 2 | partial | partial | partial | partial | correct | correct |
 | ja 34 | cross | 3 | correct | partial | correct | correct | partial | correct |
 | ja 35 | cross | 2 | correct | partial | correct | correct | partial | correct |
@@ -143,21 +143,18 @@ five live in this directory and are aggregated in [report.md](report.md).)
 | ja 43 | cross | 2 | correct | correct | correct | correct | partial | correct |
 | ja 44 | cross | 3 | correct | partial | correct | correct | correct | correct |
 | ja 46 | cross | 3 | correct | partial | correct | correct | correct | correct |
-| ja 48 † | cross | 2 | partial | incorrect | incorrect | incorrect | partial | partial |
+| ja 48 | cross | 2 | correct | correct | partial | correct | correct | correct |
 | ja 50 | cross | 3 | correct | partial | correct | correct | correct | correct |
-
-† Q48's gold answer is disputed; its verdicts are held under reservation — see
-[Q48](#q48-a-defect-in-the-question-not-in-the-models) below.
 
 Ceiling doubles as a sanity check on the gold itself: with the gold chapters in
 the context, a `correct` verdict says the question and its gold answer agree.
 Only the 17 rows above need auditing — the other 44 English and 39 Japanese
-questions are answered from the gold chapters by all six models — and of those
-only Q48 turned out to be a question-side problem.
+questions are answered from the gold chapters by all six models.
 
-* **Q48 is the only universal miss**, in both languages and across all six
-  models: 12 ceiling verdicts, none `correct`. That is the signature of a broken
-  question rather than a hard one.
+* **No question is missed by every model.** The widest row is ja Q29, which four
+  of the six miss; every other row is one or two models deep. A question that no
+  model answers from the gold chapters in either language is the signature of a
+  broken gold rather than a hard question, and the set no longer contains one.
 * **Nothing here is a missing-evidence failure** — the context is the gold
   annotation, so every miss is synthesis inside two or three chapters.
 * **Multi-chapter `cross` questions carry the difficulty.** 14 of the 17 rows are
@@ -182,14 +179,26 @@ only Q48 turned out to be a question-side problem.
   自らの手で毒を飲み、命を落とした」 (`stealth/ox-alpha`) — the scored fact
   the other four never reach. The gold is sound, both languages are
   answerable, and it separates models. It is worth keeping exactly as it is.
+* **Q48 asks a two-part question, and the judge enforces it inconsistently.**
+  The question asks how Ramchandra reads the rescue *in his own court*, so its
+  gold has his private reading (he owes nothing; Udayaditya acted for his
+  sister) *and* what he does with it in court (he joins the mockery of
+  Udayaditya for being Pratapaditya's son). Seven of the twelve ceiling runs
+  give both halves — five of the six English runs against two of the six
+  Japanese ones. But of the five runs that omit the court half, only two are
+  scored `partial` (Gemma 4 in English, qwen3.6 in Japanese); the Japanese runs
+  of Gemma 4, gemma4:26b-a4b and qwen3.8 omit it and are scored `correct`
+  anyway — gemma4:26b-a4b's Japanese answer gives the sister motive alone. The
+  two `partial`s are the correct reading of the gold; the three `correct`s on
+  the same omission are judge leniency, so Q48's row understates how many runs
+  actually answer only half the question.
 * **Q29's gold carries one imprecision, which does not change the reading.** It
   credits the commission to "the Mahishi's maid, Matangini", while chapter 17
   has the Rajmahishi as the principal — Matangini is only sent to fetch the
   medicine, and Mangala substitutes poison for it on her own initiative. Both
   language versions word it the same way, so nothing is asymmetric between them,
   and no verdict turns on it: the failing Japanese answers stop well short of
-  that detail, on the poisoning itself. The gold is left as it is, along with
-  Q48's.
+  that detail, on the poisoning itself. The gold is left as it is.
 
 ## Hybrid8 vs. ceiling: what retrieval costs
 
@@ -204,32 +213,31 @@ a k=8 retrieved context instead of the gold one.
 
 | Model | Method | English | Japanese |
 | --- | --- | --- | --- |
-| `google:gemma-4-31b-it` | ceiling | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
-| `google:gemma-4-31b-it` | hybrid8 | 46/50 (0.940) — 46/2/2 | 45/50 (0.940) — 45/4/1 |
-| `ollama:qwen3.8` | ceiling | 49/50 (0.990) — 49/1/0 | 48/50 (0.970) — 48/1/1 |
-| `ollama:qwen3.8` | hybrid8 | 49/50 (0.990) — 49/1/0 | 46/50 (0.940) — 46/2/2 |
-| `openrouter:stealth/ox-alpha` | ceiling | 48/50 (0.970) — 48/1/1 | 49/50 (0.990) — 49/1/0 |
-| `openrouter:stealth/ox-alpha` | hybrid8 | 47/50 (0.970) — 47/3/0 | 48/50 (0.970) — 48/1/1 |
+| `google:gemma-4-31b-it` | ceiling | 49/50 (0.990) — 49/1/0 | 48/50 (0.980) — 48/2/0 |
+| `google:gemma-4-31b-it` | hybrid8 | 46/50 (0.940) — 46/2/2 | 46/50 (0.950) — 46/3/1 |
+| `ollama:qwen3.8` | ceiling | 50/50 (1.000) — 50/0/0 | 49/50 (0.990) — 49/1/0 |
+| `ollama:qwen3.8` | hybrid8 | 50/50 (1.000) — 50/0/0 | 47/50 (0.950) — 47/1/2 |
+| `openrouter:stealth/ox-alpha` | ceiling | 49/50 (0.980) — 49/0/1 | 50/50 (1.000) — 50/0/0 |
+| `openrouter:stealth/ox-alpha` | hybrid8 | 48/50 (0.980) — 48/2/0 | 49/50 (0.980) — 49/0/1 |
 
-- **In English qwen3.8 pays nothing for retrieval.** Its hybrid8 verdicts are
-  identical to its own ceiling verdicts on all 50 questions — same single
-  `partial` (Q48), same 0.990 — even though the hybrid8 context misses gold
+- **In English qwen3.8 pays nothing for retrieval.** It answers all 50 under
+  both methods, verdict for verdict, even though the hybrid8 context misses gold
   chapters on 5 of 50 questions. Gemma drops 0.050 over the same step.
-- **In Japanese both models pay.** Gemma drops 0.030 (0.970 → 0.940) and
-  qwen3.8 drops the same 0.030 from a slightly different ceiling distribution
-  (48/1/1 vs Gemma's 47/3/0 — equal weighted, more all-or-nothing), so the two
-  end level at 0.940.
-- **`stealth/ox-alpha`'s English score is unchanged by retrieval (0.970 →
-  0.970), but this is not a verdict-for-verdict match like qwen3.8's.**
-  Ceiling's shortfall was Q22 (`incorrect`) and Q48 (`partial`); hybrid8's is
-  three different `partial`s (Q32, Q48, Q50). Q22 disappears once retrieval
-  replaces the gold context, but two new partials appear elsewhere — a wash in
-  score that hides two different failure sets.
+- **In Japanese every model pays.** qwen3.8 drops 0.040 (0.990 → 0.950), Gemma
+  0.030 (0.980 → 0.950) from a slightly different ceiling distribution
+  (48/2/0 vs qwen3.8's 49/1/0), so the two end level at 0.950 by different
+  routes — Gemma with three partials, qwen3.8 with two outright errors.
+- **`stealth/ox-alpha`'s English score is unchanged by retrieval (0.980 →
+  0.980), but this is not a verdict-for-verdict match like qwen3.8's.**
+  Ceiling's shortfall was the single Q22 `incorrect`; hybrid8's is two different
+  `partial`s (Q32, Q50). Q22 disappears once retrieval replaces the gold
+  context, but two new partials appear elsewhere — a wash in score that hides
+  two different failure sets.
 - **In Japanese `stealth/ox-alpha` pays least of the three, and starts from
-  the top.** It drops only 0.020 (0.990 → 0.970) against Gemma's and qwen3.8's
-  0.030, and its ceiling score was already the highest of the six models in
-  the wider comparison — the only one whose Japanese ceiling beats its own
-  English (see [Ceiling](#ceiling-comparing-answerer-models) above).
+  the top.** It drops only 0.020 (1.000 → 0.980) against Gemma's 0.030 and
+  qwen3.8's 0.040, and its ceiling score was the only perfect run of the six
+  models in the wider comparison — the only one whose Japanese ceiling beats its
+  own English (see [Ceiling](#ceiling-comparing-answerer-models) above).
 
 ### Hybrid8: every question any model missed
 
@@ -238,32 +246,29 @@ a k=8 retrieved context instead of the gold one.
 | en | 17 | single | incorrect | correct | correct | yes |
 | en | 29 | cross | incorrect | correct | correct | yes |
 | en | 32 | cross | partial | correct | partial | **no** |
-| en | 48 † | cross | partial | partial | partial | yes |
+| en | 48 | cross | partial | correct | correct | yes |
 | en | 50 | cross | correct | correct | partial | **no** |
 | ja | 27 | cross | partial | partial | incorrect | **no** |
 | ja | 29 | cross | incorrect | incorrect | correct | yes |
 | ja | 36 | cross | partial | correct | correct | yes |
 | ja | 42 | cross | correct | incorrect | correct | **no** |
 | ja | 44 | cross | partial | correct | correct | yes |
-| ja | 48 † | cross | partial | partial | partial | yes |
 
-† Same reservation as the ceiling table.
-
-* **Cross-reference synthesis dominates the table.** 10 of the 11 rows are
-  `cross`; the lone `single` question, en Q17, is Gemma's only miss in this
-  comparison — every other model gets it.
-* **Four of the eleven rows are shared blind spots — gold chapters absent from
+* **Cross-reference synthesis dominates the table.** 9 of the 10 rows are
+  `cross`; the lone `single` question, en Q17, is one of Gemma's misses — the
+  other two models get it.
+* **Four of the ten rows are shared blind spots — gold chapters absent from
   the k=8 context — so a `correct` verdict there reflects prior knowledge or a
   lenient judge, not reading comprehension:** en Q32 and ja Q42 (both
   documented in [HYBRID.md § Shared blind spots](../HYBRID.md#shared-blind-spots)),
   plus en Q50 and ja Q27 (the same failure mode, not among HYBRID.md's four
   listed cases). Restricting to the questions whose gold chapters are actually
   present — English n=45, Japanese n=47 — each model's correct/partial/incorrect
-  becomes: Gemma 42/1/2 (en), 43/3/1 (ja); qwen3.8 44/1/0 (en), 45/1/1 (ja);
-  `stealth/ox-alpha` 44/1/0 (en), 46/1/0 (ja). On the evidence actually
-  supplied, qwen3.8 and `stealth/ox-alpha` both reach a 0.989 weighted English
-  score; in Japanese `stealth/ox-alpha` holds 0.989 while qwen3.8 drops to
-  0.968. Gemma trails in both languages, at 0.944 (en) and 0.947 (ja).
+  becomes: Gemma 42/1/2 (en), 44/2/1 (ja); qwen3.8 45/0/0 (en), 46/0/1 (ja);
+  `stealth/ox-alpha` 45/0/0 (en), 47/0/0 (ja). On the evidence actually
+  supplied, qwen3.8 and `stealth/ox-alpha` both answer every English question,
+  and `stealth/ox-alpha` answers every Japanese one too while qwen3.8 drops to
+  0.979. Gemma trails in both languages, at 0.944 (en) and 0.957 (ja).
 * **ja Q27 shows the judge scoring identical honesty differently across
   models.** Gold chapters are absent from the context; Gemma and qwen3.8 both
   land `partial`, naming the failed assassination plan and leaving the
@@ -288,40 +293,6 @@ a k=8 retrieved context instead of the gold one.
   `stealth/ox-alpha` lands `partial`, substituting a different Chapter 6 scene
   for the Chapter 23 detail — Rammohan citing Vibha's unbraided hair as proof
   of neglect — that the missing chapter would have supplied.
-
-## Q48: a defect in the question, not in the models
-
-Q48 asks how Ramchandra interprets "his brother-in-law's behavior" after the
-midnight rescue, and the natural referent of *behavior* is the protective action
-the same sentence names. That is what the models answer: Ramchandra found the
-rescue "bound to happen" and credited it to Udayaditya's concern for his sister
-Vibha rather than for him. The gold answer instead requires a separate aside in
-chapter 19 — Ramchandra sees Udayaditya whisper to a servant and assumes a plot
-to insult him — which sits in a list of anecdotes about the king's touchiness
-and is not connected to the rescue at all.
-
-* **All eighteen verdicts converge, and none is `correct`.** Six models at
-  ceiling in two languages, plus three models × two languages under hybrid8,
-  and no run mentions the whispering. Independent models agreeing against the
-  gold points at the question, which ties the scored fact to a premise that
-  does not lead to it.
-* **Evidence was never the issue.** Ceiling supplies the gold chapters by
-  construction, and retrieval also succeeds on Q48 in both hybrid8 runs, so no
-  run of either method ever lacked the passage. The gold is the only remaining
-  explanation, and the verdicts are flat across methods — exactly what a
-  question-side problem looks like.
-* **The Japanese `incorrect`s at ceiling are judge variance on top of that.**
-  English answers tend to add the court mockery scene where the Japanese ones
-  stop at the two rationalizations, but the content gap is smaller than the
-  verdict gap, and the same Japanese answer style scores `partial` under hybrid8.
-* **Contrast with ja Q29,** which shows a similar "nearly everyone misses it"
-  signature for the opposite reason: Q29 is answered in English by every model
-  and in Japanese by two, so cross-language agreement is what separates a hard
-  question from a broken one. A question models miss in one language is a
-  finding; one they miss in both, in every model, deserves an audit of its gold.
-* **The gold stays as it is** so these runs remain comparable with every earlier
-  result, so every score in this document counts Q48 as scored. Every model would
-  gain one verdict in every run if it were re-annotated or dropped.
 
 ## Prompt ordering: the ROCm red herring
 

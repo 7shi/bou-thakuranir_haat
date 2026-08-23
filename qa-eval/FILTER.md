@@ -17,12 +17,12 @@ score = `(correct + 0.5·partial) / 50` (from [README](README.md#results)).
 
 | method | strict recall | partial recall | avg kept | gold floor | Phase 2 score |
 |---|---:|---:|---:|---:|---:|
-| Filter2 (keep `yes`) | 0.60 | 0.73 | 1.3 | 33/86 | 0.790 |
-| Filter3 (keep ≠ `no`) | 0.88 | 0.92 | 2.3 | 12/86 | 0.930 |
+| Filter2 (keep `yes`) | 0.60 | 0.73 | 1.3 | 33/86 | 0.800 |
+| Filter3 (keep ≠ `no`) | 0.88 | 0.92 | 2.3 | 12/86 | 0.940 |
 | Filter10 ≥3 (F1 peak) | 0.76 | 0.86 | 1.7 | 7/86 | — |
 | Filter100 (any threshold) | — | — | — | 11/86 | — |
 | Filter5d sum ≥5 | **1.00** | **1.00** | 14.3 | **0/86** | — |
-| *Vector k=10 (reference)* | — | 0.84 | — | — | 0.920 |
+| *Vector k=10 (reference)* | — | 0.84 | — | — | 0.930 |
 | *Ceiling (reference)* | 1.00 | 1.00 | — | 0 | 0.990 |
 
 Gold floor = gold chapters unrecoverable at any keep threshold (scored 0 under
@@ -54,8 +54,8 @@ floor-vs-excess trade-off that is the method's hard limit (see
   (37 chapters × 50 questions) against k=10's single embedding + cosine pass —
   **hundreds of times the cost for an equivalent result.**
 
-So while Filter3 posts the highest *Phase 2* QA score in the table (0.930,
-slightly above Vector k=10's 0.920), that margin does not justify the cost, and the
+So while Filter3 posts the highest *Phase 2* QA score in the table (0.940,
+slightly above Vector k=10's 0.930), that margin does not justify the cost, and the
 gold-floor view shows no retrieval advantage. The residual the filter cannot
 reach (the confident-wrong-`no` floor) needs a different *mechanism* — the
 BM25/lexical hybrid in [HYBRID.md](HYBRID.md) — not a better LLM prompt.
@@ -335,7 +335,7 @@ The Filter experiment establishes a clean boundary on the LLM-as-retriever idea:
    cost.** Filter10 (the cost-efficient single-axis variant, since one Phase 1
    run covers every threshold) lands at floor 7/86 and recall comparable to Vector
    k=10's 0.840 — but at 1,850 LLM calls versus one embedding pass. The highest
-   Phase 2 score in the table (Filter3, 0.930) beats Vector k=10 (0.920) by one
+   Phase 2 score in the table (Filter3, 0.940) beats Vector k=10 (0.930) by one
    question, which does not justify that cost.
 
 The residual the filter cannot reach — the confident-wrong-`no` floor on

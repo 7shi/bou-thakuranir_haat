@@ -9,13 +9,13 @@ are the filename-sanitized llm7shi strings (":" and "/" written as "_").
 
 | Model | Method | English | Japanese |
 | --- | --- | --- | --- |
-| `ollama_gemma4_26b-a4b-it-qat` | ceiling | 46/50 (0.950) | 41/50 (0.900) |
-| `ollama_muse-glimmer` | ceiling | 48/50 (0.980) | 46/50 (0.960) |
-| `ollama_qwen3.6` | ceiling | 48/50 (0.980) | 47/50 (0.960) |
-| `ollama_qwen3.8` | ceiling | 49/50 (0.990) | 48/50 (0.970) |
-| `openrouter_stealth_ox-alpha` | ceiling | 48/50 (0.970) | 49/50 (0.990) |
-| `ollama_qwen3.8` | hybrid8 | 49/50 (0.990) | 46/50 (0.940) |
-| `openrouter_stealth_ox-alpha` | hybrid8 | 47/50 (0.970) | 48/50 (0.970) |
+| `ollama_gemma4_26b-a4b-it-qat` | ceiling | 47/50 (0.960) | 42/50 (0.920) |
+| `ollama_muse-glimmer` | ceiling | 49/50 (0.990) | 47/50 (0.970) |
+| `ollama_qwen3.6` | ceiling | 49/50 (0.990) | 47/50 (0.970) |
+| `ollama_qwen3.8` | ceiling | 50/50 (1.000) | 49/50 (0.990) |
+| `openrouter_stealth_ox-alpha` | ceiling | 49/50 (0.980) | 50/50 (1.000) |
+| `ollama_qwen3.8` | hybrid8 | 50/50 (1.000) | 47/50 (0.950) |
+| `openrouter_stealth_ox-alpha` | hybrid8 | 48/50 (0.980) | 49/50 (0.980) |
 
 ## Breakdown
 
@@ -26,17 +26,17 @@ blank when the answer file is absent.
 
 | Model | Method | Lang | n | correct | partial | incorrect | weighted | ch.recall | ch.prec |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `ollama_gemma4_26b-a4b-it-qat` | ceiling | en | 50 | 46 | 3 | 1 | 0.950 | 1.000 | 1.000 |
-| `ollama_gemma4_26b-a4b-it-qat` | ceiling | ja | 50 | 41 | 8 | 1 | 0.900 | 1.000 | 1.000 |
-| `ollama_muse-glimmer` | ceiling | en | 50 | 48 | 2 | 0 | 0.980 | 1.000 | 1.000 |
-| `ollama_muse-glimmer` | ceiling | ja | 50 | 46 | 4 | 0 | 0.960 | 1.000 | 1.000 |
-| `ollama_qwen3.6` | ceiling | en | 50 | 48 | 2 | 0 | 0.980 | 1.000 | 1.000 |
-| `ollama_qwen3.6` | ceiling | ja | 50 | 47 | 2 | 1 | 0.960 | 1.000 | 1.000 |
-| `ollama_qwen3.8` | ceiling | en | 50 | 49 | 1 | 0 | 0.990 | 1.000 | 1.000 |
-| `ollama_qwen3.8` | ceiling | ja | 50 | 48 | 1 | 1 | 0.970 | 1.000 | 1.000 |
-| `openrouter_stealth_ox-alpha` | ceiling | en | 50 | 48 | 1 | 1 | 0.970 | 1.000 | 1.000 |
-| `openrouter_stealth_ox-alpha` | ceiling | ja | 50 | 49 | 1 | 0 | 0.990 | 1.000 | 1.000 |
-| `ollama_qwen3.8` | hybrid8 | en | 50 | 49 | 1 | 0 | 0.990 | 0.900 | 0.179 |
-| `ollama_qwen3.8` | hybrid8 | ja | 50 | 46 | 2 | 2 | 0.940 | 0.940 | 0.173 |
-| `openrouter_stealth_ox-alpha` | hybrid8 | en | 50 | 47 | 3 | 0 | 0.970 | 0.900 | 0.179 |
-| `openrouter_stealth_ox-alpha` | hybrid8 | ja | 50 | 48 | 1 | 1 | 0.970 | 0.940 | 0.173 |
+| `ollama_gemma4_26b-a4b-it-qat` | ceiling | en | 50 | 47 | 2 | 1 | 0.960 | 1.000 | 1.000 |
+| `ollama_gemma4_26b-a4b-it-qat` | ceiling | ja | 50 | 42 | 8 | 0 | 0.920 | 1.000 | 1.000 |
+| `ollama_muse-glimmer` | ceiling | en | 50 | 49 | 1 | 0 | 0.990 | 1.000 | 1.000 |
+| `ollama_muse-glimmer` | ceiling | ja | 50 | 47 | 3 | 0 | 0.970 | 1.000 | 1.000 |
+| `ollama_qwen3.6` | ceiling | en | 50 | 49 | 1 | 0 | 0.990 | 1.000 | 1.000 |
+| `ollama_qwen3.6` | ceiling | ja | 50 | 47 | 3 | 0 | 0.970 | 1.000 | 1.000 |
+| `ollama_qwen3.8` | ceiling | en | 50 | 50 | 0 | 0 | 1.000 | 1.000 | 1.000 |
+| `ollama_qwen3.8` | ceiling | ja | 50 | 49 | 1 | 0 | 0.990 | 1.000 | 1.000 |
+| `openrouter_stealth_ox-alpha` | ceiling | en | 50 | 49 | 0 | 1 | 0.980 | 1.000 | 1.000 |
+| `openrouter_stealth_ox-alpha` | ceiling | ja | 50 | 50 | 0 | 0 | 1.000 | 1.000 | 1.000 |
+| `ollama_qwen3.8` | hybrid8 | en | 50 | 50 | 0 | 0 | 1.000 | 0.900 | 0.179 |
+| `ollama_qwen3.8` | hybrid8 | ja | 50 | 47 | 1 | 2 | 0.950 | 0.940 | 0.173 |
+| `openrouter_stealth_ox-alpha` | hybrid8 | en | 50 | 48 | 2 | 0 | 0.980 | 0.900 | 0.179 |
+| `openrouter_stealth_ox-alpha` | hybrid8 | ja | 50 | 49 | 0 | 1 | 0.980 | 0.940 | 0.173 |

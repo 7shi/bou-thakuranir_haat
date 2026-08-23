@@ -15,10 +15,11 @@ run, so any difference below is a language effect, not a model one.
 
 ## Where the difficulty lives: single vs. cross
 
-Vector scores 38/50, Extract 40/50 (weighted 0.810 vs. 0.850) — Extract edges ahead,
-where the English run tied 39/39. But the gap lives entirely in the
-**cross-reference** half. On the **single-passage** half Vector scores 24/25 and
-Extract 25/25; on the **cross-reference** half they drop to 14/25 and 15/25. The
+Vector scores 38/50, Extract 41/50 (weighted 0.810 vs. 0.860) — Extract edges ahead,
+where the English run has them within a question of each other (40/40). But the
+gap lives entirely in the **cross-reference** half. On the **single-passage**
+half Vector scores 24/25 and Extract 25/25; on the **cross-reference** half they
+drop to 14/25 and 16/25. The
 one single-passage miss (Q21, Vector incorrect) is an *answering* failure with the
 correct passage in hand, not a retrieval failure. So single-passage QA is
 essentially solved by either method; the open problem is multi-chapter
@@ -32,20 +33,20 @@ Rows = Vector verdict, columns = Extract verdict.
 | --- | --- | --- | --- | --- |
 | **Vector correct** | 35 | 2 | 1 | 38 |
 | **Vector partial** | 1 | 2 | 2 | 5 |
-| **Vector incorrect** | 4 | 1 | 2 | 7 |
-| **Ext total** | 40 | 5 | 5 | 50 |
+| **Vector incorrect** | 5 | 0 | 2 | 7 |
+| **Ext total** | 41 | 4 | 5 | 50 |
 
 The two off-diagonal blocks analyzed below:
 
 - **Vector correct / Extract not correct** — 3 questions (§2): two Extract Phase 1
   retrieval misses plus one where Extract held both gold chapters but
   mis-synthesized.
-- **Extract correct / Vector not correct** — 5 questions (§3): three Vector vector
+- **Extract correct / Vector not correct** — 6 questions (§3): four Vector vector
   retrieval misses and two where Vector retrieved the gold chapter but answered
   short.
 
-**7** questions are not correct under *either* method (28, 29, 32, 34, 36, 43,
-48); these are examined in §4. That is more than double the English run's 3
+**6** questions are not correct under *either* method (28, 29, 32, 34, 36, 43);
+these are examined in §4. That is three times the English run's 2
 shared failures, and — since the answer model is the same — the difference is the
 main cross-language divergence (§5): all of it is on cross questions, a
 translation/question-specific reshuffling at near-constant total accuracy, not a
@@ -111,20 +112,21 @@ where Khan Sahib asks after Basanta Ray, followed by an abrupt shift to a cheerf
 song — missing the gold's discovery of death and shared grief. The chapters were
 in hand; the answer model just synthesized the second half wrong.
 
-## 3. Extract correct / Vector not correct (5 questions)
+## 3. Extract correct / Vector not correct (6 questions)
 
 | Q | type | gold ch | Vector used | verdict | failure |
 | --- | --- | --- | --- | --- | --- |
 | 27 | cross | 2,4,33 | 2,5,10,12,28 | incorrect | retrieval miss (Ch33) |
 | 31 | cross | 21,22,23 | 25,27,33,34 | incorrect | retrieval miss (all gold) |
+| 48 | cross | 11,19 | 10,11 | incorrect | retrieval miss (Ch19) |
 | 49 | cross | 2,22 | 2,10,12 | incorrect | retrieval miss (Ch22) |
 | 21 | single | 5 | **2,5,8,12** | incorrect | retrieved Ch5, wrong incident |
 | 47 | cross | 29,31 | **11,27,29,31** | partial | retrieved gold, short answer |
 
-### 3a. Vector retrieval misses (27, 31, 49)
+### 3a. Vector retrieval misses (27, 31, 48, 49)
 
-Three are Vector retrieval misses: a gold chapter ranked outside the top-5, so the
-answerer never saw it — and all three reproduce English losses on the same
+Four are Vector retrieval misses: a gold chapter ranked outside the top-5, so the
+answerer never saw it — and three of them reproduce English losses on the same
 questions.
 
 - **Q31** (how the signet ring becomes evidence, gold 21–23) retrieved none of the
@@ -137,6 +139,10 @@ questions.
   graded incorrect. Extract retained both sides.
 - **Q49** (the Delhi-Emperor threat turned into grounds for imprisonment, gold
   2,22) missed Ch22 and abstained. Extract had it.
+- **Q48** (how Ramchandra reads the midnight rescue afterwards, gold 11,19)
+  retrieved only Ch10/11 — the rescue itself — and never saw Ch19, where his
+  reading of it is stated. Extract kept Ch19 and gave both the "it was bound to
+  happen" entitlement and the for-his-sister motive.
 
 These are exactly the named-entity / second-side-of-a-two-part-question misses
 the English study traced to top-5 dense recall (the signet ring, the Emperor of
@@ -160,7 +166,7 @@ context and the answer still fell short:
   Udayaditya onto the boat). Extract captured the two-phase strategy and was
   graded correct.
 
-## 4. Both not correct (7 questions)
+## 4. Both not correct (6 questions)
 
 | Q | gold ch | Vector used | Vector | Extract used | Ext | shared failure |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -170,10 +176,9 @@ context and the answer still fell short:
 | 34 | 30,31,33 | 10,12,21,30,33 | partial | 33 | partial | missed Lukmini's accusation in the hall |
 | 36 | 1,17,21 | 1,4,21,33,34 | partial | 17,21,31 | partial | each dropped a different gold chapter |
 | 43 | 11,37 | 7,11,19,24 | partial | 11,29,30,37 | incorrect | wrong scenes synthesized |
-| 48 | 11,19 | 10,11 | incorrect | 19 | partial | missed the whisper-to-servant reading |
 
-Three of these (28, 32, 48) are the same shared failures the English run isolates,
-all two-sided or causal-chain cross questions where neither method assembles the
+Two of these (28, 32) are the same shared failures the English run isolates,
+both two-sided or causal-chain cross questions where neither method assembles the
 full picture. The Japanese run adds four more (29, 34, 36, 43):
 
 - **Q29** — analyzed in §1: both gave the stipend cause instead of the poisoning.
@@ -188,7 +193,7 @@ full picture. The Japanese run adds four more (29, 34, 36, 43):
   hall to expose Basanta Ray, Q34; Mangala sneaking into Udayaditya's room to
   demand his love, Q36).
 
-None of the seven is a gold problem; all are coverage or synthesis failures on
+None of the six is a gold problem; all are coverage or synthesis failures on
 hard cross questions.
 
 ## Vector-line (line-level retrieval)
@@ -203,23 +208,23 @@ for Japanese too, reproducing the English finding
 ```
 scope    method             n correct partial incorrect  weighted ch.recall  ch.prec
 all      Vector k=5        50      38       5         7     0.810     0.720    0.332
-all      Vector-line k=5   50      35       9         6     0.790     0.620    0.387
-all      Vector-line k=10  50      40       4         6     0.840     0.760    0.260
+all      Vector-line k=5   50      36       8         6     0.800     0.620    0.387
+all      Vector-line k=10  50      41       4         5     0.860     0.760    0.260
 single   Vector k=5        25      24       0         1     0.960     1.000    0.255
 single   Vector-line k=5   25      24       0         1     0.960     0.960    0.376
 single   Vector-line k=10  25      25       0         0     1.000     1.000    0.228
 cross    Vector k=5        25      14       5         6     0.660     0.440    0.408
-cross    Vector-line k=5   25      11       9         5     0.620     0.280    0.398
-cross    Vector-line k=10  25      15       4         6     0.680     0.520    0.293
+cross    Vector-line k=5   25      12       8         5     0.640     0.280    0.398
+cross    Vector-line k=10  25      16       4         5     0.720     0.520    0.293
 ```
 
 The trade is the same as English: the finer unit **raises chapter precision**
-(k=5 0.332→0.387) but **lowers recall** (k=5 0.720→0.620), so line k=5 (0.790)
+(k=5 0.332→0.387) but **lowers recall** (k=5 0.720→0.620), so line k=5 (0.800)
 sits just below segment k=5 (0.810). Single-passage stays solved (line k=10
 saturates to 1.000); the deficit is entirely cross-reference, where a gold
 chapter's relevance is too diffuse across a scene for a single line to rank.
-(Segment Vector k=10 reaches 0.890 here — see the V-hybrid section below — so line
-k=10 at 0.840 trails plain segment retrieval at the same depth, just as in
+(Segment Vector k=10 reaches 0.900 here — see the V-hybrid section below — so line
+k=10 at 0.860 trails plain segment retrieval at the same depth, just as in
 English.)
 
 ### The orthogonal recoveries are stronger than in English
@@ -264,34 +269,34 @@ against the right baseline that gain does **not** beat plain segment Vector:
 ```
 scope    method             n correct partial incorrect  weighted ch.recall  ch.prec
 all      Vector k=5        50      38       5         7     0.810     0.720    0.332
-all      Vector k=10       50      42       5         3     0.890     0.900    0.206
-all      Extract           50      40       5         5     0.850     0.760    0.807
+all      Vector k=10       50      43       4         3     0.900     0.900    0.206
+all      Extract           50      41       4         5     0.860     0.760    0.807
 all      V-hybrid k=5      50      42       5         3     0.890     0.820    0.298
-all      V-hybrid k=10     50      42       4         4     0.880     0.900    0.179
-all      Ceiling           50      47       3         0     0.970     1.000    1.000
+all      V-hybrid k=10     50      43       4         3     0.900     0.900    0.179
+all      Ceiling           50      48       2         0     0.980     1.000    1.000
 single   V-hybrid k=5      25      25       0         0     1.000     1.000    0.213
-cross    Vector k=10       25      17       5         3     0.780     0.800    0.276
+cross    Vector k=10       25      18       4         3     0.800     0.800    0.276
 cross    V-hybrid k=5      25      17       5         3     0.780     0.640    0.383
-cross    V-hybrid k=10     25      17       4         4     0.760     0.800    0.237
+cross    V-hybrid k=10     25      18       4         3     0.800     0.800    0.237
 ```
 
-**V-hybrid k=5 (0.890) ties plain Vector k=10 (0.890) exactly — same 42/5/3** —
-and V-hybrid k=10 (0.880) sits just under it. The reason is budget: V-hybrid k=5
-pools `seg5 ∪ line5`, a ~k=10 segment context, so the fair baseline is Vector
-k=10, not Vector k=5. At that matched budget the dense union has no edge over the
+**V-hybrid k=5 (0.890) lands just under plain Vector k=10 (0.900)**, and V-hybrid
+k=10 (0.900) exactly matches it. The reason is budget: V-hybrid k=5 pools
+`seg5 ∪ line5`, a ~k=10 segment context, so the fair baseline is Vector k=10, not
+Vector k=5. At that matched budget the dense union has no edge over the
 single-index retriever.
 
-The tie is a genuine trade, not an identity — across the five questions where
-they disagree, V-hybrid k=5 wins 3 and Vector k=10 wins 2, netting the exact
-aggregate tie:
+The near-level result is a genuine trade, not an identity — across the six
+questions where they disagree, each wins 3:
 
 - **V-hybrid k=5 > Vector k=10 on 3** — Q32 (Ch15/16) and Q42 (Ch23/29) are
   missed-context wins where the line side surfaces a cross chapter segment k=10
   drops; Q46 is synthesis.
-- **Vector k=10 > V-hybrid k=5 on 2** — Q27 (Ch4/33, missed-context: the union's
-  precision pressure pushes a gold chapter out) and Q47 (synthesis).
+- **Vector k=10 > V-hybrid k=5 on 3** — Q27 (Ch4/33, missed-context: the union's
+  precision pressure pushes a gold chapter out), plus Q47 and Q48 (synthesis,
+  both with every gold chapter in context).
 
-They reach 0.890 by opposite routes: Vector k=10 is broader (ch.recall 0.900),
+They land level by opposite routes: Vector k=10 is broader (ch.recall 0.900),
 V-hybrid k=5 is tighter (ch.prec 0.298 vs 0.206). V-hybrid's clean 6–0 domination
 of Vector *k=5* still holds (surfacing Q28 Ch37, Q32 Ch15/16, Q34 Ch31, Q48 Ch19,
 Q49 Ch22), but that is the wrong, under-budget baseline: simply running plain
@@ -304,10 +309,10 @@ Following the implementation of the Japanese morphological tokenizer using spaCy
 Japanese now has its own dense∪BM25 Hybrid equivalent, which becomes the top-performing
 retriever, beating the dense baseline. See [§ Hybrid](#hybrid-dense--bm25-union) below.
 
-**Ceiling (0.970)** — gold chapters fed verbatim, 47 correct, three partial, zero
-incorrect — sits 0.050 above that best retriever (Hybrid k=10), so the Japanese frontier is
+**Ceiling (0.980)** — gold chapters fed verbatim, 48 correct, two partial, zero
+incorrect — sits 0.030 above the best retriever (Hybrid k=8), so the Japanese frontier is
 retrieval, not comprehension: given the right chapters the answer model reads
-them nearly perfectly, and the ~5-point headroom is all retrieval recall.
+them nearly perfectly, and the ~3-point headroom is all retrieval recall.
 
 ## Hybrid (dense ∪ BM25 union)
 
@@ -316,26 +321,26 @@ Following the implementation of the Japanese morphological tokenizer using spaCy
 ```
 scope    method             n correct partial incorrect  weighted ch.recall  ch.prec
 all      Vector k=5        50      38       5         7     0.810     0.720    0.332
-all      Vector k=10       50      42       5         3     0.890     0.900    0.206
-all      Extract           50      40       5         5     0.850     0.760    0.807
-all      Hybrid k=5        50      44       4         2     0.920     0.860    0.248
-all      Hybrid k=8        50      45       4         1     0.940     0.940    0.173
-all      Hybrid k=10       50      44       4         2     0.920     0.960    0.148
-all      Ceiling           50      47       3         0     0.970     1.000    1.000
+all      Vector k=10       50      43       4         3     0.900     0.900    0.206
+all      Extract           50      41       4         5     0.860     0.760    0.807
+all      Hybrid k=5        50      45       3         2     0.930     0.860    0.248
+all      Hybrid k=8        50      46       3         1     0.950     0.940    0.173
+all      Hybrid k=10       50      45       3         2     0.930     0.960    0.148
+all      Ceiling           50      48       2         0     0.980     1.000    1.000
 ```
 
 ### Hybrid k=5 vs Vector k=10
 
-Hybrid k=5 (0.920) outperforms Vector k=10 (0.890) by two questions (44/50 vs 42/50), driven by the retrieval recovery of dense misses:
+Hybrid k=5 (0.930) outperforms Vector k=10 (0.900) by two questions (45/50 vs 43/50), driven by the retrieval recovery of dense misses:
 
 - **Q31 (Class A, correct vs incorrect):** Vector k=10 missed all gold chapters (Ch21–23), whereas Hybrid k=5's BM25 component retrieved Ch21 and Ch22, leading to a correct answer.
 - **Q49 (Class A, correct vs incorrect):** Vector k=10 missed Ch22, whereas Hybrid k=5 successfully retrieved Ch22 and got it correct.
 
-On cross-reference questions, Hybrid k=5 lifts the score to **0.840** (vs Vector k=10's 0.780), confirming that the lexical hybrid recovers the proper-noun-heavy contexts where dense search is blind.
+On cross-reference questions, Hybrid k=5 lifts the score to **0.860** (vs Vector k=10's 0.800), confirming that the lexical hybrid recovers the proper-noun-heavy contexts where dense search is blind.
 
 ### Hybrid k=8: The Optimal Sweet Spot
 
-Setting the retrieval depth to **`k=8`** balances retrieval recall and context precision perfectly, yielding the best retriever performance of **45/50 (0.940)**:
+Setting the retrieval depth to **`k=8`** balances retrieval recall and context precision perfectly, yielding the best retriever performance of **46/50 (0.950)**:
 - **Retrieval Gains:** It expands the context enough to retrieve the missing gold chapters for **Q27** (Ch33) and **Q36** (Ch17), upgrading both to correct.
 - **Precision Retention:** At the same time, it keeps the context tight enough (~20 scenes) to avoid the "lost in the middle" synthesis errors that plague `k=10` (such as on **Q34**), resolving the trade-off.
 
@@ -343,13 +348,13 @@ Setting the retrieval depth to **`k=8`** balances retrieval recall and context p
 
 At `k=10`, the Union reaches a near-perfect retrieval recall (Strict Recall **48/50**, chapter recall **0.960**). The two questions where Hybrid k=10 beats Vector k=10 are the same Class A cases: Q31 and Q49.
 
-However, Hybrid k=10 does *not* beat Hybrid k=5 or k=8 overall, landing back on **44/50 (0.920)**. This is a classic RAG trade-off: deepening the search to `k=10` successfully retrieves more contexts, but the larger context size (~25 scenes vs ~13 scenes, a 1.8× increase) dilutes the signal. For **Q34**, the extra noise confuses the answerer, causing a synthesis regression (`synthesis` error) and dropping it from correct to incorrect/partial compared to `k=5` and `k=8`.
+However, Hybrid k=10 does *not* beat Hybrid k=8 overall, landing level with k=5 on **45/50 (0.930)**. This is a classic RAG trade-off: deepening the search to `k=10` successfully retrieves more contexts, but the larger context size (~25 scenes vs ~13 scenes, a 1.8× increase) dilutes the signal. For **Q34**, the extra noise confuses the answerer, causing a synthesis regression (`synthesis` error) and dropping it from correct to incorrect/partial compared to `k=5` and `k=8`.
 
-### The two-question gap to Ceiling
+### The three-question gap to Ceiling
 
-Ceiling (0.970) beats Hybrid k=8 on only two questions (Q29, Q37), representing the remaining synthesis frontier:
-- **Q29, Q37 (synthesis):** The union's supporting context still occasionally confuses the synthesis on these cross-reference questions; Ceiling, with only the gold context, answers them correctly (or partial).
-- **Q32 (missed context):** Ch15 (the secret monthly stipend) remains a Class B unreachable, ranked outside both retrievers' top-k even at `k=10`.
+Ceiling (0.980) beats Hybrid k=8 on three questions, representing the remaining frontier:
+- **Q29, Q44 (synthesis):** The union's supporting context still occasionally confuses the synthesis on these cross-reference questions; Ceiling, with only the gold context, answers them correctly (or partial).
+- **Q27 (missed context):** Ch33 is outside the union's top-8, so Hybrid k=8 half-answers it.
 
 
 ## Filter2 / Filter3 (LLM-as-retriever)
@@ -362,34 +367,35 @@ the kept chapters — were run on Japanese, replicating the English analysis in
 ```
 scope    method             n correct partial incorrect  weighted ch.recall  ch.prec
 all      Vector k=5        50      38       5         7     0.810     0.720    0.332
-all      Vector k=10       50      42       5         3     0.890     0.900    0.206
-all      Extract           50      40       5         5     0.850     0.760    0.807
-all      Filter2           50      39       4         7     0.820     0.640    0.809
-all      Filter3           50      43       2         5     0.880     0.880    0.783
-all      Ceiling           50      47       3         0     0.970     1.000    1.000
+all      Vector k=10       50      43       4         3     0.900     0.900    0.206
+all      Extract           50      41       4         5     0.860     0.760    0.807
+all      Filter2           50      40       4         6     0.840     0.640    0.809
+all      Filter3           50      43       3         4     0.890     0.880    0.783
+all      Ceiling           50      48       2         0     0.980     1.000    1.000
 single   Filter2           25      25       0         0     1.000     1.000    1.000
 single   Filter3           25      25       0         0     1.000     1.000    0.980
-cross    Filter2           25      14       4         7     0.640     0.280    0.619
-cross    Filter3           25      18       2         5     0.760     0.760    0.586
+cross    Filter2           25      15       4         6     0.680     0.280    0.619
+cross    Filter3           25      18       3         4     0.780     0.760    0.586
 ```
 
-**Filter3 (0.880) leads Filter2 (0.820) by 4 questions**, driven by the same
+**Filter3 (0.890) leads Filter2 (0.840) by 3 questions**, driven by the same
 mechanism as English: Filter3's "keep ≠ no" rule retains chapters the strict
 "yes-only" Filter2 drops. Filter3 beats Filter2 on 6 (all missed-context: Q26
 Ch11/29, Q28 Ch37, Q31 Ch23, Q35 Ch8/19, Q38 Ch28/32, Q45 Ch18/25); Filter2
-beats Filter3 on 2 (both synthesis: Q36, Q40). Single-passage is perfect under
-both variants (25/25 each); all losses are cross-reference.
+beats Filter3 on 3 (Q36, Q40 synthesis; Q48 missed-context). Single-passage is
+perfect under both variants (25/25 each); all losses are cross-reference.
 
-**Filter3 (0.880) ties V-hybrid k=10 (0.880) and falls just short of Vector k=10
-(0.890)** — the reverse of English, where Filter3 (0.930) topped Vector k=10
-(0.920). The two methods are tied 4–4 on pairwise disagreements: Filter3 wins Q31
-(Ch21/22 ring-seal chain), Q32 (Ch11/15/16 secret-stipend), Q43 (Ch37 Rammohan
-rescue), Q46 (synthesis); Vector k=10 wins Q34 (Ch30/31/33 Lukmini accusation),
-Q40 (synthesis), Q42 (Ch22/23/29 prison-break chapters), Q48 (Ch11). Both sides
-are symmetric — the LLM judge surfaces chapters dense retrieval drops but misses
-others dense search finds — and neither fully closes the cross-reference gap.
+**Filter3 (0.890) falls just short of both V-hybrid k=10 and Vector k=10
+(0.900)** — the reverse of English, where Filter3 (0.940) topped Vector k=10
+(0.930). Filter3 and Vector k=10 are tied 4–4 on pairwise disagreements: Filter3
+wins Q31 (Ch21/22 ring-seal chain), Q32 (Ch11/15/16 secret-stipend), Q43 (Ch37
+Rammohan rescue), Q46 (synthesis); Vector k=10 wins Q34 (Ch30/31/33 Lukmini
+accusation), Q40 (synthesis), Q42 (Ch22/23/29 prison-break chapters), Q48
+(Ch11). Both sides are symmetric — the LLM judge surfaces chapters dense
+retrieval drops but misses others dense search finds — and neither fully closes
+the cross-reference gap.
 
-**Ceiling (0.970) beats Filter3 by 6 questions** (Q29, Q40 synthesis;
+**Ceiling (0.980) beats Filter3 by 6 questions** (Q29, Q40 synthesis;
 Q32/Q34/Q42/Q48 missed-context) — the same lead as over Vector k=10 — confirming
 the Japanese frontier is retrieval recall and synthesis quality on hard cross
 questions, not a language barrier.
@@ -407,9 +413,9 @@ in [graphrag-ja/README.md](../graphrag-ja/README.md).
 ```
 scope    method             n correct partial incorrect  weighted ch.recall  ch.prec
 all      Vector k=5        50      38       5         7     0.810     0.720    0.332
-all      Extract           50      40       5         5     0.850     0.760    0.807
-all      Hybrid k=8        50      45       4         1     0.940     0.940    0.173
-all      Ceiling           50      47       3         0     0.970     1.000    1.000
+all      Extract           50      41       4         5     0.860     0.760    0.807
+all      Hybrid k=8        50      46       3         1     0.950     0.940    0.173
+all      Ceiling           50      48       2         0     0.980     1.000    1.000
 all      GraphRAG local    50      28       8        14     0.640     0.880    0.239
 all      GraphRAG global   50       8       8        34     0.240     0.280    0.081
 single   GraphRAG local    25      19       1         5     0.780     0.880    0.341
@@ -421,7 +427,7 @@ cross    GraphRAG global   25       5       7        13     0.340     0.320    0
 ### GraphRAG local (0.640)
 
 Local search scores 28/50 (0.640) — just below the English run (0.660), below
-Filter2 (0.820), and far below Hybrid k=8 (0.940). As in English, the
+Filter2 (0.840), and far below Hybrid k=8 (0.950). As in English, the
 chapter-retrieval numbers explain why: **recall 0.880** (nearly every gold
 chapter is somewhere in the expanded context) but **precision 0.239** — low,
 though notably *higher* than English's 0.135. The Japanese local search
@@ -430,7 +436,7 @@ out of 37), so the signal-to-noise ratio is somewhat better, but still far
 below the pipeline methods.
 
 The failure mode is the same **synthesis-dominated** pattern as English: of
-GraphRAG local's 20 losses to Ceiling, **14 are synthesis** (the gold chapter
+GraphRAG local's 21 losses to Ceiling, **15 are synthesis** (the gold chapter
 is present but the answer is wrong or vague) and only 6 are missed context.
 GraphRAG local never beats Ceiling and never beats Hybrid k=8 on any question
 (0 wins in both pairwise comparisons).
@@ -500,7 +506,7 @@ of the two modes when it is available at all.
 ### Summary
 
 Neither GraphRAG mode reaches the simplest pipeline method (Vector k=5, 0.810),
-let alone Hybrid k=8 (0.940). Local search's language-comparison story is
+let alone Hybrid k=8 (0.950). Local search's language-comparison story is
 mixed — slightly weaker overall than English (0.640 vs 0.660), stronger on
 single-passage, weaker on cross-reference, and missing the "zero-context
 graph traversal" mechanism that made English's local search occasionally
@@ -515,11 +521,11 @@ this task in either language.
 ## 5. Takeaways and cross-language comparison
 
 - **The headline findings hold across languages.** Single-passage QA is solved
-  (Vector 24/25, Extract 25/25); cross-reference is the frontier (14/25, 15/25). The
+  (Vector 24/25, Extract 25/25); cross-reference is the frontier (14/25, 16/25). The
   gold is sound — the Q29 spot-check confirms the poisoning against the Japanese
   source even though *both* methods missed it here.
-- **Extract ≥ Vector holds, more strongly than in English.** Extract 40 vs. Vector 38
-  (English tied 39/39), with Extract again at higher chapter precision (0.807 vs.
+- **Extract ≥ Vector holds, more strongly than in English.** Extract 41 vs. Vector 38
+  (English 40/40), with Extract again at higher chapter precision (0.807 vs.
   0.332). Two independent thorough readers agreeing with the gold is convergent
   evidence the gold is sound.
 - **The failure modes are the same.** Extract's losses are Phase 1 recall (Q42,
@@ -528,19 +534,19 @@ this task in either language.
   English) plus answering slips with the gold retrieved (Q21, Q47).
 - **Language makes almost no difference to accuracy.** The answer model, embedding
   model, and judge are identical across the two runs, so this is a clean
-  language comparison — and the totals match within one or two questions (English
-  39/39, Japanese 38/40). The only structural divergence is that the
-  both-not-correct set grew from 3 (English) to 7 (Japanese): Q28, Q32, Q48 recur,
+  language comparison — and the totals match within one to three questions (English
+  40/40, Japanese 38/41). The only structural divergence is that the
+  both-not-correct set grew from 2 (English) to 6 (Japanese): Q28 and Q32 recur,
   and Q29, Q34, Q36, Q43 are newly shared. This is a redistribution at
   near-constant total accuracy — the two methods' failures correlate more in
   Japanese — and it traces to the Japanese phrasing of specific cross questions
   (most starkly Q29, the covert cause, and Q43, full recall but wrong synthesis),
   not to a capability gap. Retrieval-side findings (which gold chapters dense
   search drops) are identical because the embedding model is the same.
-- **Filter3 (0.880) replicates the English ordering** but narrows relative to
-  Vector k=10 (0.890 in both languages; English Filter3 topped Vector k=10 by one
-  question, Japanese ties V-hybrid k=10). The strict-vs-lenient pattern holds:
-  Filter3 beats Filter2 by 4 questions, all missed-context. Filter is still
+- **Filter3 (0.890) replicates the English ordering** but narrows relative to
+  Vector k=10 (0.900 in both languages; English Filter3 tops Vector k=10 by one
+  question, Japanese trails it by one). The strict-vs-lenient pattern holds:
+  Filter3 beats Filter2 by 3 questions, 6 of its 6 wins missed-context. Filter is still
   impractical at ~1,850× Vector's call cost.
 - The retrieval levers are unchanged: Vector's residual losses are dense top-5
   misses on rare proper nouns / second-side facts, the target of `sweep_vector.py`
