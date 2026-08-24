@@ -4,12 +4,12 @@ Tagore's Bengali novel "Bou-Thakuranir Haat"
 ([বৌ-ঠাকুরাণীর হাট](https://bn.wikipedia.org/wiki/%E0%A6%AC%E0%A7%8C-%E0%A6%A0%E0%A6%BE%E0%A6%95%E0%A7%81%E0%A6%B0%E0%A6%BE%E0%A6%A3%E0%A7%80%E0%A6%B0_%E0%A6%B9%E0%A6%BE%E0%A6%9F))
 and its translations.
 
+**[Read online](https://7shi.github.io/bou-thakuranir_haat/)** — the novel split by chapter with a language switcher (original / modern Bengali / English / Japanese), plus the [QA list](https://7shi.github.io/bou-thakuranir_haat/qa-en.html) linked to the chapters it references.
+
 > [!NOTE]
 > All translations in this repository are machine-generated (Gemini 2.5 Pro or Google Translate) and have not been reviewed or corrected by a human translator.
 > Errors and mistranslations are present throughout.
 > These files are provided as-is for reference and study purposes only.
-
-**[Read online](https://7shi.github.io/bou-thakuranir_haat/)** — the novel split by chapter with a language switcher (original / modern Bengali / English / Japanese), plus the [QA list](https://7shi.github.io/bou-thakuranir_haat/qa-en.html) linked to the chapters it references.
 
 ## Original
 
