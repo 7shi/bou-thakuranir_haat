@@ -54,7 +54,7 @@ aggregate (Filter and Ceiling are opt-in):
 
 Both languages use the same answer model `google:gemma-4-31b-it`, the same
 `embeddinggemma` index, and the same judge. Runs with **other answerer models**
-live in [results/README.md](results/README.md) — a five-model Ceiling comparison
+live in [results/README.md](results/README.md) — a multi-model Ceiling comparison
 and a Hybrid k=8 vs. Ceiling comparison, both on byte-identical contexts so the
 only variable is synthesis.
 
