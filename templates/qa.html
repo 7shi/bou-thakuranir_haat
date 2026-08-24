@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if lang == "ja" %}
+    <title>QA一覧（日本語） — বৌ-ঠাকুরাণীর হাট</title>
+    {% else %}
+    <title>QA List (English) — বৌ-ঠাকুরাণীর হাট</title>
+    {% endif %}
+    <link rel="stylesheet" href="assets/reader.css">
+</head>
+<body>
+    <div class="layout">
+        {% include "_sidebar.html" %}
+        <main class="content">
+            <div class="container">
+                <header class="page-header">
+                    {% if lang == "ja" %}
+                    <h1>QA一覧（日本語）</h1>
+                    {% else %}
+                    <h1>QA List (English)</h1>
+                    {% endif %}
+                </header>
+
+                <p class="lead">
+                    {% if lang == "ja" %}
+                    RAG評価用の設問一覧（single: 単一章参照 {{ num_single }}問 / cross: 複数章にまたがる参照 {{ num_cross }}問）。
+                    <a href="{{ other_href }}">English version</a> also available.
+                    {% else %}
+                    RAG evaluation questions (single-passage: {{ num_single }} / cross-reference: {{ num_cross }}).
+                    <a href="{{ other_href }}">Japanese version</a> also available.
+                    {% endif %}
+                </p>
+
+                <table class="qa-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Type</th>
+                            <th>Question</th>
+                            <th>Chapters</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for q in questions %}
+                        <tr>
+                            <td data-label="#">{{ q.anchor_id }}</td>
+                            <td data-label="Type"><span class="qa-type qa-type-{{ q.type }}">{{ q.type }}</span></td>
+                            <td class="qa-question" data-label="Question">
+                                <p>{{ q.question }}</p>
+                                <details class="qa-answer-detail">
+                                    <summary>{% if lang == "ja" %}解答{% else %}Answer{% endif %}</summary>
+                                    <p>{{ q.answer }}</p>
+                                </details>
+                                <details class="qa-rationale">
+                                    <summary>{% if lang == "ja" %}根拠{% else %}Rationale{% endif %}</summary>
+                                    <p>{{ q.rationale }}</p>
+                                </details>
+                            </td>
+                            <td class="qa-chapters" data-label="Chapters">
+                                {% for c in q.chapter_links %}
+                                <a href="{{ c.href }}">{{ c.number }}</a>{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -4,7 +4,19 @@ GEMMA  := google:gemma-4-31b-it
 
 all:
 
-.PHONY: proper_nouns translate convert split questions titles
+.PHONY: proper_nouns translate convert split questions titles build clean serve deploy
+
+build:
+	uv run build.py
+
+clean:
+	rm -rf dist
+
+serve:
+	cd dist && uv run python -m http.server 8000
+
+deploy: build
+	bash deploy.sh
 
 proper_nouns:
 	uv run proper_nouns/extract.py all/bn.md -f Bengali -t English -m $(MODEL) -w proper_nouns/en.jsonl -o proper_nouns/all.tsv

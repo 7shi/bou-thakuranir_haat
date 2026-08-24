@@ -65,7 +65,9 @@ dependencies = [
     { name = "click" },
     { name = "en-core-web-sm" },
     { name = "ja-core-news-sm" },
+    { name = "jinja2" },
     { name = "llm7shi" },
+    { name = "markdown" },
     { name = "pip" },
     { name = "safetensors" },
     { name = "spacy" },
@@ -76,7 +78,9 @@ requires-dist = [
     { name = "click", specifier = ">=8.4.2" },
     { name = "en-core-web-sm", url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" },
     { name = "ja-core-news-sm", url = "https://github.com/explosion/spacy-models/releases/download/ja_core_news_sm-3.8.0/ja_core_news_sm-3.8.0-py3-none-any.whl" },
+    { name = "jinja2", specifier = ">=3.1.0" },
     { name = "llm7shi", git = "https://github.com/7shi/llm7shi.git" },
+    { name = "markdown", specifier = ">=3.7" },
     { name = "pip", specifier = ">=25.2" },
     { name = "safetensors", specifier = ">=0.8.0" },
     { name = "spacy", specifier = ">=3.8.7" },
@@ -536,6 +540,15 @@ dependencies = [
     { name = "ollama" },
     { name = "openai" },
     { name = "pytest" },
+]
+
+[[package]]
+name = "markdown"
+version = "3.10.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/29/6f/da4c6aea59b3001f2e8c0ec7497475aadaf3b021c10cab5b2858f0f32b26/markdown-3.10.3.tar.gz", hash = "sha256:3589362618f743188b4d955b874402bc814f4f83f544dc207719f4baa7d9c45f", size = 372596, upload-time = "2026-07-30T19:05:29.005Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/64/69/4a5af2bc115a9a33fefe51709749de8262be3f9ba063d1753a837cdbc49c/markdown-3.10.3-py3-none-any.whl", hash = "sha256:fa6c92a00a4a3c98b22728c64a935ae1928250ae65058a6ded814d2cc29a4cea", size = 110757, upload-time = "2026-07-30T19:05:27.883Z" },
 ]
 
 [[package]]

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter {{ chapter.number }} — বৌ-ঠাকুরাণীর হাট</title>
+    <link rel="stylesheet" href="assets/reader.css">
+</head>
+<body>
+    <div class="layout">
+        {% include "_sidebar.html" %}
+        <main class="content">
+            <div class="container">
+                <header class="page-header">
+                    <h1>Chapter {{ chapter.number }}</h1>
+                </header>
+
+                {% if chapter.titles %}
+                <ul class="segment-titles">
+                    {% for title_en, title_ja in chapter.titles %}
+                    <li>{{ title_en }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <div class="lang-tabs" role="tablist">
+                    {% for tab in text_tabs %}
+                    <button type="button" class="lang-tab" data-key="{{ tab.key }}">{{ tab.label }}</button>
+                    {% endfor %}
+                </div>
+
+                {% for tab in text_tabs %}
+                <article class="text-panel" data-key="{{ tab.key }}" lang="{{ tab.lang }}">
+                    {{ chapter.texts[tab.key]|safe }}
+                </article>
+                {% endfor %}
+
+                <nav class="chapter-nav">
+                    {% if prev_href %}<a href="{{ prev_href }}" class="prev-link">&larr; Chapter {{ chapter.number - 1 }}</a>{% else %}<span></span>{% endif %}
+                    <a href="index.html">Index</a>
+                    {% if next_href %}<a href="{{ next_href }}" class="next-link">Chapter {{ chapter.number + 1 }} &rarr;</a>{% else %}<span></span>{% endif %}
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="assets/reader.js"></script>
+</body>
+</html>

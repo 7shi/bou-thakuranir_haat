@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter Summaries ({{ label }}) — বৌ-ঠাকুরাণীর হাট</title>
+    <link rel="stylesheet" href="assets/reader.css">
+</head>
+<body>
+    <div class="layout">
+        {% include "_sidebar.html" %}
+        <main class="content">
+            <div class="container">
+                <header class="page-header">
+                    <h1>Chapter Summaries ({{ label }})</h1>
+                </header>
+
+                <p class="lead">
+                    Gemini-generated summary of each chapter, in {{ label }}.
+                </p>
+
+                {% for c in chapters %}
+                <section class="summary-chapter" lang="{{ lang }}">
+                    <h2><a href="{{ c.href }}">Chapter {{ c.number }}</a></h2>
+                    {{ c.text|safe }}
+                </section>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

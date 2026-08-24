@@ -1,0 +1,43 @@
+<aside class="sidebar">
+    <div class="sidebar-title"><a href="{{ base }}index.html">বৌ-ঠাকুরাণীর হাট</a></div>
+
+    <section class="sidebar-section">
+        <h2>Chapters</h2>
+        <ul class="link-row chapter-row">
+            {% for chapter in sidebar_chapters %}
+            <li><a href="{{ base }}{{ chapter.href }}" title="{{ chapter.title_summary }}"{% if current_chapter is defined and current_chapter == chapter.number %} class="active"{% endif %}>{{ chapter.number }}</a></li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="sidebar-section">
+        <h2>Summaries</h2>
+        <ul class="link-row">
+            <li><a href="{{ base }}summary-bn.html">Bengali</a></li>
+            <li><a href="{{ base }}summary-hi.html">Hindi</a></li>
+            <li><a href="{{ base }}summary-en.html">English</a></li>
+            <li><a href="{{ base }}summary-ja.html">Japanese</a></li>
+        </ul>
+    </section>
+
+    <section class="sidebar-section">
+        <h2>QA List</h2>
+        <ul class="link-row">
+            <li><a href="{{ base }}qa-en.html">English</a></li>
+            <li><a href="{{ base }}qa-ja.html">Japanese</a></li>
+        </ul>
+    </section>
+
+    <section class="sidebar-section">
+        <h2>Docs</h2>
+        {% for doc in sidebar_docs %}
+        <div class="doc-entry">
+            <p class="doc-entry-label">{{ doc.label }}</p>
+            <ul class="link-row">
+                <li><a href="{{ base }}{{ doc.en_href }}">English</a></li>
+                <li><a href="{{ base }}{{ doc.ja_href }}">Japanese</a></li>
+            </ul>
+        </div>
+        {% endfor %}
+    </section>
+</aside>

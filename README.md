@@ -9,6 +9,8 @@ and its translations.
 > Errors and mistranslations are present throughout.
 > These files are provided as-is for reference and study purposes only.
 
+**[Read online](https://7shi.github.io/bou-thakuranir_haat/)** — the novel split by chapter with a language switcher (original / modern Bengali / English / Japanese), plus the [QA list](https://7shi.github.io/bou-thakuranir_haat/qa-en.html) linked to the chapters it references.
+
 ## Original
 
 The original text is written in classical (Sadhu) Bengali — an older literary form distinct from modern spoken Bengali.
@@ -96,3 +98,39 @@ directory|description
 [qa-eval/](qa-eval/) | QA evaluation: scene embedding/RAG vs. per-chapter extraction
 [scripts/](scripts/) | translation, segmentation, and conversion scripts
 [wikisource/](wikisource/) | Wikisource scraping and text extraction tools
+
+## Build and Deploy
+
+The [online reader](https://7shi.github.io/bou-thakuranir_haat/) is a static site generated from the files above and published to GitHub Pages.
+
+### Local build
+
+```bash
+# Generate chapter pages, QA pages, index.html, and assets into dist/
+make build
+
+# Serve dist/ locally for a preview (localhost:8000)
+make serve
+
+# Remove build artifacts
+make clean
+```
+
+### Deploying to GitHub Pages
+
+```bash
+# Build, then push dist/ to the gh-pages branch
+make deploy
+```
+
+`deploy.sh` checks out the `gh-pages` branch into `.gh-pages-worktree/` via `git worktree`, replaces its contents with `dist/`, and commits and pushes. It is a no-op when there is nothing to deploy.
+
+### First-time setup
+
+The `gh-pages` branch is created automatically on the first `make deploy`.
+
+In the GitHub UI:
+
+1. Open **Settings → Pages** on the repository
+2. Set **Source** to `Deploy from a branch`
+3. Set **Branch** to `gh-pages` / `/ (root)` and **Save**

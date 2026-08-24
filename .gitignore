@@ -15,3 +15,6 @@ images/
 # Generated files
 questions-en-cache.tsv
 qa-eval/index-*.safetensors
+
+# Temporary worktree for gh-pages deployment
+.gh-pages-worktree/

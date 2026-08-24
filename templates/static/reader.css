@@ -1,0 +1,494 @@
+:root {
+    --bg: #fdfaf5;
+    --fg: #2a2420;
+    --muted: #75695c;
+    --accent: #a8481c;
+    --accent-fg: #ffffff;
+    --border: #e4dccb;
+    --panel-bg: #ffffff;
+    --code-bg: #f2ece0;
+    --link: #8a3814;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #1c1a17;
+        --fg: #ece6db;
+        --muted: #a99d8c;
+        --accent: #e08a4f;
+        --accent-fg: #1c1a17;
+        --border: #3a352d;
+        --panel-bg: #24211c;
+        --code-bg: #2a261f;
+        --link: #e0a26a;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans CJK JP", "Noto Sans Bengali",
+        system-ui, sans-serif;
+    line-height: 1.7;
+}
+
+.container {
+    max-width: 860px;
+    padding: 1.5rem 1.25rem 4rem;
+}
+
+a {
+    color: var(--link);
+}
+
+h1, h2 {
+    line-height: 1.3;
+}
+
+/* app layout: fixed sidebar + scrolling content */
+
+.layout {
+    display: flex;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+.sidebar {
+    flex: 0 0 240px;
+    width: 240px;
+    box-sizing: border-box;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 1.25rem 1rem;
+    border-right: 1px solid var(--border);
+    background: var(--panel-bg);
+}
+
+.sidebar-title {
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+}
+
+.sidebar-title a {
+    text-decoration: none;
+}
+
+.sidebar-section {
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-section h2 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin: 0 0 0.5rem;
+}
+
+.sidebar-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar-list li {
+    margin: 0.3rem 0;
+}
+
+.sidebar-list a {
+    text-decoration: none;
+}
+
+.sidebar-list a:hover {
+    text-decoration: underline;
+}
+
+.content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.doc-entry {
+    margin-bottom: 0.75rem;
+}
+
+.doc-entry-label {
+    margin: 0 0 0.3rem;
+    font-size: 0.85rem;
+}
+
+@media (max-width: 800px) {
+    .layout {
+        flex-direction: column;
+    }
+    .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+}
+
+/* index page */
+
+.index-header {
+    margin-bottom: 2rem;
+}
+
+.index-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.subtitle {
+    color: var(--muted);
+    margin: 0 0 0.75rem;
+}
+
+.repo-link {
+    display: inline-block;
+    font-size: 0.9rem;
+}
+
+.lead {
+    color: var(--fg);
+}
+
+.content .container section {
+    margin-top: 2rem;
+}
+
+.content .container section h2 {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+}
+
+/* horizontal button grid (sidebar chapter list) */
+
+ul.link-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.link-row a {
+    display: inline-block;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    border-radius: 6px;
+    padding: 0.2rem 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+ul.link-row a:hover {
+    border-color: var(--accent);
+}
+
+ul.chapter-row a {
+    min-width: 2.2em;
+    text-align: center;
+}
+
+ul.chapter-row a.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-fg);
+}
+
+/* chapter / qa page header */
+
+.page-header {
+    margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+    margin: 0;
+}
+
+/* segment titles */
+
+ul.segment-titles {
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--code-bg);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+ul.segment-titles li {
+    margin: 0.15rem 0;
+}
+
+/* language tabs */
+
+.lang-tabs {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.lang-tab {
+    border: 1px solid var(--border);
+    background: var(--panel-bg);
+    color: var(--fg);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.lang-tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-fg);
+}
+
+.text-panel {
+    display: none;
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+}
+
+.text-panel.active {
+    display: block;
+}
+
+.text-panel[lang="bn"] {
+    font-family: "Noto Sans Bengali", "Siyam Rupali", "Vrinda", sans-serif;
+}
+
+.text-panel[lang="hi"] {
+    font-family: "Noto Sans Devanagari", "Mangal", sans-serif;
+}
+
+.text-panel p {
+    margin: 0 0 1em;
+}
+
+.text-panel p:last-child {
+    margin-bottom: 0;
+}
+
+/* chapter nav */
+
+.chapter-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    font-size: 0.95rem;
+}
+
+.chapter-nav a {
+    text-decoration: none;
+}
+
+/* QA table */
+
+.qa-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+.qa-table th, .qa-table td {
+    border: 1px solid var(--border);
+    padding: 0.6rem 0.7rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.qa-table th {
+    background: var(--code-bg);
+}
+
+.qa-type {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    background: var(--code-bg);
+    color: var(--muted);
+}
+
+.qa-type-cross {
+    background: var(--accent);
+    color: var(--accent-fg);
+}
+
+.qa-question p {
+    margin: 0 0 0.4rem;
+}
+
+.qa-answer-detail summary {
+    cursor: pointer;
+}
+
+.qa-rationale {
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.qa-rationale summary {
+    cursor: pointer;
+}
+
+.qa-chapters {
+    white-space: nowrap;
+}
+
+/* responsive tables */
+
+@media (max-width: 600px) {
+    .qa-table, .qa-table thead, .qa-table tbody, .qa-table th, .qa-table td, .qa-table tr {
+        display: block;
+    }
+    .qa-table thead {
+        display: none;
+    }
+    .qa-table tr {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        padding: 0.5rem;
+    }
+    .qa-table td {
+        border: none;
+        padding: 0.25rem 0;
+    }
+    .qa-table td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.75rem;
+        color: var(--muted);
+    }
+}
+
+/* summary page */
+
+.summary-chapter {
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-chapter h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+}
+
+.summary-chapter h2 a {
+    text-decoration: none;
+}
+
+.summary-chapter[lang="bn"] {
+    font-family: "Noto Sans Bengali", "Siyam Rupali", "Vrinda", sans-serif;
+}
+
+.summary-chapter[lang="hi"] {
+    font-family: "Noto Sans Devanagari", "Mangal", sans-serif;
+}
+
+.summary-chapter p {
+    margin: 0 0 0.5em;
+}
+
+.summary-chapter p:last-child {
+    margin-bottom: 0;
+}
+
+/* doc pages */
+
+.doc-lang-switch {
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+}
+
+.doc-content {
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+}
+
+.doc-content h1, .doc-content h2, .doc-content h3 {
+    margin-top: 1.5em;
+}
+
+.doc-content h1:first-child, .doc-content h2:first-child, .doc-content h3:first-child {
+    margin-top: 0;
+}
+
+.doc-content p, .doc-content ul, .doc-content ol, .doc-content blockquote {
+    margin: 0 0 1em;
+}
+
+.doc-content blockquote {
+    border-left: 3px solid var(--accent);
+    margin-left: 0;
+    padding: 0.25rem 1rem;
+    color: var(--muted);
+}
+
+.doc-content code {
+    background: var(--code-bg);
+    border-radius: 4px;
+    padding: 0.1em 0.35em;
+    font-size: 0.9em;
+}
+
+.doc-content pre {
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+}
+
+.doc-content pre code {
+    background: none;
+    padding: 0;
+}
+
+.doc-content pre.mermaid {
+    background: var(--panel-bg);
+    text-align: center;
+}
+
+.doc-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 1em;
+    overflow-x: auto;
+    display: block;
+}
+
+.doc-content th, .doc-content td {
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+}
+
+.doc-content th {
+    background: var(--code-bg);
+}
