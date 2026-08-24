@@ -7,7 +7,7 @@ and its translations.
 **[Read online](https://7shi.github.io/bou-thakuranir_haat/)** — the novel split by chapter with a language switcher (original / modern Bengali / English / Japanese), plus the [QA list](https://7shi.github.io/bou-thakuranir_haat/qa-en.html) linked to the chapters it references.
 
 > [!NOTE]
-> All translations in this repository are machine-generated (Gemini 2.5 Pro or Google Translate) and have not been reviewed or corrected by a human translator.
+> All translations in this repository are machine-generated (Gemini 2.5 Pro) and have not been reviewed or corrected by a human translator.
 > Errors and mistranslations are present throughout.
 > These files are provided as-is for reference and study purposes only.
 
