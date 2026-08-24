@@ -15,6 +15,11 @@ are the filename-sanitized llm7shi strings (":" and "/" written as "_").
 | `ollama_muse-glimmer` | ceiling | 49/50 (0.990) | 47/50 (0.970) |
 | `ollama_qwen3.6` | ceiling | 49/50 (0.990) | 47/50 (0.970) |
 | `ollama_qwen3.8` | ceiling | 50/50 (1.000) | 49/50 (0.990) |
+| `openai_gpt-5.6-luna` | ceiling | 50/50 (1.000) | 47/50 (0.970) |
+| `openai_gpt-5.6-terra` | ceiling | 47/50 (0.950) | 49/50 (0.990) |
+| `openrouter_cohere_north-mini-code_free` | ceiling | 44/50 (0.930) | 30/50 (0.740) |
+| `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | 50/50 (1.000) | 47/50 (0.970) |
+| `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 44/50 (0.940) | 38/50 (0.860) |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 39/50 (0.880) | 31/50 (0.730) |
 | `openrouter_stealth_ox-alpha` | ceiling | 49/50 (0.980) | 50/50 (1.000) |
 | `ollama_qwen3.8` | hybrid8 | 50/50 (1.000) | 47/50 (0.950) |
@@ -41,6 +46,16 @@ blank when the answer file is absent.
 | `ollama_qwen3.6` | ceiling | ja | 50 | 47 | 3 | 0 | 0.970 | 1.000 | 1.000 |
 | `ollama_qwen3.8` | ceiling | en | 50 | 50 | 0 | 0 | 1.000 | 1.000 | 1.000 |
 | `ollama_qwen3.8` | ceiling | ja | 50 | 49 | 1 | 0 | 0.990 | 1.000 | 1.000 |
+| `openai_gpt-5.6-luna` | ceiling | en | 50 | 50 | 0 | 0 | 1.000 | 1.000 | 1.000 |
+| `openai_gpt-5.6-luna` | ceiling | ja | 50 | 47 | 3 | 0 | 0.970 | 1.000 | 1.000 |
+| `openai_gpt-5.6-terra` | ceiling | en | 50 | 47 | 1 | 2 | 0.950 | 1.000 | 1.000 |
+| `openai_gpt-5.6-terra` | ceiling | ja | 50 | 49 | 1 | 0 | 0.990 | 1.000 | 1.000 |
+| `openrouter_cohere_north-mini-code_free` | ceiling | en | 50 | 44 | 5 | 1 | 0.930 | 1.000 | 1.000 |
+| `openrouter_cohere_north-mini-code_free` | ceiling | ja | 50 | 30 | 14 | 6 | 0.740 | 1.000 | 1.000 |
+| `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | en | 50 | 50 | 0 | 0 | 1.000 | 1.000 | 1.000 |
+| `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | ja | 50 | 47 | 3 | 0 | 0.970 | 1.000 | 1.000 |
+| `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | en | 50 | 44 | 6 | 0 | 0.940 | 1.000 | 1.000 |
+| `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | ja | 50 | 38 | 10 | 2 | 0.860 | 1.000 | 1.000 |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | en | 50 | 39 | 10 | 1 | 0.880 | 1.000 | 1.000 |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | ja | 50 | 31 | 11 | 8 | 0.730 | 1.000 | 1.000 |
 | `openrouter_stealth_ox-alpha` | ceiling | en | 50 | 49 | 0 | 1 | 0.980 | 1.000 | 1.000 |
