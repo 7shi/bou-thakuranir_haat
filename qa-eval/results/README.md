@@ -75,25 +75,26 @@ questions and no index.
 
 | Model | English | Japanese |
 | --- | --- | --- |
-| `google:gemini-2.5-flash` | 45/50 (0.940) — 45/4/1 | 45/50 (0.950) — 45/5/0 |
-| `google:gemini-3-flash-preview` | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
-| `google:gemini-3.5-flash-lite` | 41/50 (0.860) — 41/4/5 | 41/50 (0.860) — 41/4/5 |
-| `google:gemini-3.7-flash` | 48/50 (0.970) — 48/1/1 | 49/50 (0.980) — 49/0/1 |
-| `google:gemma-4-31b-it` | 49/50 (0.990) — 49/1/0 | 48/50 (0.980) — 48/2/0 |
-| `ollama:gemma4:26b-a4b-it-qat` | 47/50 (0.960) — 47/2/1 | 42/50 (0.920) — 42/8/0 |
-| `ollama:qwen3.6` (35B-A3B) | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
-| `ollama:qwen3.8` (27B) | 50/50 (1.000) — 50/0/0 | 49/50 (0.990) — 49/1/0 |
-| `ollama:muse-glimmer` | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
-| `openai:gpt-5.6-luna` | 50/50 (1.000) — 50/0/0 | 47/50 (0.970) — 47/3/0 |
-| `openai:gpt-5.6-terra` | 47/50 (0.950) — 47/1/2 | 49/50 (0.990) — 49/1/0 |
-| `openrouter:stealth/ox-alpha` | 49/50 (0.980) — 49/0/1 | 50/50 (1.000) — 50/0/0 |
-| `openrouter:poolside/laguna-s-2.1:free` | 39/50 (0.880) — 39/10/1 | 31/50 (0.730) — 31/11/8 |
-| `openrouter:cohere/north-mini-code:free` | 44/50 (0.930) — 44/5/1 | 30/50 (0.740) — 30/14/6 |
-| `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 50/50 (1.000) — 50/0/0 | 47/50 (0.970) — 47/3/0 |
-| `openrouter:nvidia/nemotron-3.5-lightning:free` | 44/50 (0.940) — 44/6/0 | 38/50 (0.860) — 38/10/2 |
+| `google:gemini-2.5-flash` | 94 (45/4/1) | 95 (45/5/0) |
+| `google:gemini-3-flash-preview` | 99 (49/1/0) | 97 (47/3/0) |
+| `google:gemini-3.5-flash-lite` | 86 (41/4/5) | 86 (41/4/5) |
+| `google:gemini-3.7-flash` | 97 (48/1/1) | 98 (49/0/1) |
+| `google:gemma-4-31b-it` | 99 (49/1/0) | 98 (48/2/0) |
+| `ollama:gemma4:26b-a4b-it-qat` | 96 (47/2/1) | 92 (42/8/0) |
+| `ollama:qwen3.6` (35B-A3B) | 99 (49/1/0) | 97 (47/3/0) |
+| `ollama:qwen3.8` (27B) | 100 (50/0/0) | 99 (49/1/0) |
+| `ollama:muse-glimmer` | 99 (49/1/0) | 97 (47/3/0) |
+| `openai:gpt-5.6-luna` | 100 (50/0/0) | 97 (47/3/0) |
+| `openai:gpt-5.6-terra` | 95 (47/1/2) | 99 (49/1/0) |
+| `openrouter:stealth/ox-alpha` | 98 (49/0/1) | 100 (50/0/0) |
+| `openrouter:poolside/laguna-s-2.1:free` | 88 (39/10/1) | 73 (31/11/8) |
+| `openrouter:cohere/north-mini-code:free` | 93 (44/5/1) | 74 (30/14/6) |
+| `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 100 (50/0/0) | 97 (47/3/0) |
+| `openrouter:nvidia/nemotron-3.5-lightning:free` | 94 (44/6/0) | 86 (38/10/2) |
 
-(`correct`/50 with the weighted score in parentheses, then correct/partial/incorrect.
-The `gemma-4-31b-it` row is the canonical `results-<lang>/ceiling.jsonl` run; the
+(Weighted score `(correct + 0.5×partial) / n`, as an integer percentage rounded
+down, then correct/partial/incorrect out of 50 in parentheses. The
+`gemma-4-31b-it` row is the canonical `results-<lang>/ceiling.jsonl` run; the
 other rows live in this directory and are aggregated in [report.md](report.md).)
 
 * **The top is crowded; the floor has widened.** Most models reach 0.960 or
@@ -210,12 +211,12 @@ a k=8 retrieved context instead of the gold one.
 
 | Model | Method | English | Japanese |
 | --- | --- | --- | --- |
-| `google:gemma-4-31b-it` | ceiling | 49/50 (0.990) — 49/1/0 | 48/50 (0.980) — 48/2/0 |
-| `google:gemma-4-31b-it` | hybrid8 | 46/50 (0.940) — 46/2/2 | 46/50 (0.950) — 46/3/1 |
-| `ollama:qwen3.8` | ceiling | 50/50 (1.000) — 50/0/0 | 49/50 (0.990) — 49/1/0 |
-| `ollama:qwen3.8` | hybrid8 | 50/50 (1.000) — 50/0/0 | 47/50 (0.950) — 47/1/2 |
-| `openrouter:stealth/ox-alpha` | ceiling | 49/50 (0.980) — 49/0/1 | 50/50 (1.000) — 50/0/0 |
-| `openrouter:stealth/ox-alpha` | hybrid8 | 48/50 (0.980) — 48/2/0 | 49/50 (0.980) — 49/0/1 |
+| `google:gemma-4-31b-it` | ceiling | 99 (49/1/0) | 98 (48/2/0) |
+| `google:gemma-4-31b-it` | hybrid8 | 94 (46/2/2) | 95 (46/3/1) |
+| `ollama:qwen3.8` | ceiling | 100 (50/0/0) | 99 (49/1/0) |
+| `ollama:qwen3.8` | hybrid8 | 100 (50/0/0) | 95 (47/1/2) |
+| `openrouter:stealth/ox-alpha` | ceiling | 98 (49/0/1) | 100 (50/0/0) |
+| `openrouter:stealth/ox-alpha` | hybrid8 | 98 (48/2/0) | 98 (49/0/1) |
 
 - **In English qwen3.8 pays nothing for retrieval.** It answers all 50 under
   both methods, verdict for verdict, even though the hybrid8 context misses gold
