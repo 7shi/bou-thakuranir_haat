@@ -75,6 +75,8 @@ questions and no index.
 
 | Model | English | Japanese |
 | --- | --- | --- |
+| `google:gemini-2.5-flash` | 45/50 (0.940) — 45/4/1 | 45/50 (0.950) — 45/5/0 |
+| `google:gemini-3-flash-preview` | 49/50 (0.990) — 49/1/0 | 47/50 (0.970) — 47/3/0 |
 | `google:gemini-3.5-flash-lite` | 41/50 (0.860) — 41/4/5 | 41/50 (0.860) — 41/4/5 |
 | `google:gemini-3.7-flash` | 48/50 (0.970) — 48/1/1 | 49/50 (0.980) — 49/0/1 |
 | `google:gemma-4-31b-it` | 49/50 (0.990) — 49/1/0 | 48/50 (0.980) — 48/2/0 |
@@ -97,13 +99,13 @@ other rows live in this directory and are aggregated in [report.md](report.md).)
 * **The top is crowded; the floor has widened.** Most models reach 0.960 or
   better in English, and several sit at 0.990 or 1.000 — `qwen3.8`,
   `gpt-5.6-luna` and `nemotron-3-ultra-550b-a55b:free` answer all 50, and
-  `gemma-4-31b-it`, `qwen3.6` and `muse-glimmer` each drop a single
-  `partial`. Ceiling is still a ceiling for that group: it measures whether a
-  model can read two or three chapters it has already been handed, and those
-  models can. Below that line, with the gold chapters supplied:
-  `gemini-3.5-flash-lite` at 0.860, `poolside/laguna-s-2.1:free` at 0.880,
-  `cohere/north-mini-code:free` at 0.930, `nemotron-3.5-lightning:free` at
-  0.940, and `gpt-5.6-terra` at 0.950.
+  `gemma-4-31b-it`, `qwen3.6`, `muse-glimmer` and `gemini-3-flash-preview`
+  each drop a single `partial`. Ceiling is still a ceiling for that group: it
+  measures whether a model can read two or three chapters it has already been
+  handed, and those models can. Below that line, with the gold chapters
+  supplied: `gemini-3.5-flash-lite` at 0.860, `poolside/laguna-s-2.1:free` at
+  0.880, `cohere/north-mini-code:free` at 0.930, `gemini-2.5-flash` and
+  `nemotron-3.5-lightning:free` tied at 0.940, and `gpt-5.6-terra` at 0.950.
 * **Japanese costs most models something.** The losses run from 0.010
   (`gemma-4-31b-it`, qwen3.8) to 0.190 (`cohere/north-mini-code:free`, the
   largest gap, ahead of `poolside/laguna-s-2.1:free`'s 0.150).
@@ -115,7 +117,8 @@ other rows live in this directory and are aggregated in [report.md](report.md).)
   gain from English to Japanese.** Its 50/50 is the only perfect Japanese run in
   the table, while in English it sits mid-table on a single outright error.
   `gemini-3.7-flash` reverses direction the same way but from lower down
-  (0.970 → 0.980), and `gpt-5.6-terra` does too, more sharply (0.950 → 0.990).
+  (0.970 → 0.980), `gpt-5.6-terra` does too, more sharply (0.950 → 0.990), and
+  `gemini-2.5-flash` joins them at the bottom of the table (0.940 → 0.950).
 * **The floor models fail in different kinds, not just degrees.**
   `gemini-3.5-flash-lite` fails by refusing: nine of its ten `incorrect`
   verdicts report that the answer is not in the context, with the gold chapters
@@ -127,7 +130,10 @@ other rows live in this directory and are aggregated in [report.md](report.md).)
   `nemotron-3.5-lightning:free` loses one Japanese row to a corrupted
   generation — garbled English mixed with fragments of its own system
   instructions — rather than to a misreading. The last two failure modes appear
-  in no other model here.
+  in no other model here. `gemini-2.5-flash` ties `nemotron-3.5-lightning:free`'s
+  English score from a different profile: its one outright error is a factual
+  substitution — misstating a duration the gold answers correctly — rather than
+  a refusal or a corrupted generation.
 * **Only the small MoE separates itself among the local models.**
   `gemma4:26b-a4b-it-qat` activates 4B parameters per token and is the only
   ollama model below 0.950; it loses 0.040 from English to Japanese, twice any
@@ -156,6 +162,8 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 
 | Model | en partial | en incorrect | ja partial | ja incorrect |
 | --- | --- | --- | --- | --- |
+| `google:gemini-2.5-flash` | 28, 30, 36, 41 | 17 | 28, **29**, 32, 35, 36 | — |
+| `google:gemini-3-flash-preview` | 31 | — | 7, 33, 43 | — |
 | `google:gemini-3.5-flash-lite` | 26, 28, 36, 48 | 17, 37, 40, 42, 47 | 28, **29**, 34, 40 | 35, 36, 39, 42, 50 |
 | `google:gemini-3.7-flash` | 50 | 17 | — | **29** |
 | `google:gemma-4-31b-it` | 48 | — | **29**, 36 | — |

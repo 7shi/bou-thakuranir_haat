@@ -9,6 +9,8 @@ are the filename-sanitized llm7shi strings (":" and "/" written as "_").
 
 | Model | Method | English | Japanese |
 | --- | --- | --- | --- |
+| `google_gemini-2.5-flash` | ceiling | 45/50 (0.940) | 45/50 (0.950) |
+| `google_gemini-3-flash-preview` | ceiling | 49/50 (0.990) | 47/50 (0.970) |
 | `google_gemini-3.5-flash-lite` | ceiling | 41/50 (0.860) | 41/50 (0.860) |
 | `google_gemini-3.7-flash` | ceiling | 48/50 (0.970) | 49/50 (0.980) |
 | `ollama_gemma4_26b-a4b-it-qat` | ceiling | 47/50 (0.960) | 42/50 (0.920) |
@@ -34,6 +36,10 @@ blank when the answer file is absent.
 
 | Model | Method | Lang | n | correct | partial | incorrect | weighted | ch.recall | ch.prec |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `google_gemini-2.5-flash` | ceiling | en | 50 | 45 | 4 | 1 | 0.940 | 1.000 | 1.000 |
+| `google_gemini-2.5-flash` | ceiling | ja | 50 | 45 | 5 | 0 | 0.950 | 1.000 | 1.000 |
+| `google_gemini-3-flash-preview` | ceiling | en | 50 | 49 | 1 | 0 | 0.990 | 1.000 | 1.000 |
+| `google_gemini-3-flash-preview` | ceiling | ja | 50 | 47 | 3 | 0 | 0.970 | 1.000 | 1.000 |
 | `google_gemini-3.5-flash-lite` | ceiling | en | 50 | 41 | 4 | 5 | 0.860 | 1.000 | 1.000 |
 | `google_gemini-3.5-flash-lite` | ceiling | ja | 50 | 41 | 4 | 5 | 0.860 | 1.000 | 1.000 |
 | `google_gemini-3.7-flash` | ceiling | en | 50 | 48 | 1 | 1 | 0.970 | 1.000 | 1.000 |
