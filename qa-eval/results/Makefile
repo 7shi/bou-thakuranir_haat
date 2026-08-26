@@ -78,14 +78,20 @@ ceiling: check-args
 
 # Opt-in: LLM grading (same default judge as the main pipeline). Scans every
 # answer file here (*.jsonl not starting with "judge-"), skips the ones that
-# already have a judge-<stem>.jsonl, and takes LANG from the filename's trailing
-# field (<METHOD>-<MODEL>-<LANG>.jsonl) — no MODEL/LANG needed. Output lands
-# next to the answer file via judge.py's default judge-<stem>.jsonl naming.
+# already have a judge-<stem>.jsonl with as many lines as the answer file
+# (a shorter judge file means a prior run was interrupted, so it's redone), and
+# takes LANG from the filename's trailing field (<METHOD>-<MODEL>-<LANG>.jsonl)
+# — no MODEL/LANG needed. Output lands next to the answer file via judge.py's
+# default judge-<stem>.jsonl naming.
 judge:
 	@for f in *.jsonl; do \
 		case "$$f" in judge-*) continue;; esac; \
 		[ -e "$$f" ] || continue; \
-		[ -e "judge-$$f" ] && { echo "skip $$f (judge-$$f exists)"; continue; }; \
+		if [ -e "judge-$$f" ]; then \
+			n=$$(wc -l < "$$f"); jn=$$(wc -l < "judge-$$f"); \
+			[ "$$jn" -ge "$$n" ] && { echo "skip $$f (judge-$$f exists, $$jn/$$n lines)"; continue; }; \
+			echo "resume $$f (judge-$$f incomplete, $$jn/$$n lines)"; \
+		fi; \
 		lang=$${f%.jsonl}; lang=$${lang##*-}; \
 		case "$$lang" in en|ja) ;; *) echo "skip $$f (cannot infer LANG)"; continue;; esac; \
 		echo "judge $$f (LANG=$$lang)"; \
