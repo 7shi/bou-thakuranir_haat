@@ -24,6 +24,7 @@ as "_").
 | `openai_gpt-5.6-luna` | ceiling | 100 (50/0/0) | 97 (47/3/0) |
 | `openai_gpt-5.6-terra` | ceiling | 95 (47/1/2) | 99 (49/1/0) |
 | `openrouter_cohere_north-mini-code_free` | ceiling | 93 (44/5/1) | 74 (30/14/6) |
+| `openrouter_minimax_minimax-m2.7_free` | ceiling | 97 (47/3/0) | 97 (47/3/0) |
 | `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | 100 (50/0/0) | 97 (47/3/0) |
 | `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 94 (44/6/0) | 86 (38/10/2) |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 88 (39/10/1) | 73 (31/11/8) |
@@ -51,6 +52,7 @@ language). A question absent from every column of a row was graded
 | `openai_gpt-5.6-luna` | ceiling | — | — | 29, 35, 48 | — |
 | `openai_gpt-5.6-terra` | ceiling | 31 | 22, 49 | 43 | — |
 | `openrouter_cohere_north-mini-code_free` | ceiling | 33, 36, 46, 49, 50 | 17 | 6, 26, 32, 33, 34, 35, 37, 38, 39, 42, 47, 48, 49, 50 | 12, 16, 28, 29, 36, 46 |
+| `openrouter_minimax_minimax-m2.7_free` | ceiling | 6, 34, 37 | — | 36, 37, 47 | — |
 | `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | — | — | 37, 43, 44 | — |
 | `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 6, 28, 30, 34, 36, 37 | — | 6, 27, 28, 33, 35, 36, 37, 40, 43, 50 | 29, 45 |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 26, 28, 31, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, 29, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
