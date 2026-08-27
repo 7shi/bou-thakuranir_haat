@@ -4,10 +4,13 @@ GEMMA  := google:gemma-4-31b-it
 
 all:
 
-.PHONY: proper_nouns translate convert split questions titles build clean serve deploy
+.PHONY: proper_nouns translate convert split questions titles images build clean serve deploy
 
-build:
+build: images
 	uv run build.py
+
+images:
+	uv run scripts/compress_images.py
 
 clean:
 	rm -rf dist

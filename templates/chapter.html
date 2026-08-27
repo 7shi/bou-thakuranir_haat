@@ -15,6 +15,8 @@
                     <h1>Chapter {{ chapter.number }}</h1>
                 </header>
 
+                <img src="images/{{ "%02d"|format(chapter.number) }}.jpg" alt="" class="header-image">
+
                 {% if chapter.titles %}
                 <ul class="segment-titles">
                     {% for title_en, title_ja in chapter.titles %}
@@ -34,6 +36,10 @@
                     {{ chapter.texts[tab.key]|safe }}
                 </article>
                 {% endfor %}
+
+                {% if chapter.number == 37 %}
+                <img src="images/38.jpg" alt="" class="header-image">
+                {% endif %}
 
                 <nav class="chapter-nav">
                     {% if prev_href %}<a href="{{ prev_href }}" class="prev-link">&larr; Chapter {{ chapter.number - 1 }}</a>{% else %}<span></span>{% endif %}

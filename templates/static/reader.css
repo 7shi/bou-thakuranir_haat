@@ -1,7 +1,7 @@
 :root {
     --bg: #fdfaf5;
-    --fg: #2a2420;
-    --muted: #75695c;
+    --fg: #000000;
+    --muted: #000000;
     --accent: #a8481c;
     --accent-fg: #ffffff;
     --border: #e4dccb;
@@ -216,6 +216,16 @@ ul.chapter-row a.active {
 
 .page-header h1 {
     margin: 0;
+}
+
+/* chapter / index header image */
+
+.header-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
 }
 
 /* segment titles */
