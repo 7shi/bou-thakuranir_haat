@@ -96,41 +96,7 @@ directory|description
 ---------|----
 [proper_nouns/](proper_nouns/) | proper noun extraction and translation scripts
 [qa-eval/](qa-eval/) | QA evaluation: scene embedding/RAG vs. per-chapter extraction
+[qa-eval/results/](qa-eval/results/) | per-model answerer comparison (ceiling and hybrid8, many models)
 [scripts/](scripts/) | translation, segmentation, and conversion scripts
+[templates/](templates/) | site templates, plus build and deploy instructions
 [wikisource/](wikisource/) | Wikisource scraping and text extraction tools
-
-## Build and Deploy
-
-The [online reader](https://7shi.github.io/bou-thakuranir_haat/) is a static site generated from the files above and published to GitHub Pages.
-
-### Local build
-
-```bash
-# Generate chapter pages, QA pages, index.html, and assets into dist/
-make build
-
-# Serve dist/ locally for a preview (localhost:8000)
-make serve
-
-# Remove build artifacts
-make clean
-```
-
-### Deploying to GitHub Pages
-
-```bash
-# Build, then push dist/ to the gh-pages branch
-make deploy
-```
-
-`deploy.sh` checks out the `gh-pages` branch into `.gh-pages-worktree/` via `git worktree`, replaces its contents with `dist/`, and commits and pushes. It is a no-op when there is nothing to deploy.
-
-### First-time setup
-
-The `gh-pages` branch is created automatically on the first `make deploy`.
-
-In the GitHub UI:
-
-1. Open **Settings → Pages** on the repository
-2. Set **Source** to `Deploy from a branch`
-3. Set **Branch** to `gh-pages` / `/ (root)` and **Save**
