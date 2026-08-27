@@ -80,13 +80,14 @@ questions and no index.
 | `google:gemini-3.5-flash-lite` | 86 (41/4/5) | 86 (41/4/5) |
 | `google:gemini-3.7-flash` | 97 (48/1/1) | 98 (49/0/1) |
 | `google:gemma-4-31b-it` | 99 (49/1/0) | 98 (48/2/0) |
+| `google:gemma-4-26b-a4b-it` | 95 (46/3/1) | 94 (45/4/1) |
 | `ollama:gemma4:26b-a4b-it-qat` | 96 (47/2/1) | 92 (42/8/0) |
 | `ollama:qwen3.6` (35B-A3B) | 99 (49/1/0) | 97 (47/3/0) |
 | `ollama:qwen3.8` (27B) | 100 (50/0/0) | 99 (49/1/0) |
-| `ollama:muse-glimmer` | 99 (49/1/0) | 97 (47/3/0) |
+| `ollama:muse-glimmer` (27B) | 99 (49/1/0) | 97 (47/3/0) |
 | `openai:gpt-5.6-luna` | 100 (50/0/0) | 97 (47/3/0) |
 | `openai:gpt-5.6-terra` | 95 (47/1/2) | 99 (49/1/0) |
-| `openrouter:stealth/ox-alpha` | 98 (49/0/1) | 100 (50/0/0) |
+| `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (49/0/1) | 100 (50/0/0) |
 | `openrouter:poolside/laguna-s-2.1:free` | 88 (39/10/1) | 73 (31/11/8) |
 | `openrouter:cohere/north-mini-code:free` | 93 (44/5/1) | 74 (30/14/6) |
 | `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 100 (50/0/0) | 97 (47/3/0) |
@@ -106,10 +107,12 @@ other rows live in this directory and are aggregated in [report.md](report.md).)
   handed, and those models can. Below that line, with the gold chapters
   supplied: `gemini-3.5-flash-lite` at 0.860, `poolside/laguna-s-2.1:free` at
   0.880, `cohere/north-mini-code:free` at 0.930, `gemini-2.5-flash` and
-  `nemotron-3.5-lightning:free` tied at 0.940, and `gpt-5.6-terra` at 0.950.
+  `nemotron-3.5-lightning:free` tied at 0.940, and `gpt-5.6-terra` and
+  `gemma-4-26b-a4b-it` tied at 0.950.
 * **Japanese costs most models something.** The losses run from 0.010
-  (`gemma-4-31b-it`, qwen3.8) to 0.190 (`cohere/north-mini-code:free`, the
-  largest gap, ahead of `poolside/laguna-s-2.1:free`'s 0.150).
+  (`gemma-4-31b-it`, qwen3.8, `gemma-4-26b-a4b-it`) to 0.190
+  (`cohere/north-mini-code:free`, the largest gap, ahead of
+  `poolside/laguna-s-2.1:free`'s 0.150).
   `gemini-3.5-flash-lite` is the only model that scores identically in both
   languages (0.860, the same 41/4/5 split, on largely different questions). The
   Japanese miss list is markedly longer than the English one — the same
@@ -141,6 +144,15 @@ other rows live in this directory and are aggregated in [report.md](report.md).)
   other local model's loss. Its failure mode is legible in the verdicts: 8
   `partial` and no outright error in Japanese, i.e. it finds the passage and
   drops one of the two or three elements the gold answer enumerates.
+* **The 26B-A4B pair splits by host in Japanese, not English.**
+  `google:gemma-4-26b-a4b-it` and `ollama:gemma4:26b-a4b-it-qat` are the same
+  Gemma 4 26B-A4B model on different hosts, the API build and the QAT build,
+  the same relationship as the `gemma-4-31b-it` pair elsewhere in this
+  project. English is close either way (0.950 vs. 0.960), but Japanese is
+  not (0.940 vs. 0.920): the Google-hosted run turns half of the ollama run's
+  eight `partial`s into `correct` and trades one of them for a single
+  outright error instead — a different failure shape, not simply a better
+  score.
 * **Above 0.960 the shortfall is completeness on `cross` questions; below it,
   single-hop misreadings appear as well.** An outright error on a `single`
   question means misreading a chapter already supplied, and the floor models
@@ -168,6 +180,7 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `google:gemini-3.5-flash-lite` | 26, 28, 36, 48 | 17, 37, 40, 42, 47 | 28, **29**, 34, 40 | 35, 36, 39, 42, 50 |
 | `google:gemini-3.7-flash` | 50 | 17 | — | **29** |
 | `google:gemma-4-31b-it` | 48 | — | **29**, 36 | — |
+| `google:gemma-4-26b-a4b-it` | 34, 37, 50 | 17 | 27, 34, 35, 37 | **29** |
 | `ollama:gemma4:26b-a4b-it-qat` | 33, 35 | 17 | **29**, 34, 35, 37, 40, 44, 46, 50 | — |
 | `ollama:qwen3.6` (35B-A3B) | 6 | — | **29**, 36, 48 | — |
 | `ollama:qwen3.8` (27B) | — | — | **29** | — |
