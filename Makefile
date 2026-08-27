@@ -7,7 +7,7 @@ all:
 .PHONY: proper_nouns translate convert split questions titles images build clean serve deploy
 
 build: images
-	uv run build.py
+	uv run templates/build.py
 
 images:
 	uv run scripts/compress_images.py
@@ -19,7 +19,7 @@ serve:
 	cd dist && uv run python -m http.server 8000
 
 deploy: build
-	bash deploy.sh
+	bash templates/deploy.sh
 
 proper_nouns:
 	uv run proper_nouns/extract.py all/bn.md -f Bengali -t English -m $(MODEL) -w proper_nouns/en.jsonl -o proper_nouns/all.tsv

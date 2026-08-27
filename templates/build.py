@@ -23,7 +23,7 @@ from pathlib import Path
 import markdown
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 TEMPLATES_DIR = ROOT / "templates"
 STATIC_DIR = TEMPLATES_DIR / "static"
 DIST_DIR = ROOT / "dist"

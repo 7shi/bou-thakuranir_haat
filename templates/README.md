@@ -1,6 +1,6 @@
 # Site templates
 
-Jinja2 templates and static assets used by [../build.py](../build.py) to
+Jinja2 templates and static assets used by [build.py](build.py) to
 generate the static site published at
 [7shi.github.io/bou-thakuranir_haat](https://7shi.github.io/bou-thakuranir_haat/).
 
