@@ -17,6 +17,7 @@
 # Usage:
 #   make hybrid8 MODEL=... LANG={en,ja}   # answer 50 questions -> hybrid8-<MODEL>-<LANG>.jsonl
 #   make ceiling MODEL=... LANG={en,ja}   # answer 50 questions -> ceiling-<MODEL>-<LANG>.jsonl
+#   make test    MODEL=... LANG={en,ja}   # answer question 1 only, both methods, no file output
 #   make judge                            # opt-in: grade every ungraded answer file
 #   make report                           # aggregate every judged run → report.md
 #
@@ -25,6 +26,10 @@
 #
 # Example:
 #   make ceiling MODEL=google:gemini-4-31b-it LANG=ja
+
+# <(...) process substitution in the `test` target needs bash, not the
+# POSIX-sh default.
+SHELL := /bin/bash
 
 MODEL ?=
 LANG ?=
@@ -49,20 +54,27 @@ SAFE_MODEL := $(subst /,_,$(subst :,_,$(MODEL)))
 HYBRID_ANSWER := hybrid$(K)-$(SAFE_MODEL)-$(LANG).jsonl
 CEILING_ANSWER := ceiling-$(SAFE_MODEL)-$(LANG).jsonl
 
-.PHONY: help check-args hybrid8 ceiling judge report
+.PHONY: help check-args hybrid8 ceiling test judge report
 .DEFAULT_GOAL := help
 
 help:
 	@echo "Usage: make hybrid8 MODEL=... LANG={en,ja}"
 	@echo "       make ceiling MODEL=... LANG={en,ja}"
+	@echo "       make test MODEL=... LANG={en,ja}"
 	@echo "       make judge"
 	@echo "       make report"
 
 # Shared guard for the answering targets, which all need MODEL and LANG. The
 # usage line names the goal actually invoked, so the message stays accurate for
 # whichever target pulled this in.
+#
+# LANG must be checked against {en,ja} specifically, not just non-empty: make
+# imports environment variables as make variables, and `LANG ?=` above does not
+# override an already-set one — so a shell with LANG=ja_JP.UTF-8 (locale) set,
+# which is the common case, silently leaks that value in when LANG= is omitted
+# on the command line. A plain emptiness check would miss it.
 check-args:
-	@if [ -z "$(MODEL)" ] || [ -z "$(LANG)" ]; then \
+	@if [ -z "$(MODEL)" ] || { [ "$(LANG)" != "en" ] && [ "$(LANG)" != "ja" ]; }; then \
 		echo "Usage: make $(firstword $(MAKECMDGOALS)) MODEL=... LANG={en,ja}"; \
 		exit 2; \
 	fi
@@ -75,6 +87,18 @@ hybrid8: check-args
 # index needed — there is no retrieval step at all.
 ceiling: check-args
 	cd $(ROOT) && uv run answer_ceiling.py -l $(LANG) -m $(MODEL) -o results/$(CEILING_ANSWER)
+
+# Quick smoke test for backend/model trouble (e.g. the ROCm prompt-ordering
+# issue in the README) — runs question 1 only, under both methods, with no
+# file left behind: -o /dev/null and -i a process-substituted one-line slice
+# of the questions file, so nothing in results/ or elsewhere is touched.
+# questions-<lang>.jsonl lives at the repo root, one level above $(ROOT)
+# (qa-eval) — hence "../questions-..." once cd'd into $(ROOT).
+test: check-args
+	cd $(ROOT) && uv run answer_ceiling.py -l $(LANG) -m $(MODEL) \
+		-i <(head -n 1 ../questions-$(LANG).jsonl) -o /dev/null
+	cd $(ROOT) && uv run answer_hybrid.py -l $(LANG) -m $(MODEL) \
+		--retrieval $(REFERENCE) -i <(head -n 1 ../questions-$(LANG).jsonl) -o /dev/null
 
 # Opt-in: LLM grading (same default judge as the main pipeline). Scans every
 # answer file here (*.jsonl not starting with "judge-"), skips the ones that

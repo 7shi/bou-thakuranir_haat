@@ -47,6 +47,7 @@ line):
 ```
 make hybrid8 MODEL=... LANG={en,ja}   # answer 50 questions → hybrid8-<MODEL>-<LANG>.jsonl
 make ceiling MODEL=... LANG={en,ja}   # answer 50 questions → ceiling-<MODEL>-<LANG>.jsonl
+make test    MODEL=... LANG={en,ja}   # answer question 1 only, both methods, no file output
 make judge                            # opt-in: grade every ungraded answer file
 make report                           # aggregate every judged run → report.md
 ```
@@ -55,6 +56,11 @@ make report                           # aggregate every judged run → report.md
   `google:gemini-4-31b-it`, `ollama:gemma4:31b-it-qat`)
 - `LANG` — `en` | `ja` (selects the questions file and, for hybrid8, the
   reference run whose retrieval is replayed)
+
+`make test` is a smoke test, not a data run: it answers question 1 under both
+methods and writes to `/dev/null`, so it leaves nothing in `results/` — useful
+for checking a model/backend combination (e.g. the ROCm issue below) without
+polluting the directory with a throwaway file to clean up afterward.
 
 `make judge` needs neither: it scans this directory for answer files that have
 no `judge-` counterpart yet and reads the language off each filename.
