@@ -46,7 +46,7 @@ def main() -> None:
     if not rows:
         print("No ceiling runs with both en and ja judged")
         return
-    rows.sort(key=lambda row: max(row[1], row[2]), reverse=True)
+    rows.sort(key=lambda row: (row[1] + row[2]) / 2, reverse=True)
     models = [row[0] for row in rows]
     en_scores = [row[1] for row in rows]
     ja_scores = [row[2] for row in rows]
