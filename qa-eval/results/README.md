@@ -82,23 +82,23 @@ questions and no index.
 | Model | English | Japanese |
 | --- | --- | --- |
 | `google:gemini-2.5-flash` | 94 (45/4/1) | 95 (45/5/0) |
-| `google:gemini-3-flash-preview` | 99 (49/1/0) | 97 (47/3/0) |
+| `google:gemini-3-flash-preview` | 100 (50/0/0) | 97 (47/3/0) |
 | `google:gemini-3.5-flash-lite` | 86 (41/4/5) | 86 (41/4/5) |
 | `google:gemini-3.7-flash` | 97 (48/1/1) | 98 (49/0/1) |
 | `google:gemma-4-31b-it` | 99 (49/1/0) | 98 (48/2/0) |
 | `google:gemma-4-26b-a4b-it` | 95 (46/3/1) | 94 (45/4/1) |
-| `ollama:gemma4:26b-a4b-it-qat` | 96 (47/2/1) | 92 (42/8/0) |
-| `ollama:qwen3.6` (35B-A3B) | 99 (49/1/0) | 97 (47/3/0) |
+| `ollama:gemma4:26b-a4b-it-qat` | 95 (46/3/1) | 92 (42/8/0) |
+| `ollama:qwen3.6` (35B-A3B) | 98 (48/2/0) | 97 (47/3/0) |
 | `ollama:qwen3.8` (27B) | 100 (50/0/0) | 99 (49/1/0) |
 | `ollama:muse-glimmer` (30B) | 99 (49/1/0) | 97 (47/3/0) |
 | `openai:gpt-5.6-luna` | 100 (50/0/0) | 97 (47/3/0) |
-| `openai:gpt-5.6-terra` | 95 (47/1/2) | 99 (49/1/0) |
+| `openai:gpt-5.6-terra` | 96 (48/0/2) | 99 (49/1/0) |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (49/0/1) | 100 (50/0/0) |
-| `openrouter:poolside/laguna-s-2.1:free` | 88 (39/10/1) | 73 (31/11/8) |
-| `openrouter:cohere/north-mini-code:free` | 93 (44/5/1) | 74 (30/14/6) |
-| `openrouter:minimax/minimax-m2.7:free` | 97 (47/3/0) | 97 (47/3/0) |
-| `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 100 (50/0/0) | 97 (47/3/0) |
-| `openrouter:nvidia/nemotron-3.5-lightning:free` | 94 (44/6/0) | 86 (38/10/2) |
+| `openrouter:poolside/laguna-s-2.1:free` | 89 (40/9/1) | 73 (31/11/8) |
+| `openrouter:cohere/north-mini-code:free` | 93 (44/5/1) | 73 (29/15/6) |
+| `openrouter:minimax/minimax-m2.7:free` | 96 (46/4/0) | 97 (47/3/0) |
+| `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 99 (49/1/0) | 97 (47/3/0) |
+| `openrouter:nvidia/nemotron-3.5-lightning:free` | 93 (43/7/0) | 86 (38/10/2) |
 
 (Weighted score `(correct + 0.5×partial) / n`, as an integer percentage rounded
 down, then correct/partial/incorrect out of 50 in parentheses. The
@@ -107,24 +107,22 @@ other rows live in this directory and are aggregated in [report.md](report.md).)
 
 * **The top is crowded; the floor has widened.** Most models reach 0.960 or
   better in English, and several sit at 0.990 or 1.000 — `qwen3.8`,
-  `gpt-5.6-luna` and `nemotron-3-ultra-550b-a55b:free` answer all 50, and
-  `gemma-4-31b-it`, `qwen3.6`, `muse-glimmer` and `gemini-3-flash-preview`
+  `gpt-5.6-luna` and `gemini-3-flash-preview` answer all 50, and
+  `gemma-4-31b-it`, `muse-glimmer` and `nemotron-3-ultra-550b-a55b:free`
   each drop a single `partial`. Ceiling is still a ceiling for that group: it
   measures whether a model can read two or three chapters it has already been
   handed, and those models can. Below that line, with the gold chapters
   supplied: `gemini-3.5-flash-lite` at 0.860, `poolside/laguna-s-2.1:free` at
-  0.880, `cohere/north-mini-code:free` at 0.930, `gemini-2.5-flash` and
-  `nemotron-3.5-lightning:free` tied at 0.940, and `gpt-5.6-terra` and
-  `gemma-4-26b-a4b-it` tied at 0.950.
+  0.890, `cohere/north-mini-code:free` and `nemotron-3.5-lightning:free` tied
+  at 0.930, `gemini-2.5-flash` at 0.940, and `gemma-4-26b-a4b-it` and
+  `ollama:gemma4:26b-a4b-it-qat` tied at 0.950.
 * **Japanese costs most models something.** The losses run from 0.010
-  (`gemma-4-31b-it`, qwen3.8, `gemma-4-26b-a4b-it`) to 0.190
+  (`gemma-4-31b-it`, qwen3.8, `gemma-4-26b-a4b-it`, `qwen3.6`) to 0.200
   (`cohere/north-mini-code:free`, the largest gap, ahead of
-  `poolside/laguna-s-2.1:free`'s 0.150).
-  `gemini-3.5-flash-lite` and `minimax/minimax-m2.7:free` are the only models
-  that score identically in both languages: `gemini-3.5-flash-lite` at 0.860
-  (the same 41/4/5 split, on largely different questions) and
-  `minimax/minimax-m2.7:free` at 0.970 (the same 47/3/0 split, also on largely
-  different questions — only Q37 recurs). The Japanese miss list is markedly
+  `poolside/laguna-s-2.1:free`'s 0.160).
+  `gemini-3.5-flash-lite` is the only model that scores identically in both
+  languages, at 0.860 (the same 41/4/5 split, on largely different
+  questions). The Japanese miss list is markedly
   longer than the English one — the same questions, the same gold, the same
   gold chapters.
 
@@ -136,23 +134,23 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | Model | en partial | en incorrect | ja partial | ja incorrect |
 | --- | --- | --- | --- | --- |
 | `google:gemini-2.5-flash` | 28, 30, 36, 41 | 17 | 28, **29**, 32, 35, 36 | — |
-| `google:gemini-3-flash-preview` | 31 | — | 7, 33, 43 | — |
+| `google:gemini-3-flash-preview` | — | — | 7, 33, 43 | — |
 | `google:gemini-3.5-flash-lite` | 26, 28, 36, 48 | 17, 37, 40, 42, 47 | 28, **29**, 34, 40 | 35, 36, 39, 42, 50 |
 | `google:gemini-3.7-flash` | 50 | 17 | — | **29** |
 | `google:gemma-4-31b-it` | 48 | — | **29**, 36 | — |
 | `google:gemma-4-26b-a4b-it` | 34, 37, 50 | 17 | 27, 34, 35, 37 | **29** |
-| `ollama:gemma4:26b-a4b-it-qat` | 33, 35 | 17 | **29**, 34, 35, 37, 40, 44, 46, 50 | — |
-| `ollama:qwen3.6` (35B-A3B) | 6 | — | **29**, 36, 48 | — |
+| `ollama:gemma4:26b-a4b-it-qat` | 31, 33, 35 | 17 | **29**, 34, 35, 37, 40, 44, 46, 50 | — |
+| `ollama:qwen3.6` (35B-A3B) | 6, 31 | — | **29**, 36, 48 | — |
 | `ollama:qwen3.8` (27B) | — | — | **29** | — |
 | `ollama:muse-glimmer` (30B) | 6 | — | 34, 35, 43 | — |
 | `openai:gpt-5.6-luna` | — | — | **29**, 35, 48 | — |
-| `openai:gpt-5.6-terra` | 31 | 22, 49 | 43 | — |
+| `openai:gpt-5.6-terra` | — | 22, 49 | 43 | — |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | — | 22 | — | — |
-| `openrouter:poolside/laguna-s-2.1:free` | 26, 28, 31, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, **29**, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
-| `openrouter:cohere/north-mini-code:free` | 33, 36, 46, 49, 50 | 17 | 6, 26, 32, 33, 34, 35, 37, 38, 39, 42, 47, 48, 49, 50 | 12, 16, 28, **29**, 36, 46 |
-| `openrouter:minimax/minimax-m2.7:free` | 6, 34, 37 | — | 36, 37, 47 | — |
-| `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | — | — | 37, 43, 44 | — |
-| `openrouter:nvidia/nemotron-3.5-lightning:free` | 6, 28, 30, 34, 36, 37 | — | 6, 27, 28, 33, 35, 36, 37, 40, 43, 50 | **29**, 45 |
+| `openrouter:poolside/laguna-s-2.1:free` | 26, 28, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, **29**, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
+| `openrouter:cohere/north-mini-code:free` | 33, 36, 46, 49, 50 | 17 | 6, 26, 31, 32, 33, 34, 35, 37, 38, 39, 42, 47, 48, 49, 50 | 12, 16, 28, **29**, 36, 46 |
+| `openrouter:minimax/minimax-m2.7:free` | 6, 31, 34, 37 | — | 36, 37, 47 | — |
+| `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 31 | — | 37, 43, 44 | — |
+| `openrouter:nvidia/nemotron-3.5-lightning:free` | 6, 28, 30, 31, 34, 36, 37 | — | 6, 27, 28, 33, 35, 36, 37, 40, 43, 50 | **29**, 45 |
 
 Ceiling doubles as a sanity check on the gold itself: with the gold chapters in
 the context, a `correct` verdict says the question and its gold answer agree.
@@ -186,19 +184,17 @@ a k=8 retrieved context instead of the gold one.
 | Model | Method | English | Japanese |
 | --- | --- | --- | --- |
 | `google:gemma-4-31b-it` | ceiling | 99 (49/1/0) | 98 (48/2/0) |
-| `google:gemma-4-31b-it` | hybrid8 | 94 (46/2/2) | 95 (46/3/1) |
+| `google:gemma-4-31b-it` | hybrid8 | 93 (45/3/2) | 95 (46/3/1) |
 | `ollama:qwen3.8` | ceiling | 100 (50/0/0) | 99 (49/1/0) |
-| `ollama:qwen3.8` | hybrid8 | 100 (50/0/0) | 95 (47/1/2) |
+| `ollama:qwen3.8` | hybrid8 | 99 (49/1/0) | 95 (47/1/2) |
 | `openrouter:stealth/ox-alpha` | ceiling | 98 (49/0/1) | 100 (50/0/0) |
-| `openrouter:stealth/ox-alpha` | hybrid8 | 98 (48/2/0) | 98 (49/0/1) |
+| `openrouter:stealth/ox-alpha` | hybrid8 | 97 (47/3/0) | 98 (49/0/1) |
 
-- **In English qwen3.8 pays nothing for retrieval.** It answers all 50 under
-  both methods, verdict for verdict, even though the hybrid8 context misses gold
-  chapters on 5 of 50 questions. Gemma drops 0.050 over the same step.
-  `stealth/ox-alpha`'s score is also unchanged (0.980 → 0.980), but not verdict
-  for verdict: its ceiling shortfall was one `incorrect` and its hybrid8
-  shortfall is two `partial`s elsewhere — a wash in score over two different
-  failure sets.
+- **In English every model pays something for retrieval, but qwen3.8 and
+  `stealth/ox-alpha` pay almost nothing.** Both drop only 0.010 (qwen3.8:
+  1.000 → 0.990; `stealth/ox-alpha`: 0.980 → 0.970) even though the hybrid8
+  context misses gold chapters on 5 of 50 questions. Gemma pays the most,
+  dropping 0.060 (0.990 → 0.930).
 - **In Japanese every model pays.** qwen3.8 drops 0.040 (0.990 → 0.950), Gemma
   0.030 (0.980 → 0.950) from a slightly different ceiling distribution
   (48/2/0 vs qwen3.8's 49/1/0), so the two end level at 0.950 by different
@@ -210,28 +206,42 @@ a k=8 retrieved context instead of the gold one.
 
 ### Hybrid8: every question any model missed
 
-| Lang | Q | type | Gemma 4 | qwen3.8 | ox-alpha | gold in context |
+Includes every question graded `partial`/`incorrect` by any of the three
+models, plus every question with a gold chapter absent from the k=8 context
+even when all three models still answered correctly — a mechanical
+retrieval-failure check independent of the judge verdicts. Table shows only
+where things went wrong: `correct` verdicts are blanked to `-` so `partial`/
+`incorrect` stand out; "missing" lists the gold chapter(s) not among the k=8
+expanded hits.
+
+| Lang | Q | type | Gemma 4 | qwen3.8 | ox-alpha | missing |
 | --- | --- | --- | --- | --- | --- | --- |
-| en | 17 | single | incorrect | correct | correct | yes |
-| en | 29 | cross | incorrect | correct | correct | yes |
-| en | **32** | cross | partial | correct | partial | **no** |
-| en | 48 | cross | partial | correct | correct | yes |
-| en | **50** | cross | correct | correct | partial | **no** |
-| ja | **27** | cross | partial | partial | incorrect | **no** |
-| ja | 29 | cross | incorrect | incorrect | correct | yes |
-| ja | 36 | cross | partial | correct | correct | yes |
-| ja | **42** | cross | correct | incorrect | correct | **no** |
-| ja | 44 | cross | partial | correct | correct | yes |
+| en | 17 | single | incorrect | - | - | — |
+| en | 29 | cross | incorrect | - | - | — |
+| en | **31** | cross | partial | partial | partial | **Ch22** |
+| en | **32** | cross | partial | - | partial | **Ch15** |
+| en | **38** | cross | - | - | - | **Ch32** |
+| en | **42** | cross | - | - | - | **Ch23** |
+| en | 48 | cross | partial | - | - | — |
+| en | **50** | cross | - | - | partial | **Ch23** |
+| ja | **27** | cross | partial | partial | incorrect | **Ch33** |
+| ja | 29 | cross | incorrect | incorrect | - | — |
+| ja | **32** | cross | - | - | - | **Ch15** |
+| ja | 36 | cross | partial | - | - | — |
+| ja | **42** | cross | - | incorrect | - | **Ch23, Ch29** |
+| ja | 44 | cross | partial | - | - | — |
 
 * **Cross-reference synthesis dominates the table.** Every row but one is
   `cross`; the lone `single` question, en Q17, is one of Gemma's misses — the
   other models get it.
-* **Four rows are shared blind spots — gold chapters absent from
+* **Eight rows are shared blind spots — gold chapters absent from
   the k=8 context — so a `correct` verdict there reflects prior knowledge or a
-  lenient judge, not reading comprehension:** en Q32 and ja Q42 (both
-  documented in [HYBRID.md § Shared blind spots](../HYBRID.md#shared-blind-spots)),
-  plus en Q50 and ja Q27 (the same failure mode, not among HYBRID.md's four
-  listed cases). Restricting to the questions whose gold chapters are actually
+  lenient judge, not reading comprehension:** en Q31, en Q32, en Q38, en Q42,
+  ja Q32, and ja Q42 (all six documented in
+  [HYBRID.md § Shared blind spots](../HYBRID.md#shared-blind-spots) — four for
+  English at `k≤10`, two for Japanese), plus en Q50 and ja Q27 (the same
+  failure mode at k=8, not among HYBRID.md's `k≤10` blind spots).
+  Restricting to the questions whose gold chapters are actually
   present — English n=45, Japanese n=47 — each model's correct/partial/incorrect
   becomes: Gemma 42/1/2 (en), 44/2/1 (ja); qwen3.8 45/0/0 (en), 46/0/1 (ja);
   `stealth/ox-alpha` 45/0/0 (en), 47/0/0 (ja). On the evidence actually

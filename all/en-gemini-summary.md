@@ -144,7 +144,7 @@ The segment reveals a secret plot between the dismissed guard Sitaram and Rukmin
 
 ## Chapter 22
 
-The dismissed guard Bhagavat, a pious but vengeful man, is approached by his foolish former colleague, Sitaram. Together they conspire to forge a petition to the Emperor of Delhi, using a ring with Yubaraj Udayaditya's seal (obtained by Rukmini), which frames the prince for treason against his own father. However, in a double-cross, Bhagavat takes the forged document not to Delhi, but directly to King Pratapaditya, pretending to have foiled the plot. This act of betrayal successfully frames Udayaditya and earns Bhagavat his job back at the palace.
+The dismissed guard Bhagavat, a pious but vengeful man, is approached by his foolish former colleague, Sitaram. Together they conspire to forge a petition to the Emperor of Delhi, stamped with Yubaraj Udayaditya's seal (obtained by Rukmini), falsely accusing King Pratapaditya of treason so that Udayaditya could seize the throne. However, in a double-cross, Bhagavat takes the forged document not to Delhi, but directly to King Pratapaditya, claiming to have intercepted it from a servant of Udayaditya. This act of betrayal frames Udayaditya as the plotter behind the forged petition and earns Bhagavat his job back at the palace.
 
 ## Chapter 23
 

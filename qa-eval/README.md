@@ -24,11 +24,11 @@ and **Ceiling** have been run for both languages.
 | Vector k=10 | 45/50 (0.930) | 43/50 (0.900) | Standard dense vector search (k=10) |
 | Vector-line k=5 | 36/50 (0.810) | 36/50 (0.800) | Line-level dense vector search (k=5) |
 | Vector-line k=10 | 41/50 (0.890) | 41/50 (0.860) | Line-level dense vector search (k=10) |
-| V-hybrid k=5 | 40/50 (0.890) | 42/50 (0.890) | Segment ∪ Line dense union (k=5) |
+| V-hybrid k=5 | 40/50 (0.880) | 42/50 (0.890) | Segment ∪ Line dense union (k=5) |
 | V-hybrid k=10 | 43/50 (0.910) | 43/50 (0.900) | Segment ∪ Line dense union (k=10) |
-| Hybrid k=5 | 43/50 (0.910) | 45/50 (0.930) | Dense ∪ BM25 union (k=5) |
-| Hybrid k=8 | 46/50 (0.940) | 46/50 (0.950) | Dense ∪ BM25 union (k=8) |
-| Hybrid k=10 | 48/50 (0.970) | 45/50 (0.930) | Dense ∪ BM25 union (k=10) |
+| Hybrid k=5 | 42/50 (0.900) | 45/50 (0.930) | Dense ∪ BM25 union (k=5) |
+| Hybrid k=8 | 45/50 (0.930) | 46/50 (0.950) | Dense ∪ BM25 union (k=8) |
+| Hybrid k=10 | 47/50 (0.960) | 45/50 (0.930) | Dense ∪ BM25 union (k=10) |
 | Extract | 40/50 (0.850) | 41/50 (0.860) | Per-chapter summarization-based extraction |
 | Filter2 | 36/50 (0.800) | 40/50 (0.840) | LLM-as-retriever (binary: yes/no) |
 | Filter3 | 46/50 (0.940) | 43/50 (0.890) | LLM-as-retriever (ternary: yes/maybe/no) |
@@ -60,7 +60,7 @@ only variable is synthesis.
 
 > [!IMPORTANT]
 > **Practical Optimal Solution**
-> For English, **Dense ∪ BM25 Union** (`Hybrid k=10`) is the best practical solution, achieving the highest accuracy (**0.970**).
+> For English, **Dense ∪ BM25 Union** (`Hybrid k=10`) is the best practical solution, achieving the highest accuracy (**0.960**).
 > For Japanese, **Dense ∪ BM25 Union** (`Hybrid k=8`) is the best practical solution, achieving the highest accuracy (**0.950**).
 
 ## Key Findings by Strategy
@@ -96,7 +96,7 @@ Dense ∪ BM25 (HYBRID), en / ja:
 * **Don't Fuse — Union:** Rank-fusion algorithms (RRF, Borda, CombSUM) suppress more hits than they recover, underperforming dense-only at k=5. Taking the set-theoretic union of independent dense and BM25 top-k sets is parameter-free, robust, and wins (+4 strict recall at both depths).
 * **Dense-Blind Recovery:** BM25 lexical matching recovers nearly all proper-noun/distinctive terms (Class A misses like the signet ring or Delhi petition) that dense embedding fails to rank.
 * **Shared Blind Spots:** Four cross-reference questions (Q31, Q32, Q38, Q42) remain unrecoverable by both retrievers, requiring query expansion or multi-query techniques instead of a better blend.
-* **Sweet Spot at Japanese k=8 vs English k=10:** For Japanese, `k=8` hits the optimal sweet spot achieving **46/50 (0.950)**, as `k=10` suffers from synthesis regressions (Q34) due to larger contexts. For English, however, the answerer manages the larger context better, allowing `Hybrid k=10` to sustain its peak accuracy of **48/50 (0.970)**, while `Hybrid k=8` scores **46/50 (0.940)**.
+* **Sweet Spot at Japanese k=8 vs English k=10:** For Japanese, `k=8` hits the optimal sweet spot achieving **46/50 (0.950)**, as `k=10` suffers from synthesis regressions (Q34) due to larger contexts. For English, however, the answerer manages the larger context better, allowing `Hybrid k=10` to sustain its peak accuracy of **47/50 (0.960)**, while `Hybrid k=8` scores **45/50 (0.930)**.
 
 ### Segment ∪ Line Dense Hybrid (`V-hybrid`) — [VECTOR-HYBRID.md](VECTOR-HYBRID.md)
 
@@ -131,7 +131,7 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 1. **Evaluation Collapses to Retrieval:** The `Ceiling` run proves that as long as the correct chapters are included in the context, the model can generate answers with high accuracy. Therefore, improving a QA system is almost entirely equivalent to improving retrieval recall.
 2. **Don't Fuse — Union:** When combining different retrievers (e.g., Dense and BM25, or Segment and Line), algorithms that blend scores into a single ranking (like RRF) often push correct answers out. Taking the set-theoretic union of their individual top-k results is the safest and most effective approach.
 3. **Convergence in Optimal Strategy by Language:**
-   * For both **English** and **Japanese**, **Dense ∪ BM25 Union** (`Hybrid`) is the best approach, achieving the highest accuracy (**0.970** at `k=10` for English, **0.950** at `k=8` for Japanese). It effectively breaks the limitations of pure dense retrieval by recovering proper-noun/distinctive terms.
+   * For both **English** and **Japanese**, **Dense ∪ BM25 Union** (`Hybrid`) is the best approach, achieving the highest accuracy (**0.960** at `k=10` for English, **0.950** at `k=8` for Japanese). It effectively breaks the limitations of pure dense retrieval by recovering proper-noun/distinctive terms.
 
 ## Pipeline (`Makefile`)
 

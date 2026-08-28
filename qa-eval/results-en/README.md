@@ -41,11 +41,11 @@ all      Vector k=5        50      40       4         6     0.840     0.720    0
 all      Vector k=10       50      45       3         2     0.930     0.840    0.205
 all      Vector-line k=5   50      36       9         5     0.810     0.660    0.401
 all      Vector-line k=10  50      41       7         2     0.890     0.780    0.274
-all      V-hybrid k=5      50      40       9         1     0.890     0.760    0.297
+all      V-hybrid k=5      50      40       8         2     0.880     0.760    0.297
 all      V-hybrid k=10     50      43       5         2     0.910     0.900    0.182
-all      Hybrid k=5        50      43       5         2     0.910     0.800    0.251
-all      Hybrid k=8        50      46       2         2     0.940     0.900    0.179
-all      Hybrid k=10       50      48       1         1     0.970     0.920    0.154
+all      Hybrid k=5        50      42       6         2     0.900     0.800    0.251
+all      Hybrid k=8        50      45       3         2     0.930     0.900    0.179
+all      Hybrid k=10       50      47       2         1     0.960     0.920    0.154
 all      Extract           50      40       5         5     0.850     0.740    0.843
 all      Filter2           50      36       8         6     0.800     0.600    0.808
 all      Filter3           50      46       2         2     0.940     0.880    0.775
@@ -73,11 +73,11 @@ cross    Vector k=5        25      16       4         5     0.720     0.440    0
 cross    Vector k=10       25      20       3         2     0.860     0.680    0.274
 cross    Vector-line k=5   25      11       9         5     0.620     0.320    0.409
 cross    Vector-line k=10  25      16       7         2     0.780     0.560    0.305
-cross    V-hybrid k=5      25      15       9         1     0.780     0.520    0.369
+cross    V-hybrid k=5      25      15       8         2     0.760     0.520    0.369
 cross    V-hybrid k=10     25      19       5         1     0.860     0.800    0.245
-cross    Hybrid k=5        25      19       5         1     0.860     0.600    0.325
-cross    Hybrid k=8        25      22       2         1     0.920     0.800    0.242
-cross    Hybrid k=10       25      24       1         0     0.980     0.840    0.211
+cross    Hybrid k=5        25      18       6         1     0.840     0.600    0.325
+cross    Hybrid k=8        25      21       3         1     0.900     0.800    0.242
+cross    Hybrid k=10       25      23       2         0     0.960     0.840    0.211
 cross    Extract           25      16       5         4     0.740     0.480    0.686
 cross    Filter2           25      12       7         6     0.620     0.200    0.617
 cross    Filter3           25      21       2         2     0.880     0.760    0.611
@@ -95,14 +95,17 @@ accuracy (0.93 vs 0.85) while Extract still leads sharply on chapter precision
 (0.84).
 
 **Hybrid** (dense ∪ BM25 union) becomes the top retrieval method: Hybrid k=10
-at 0.970 overtakes Filter3 (0.940) by recovering the three lexically-distinctive
-cross-reference chapters that dense-only search cannot rank (Q31, Q43, Q49 —
-the Class A cases from [§ Both wrong](#both-wrong-what-k10-cannot-fix)). The
-cross-reference score rises from 0.860 to 0.980 (incorrect 2→0). Hybrid k=8
-(0.940) recovers all three Class A chapters and lifts cross to 0.920, sitting
-between k=5 (0.910) and k=10 (0.970). Single-passage does *not* saturate to 1.00
-under any Hybrid depth — all three land at 24/25 — because the wider union context
-occasionally confuses synthesis on single-passage questions.
+at 0.960 overtakes Filter3 (0.940) by fully recovering two of the three
+lexically-distinctive cross-reference chapters that dense-only search cannot
+rank (Q43, Q49 — the Class A cases from
+[§ Both wrong](#both-wrong-what-k10-cannot-fix)) and partially recovering the
+third (Q31 — Ch21 enters the union context but Ch22 still does not, so the
+answer lands `partial`). The cross-reference score rises from 0.860 to 0.960
+(incorrect 2→0). Hybrid k=8 (0.930) recovers Q43 and Q49 fully, partially
+recovers Q31, and lifts cross to 0.900, sitting between k=5 (0.900) and k=10
+(0.960). Single-passage does *not* saturate to 1.00 under any Hybrid depth —
+all three land at 24/25 — because the wider union context occasionally
+confuses synthesis on single-passage questions.
 
 The **Filter** rows use the LLM as retriever rather than dense embeddings:
 Filter3 posts 0.940, Filter2 0.800. The `maybe`-verdict mechanism, cost/gold-floor
@@ -250,7 +253,7 @@ chapter independently, makes of them:
 
 | Q | gold | load-bearing chapter vector search misses | Vector k=5 | Vector k=10 | Hybrid k=8 | Hybrid k=10 | Extract |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 31 | 21,22,23 | Ch21,22 — the ring gift and the seal-forgery | incorrect | incorrect | **correct** | **correct** | **correct** |
+| 31 | 21,22,23 | Ch21,22 — the ring gift and the seal-forgery | incorrect | incorrect | partial | partial | **correct** |
 | 43 | 11,37 | Ch37 — the Chandradwip palanquin extraction | partial | partial | **correct** | **correct** | **correct** |
 | 49 | 2,22 | Ch22 — the forged petition to the Emperor of Delhi | incorrect | incorrect | **correct** | **correct** | **correct** |
 | 32 | 11,15,16 | Ch15 — the secret stipend to the dismissed guards | partial | partial | partial | partial | partial |
@@ -278,9 +281,15 @@ proper-noun/term-heavy queries where dense embedding is blind. Ch22 is the
 standout — load-bearing for *two* of these questions (Q31 and Q49) and
 resistant to retrieval in both.
 
-**Hybrid k=8 and k=10 recover all three.** The BM25 component ranks Ch21/22 (Q31),
-Ch37 (Q43), and Ch22 (Q49) high enough to enter the union top-k — confirming
-that the failure was lexical invisibility, not gold ambiguity. See
+**Hybrid k=8 and k=10 fully recover two of the three.** The BM25 component
+ranks Ch37 (Q43) and Ch22 (Q49) high enough to enter the union top-k,
+confirming that failure was lexical invisibility, not gold ambiguity. Q31 only
+partially recovers: Ch21 enters the union context but **Ch22 — the chapter
+where the petition is actually forged — does not**, at either k=8 or k=10 (see
+[HYBRID.md § Shared blind spots](../HYBRID.md#shared-blind-spots), which lists
+Ch22 as unrecoverable for Q31 at `k≤10`). With Ch21 alone, the answerer can
+describe the ring changing hands but not the petition's specific content, which
+the (corrected) gold answer now grades on — hence `partial`, not `correct`. See
 [§ Hybrid](#hybrid-dense--bm25-union) for the per-question breakdown.
 
 ### Class B — the failure shared with Extract (Q32)
@@ -306,12 +315,13 @@ Q32 correct.
 
 The union approach from [HYBRID.md](../HYBRID.md) converts the strict-recall
 retrieval gain into answer accuracy. At k=10, it achieves the top retrieval
-accuracy of **0.970** (with k=8 at **0.940**), recovering the Class A chapters
-that dense-only search cannot reach.
+accuracy of **0.960** (with k=8 at **0.930**), mostly recovering the Class A
+chapters that dense-only search cannot reach — fully for Q43/Q49, partially for
+Q31 (Ch22 stays out of reach).
 
 ### Hybrid k=5 vs Vector k=10
 
-Hybrid k=5 (0.910) sits just below Vector k=10 (0.930) overall, but the two
+Hybrid k=5 (0.900) sits just below Vector k=10 (0.930) overall, but the two
 methods win on **orthogonal questions**:
 
 | direction | n | questions | class |
@@ -323,18 +333,19 @@ The three Hybrid k=5 wins are all retrieval fixes — BM25's lexical signal surf
 chapters that dense embedding ranks outside the top-10. Q31 and Q49 are Class A:
 Ch21/22 (ring-gift / seal-forgery chain) and Ch22 (forged Delhi petition), both
 lexically distinctive but semantically generic. On cross-reference, Hybrid k=5
-(0.860) is level with Vector k=10 (0.860) — it is the single-passage regression
-(Q17, synthesis — the wider union context confuses the answerer on a single-chapter
-question) that costs it overall.
+(0.840) trails Vector k=10 (0.860) slightly — Q31 landing `partial` instead of
+`correct` (Ch22 still missing) accounts for the gap — and the single-passage
+regression (Q17, synthesis — the wider union context confuses the answerer on a
+single-chapter question) costs it further overall.
 
-### Hybrid k=10 recovers the Class A frontier
+### Hybrid k=10 recovers most of the Class A frontier
 
-At k=10 the union closes the Class A gap entirely. The four questions where
+At k=10 the union closes most of the Class A gap. The four questions where
 Hybrid k=10 beats Vector k=10 are all missed-context:
 
 | Q | gold | dropped by Vector k=10 | why BM25 recovers it |
 | --- | --- | --- | --- |
-| Q31 | 21,22,23 | Ch21, Ch22 | "signet ring", "seal" — low-semantic, high-lexical |
+| Q31 | 21,22,23 | Ch21, Ch22 | only Ch21 recovers; Ch22 stays outside top-10 at any k≤10 for this question (see [HYBRID.md § Shared blind spots](../HYBRID.md#shared-blind-spots)) — partial credit only |
 | Q34 | 30,31,33 | Ch31 | partial recovery: Ch31 enters BM25 top-k |
 | Q43 | 11,37 | Ch37 | "Chandradwip palanquin" — proper-noun-heavy |
 | Q49 | 2,22 | Ch22 | "Emperor of Delhi", "forged petition" |
@@ -348,24 +359,27 @@ additional scenes at k=10.
 
 ### Hybrid k=8: Performance and Trade-offs
 
-Expanding the retrieval depth to `k=8` yields a weighted score of **46/50 (0.940)**, sitting directly between `k=5` (**0.910**) and `k=10` (**0.970**). 
+Expanding the retrieval depth to `k=8` yields a weighted score of **45/50 (0.930)**, sitting directly between `k=5` (**0.900**) and `k=10` (**0.960**). 
 
 - **Retrieval Gains over k=5:** Deepening the search to `k=8` expands the retrieved context sufficiently to recover the missing gold chapters for **Q27** (Ch33), **Q28** (Ch9), **Q43** (Ch37), and **Q50** (Ch23), upgrading all of them from partial/incorrect to correct. While it suffers a single synthesis regression on **Q29** (dropping from correct at `k=5` to incorrect), it nets a +3 correct answer gain.
-- **Comparison to k=10:** Unlike Japanese, where context dilution at `k=10` offsets retrieval gains and pulls the overall score down to `0.930` (below `k=8`'s `0.950`), English shows greater synthesis resilience. Moving from `k=8` to `k=10` retrieves no new missing contexts (both share identical performance on the missed-context questions above), but `k=10` recovers the regression on **Q29**, improves **Q17** to correct, and completes **Q48**. Although `k=10` triggers the regression on **Q22** (which `k=8` gets correct), it still nets +2 correct answers overall (**48/50** vs. **46/50**), confirming that English LLM synthesis handles the larger context at `k=10` (~25 scenes) successfully.
+- **Comparison to k=10:** Unlike Japanese, where context dilution at `k=10` offsets retrieval gains and pulls the overall score down to `0.930` (below `k=8`'s `0.950`), English shows greater synthesis resilience. Moving from `k=8` to `k=10` retrieves no new missing contexts (both share identical performance on the missed-context questions above), but `k=10` recovers the regression on **Q29**, improves **Q17** to correct, and completes **Q48**. Although `k=10` triggers the regression on **Q22** (which `k=8` gets correct), it still nets +2 correct answers overall (**47/50** vs. **45/50**), confirming that English LLM synthesis handles the larger context at `k=10` (~25 scenes) successfully.
 
-### The two-question residual
+### The three-question residual
 
-Ceiling beats Hybrid k=10 on just two questions:
+Ceiling beats Hybrid k=10 on three questions:
 
 - **Q22 (synthesis)** — the union's extra context triggers an incorrect answer on
   this single-passage question; Ceiling, with *only* the gold chapter, reads it
   correctly.
+- **Q31 (missed context)** — Ch22 (where the petition is actually forged) is
+  outside both retrievers' top-k at k=10; Ch21 alone lets Hybrid k=10 describe
+  the ring changing hands but not the petition's content, landing `partial`.
 - **Q32 (missed context)** — Ch15 (the secret stipend detail) is outside both
   retrievers' top-k at k=10 and remains a Class B unreachable.
 
-These two together pin Hybrid k=10's residual: one precision problem (the union
-is too wide for a single-passage question), one shared blind spot no retrieval
-blend fixes.
+These three together pin Hybrid k=10's residual: one precision problem (the union
+is too wide for a single-passage question), two shared blind spots (Q31 Ch22,
+Q32 Ch15) no retrieval blend fixes.
 
 ## Vector-line (line-level retrieval)
 
@@ -437,10 +451,10 @@ strict-recall gain from [VECTOR-HYBRID.md](../VECTOR-HYBRID.md) (en +2 @ k=5, +3
 dense + BM25, so it needs no score-scale reconciliation and works in both
 languages.
 
-It scores **0.890 (k=5) / 0.910 (k=10)** — above plain Vector k=5 (0.840) and
+It scores **0.880 (k=5) / 0.910 (k=10)** — above plain Vector k=5 (0.840) and
 Vector-line (0.810 / 0.890), below segment Vector k=10 (0.930) and the dense∪BM25
-Hybrid (0.910 / 0.970). The most striking column is `incorrect`: V-hybrid k=5
-has just **1** (vs Vector k=5's 6, Vector-line k=5's 5), with 9 partials. The
+Hybrid (0.900 / 0.960). The most striking column is `incorrect`: V-hybrid k=5
+has just **2** (vs Vector k=5's 6, Vector-line k=5's 5), with 8 partials. The
 union surfaces so many gold chapters that almost nothing is fully missed — chapter
 recall on cross-reference reaches **0.800 at k=10** (vs Vector k=10's 0.680) —
 but the recovered chapters convert to *partial* more often than *correct*: the
@@ -511,14 +525,14 @@ and the gradient tracks retrieval quality exactly:
 | Filter2 | 0.800 | 13 | 12 | 1 | 0 |
 | Vector k=5 | 0.840 | 10 | 8 | 2 | 1 |
 | Extract | 0.850 | 10 | 7 | 3 | 1 |
-| Hybrid k=5 | 0.910 | 6 | 5 | 1 | 0 |
+| Hybrid k=5 | 0.900 | 7 | 6 | 1 | 0 |
 | Vector k=10 | 0.930 | 5 | 5 | 0 | 1 |
 | Filter3 | 0.940 | 4 | 3 | 1 | 1 |
-| Hybrid k=10 | 0.970 | 2 | 1 | 1 | 1 |
+| Hybrid k=10 | 0.960 | 3 | 2 | 1 | 1 |
 
 The count shrinks monotonically with accuracy: the better the retrieval, the
 fewer questions separate it from the ceiling. **Hybrid k=10 — the top-scoring
-retrieval method — sits just two questions below Ceiling**; Filter3 sits four.
+retrieval method — sits just three questions below Ceiling**; Filter3 sits four.
 
 Where the last column is non-zero it is always the same question: Q48, where
 Ceiling lands `partial`. It is a completeness gap on a two-part answer, not a
@@ -608,7 +622,7 @@ modes run on `ollama:gemma4:31b-it-qat` with the same corpus; details in
 ### GraphRAG local (0.660)
 
 Local search posts 28/50 (0.660) — below Filter2 (0.800) and far below Hybrid
-k=10 (0.970). The chapter-retrieval numbers tell the story: **recall 0.860,
+k=10 (0.960). The chapter-retrieval numbers tell the story: **recall 0.860,
 precision 0.135** (the lowest of any non-global method). Entity-graph expansion
 tends to pull in nearly all 37 chapters as expanded context, so gold chapters
 are almost always present — but the answerer is forced to synthesize from an
@@ -730,13 +744,13 @@ index).
   lexically distinctive; BM25 surfaces these chapters at k=10, making the union
   approach as effective as per-chapter reading for the Class A frontier at a
   fraction of the cost.
-- **Hybrid k=10 (0.970) is the top retrieval method** and the closest to Ceiling
+- **Hybrid k=10 (0.960) is the top retrieval method** and the closest to Ceiling
   among all methods. It translates the +4 retrieval recall from HYBRID.md into
-  +3 correct answers over Vector k=10, with one synthesis regression (Q22) and one
-  shared blind spot (Q32, Ch15). Single-passage does not saturate to 1.00 under
-  Hybrid — the wider union context occasionally distracts on single-chapter
-  questions — but on cross-reference Hybrid k=10 (0.980) matches the cross
-  Ceiling (0.980) exactly.
+  +2 correct answers over Vector k=10, with one synthesis regression (Q22) and two
+  shared blind spots (Q31, Ch22; Q32, Ch15). Single-passage does not saturate to
+  1.00 under Hybrid — the wider union context occasionally distracts on
+  single-chapter questions — and on cross-reference Hybrid k=10 (0.960) still
+  trails the cross Ceiling (0.980) by the Q31/Q32 blind spots.
 - **The `maybe` verdict is what makes the per-chapter filter work**, and its
   residual is a *confident* wrong `no` (Q32, Q34, Q42) that no threshold trick
   reaches — but the gold-floor and cost analysis still finds no retrieval
@@ -754,13 +768,13 @@ index).
   seven methods below actually fill (three more are scored `correct` on the
   same omission — see [§ Q48](#q48-the-two-part-question)). Ceiling's margin
   over each method
-  (13/10/10/6/5/4/2 for
+  (13/10/10/7/5/4/3 for
   Filter2/Vector k=5/Extract/Hybrid k=5/Vector k=10/Filter3/Hybrid k=10) shrinks
   monotonically with retrieval quality, tracing the entire accuracy gap to
-  retrieval. Hybrid k=10 is within two questions — one synthesis regression and
-  one shared blind spot — and neither is a classifier or depth problem. The
-  retrieval frontier is effectively closed; what remains is one chapter no blend
-  of dense + BM25 can rank (Q32, Ch15).
+  retrieval. Hybrid k=10 is within three questions — one synthesis regression and
+  two shared blind spots — and neither is a classifier or depth problem. The
+  retrieval frontier is effectively closed; what remains is two chapters no blend
+  of dense + BM25 can rank (Q31, Ch22; Q32, Ch15).
 - **The gold holds up.** Across every disagreement the failures trace to a
   method — never to the gold — and Ceiling confirms the two the other methods
   most often miss: Q31/Q43/Q49 (the vector-unreachable trio, all correct
