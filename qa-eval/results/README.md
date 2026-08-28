@@ -90,7 +90,7 @@ questions and no index.
 | `ollama:gemma4:26b-a4b-it-qat` | 96 (47/2/1) | 92 (42/8/0) |
 | `ollama:qwen3.6` (35B-A3B) | 99 (49/1/0) | 97 (47/3/0) |
 | `ollama:qwen3.8` (27B) | 100 (50/0/0) | 99 (49/1/0) |
-| `ollama:muse-glimmer` (27B) | 99 (49/1/0) | 97 (47/3/0) |
+| `ollama:muse-glimmer` (30B) | 99 (49/1/0) | 97 (47/3/0) |
 | `openai:gpt-5.6-luna` | 100 (50/0/0) | 97 (47/3/0) |
 | `openai:gpt-5.6-terra` | 95 (47/1/2) | 99 (49/1/0) |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (49/0/1) | 100 (50/0/0) |
@@ -144,10 +144,10 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `ollama:gemma4:26b-a4b-it-qat` | 33, 35 | 17 | **29**, 34, 35, 37, 40, 44, 46, 50 | — |
 | `ollama:qwen3.6` (35B-A3B) | 6 | — | **29**, 36, 48 | — |
 | `ollama:qwen3.8` (27B) | — | — | **29** | — |
-| `ollama:muse-glimmer` | 6 | — | 34, 35, 43 | — |
+| `ollama:muse-glimmer` (30B) | 6 | — | 34, 35, 43 | — |
 | `openai:gpt-5.6-luna` | — | — | **29**, 35, 48 | — |
 | `openai:gpt-5.6-terra` | 31 | 22, 49 | 43 | — |
-| `openrouter:stealth/ox-alpha` | — | 22 | — | — |
+| `openrouter:stealth/ox-alpha` (320B-A18B) | — | 22 | — | — |
 | `openrouter:poolside/laguna-s-2.1:free` | 26, 28, 31, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, **29**, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
 | `openrouter:cohere/north-mini-code:free` | 33, 36, 46, 49, 50 | 17 | 6, 26, 32, 33, 34, 35, 37, 38, 39, 42, 47, 48, 49, 50 | 12, 16, 28, **29**, 36, 46 |
 | `openrouter:minimax/minimax-m2.7:free` | 6, 34, 37 | — | 36, 37, 47 | — |
