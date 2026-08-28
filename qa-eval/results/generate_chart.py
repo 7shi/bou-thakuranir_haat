@@ -9,9 +9,14 @@ Run via `make report` (see Makefile), which regenerates both.
 # ///
 from pathlib import Path
 
+import matplotlib
 import matplotlib.pyplot as plt
 
 from report import LANGS, collect_rows
+
+# Fix the SVG element id salt so regenerating the chart doesn't churn
+# unrelated ids in the diff.
+matplotlib.rcParams["svg.hashsalt"] = "qa-eval-models-chart"
 
 HERE = Path(__file__).parent
 OUTPUT = HERE / "MODELS.svg"
