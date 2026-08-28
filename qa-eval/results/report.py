@@ -25,16 +25,24 @@ written `report.md` next to this script.
 """
 
 import argparse
+import importlib.util
 import re
-import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 QA_EVAL = HERE.parent
 ROOT = QA_EVAL.parent
 
-sys.path.insert(0, str(QA_EVAL))
-from report import accuracy, load_gold, load_jsonl, retrieval  # noqa: E402
+# Loaded by explicit path, not `from report import ...`: this file is itself
+# importable as `report` (by generate_chart.py, next to it), and that name
+# would collide with the parent qa-eval/report.py it needs here.
+_spec = importlib.util.spec_from_file_location("qa_eval_report", QA_EVAL / "report.py")
+_qa_eval_report = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_qa_eval_report)
+accuracy = _qa_eval_report.accuracy
+load_gold = _qa_eval_report.load_gold
+load_jsonl = _qa_eval_report.load_jsonl
+retrieval = _qa_eval_report.retrieval
 
 # <METHOD>-<MODEL>-<LANG>: MODEL is the only field that may contain "-" (e.g.
 # "google_gemma-4-31b-it"), so METHOD is everything up to the first "-" and LANG
@@ -151,6 +159,18 @@ def render_markdown(rows: list[dict]) -> str:
     return "\n".join(out) + "\n"
 
 
+def collect_rows(results: Path = HERE) -> list[dict]:
+    """Discover every judged run under `results` and build its score rows.
+
+    Shared by this file's report generation and generate_chart.py, both
+    invoked by `make report`, so both read scores through the same
+    discovery/aggregation code instead of each parsing report.md.
+    """
+    runs = discover_runs(results)
+    golds = {lang: load_gold(ROOT / f"questions-{lang}.jsonl") for lang in LANGS}
+    return build_rows(runs, golds)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -160,13 +180,10 @@ def main():
                         help="print the markdown instead of writing the file")
     args = parser.parse_args()
 
-    runs = discover_runs(HERE)
-    if not runs:
+    rows = collect_rows(HERE)
+    if not rows:
         print(f"No judge-*.jsonl found in {HERE}")
         return
-
-    golds = {lang: load_gold(ROOT / f"questions-{lang}.jsonl") for lang in LANGS}
-    rows = build_rows(runs, golds)
 
     print_table(rows)
     md = render_markdown(rows)

@@ -95,8 +95,14 @@ Scripts used to process and generate the files in this repository.
 directory|description
 ---------|----
 [proper_nouns/](proper_nouns/) | proper noun extraction and translation scripts
-[qa-eval/](qa-eval/) | QA evaluation: scene embedding/RAG vs. per-chapter extraction
-[qa-eval/results/](qa-eval/results/) | per-model answerer comparison (ceiling and hybrid8, many models)
 [scripts/](scripts/) | translation, segmentation, and conversion scripts
 [templates/](templates/) | site templates, plus build and deploy instructions
 [wikisource/](wikisource/) | Wikisource scraping and text extraction tools
+
+## QA evaluation
+
+[qa-eval/](qa-eval/) evaluates retrieval strategies for answering questions about the novel — vector search, BM25, hybrid union, LLM-as-retriever filtering, per-chapter extraction, and GraphRAG — plus a per-model comparison of answerer models under a fixed context. See [qa-eval/README.md](qa-eval/README.md) for the full writeup.
+
+**Per-model answerer comparison** ([qa-eval/results/README.md](qa-eval/results/README.md)): ceiling score (gold chapters as context, byte-identical across models) per model, English vs. Japanese.
+
+![Per-model answerer comparison](qa-eval/results/MODELS.svg)

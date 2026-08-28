@@ -19,7 +19,7 @@
 #   make ceiling MODEL=... LANG={en,ja}   # answer 50 questions -> ceiling-<MODEL>-<LANG>.jsonl
 #   make test    MODEL=... LANG={en,ja}   # answer question 1 only, both methods, no file output
 #   make judge                            # opt-in: grade every ungraded answer file
-#   make report                           # aggregate every judged run → report.md
+#   make report                           # aggregate every judged run → report.md + MODELS.svg
 #
 #   MODEL — llm7shi model string of the answerer (e.g. google:gemini-4-31b-it)
 #   LANG  — en | ja
@@ -123,8 +123,11 @@ judge:
 	done
 
 # Aggregate every <METHOD>-<MODEL>-<LANG>.jsonl that has a matching judge file
-# into report.md (and print the same table to the terminal). Mechanical, no LLM
-# and no MODEL/LANG needed — this directory's own report, independent of the
-# parent report.py, which scans only results-<lang>/ and ignores these runs.
+# into report.md (and print the same table to the terminal), then regenerate
+# MODELS.svg from the same rows (via report.collect_rows), so the chart never
+# drifts from report.md. Mechanical, no LLM and no MODEL/LANG needed — this
+# directory's own report, independent of the parent report.py, which scans
+# only results-<lang>/ and ignores these runs.
 report:
 	cd $(ROOT) && uv run results/report.py
+	uv run generate_chart.py
