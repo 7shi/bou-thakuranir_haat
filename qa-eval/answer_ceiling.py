@@ -57,6 +57,8 @@ def main():
     parser.add_argument("--scenes", default=None, help="scenes JSONL (default: all/<lang>-gemini.jsonl)")
     parser.add_argument("-o", "--output", default=None,
                         help="output JSONL path (default: qa-eval/results-<lang>/ceiling.jsonl)")
+    parser.add_argument("-c", "--count", type=int, default=None,
+                        help="stop after answering this many questions")
     args = parser.parse_args()
 
     lang = args.lang
@@ -84,10 +86,14 @@ def main():
     chapters = load_chapters(Path(args.scenes))
     print(f"Questions: {total}")
 
+    answered = 0
     with open(output_path, "a", encoding="utf-8") as out_f:
         for qid, q in enumerate(questions, start=1):
             if qid in done_qids:
                 continue
+            if args.count is not None and answered >= args.count:
+                print(f"Stopping after {answered} question(s) (--count {args.count})")
+                break
 
             question_text = q["question"]
             # The gold `chapters` are the context by definition — no retrieval,
@@ -120,6 +126,7 @@ def main():
             }
             out_f.write(json.dumps(record, ensure_ascii=False) + "\n")
             out_f.flush()
+            answered += 1
 
     print(f"Done → {output_path}")
 
