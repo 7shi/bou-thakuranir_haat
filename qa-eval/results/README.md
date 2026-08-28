@@ -127,56 +127,6 @@ other rows live in this directory and are aggregated in [report.md](report.md).)
   different questions — only Q37 recurs). The Japanese miss list is markedly
   longer than the English one — the same questions, the same gold, the same
   gold chapters.
-* **`stealth/ox-alpha` is the strongest Japanese model, and one of the few that
-  gain from English to Japanese.** Its 50/50 is the only perfect Japanese run in
-  the table, while in English it sits mid-table on a single outright error.
-  `gemini-3.7-flash` reverses direction the same way but from lower down
-  (0.970 → 0.980), `gpt-5.6-terra` does too, more sharply (0.950 → 0.990), and
-  `gemini-2.5-flash` joins them at the bottom of the table (0.940 → 0.950).
-* **The floor models fail in different kinds, not just degrees.**
-  `gemini-3.5-flash-lite` fails by refusing: nine of its ten `incorrect`
-  verdicts report that the answer is not in the context, with the gold chapters
-  in the context. `poolside/laguna-s-2.1:free` stays fluent and stops being
-  about the text — in Japanese it produces 8 outright errors, several on
-  single-fact lookups few other models miss. `cohere/north-mini-code:free` has
-  the largest language gap in the table (−0.190) and one Japanese answer that
-  echoes the question back with no answer content at all.
-  `nemotron-3.5-lightning:free` loses one Japanese row to a corrupted
-  generation — garbled English mixed with fragments of its own system
-  instructions — rather than to a misreading. The last two failure modes appear
-  in no other model here. `gemini-2.5-flash` ties `nemotron-3.5-lightning:free`'s
-  English score from a different profile: its one outright error is a factual
-  substitution — misstating a duration the gold answers correctly — rather than
-  a refusal or a corrupted generation.
-* **Only the small MoE separates itself among the local models.**
-  `gemma4:26b-a4b-it-qat` activates 4B parameters per token and is the only
-  ollama model below 0.950; it loses 0.040 from English to Japanese, twice any
-  other local model's loss. Its failure mode is legible in the verdicts: 8
-  `partial` and no outright error in Japanese, i.e. it finds the passage and
-  drops one of the two or three elements the gold answer enumerates.
-* **The 26B-A4B pair splits by host in Japanese, not English.**
-  `google:gemma-4-26b-a4b-it` and `ollama:gemma4:26b-a4b-it-qat` are the same
-  Gemma 4 26B-A4B model on different hosts, the API build and the QAT build,
-  the same relationship as the `gemma-4-31b-it` pair elsewhere in this
-  project. English is close either way (0.950 vs. 0.960), but Japanese is
-  not (0.940 vs. 0.920): the Google-hosted run turns half of the ollama run's
-  eight `partial`s into `correct` and trades one of them for a single
-  outright error instead — a different failure shape, not simply a better
-  score.
-* **Above 0.960 the shortfall is completeness on `cross` questions; below it,
-  single-hop misreadings appear as well.** An outright error on a `single`
-  question means misreading a chapter already supplied, and the floor models
-  produce most of them — but the strongest models are not immune: two of them
-  lose their only English verdict exactly that way, on the same question, from
-  the same chapter.
-* **The judge is `ollama:qwen3.6`, one of the answerers.** A same-family
-  preference cannot be ruled out from these runs, though qwen3.6 tops neither
-  language — it trails several models in each — which is weak evidence against a
-  strong self-preference rather than proof of none. The judge is also visibly
-  more lenient in Japanese on multi-part questions: an answer giving only one of
-  the two halves the gold requires is scored `partial` in English but often
-  passes as `correct` in Japanese, so the Japanese column understates how many
-  runs answer only half of such a question.
 
 ### Every question any model missed
 
