@@ -20,6 +20,7 @@ matplotlib.rcParams["svg.hashsalt"] = "qa-eval-models-chart"
 
 HERE = Path(__file__).parent
 OUTPUT = HERE / "MODELS.svg"
+OUTPUT_PNG = HERE / "MODELS.png"
 
 
 def weighted_pct(row: dict) -> int:
@@ -71,6 +72,8 @@ def main() -> None:
     fig.tight_layout()
     fig.savefig(OUTPUT)
     print(f"Saved: {OUTPUT}")
+    fig.savefig(OUTPUT_PNG)
+    print(f"Saved: {OUTPUT_PNG}")
 
 
 if __name__ == "__main__":
