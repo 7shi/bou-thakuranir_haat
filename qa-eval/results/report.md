@@ -22,6 +22,7 @@ as "_").
 | `ollama_qwen3.6` | ceiling | 98 (48/2/0) | 97 (47/3/0) |
 | `ollama_qwen3.8` | ceiling | 100 (50/0/0) | 99 (49/1/0) |
 | `openai_gpt-5.6-luna` | ceiling | 100 (50/0/0) | 97 (47/3/0) |
+| `openai_gpt-5.6-sol` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
 | `openai_gpt-5.6-terra` | ceiling | 96 (48/0/2) | 99 (49/1/0) |
 | `openrouter_cohere_north-mini-code_free` | ceiling | 93 (44/5/1) | 73 (29/15/6) |
 | `openrouter_minimax_minimax-m2.7_free` | ceiling | 96 (46/4/0) | 97 (47/3/0) |
@@ -50,6 +51,7 @@ language). A question absent from every column of a row was graded
 | `ollama_qwen3.6` | ceiling | 6, 31 | — | 29, 36, 48 | — |
 | `ollama_qwen3.8` | ceiling | — | — | 29 | — |
 | `openai_gpt-5.6-luna` | ceiling | — | — | 29, 35, 48 | — |
+| `openai_gpt-5.6-sol` | ceiling | — | — | — | — |
 | `openai_gpt-5.6-terra` | ceiling | — | 22, 49 | 43 | — |
 | `openrouter_cohere_north-mini-code_free` | ceiling | 33, 36, 46, 49, 50 | 17 | 6, 26, 31, 32, 33, 34, 35, 37, 38, 39, 42, 47, 48, 49, 50 | 12, 16, 28, 29, 36, 46 |
 | `openrouter_minimax_minimax-m2.7_free` | ceiling | 6, 31, 34, 37 | — | 36, 37, 47 | — |

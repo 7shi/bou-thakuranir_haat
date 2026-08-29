@@ -92,6 +92,7 @@ questions and no index.
 | `ollama:qwen3.8` (27B) | 100 (50/0/0) | 99 (49/1/0) |
 | `ollama:muse-glimmer` (30B) | 99 (49/1/0) | 97 (47/3/0) |
 | `openai:gpt-5.6-luna` | 100 (50/0/0) | 97 (47/3/0) |
+| `openai:gpt-5.6-sol` | 100 (50/0/0) | 100 (50/0/0) |
 | `openai:gpt-5.6-terra` | 96 (48/0/2) | 99 (49/1/0) |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (49/0/1) | 100 (50/0/0) |
 | `openrouter:poolside/laguna-s-2.1:free` | 89 (40/9/1) | 73 (31/11/8) |
@@ -107,24 +108,30 @@ other rows live in this directory and are aggregated in [report.md](report.md).)
 
 * **The top is crowded; the floor has widened.** Most models reach 0.960 or
   better in English, and several sit at 0.990 or 1.000 — `qwen3.8`,
-  `gpt-5.6-luna` and `gemini-3-flash-preview` answer all 50, and
-  `gemma-4-31b-it`, `muse-glimmer` and `nemotron-3-ultra-550b-a55b:free`
-  each drop a single `partial`. Ceiling is still a ceiling for that group: it
-  measures whether a model can read two or three chapters it has already been
-  handed, and those models can. Below that line, with the gold chapters
-  supplied: `gemini-3.5-flash-lite` at 0.860, `poolside/laguna-s-2.1:free` at
-  0.890, `cohere/north-mini-code:free` and `nemotron-3.5-lightning:free` tied
-  at 0.930, `gemini-2.5-flash` at 0.940, and `gemma-4-26b-a4b-it` and
+  `gpt-5.6-luna`, `gpt-5.6-sol` and `gemini-3-flash-preview` answer all 50 in
+  English, and `gemma-4-31b-it`, `muse-glimmer` and
+  `nemotron-3-ultra-550b-a55b:free` each drop a single `partial`. `gpt-5.6-sol`
+  is the only model perfect in **both** languages — every other perfect
+  English score drops at least one Japanese question, and
+  `stealth/ox-alpha`'s perfect Japanese score comes with one English miss.
+  Ceiling is still a ceiling for that group: it measures whether a model can
+  read two or three chapters it has already been handed, and those models
+  can. Below that line, with the gold chapters supplied: `gemini-3.5-flash-lite`
+  at 0.860, `poolside/laguna-s-2.1:free` at 0.890,
+  `cohere/north-mini-code:free` and `nemotron-3.5-lightning:free` tied at
+  0.930, `gemini-2.5-flash` at 0.940, and `gemma-4-26b-a4b-it` and
   `ollama:gemma4:26b-a4b-it-qat` tied at 0.950.
-* **Japanese costs most models something.** The losses run from 0.010
-  (`gemma-4-31b-it`, qwen3.8, `gemma-4-26b-a4b-it`, `qwen3.6`) to 0.200
-  (`cohere/north-mini-code:free`, the largest gap, ahead of
-  `poolside/laguna-s-2.1:free`'s 0.160).
-  `gemini-3.5-flash-lite` is the only model that scores identically in both
-  languages, at 0.860 (the same 41/4/5 split, on largely different
-  questions). The Japanese miss list is markedly
-  longer than the English one — the same questions, the same gold, the same
-  gold chapters.
+* **Japanese doesn't cost every model — a handful score higher there.**
+  `gemini-2.5-flash`, `gemini-3.7-flash`, `gpt-5.6-terra`, `stealth/ox-alpha`
+  and `minimax-m2.7:free` all post a *better* Japanese score than English.
+  Among the rest, losses run from 0.010 (`gemma-4-31b-it`, qwen3.8,
+  `gemma-4-26b-a4b-it`, `qwen3.6`) to 0.200 (`cohere/north-mini-code:free`,
+  the largest gap, ahead of `poolside/laguna-s-2.1:free`'s 0.160). Two models
+  score identically in both languages: `gemini-3.5-flash-lite` at 0.860 (the
+  same 41/4/5 split, on largely different questions) and `gpt-5.6-sol` at
+  1.000 (50/0/0 in both) — the only model perfect in both. The Japanese miss
+  list is markedly longer than the English one for most models — the same
+  questions, the same gold, the same gold chapters.
 
 ### Every question any model missed
 
@@ -144,6 +151,7 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `ollama:qwen3.8` (27B) | — | — | **29** | — |
 | `ollama:muse-glimmer` (30B) | 6 | — | 34, 35, 43 | — |
 | `openai:gpt-5.6-luna` | — | — | **29**, 35, 48 | — |
+| `openai:gpt-5.6-sol` | — | — | — | — |
 | `openai:gpt-5.6-terra` | — | 22, 49 | 43 | — |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | — | 22 | — | — |
 | `openrouter:poolside/laguna-s-2.1:free` | 26, 28, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, **29**, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
