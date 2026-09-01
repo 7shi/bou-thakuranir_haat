@@ -51,7 +51,7 @@ chapters exceed it:
 | 3  | 1 | 2,367 |
 
 Worked around in `qa-eval/opencode/` by having `extract.py` wrap each line
-to 100 columns before writing (content-preserving — verified byte-for-byte
+to 1,800 columns before writing (content-preserving — verified byte-for-byte
 on the non-whitespace characters across all 37 chapters × 2 languages), but
 that's a downstream patch, not a fix to the actual translation data.
 
