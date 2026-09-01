@@ -25,7 +25,9 @@ as "_").
 | `openai_gpt-5.6-sol` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
 | `openai_gpt-5.6-terra` | ceiling | 96 (48/0/2) | 99 (49/1/0) |
 | `openrouter_cohere_north-mini-code_free` | ceiling | 93 (44/5/1) | 73 (29/15/6) |
+| `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 97 (47/3/0) | 95 (45/5/0) |
 | `openrouter_minimax_minimax-m2.7_free` | ceiling | 96 (46/4/0) | 97 (47/3/0) |
+| `openrouter_minimax_minimax-m3_free` | ceiling | 98 (49/0/1) | 99 (49/1/0) |
 | `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | 99 (49/1/0) | 97 (47/3/0) |
 | `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 93 (43/7/0) | 86 (38/10/2) |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 89 (40/9/1) | 73 (31/11/8) |
@@ -54,7 +56,9 @@ language). A question absent from every column of a row was graded
 | `openai_gpt-5.6-sol` | ceiling | — | — | — | — |
 | `openai_gpt-5.6-terra` | ceiling | — | 22, 49 | 43 | — |
 | `openrouter_cohere_north-mini-code_free` | ceiling | 33, 36, 46, 49, 50 | 17 | 6, 26, 31, 32, 33, 34, 35, 37, 38, 39, 42, 47, 48, 49, 50 | 12, 16, 28, 29, 36, 46 |
+| `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 33, 45, 49 | — | 33, 35, 37, 38, 50 | — |
 | `openrouter_minimax_minimax-m2.7_free` | ceiling | 6, 31, 34, 37 | — | 36, 37, 47 | — |
+| `openrouter_minimax_minimax-m3_free` | ceiling | — | 22 | 50 | — |
 | `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | 31 | — | 37, 43, 44 | — |
 | `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 6, 28, 30, 31, 34, 36, 37 | — | 6, 27, 28, 33, 35, 36, 37, 40, 43, 50 | 29, 45 |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 26, 28, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, 29, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |

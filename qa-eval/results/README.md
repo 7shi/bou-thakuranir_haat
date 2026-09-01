@@ -97,7 +97,9 @@ questions and no index.
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (49/0/1) | 100 (50/0/0) |
 | `openrouter:poolside/laguna-s-2.1:free` | 89 (40/9/1) | 73 (31/11/8) |
 | `openrouter:cohere/north-mini-code:free` | 93 (44/5/1) | 73 (29/15/6) |
+| `openrouter:inclusionai/ling-3.0-flash-fin:free` | 97 (47/3/0) | 95 (45/5/0) |
 | `openrouter:minimax/minimax-m2.7:free` | 96 (46/4/0) | 97 (47/3/0) |
+| `openrouter:minimax/minimax-m3:free` | 98 (49/0/1) | 99 (49/1/0) |
 | `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 99 (49/1/0) | 97 (47/3/0) |
 | `openrouter:nvidia/nemotron-3.5-lightning:free` | 93 (43/7/0) | 86 (38/10/2) |
 
@@ -122,8 +124,9 @@ other rows live in this directory and are aggregated in [report.md](report.md).)
   0.930, `gemini-2.5-flash` at 0.940, and `gemma-4-26b-a4b-it` and
   `ollama:gemma4:26b-a4b-it-qat` tied at 0.950.
 * **Japanese doesn't cost every model — a handful score higher there.**
-  `gemini-2.5-flash`, `gemini-3.7-flash`, `gpt-5.6-terra`, `stealth/ox-alpha`
-  and `minimax-m2.7:free` all post a *better* Japanese score than English.
+  `gemini-2.5-flash`, `gemini-3.7-flash`, `gpt-5.6-terra`, `stealth/ox-alpha`,
+  `minimax-m2.7:free` and `minimax-m3:free` all post a *better* Japanese score
+  than English.
   Among the rest, losses run from 0.010 (`gemma-4-31b-it`, qwen3.8,
   `gemma-4-26b-a4b-it`, `qwen3.6`) to 0.200 (`cohere/north-mini-code:free`,
   the largest gap, ahead of `poolside/laguna-s-2.1:free`'s 0.160). Two models
@@ -156,7 +159,9 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `openrouter:stealth/ox-alpha` (320B-A18B) | — | 22 | — | — |
 | `openrouter:poolside/laguna-s-2.1:free` | 26, 28, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, **29**, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
 | `openrouter:cohere/north-mini-code:free` | 33, 36, 46, 49, 50 | 17 | 6, 26, 31, 32, 33, 34, 35, 37, 38, 39, 42, 47, 48, 49, 50 | 12, 16, 28, **29**, 36, 46 |
+| `openrouter:inclusionai/ling-3.0-flash-fin:free` | 33, 45, 49 | — | 33, 35, 37, 38, 50 | — |
 | `openrouter:minimax/minimax-m2.7:free` | 6, 31, 34, 37 | — | 36, 37, 47 | — |
+| `openrouter:minimax/minimax-m3:free` | — | 22 | 50 | — |
 | `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 31 | — | 37, 43, 44 | — |
 | `openrouter:nvidia/nemotron-3.5-lightning:free` | 6, 28, 30, 31, 34, 36, 37 | — | 6, 27, 28, 33, 35, 36, 37, 40, 43, 50 | **29**, 45 |
 
