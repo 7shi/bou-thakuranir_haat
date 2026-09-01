@@ -9,3 +9,7 @@ graphrag-*/global/
 graphrag-*/.env
 graphrag-*/settings.yaml
 results/MODELS.png
+opencode/en/
+opencode/ja/
+opencode/tmp/
+opencode/ceiling.sh
