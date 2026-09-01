@@ -100,6 +100,7 @@ questions and no index.
 | `openrouter:inclusionai/ling-3.0-flash-fin:free` | 97 (47/3/0) | 95 (45/5/0) |
 | `openrouter:minimax/minimax-m2.7:free` | 96 (46/4/0) | 97 (47/3/0) |
 | `openrouter:minimax/minimax-m3:free` | 98 (49/0/1) | 99 (49/1/0) |
+| `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 93 (43/7/0) | 90 (41/8/1) |
 | `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 99 (49/1/0) | 97 (47/3/0) |
 | `openrouter:nvidia/nemotron-3.5-lightning:free` | 93 (43/7/0) | 86 (38/10/2) |
 
@@ -120,9 +121,9 @@ other rows live in this directory and are aggregated in [report.md](report.md).)
   read two or three chapters it has already been handed, and those models
   can. Below that line, with the gold chapters supplied: `gemini-3.5-flash-lite`
   at 0.860, `poolside/laguna-s-2.1:free` at 0.890,
-  `cohere/north-mini-code:free` and `nemotron-3.5-lightning:free` tied at
-  0.930, `gemini-2.5-flash` at 0.940, and `gemma-4-26b-a4b-it` and
-  `ollama:gemma4:26b-a4b-it-qat` tied at 0.950.
+  `cohere/north-mini-code:free`, `nemotron-3-super-120b-a12b:free` and
+  `nemotron-3.5-lightning:free` tied at 0.930, `gemini-2.5-flash` at 0.940,
+  and `gemma-4-26b-a4b-it` and `ollama:gemma4:26b-a4b-it-qat` tied at 0.950.
 * **Japanese doesn't cost every model — a handful score higher there.**
   `gemini-2.5-flash`, `gemini-3.7-flash`, `gpt-5.6-terra`, `stealth/ox-alpha`,
   `minimax-m2.7:free` and `minimax-m3:free` all post a *better* Japanese score
@@ -162,6 +163,7 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `openrouter:inclusionai/ling-3.0-flash-fin:free` | 33, 45, 49 | — | 33, 35, 37, 38, 50 | — |
 | `openrouter:minimax/minimax-m2.7:free` | 6, 31, 34, 37 | — | 36, 37, 47 | — |
 | `openrouter:minimax/minimax-m3:free` | — | 22 | 50 | — |
+| `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 6, 26, 28, 31, 34, 37, 49 | — | **29**, 31, 33, 34, 37, 46, 49, 50 | 36 |
 | `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 31 | — | 37, 43, 44 | — |
 | `openrouter:nvidia/nemotron-3.5-lightning:free` | 6, 28, 30, 31, 34, 36, 37 | — | 6, 27, 28, 33, 35, 36, 37, 40, 43, 50 | **29**, 45 |
 
