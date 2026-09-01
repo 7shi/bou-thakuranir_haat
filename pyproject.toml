@@ -9,7 +9,7 @@ dependencies = [
     "en-core-web-sm",
     "ja-core-news-sm",
     "jinja2>=3.1.0",
-    "llm7shi",
+    "llm7shi[statusline]",
     "markdown>=3.7",
     "pillow>=12.3.0",
     "pip>=25.2",

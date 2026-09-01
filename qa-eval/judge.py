@@ -30,12 +30,14 @@ here; this script only produces the LLM verdict.
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, Field
 
 from llm7shi.compat import generate_with_schema
+from llm7shi.statusline import StatusLine
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -57,7 +59,8 @@ def load_questions(path: Path) -> dict[int, dict]:
     return questions
 
 
-def judge_answer(question: str, gold: str, rationale: str, candidate: str, model: str) -> Judgement:
+def judge_answer(question: str, gold: str, rationale: str, candidate: str, model: str,
+                  file=sys.stdout, log=print) -> Judgement:
     prompt = (
         f"You are grading a candidate answer against the gold-standard answer for a "
         f"reading-comprehension question about a novel.\n"
@@ -77,15 +80,15 @@ def judge_answer(question: str, gold: str, rationale: str, candidate: str, model
     max_retries = 3
     judgement = None
     for attempt in range(max_retries + 1):
-        result = generate_with_schema([prompt], Judgement, model=model, show_params=False)
+        result = generate_with_schema([prompt], Judgement, model=model, show_params=False, file=file)
         judgement = Judgement(**json.loads(result.text))
         if len(judgement.reason.strip()) >= 20:
             break
         if attempt < max_retries:
-            print(f"  reason too short ({len(judgement.reason.strip())} chars) — "
-                  f"retrying ({attempt + 1}/{max_retries})")
+            log(f"  reason too short ({len(judgement.reason.strip())} chars) — "
+                f"retrying ({attempt + 1}/{max_retries})")
         else:
-            print(f"  reason still too short after {max_retries} retries — keeping as is")
+            log(f"  reason still too short after {max_retries} retries — keeping as is")
     return judgement
 
 
@@ -98,6 +101,10 @@ def main():
                         help="judge model (llm7shi string); Gemma 4 is weak at structured output")
     parser.add_argument("-i", "--input", default=None,
                         help="questions JSONL (gold standard; default: questions-<lang>.jsonl)")
+    parser.add_argument("--started-at", type=float, default=None,
+                        help="unix timestamp the batch started (set by the Makefile; "
+                             "enables an overall-elapsed column spanning multiple judge.py "
+                             "invocations)")
     args = parser.parse_args()
 
     args.input = args.input or str(ROOT / f"questions-{args.lang}.jsonl")
@@ -105,9 +112,12 @@ def main():
     questions = load_questions(Path(args.input))
     print(f"Gold questions: {len(questions)}")
 
+    ui = StatusLine()
+
     for input_str in args.inputs:
         in_path = Path(input_str)
         out_path = in_path.with_name(f"judge-{in_path.stem}.jsonl")
+        label = in_path.stem
 
         # Resume: collect already-done question IDs
         done_ids: set[int] = set()
@@ -128,19 +138,22 @@ def main():
             print(f"# Resuming: {len(done_ids)} already done")
 
         total = len(records)
-        with open(out_path, "a", encoding="utf-8") as out_f:
+        answered = 0
+        with open(out_path, "a", encoding="utf-8") as out_f, \
+             ui.progress(total, start=len(done_ids), label=label, started_at=args.started_at) as prog:
             for i, rec in enumerate(records, start=1):
                 qid = rec["question_id"]
                 if qid in done_ids:
                     continue
 
                 q = questions[qid]
-                print(f"\n[Q{i}/{total}] {q['question']}")
-                print(f"=> {rec['answer']}")
-                print(f"  ({q['answer']})")
-                print()
+                ui.stream.print(f"\n[Q{i}/{total}] {q['question']}")
+                ui.stream.print(f"=> {rec['answer']}")
+                ui.stream.print(f"  ({q['answer']})")
+                ui.stream.print("")
                 judgement = judge_answer(
-                    q["question"], q["answer"], q["rationale"], rec["answer"], args.model
+                    q["question"], q["answer"], q["rationale"], rec["answer"], args.model,
+                    file=ui.stream, log=ui.stream.print,
                 )
 
                 out_f.write(json.dumps({
@@ -149,6 +162,8 @@ def main():
                     "reason": judgement.reason,
                 }, ensure_ascii=False) + "\n")
                 out_f.flush()
+                answered += 1
+                prog.update(len(done_ids) + answered)
 
         print(f"Done → {out_path}")
 

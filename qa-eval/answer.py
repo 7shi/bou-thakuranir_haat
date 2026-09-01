@@ -8,6 +8,7 @@ the summarization prompt is Extract-specific and stays in answer_extract.py.
 """
 
 import json
+import sys
 from pathlib import Path
 
 from llm7shi.compat import generate_with_schema
@@ -19,19 +20,22 @@ LANGS = {"en": "English", "ja": "Japanese"}
 PART_RANGES = {1: (1, 10), 2: (11, 20), 3: (21, 30), 4: (31, 37)}
 
 
-def print_banner(label: str) -> None:
+def print_banner(label: str, log=print) -> None:
     """Print a separator banner with the given label.
 
     The label is fully formed by the caller (e.g. ``f"[Q{qid}/{total} Ch{ch}] {question}"``);
     this just standardizes the surrounding ``=`` rules so every answer script
     prints visually identical progress markers.
+
+    ``log`` defaults to the builtin ``print`` but can be swapped for a
+    statusline-safe printer (e.g. ``StatusLineConsoleStream.print``) so the
+    banner doesn't corrupt a live progress bar. Emitted as one call rather
+    than three so it can't be split by a bar redraw in between.
     """
-    print(f"\n{'='*60}")
-    print(label)
-    print('='*60)
+    log(f"\n{'='*60}\n{label}\n{'='*60}")
 
 
-def print_answer_banner(qid: int, total: int, chapters: list[int], question: str) -> None:
+def print_answer_banner(qid: int, total: int, chapters: list[int], question: str, log=print) -> None:
     """Phase 2 banner for extract/filter: ``[Q{qid}/{total}: ch, ch, ...] question``.
 
     When ``chapters`` is empty, the colon-list is dropped so the banner reads
@@ -41,7 +45,7 @@ def print_answer_banner(qid: int, total: int, chapters: list[int], question: str
         label = f"[Q{qid}/{total}: {', '.join(str(c) for c in chapters)}] {question}"
     else:
         label = f"[Q{qid}/{total}] {question}"
-    print_banner(label)
+    print_banner(label, log)
 
 
 def load_questions(path: Path) -> list[dict]:
@@ -81,6 +85,8 @@ def answer_question(
     *,
     preamble: str,
     context_prefix: str = "",
+    file=sys.stdout,
+    log=print,
 ) -> str:
     """Answer a question using the provided context.
 
@@ -102,12 +108,12 @@ def answer_question(
     max_retries = 3
     answer = ""
     for attempt in range(max_retries + 1):
-        result = generate_with_schema([prompt], model=model, show_params=False)
+        result = generate_with_schema([prompt], model=model, show_params=False, file=file)
         answer = result.text.strip()
         if answer:
             return answer
         if attempt < max_retries:
-            print(f"  empty answer — retrying ({attempt + 1}/{max_retries})")
+            log(f"  empty answer — retrying ({attempt + 1}/{max_retries})")
         else:
-            print(f"  answer still empty after {max_retries} retries — keeping as is")
+            log(f"  answer still empty after {max_retries} retries — keeping as is")
     return answer

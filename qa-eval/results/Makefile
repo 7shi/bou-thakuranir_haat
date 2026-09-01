@@ -35,6 +35,11 @@ MODEL ?=
 LANG ?=
 K := 8
 
+# Fixed once per `make` invocation and passed to every `judge.py` call in the
+# `judge` target below via --started-at, so the sequential per-file judge.py
+# processes it launches show an overall-elapsed column spanning the whole run.
+START_TIME := $(shell date +%s)
+
 ROOT := ..
 # hybrid8 replays this run's retrieval instead of recomputing it. Retrieval is
 # supposed to be model-independent, but the dense side embeds the question at
@@ -119,7 +124,7 @@ judge:
 		lang=$${f%.jsonl}; lang=$${lang##*-}; \
 		case "$$lang" in en|ja) ;; *) echo "skip $$f (cannot infer LANG)"; continue;; esac; \
 		echo "judge $$f (LANG=$$lang)"; \
-		(cd $(ROOT) && uv run judge.py -l $$lang results/$$f) || exit $$?; \
+		(cd $(ROOT) && uv run judge.py -l $$lang --started-at $(START_TIME) results/$$f) || exit $$?; \
 	done
 
 # Aggregate every <METHOD>-<MODEL>-<LANG>.jsonl that has a matching judge file

@@ -70,7 +70,7 @@ dependencies = [
     { name = "en-core-web-sm" },
     { name = "ja-core-news-sm" },
     { name = "jinja2" },
-    { name = "llm7shi" },
+    { name = "llm7shi", extra = ["statusline"] },
     { name = "markdown" },
     { name = "pillow" },
     { name = "pip" },
@@ -84,7 +84,7 @@ requires-dist = [
     { name = "en-core-web-sm", url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" },
     { name = "ja-core-news-sm", url = "https://github.com/explosion/spacy-models/releases/download/ja_core_news_sm-3.8.0/ja_core_news_sm-3.8.0-py3-none-any.whl" },
     { name = "jinja2", specifier = ">=3.1.0" },
-    { name = "llm7shi", git = "https://github.com/7shi/llm7shi.git" },
+    { name = "llm7shi", extras = ["statusline"], git = "https://github.com/7shi/llm7shi.git" },
     { name = "markdown", specifier = ">=3.7" },
     { name = "pillow", specifier = ">=12.3.0" },
     { name = "pip", specifier = ">=25.2" },
@@ -663,6 +663,11 @@ dependencies = [
     { name = "ollama" },
     { name = "openai" },
     { name = "pytest" },
+]
+
+[package.optional-dependencies]
+statusline = [
+    { name = "rich" },
 ]
 
 [[package]]

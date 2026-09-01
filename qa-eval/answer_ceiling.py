@@ -32,6 +32,8 @@ import argparse
 import json
 from pathlib import Path
 
+from llm7shi.statusline import StatusLine
+
 from answer import (
     ROOT, LANGS,
     load_chapters, load_questions, answer_question, print_answer_banner,
@@ -86,13 +88,16 @@ def main():
     chapters = load_chapters(Path(args.scenes))
     print(f"Questions: {total}")
 
+    label = f"{args.model} {lang}"
+    ui = StatusLine()
     answered = 0
-    with open(output_path, "a", encoding="utf-8") as out_f:
+    with open(output_path, "a", encoding="utf-8") as out_f, \
+         ui.progress(total, start=len(done_qids), label=label) as prog:
         for qid, q in enumerate(questions, start=1):
             if qid in done_qids:
                 continue
             if args.count is not None and answered >= args.count:
-                print(f"Stopping after {answered} question(s) (--count {args.count})")
+                ui.stream.print(f"Stopping after {answered} question(s) (--count {args.count})")
                 break
 
             question_text = q["question"]
@@ -102,13 +107,13 @@ def main():
             selected_chapters = sorted(ch for ch in q["chapters"] if ch in chapters)
             missing = sorted(ch for ch in q["chapters"] if ch not in chapters)
             if missing:
-                print(f"  note: gold chapters {missing} not found in scenes — excluded")
+                ui.stream.print(f"  note: gold chapters {missing} not found in scenes — excluded")
 
-            print_answer_banner(qid, total, selected_chapters, question_text)
+            print_answer_banner(qid, total, selected_chapters, question_text, log=ui.stream.print)
 
             if not selected_chapters:
                 answer = "No relevant content found."
-                print(answer)
+                ui.stream.print(answer)
             else:
                 context = "\n\n".join(
                     f"[Chapter {ch}]\n" + "\n\n".join(s["text"] for s in chapters[ch])
@@ -117,6 +122,7 @@ def main():
                 answer = answer_question(
                     question_text, context, args.model, lang_name,
                     preamble=CEILING_PREAMBLE, context_prefix="Context:\n",
+                    file=ui.stream, log=ui.stream.print,
                 )
 
             record = {
@@ -127,6 +133,7 @@ def main():
             out_f.write(json.dumps(record, ensure_ascii=False) + "\n")
             out_f.flush()
             answered += 1
+            prog.update(len(done_qids) + answered)
 
     print(f"Done → {output_path}")
 
