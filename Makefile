@@ -3,8 +3,7 @@ MODEL  := google:$(MODEL_)
 GEMMA  := google:gemma-4-31b-it
 
 # The aligned translations are stored as deltas and unpacked before conversion.
-# Only English and Japanese have been aligned.
-ALIGNED := all/aligned/en-gemini-terra.jsonl all/aligned/ja-gemini-terra.jsonl
+ALIGNED := all/aligned/en-gemini-terra.jsonl all/aligned/ja-gemini-terra.jsonl all/aligned/bn-gemini-terra.jsonl all/aligned/hi-gemini-terra.jsonl
 
 all:
 
@@ -44,11 +43,11 @@ all/aligned/%.jsonl: all/aligned/%.delta.jsonl
 convert: $(ALIGNED)
 	uv run scripts/jsonl_to_md.py all/en-gemini.jsonl -a all/aligned/en-gemini-terra.jsonl
 	uv run scripts/jsonl_to_md.py all/ja-gemini.jsonl -a all/aligned/ja-gemini-terra.jsonl
-	uv run scripts/jsonl_to_md.py all/hi-gemini.jsonl
-	uv run scripts/jsonl_to_md.py all/bn-gemini.jsonl
+	uv run scripts/jsonl_to_md.py all/hi-gemini.jsonl -a all/aligned/hi-gemini-terra.jsonl
+	uv run scripts/jsonl_to_md.py all/bn-gemini.jsonl -a all/aligned/bn-gemini-terra.jsonl
 	uv run scripts/jsonl_to_md.py --mode full all/en-gemini.jsonl -a all/aligned/en-gemini-terra.jsonl -o all/en-gemini-full.md
 	uv run scripts/jsonl_to_md.py --mode full all/ja-gemini.jsonl -a all/aligned/ja-gemini-terra.jsonl -o all/ja-gemini-full.md
-	uv run scripts/jsonl_to_md.py --mode full all/hi-gemini.jsonl -o all/hi-gemini-full.md
+	uv run scripts/jsonl_to_md.py --mode full all/hi-gemini.jsonl -a all/aligned/hi-gemini-terra.jsonl -o all/hi-gemini-full.md
 	uv run scripts/jsonl_to_md.py --mode summary all/en-gemini.jsonl -o all/en-gemini-summary.md
 	uv run scripts/jsonl_to_md.py --mode summary all/ja-gemini.jsonl -o all/ja-gemini-summary.md
 	uv run scripts/jsonl_to_md.py --mode summary all/hi-gemini.jsonl -o all/hi-gemini-summary.md
