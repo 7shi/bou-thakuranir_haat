@@ -1,7 +1,8 @@
 # Aligned translations
 
-The segment translations in [`all/en-gemini.jsonl`](../en-gemini.jsonl) and
-[`all/ja-gemini.jsonl`](../ja-gemini.jsonl) lost the source's line structure.
+The segment translations in [`all/en-gemini.jsonl`](../en-gemini.jsonl),
+[`all/ja-gemini.jsonl`](../ja-gemini.jsonl), [`all/bn-gemini.jsonl`](../bn-gemini.jsonl)
+and [`all/hi-gemini.jsonl`](../hi-gemini.jsonl) lost the source's line structure.
 This directory holds the same translations with the line breaks put back.
 
 ## Contents
@@ -10,12 +11,16 @@ This directory holds the same translations with the line breaks put back.
 | --- | --- | --- |
 | `en-gemini-terra.delta.jsonl` | 7,021 | **English, `gpt-5.6-terra` - the aligned English text** |
 | `ja-gemini-terra.delta.jsonl` | 4,311 | **Japanese, `gpt-5.6-terra` - the aligned Japanese text** |
+| `bn-gemini-terra.delta.jsonl` | 4,315 | **Modern Bengali, `gpt-5.6-terra` - the aligned modern Bengali text** |
+| `hi-gemini-terra.delta.jsonl` | 4,137 | **Hindi, `gpt-5.6-terra` - the aligned Hindi text** |
 | `en-gemini-luna.delta.jsonl` | 6,976 | English, `gpt-5.6-luna` - comparison record |
 | `ja-gemini-luna.delta.jsonl` | 4,377 | Japanese, `gpt-5.6-luna` - comparison record |
 | `en-gemini-luna-test.jsonl` | 329,707 | the discarded first run, kept as a test fixture |
 
-The two Terra files are the aligned text. The two Luna files are the losing side
-of the model comparison, kept as a record and not worked on further.
+The four Terra files are the aligned text. The two Luna files are the losing
+side of the English/Japanese model comparison, kept as a record and not worked
+on further - modern Bengali and Hindi went straight to Terra on the strength of
+that comparison, with no Luna run of their own.
 
 A `.delta.jsonl` is not the aligned data itself but the edits that produce it
 (decision 7). Unpack before use:
@@ -137,6 +142,8 @@ instead. It inserts line breaks; it does not edit the translation.
 ```
 uv run scripts/align_lines.py all/en-gemini.jsonl -m openai:gpt-5.6-terra -o all/aligned/en-gemini-terra.jsonl
 uv run scripts/align_lines.py all/ja-gemini.jsonl -m openai:gpt-5.6-terra -o all/aligned/ja-gemini-terra.jsonl
+uv run scripts/align_lines.py all/bn-gemini.jsonl -m openai:gpt-5.6-terra -o all/aligned/bn-gemini-terra.jsonl
+uv run scripts/align_lines.py all/hi-gemini.jsonl -m openai:gpt-5.6-terra -o all/aligned/hi-gemini-terra.jsonl
 ```
 
 Add `-s 37:1` to redo a single segment, or `-s 11:1,16:1` for several. Defaults
@@ -199,6 +206,47 @@ start the new line at the quote.
 
 **Final state: 0/82 English, 1/82 Japanese, that one being 8:2's false
 positive.**
+
+## Modern Bengali and Hindi
+
+Run separately, after the English/Japanese comparison had already settled on
+Terra - no Luna run for either:
+
+| Output | Model | Violations | Time |
+| --- | --- | --- | --- |
+| `bn-gemini-terra` | `gpt-5.6-terra` | **1/82**, then 0/82 | 35m18s |
+| `hi-gemini-terra` | `gpt-5.6-terra` | **3/82**, then 1/82 | 46m14s |
+
+81m32s of wall clock, longer than English and Japanese combined even though
+both pairs stay within or near the source script (Bengali to Bengali, Bengali
+to Devanagari) rather than crossing to Latin. That difference was not
+investigated further - a single run over 82 segments was the budget regardless
+of cause.
+
+Three violations across 164 segments, the same rate as the original
+English/Japanese comparison:
+
+- **Modern Bengali 11:4, `line count 3 != 2`.** Source line 2 runs from the
+  boat chase through to the cannon shot that wakes Pratapaditya; the run split
+  it into two output lines instead of keeping it as one. Redone with `-s 11:4`
+  on the same model, correct on the second attempt.
+- **Hindi 7:3, `line count 13 != 12`.** Source line 12 joins Rammohan's
+  question ("will Ramai Thakur go too?") with the narrator's aside about his
+  appearance; the run answered them as two separate lines. Redone with
+  `-s 7:3`, correct on the second attempt.
+- **Hindi 6:3, `drift over 1.0%` (1.1%), unchanged across two runs on the same
+  model.** The existing Hindi translation had left two words untranslated in
+  Bengali script - `সর্বনাশ` and `আগ্রহ` - and Terra, asked only to re-flow,
+  corrected them to their Devanagari renderings (`सर्वनाश`, `आग्रह`) instead of
+  reproducing them as-is. That is exactly the kind of correction decision 2
+  declines, and the check caught it as designed. Accepted anyway: the
+  substitution fixes a source-language leak in the original translation rather
+  than drifting register or a vocative, the failure mode the check exists to
+  block, and it is the only place in 164 segments where that judgment call was
+  needed. `hi-gemini-terra.delta.jsonl` carries it as-is.
+
+**Final state: 0/82 modern Bengali, 0/82 Hindi under the accepted exception
+(1/82 by a strict count that does not allow it).**
 
 ## Decisions
 

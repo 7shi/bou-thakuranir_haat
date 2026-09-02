@@ -1,0 +1,83 @@
+{"base": "all/hi-gemini.jsonl", "base_sha256": "30a421e0e9c1687eb345bf93fbd8434ec2464fc6e6e9dd68218f2cae6977bebd", "source_lang": "bengali", "target_lang": "hindi", "model": "openai:gpt-5.6-terra"}
+{"chapter": 1, "segment": 1, "ops": []}
+{"chapter": 1, "segment": 2, "ops": []}
+{"chapter": 1, "segment": 3, "ops": []}
+{"chapter": 2, "segment": 1, "ops": []}
+{"chapter": 2, "segment": 2, "ops": []}
+{"chapter": 2, "segment": 3, "ops": []}
+{"chapter": 3, "segment": 1, "ops": [[3358, 3359, " "]]}
+{"chapter": 4, "segment": 1, "ops": []}
+{"chapter": 4, "segment": 2, "ops": []}
+{"chapter": 4, "segment": 3, "ops": []}
+{"chapter": 5, "segment": 1, "ops": [[3218, 3218, "”"]]}
+{"chapter": 5, "segment": 2, "ops": []}
+{"chapter": 5, "segment": 3, "ops": []}
+{"chapter": 6, "segment": 1, "ops": [[1457, 1458, " "]]}
+{"chapter": 6, "segment": 2, "ops": []}
+{"chapter": 6, "segment": 3, "ops": [[638, 645, "सर्वनाश"], [888, 893, "आग्रह"]]}
+{"chapter": 6, "segment": 4, "ops": [[1037, 1038, " "]]}
+{"chapter": 7, "segment": 1, "ops": []}
+{"chapter": 7, "segment": 2, "ops": [[631, 632, " "]]}
+{"chapter": 7, "segment": 3, "ops": [[2675, 2676, " "]]}
+{"chapter": 8, "segment": 1, "ops": []}
+{"chapter": 8, "segment": 2, "ops": [[121, 122, " "], [163, 164, " "], [235, 236, " "], [292, 293, " "], [340, 341, " "], [1947, 1948, " "]]}
+{"chapter": 8, "segment": 3, "ops": []}
+{"chapter": 9, "segment": 1, "ops": [[3283, 3285, "ंप"]]}
+{"chapter": 9, "segment": 2, "ops": [[3185, 3189, "शोभा"]]}
+{"chapter": 10, "segment": 1, "ops": []}
+{"chapter": 10, "segment": 2, "ops": []}
+{"chapter": 10, "segment": 3, "ops": [[86, 87, " "]]}
+{"chapter": 11, "segment": 1, "ops": []}
+{"chapter": 11, "segment": 2, "ops": []}
+{"chapter": 11, "segment": 3, "ops": []}
+{"chapter": 11, "segment": 4, "ops": [[615, 620, "अंतः"]]}
+{"chapter": 12, "segment": 1, "ops": []}
+{"chapter": 12, "segment": 2, "ops": []}
+{"chapter": 12, "segment": 3, "ops": []}
+{"chapter": 13, "segment": 1, "ops": []}
+{"chapter": 13, "segment": 2, "ops": []}
+{"chapter": 13, "segment": 3, "ops": []}
+{"chapter": 14, "segment": 1, "ops": []}
+{"chapter": 15, "segment": 1, "ops": [[570, 571, " "], [615, 616, " "], [3233, 3234, " "], [3526, 3527, " "], [6136, 6137, " "]]}
+{"chapter": 16, "segment": 1, "ops": []}
+{"chapter": 17, "segment": 1, "ops": []}
+{"chapter": 18, "segment": 1, "ops": []}
+{"chapter": 19, "segment": 1, "ops": [[1023, 1028, "विचार"], [2423, 2428, "विचार"]]}
+{"chapter": 19, "segment": 2, "ops": [[1167, 1171, "क्षत"]]}
+{"chapter": 19, "segment": 3, "ops": []}
+{"chapter": 20, "segment": 1, "ops": []}
+{"chapter": 21, "segment": 1, "ops": [[1820, 1821, " "]]}
+{"chapter": 21, "segment": 2, "ops": []}
+{"chapter": 21, "segment": 3, "ops": []}
+{"chapter": 22, "segment": 1, "ops": []}
+{"chapter": 23, "segment": 1, "ops": []}
+{"chapter": 23, "segment": 2, "ops": []}
+{"chapter": 24, "segment": 1, "ops": []}
+{"chapter": 24, "segment": 2, "ops": []}
+{"chapter": 24, "segment": 3, "ops": []}
+{"chapter": 25, "segment": 1, "ops": []}
+{"chapter": 26, "segment": 1, "ops": []}
+{"chapter": 27, "segment": 1, "ops": []}
+{"chapter": 27, "segment": 2, "ops": [[304, 305, ""], [581, 582, ""]]}
+{"chapter": 27, "segment": 3, "ops": []}
+{"chapter": 27, "segment": 4, "ops": [[493, 494, " "]]}
+{"chapter": 28, "segment": 1, "ops": []}
+{"chapter": 28, "segment": 2, "ops": []}
+{"chapter": 28, "segment": 3, "ops": []}
+{"chapter": 28, "segment": 4, "ops": []}
+{"chapter": 29, "segment": 1, "ops": []}
+{"chapter": 29, "segment": 2, "ops": []}
+{"chapter": 29, "segment": 3, "ops": []}
+{"chapter": 30, "segment": 1, "ops": []}
+{"chapter": 31, "segment": 1, "ops": []}
+{"chapter": 32, "segment": 1, "ops": []}
+{"chapter": 33, "segment": 1, "ops": []}
+{"chapter": 33, "segment": 2, "ops": []}
+{"chapter": 33, "segment": 3, "ops": []}
+{"chapter": 33, "segment": 4, "ops": []}
+{"chapter": 34, "segment": 1, "ops": []}
+{"chapter": 35, "segment": 1, "ops": []}
+{"chapter": 36, "segment": 1, "ops": []}
+{"chapter": 36, "segment": 2, "ops": []}
+{"chapter": 36, "segment": 3, "ops": []}
+{"chapter": 37, "segment": 1, "ops": []}

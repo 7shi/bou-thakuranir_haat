@@ -1,0 +1,83 @@
+{"base": "all/bn-gemini.jsonl", "base_sha256": "b66b94e934afcd191795c9e625038287c2f2b4a26f66672cbfbab127698f74e7", "source_lang": "Classical Bengali", "target_lang": "Modern Bengali", "model": "openai:gpt-5.6-terra"}
+{"chapter": 1, "segment": 1, "ops": []}
+{"chapter": 1, "segment": 2, "ops": []}
+{"chapter": 1, "segment": 3, "ops": [[515, 516, " "], [579, 580, " "], [762, 763, " "]]}
+{"chapter": 2, "segment": 1, "ops": []}
+{"chapter": 2, "segment": 2, "ops": [[1560, 1561, " "]]}
+{"chapter": 2, "segment": 3, "ops": []}
+{"chapter": 3, "segment": 1, "ops": [[2310, 2313, "ত্য"]]}
+{"chapter": 4, "segment": 1, "ops": []}
+{"chapter": 4, "segment": 2, "ops": []}
+{"chapter": 4, "segment": 3, "ops": []}
+{"chapter": 5, "segment": 1, "ops": []}
+{"chapter": 5, "segment": 2, "ops": []}
+{"chapter": 5, "segment": 3, "ops": []}
+{"chapter": 6, "segment": 1, "ops": []}
+{"chapter": 6, "segment": 2, "ops": []}
+{"chapter": 6, "segment": 3, "ops": []}
+{"chapter": 6, "segment": 4, "ops": []}
+{"chapter": 7, "segment": 1, "ops": []}
+{"chapter": 7, "segment": 2, "ops": []}
+{"chapter": 7, "segment": 3, "ops": [[944, 946, "ং"], [2505, 2506, " "]]}
+{"chapter": 8, "segment": 1, "ops": []}
+{"chapter": 8, "segment": 2, "ops": []}
+{"chapter": 8, "segment": 3, "ops": []}
+{"chapter": 9, "segment": 1, "ops": []}
+{"chapter": 9, "segment": 2, "ops": []}
+{"chapter": 10, "segment": 1, "ops": []}
+{"chapter": 10, "segment": 2, "ops": []}
+{"chapter": 10, "segment": 3, "ops": [[77, 78, " "]]}
+{"chapter": 11, "segment": 1, "ops": []}
+{"chapter": 11, "segment": 2, "ops": []}
+{"chapter": 11, "segment": 3, "ops": [[43, 44, " "], [746, 747, " "], [1138, 1139, " "]]}
+{"chapter": 11, "segment": 4, "ops": [[1789, 1790, " "]]}
+{"chapter": 12, "segment": 1, "ops": []}
+{"chapter": 12, "segment": 2, "ops": [[905, 907, "োধ"]]}
+{"chapter": 12, "segment": 3, "ops": []}
+{"chapter": 13, "segment": 1, "ops": []}
+{"chapter": 13, "segment": 2, "ops": [[315, 316, "\n"]]}
+{"chapter": 13, "segment": 3, "ops": []}
+{"chapter": 14, "segment": 1, "ops": []}
+{"chapter": 15, "segment": 1, "ops": []}
+{"chapter": 16, "segment": 1, "ops": []}
+{"chapter": 17, "segment": 1, "ops": []}
+{"chapter": 18, "segment": 1, "ops": []}
+{"chapter": 19, "segment": 1, "ops": [[2100, 2101, " "]]}
+{"chapter": 19, "segment": 2, "ops": []}
+{"chapter": 19, "segment": 3, "ops": []}
+{"chapter": 20, "segment": 1, "ops": []}
+{"chapter": 21, "segment": 1, "ops": [[155, 156, " "], [273, 274, " "], [685, 686, " "], [1657, 1658, " "]]}
+{"chapter": 21, "segment": 2, "ops": []}
+{"chapter": 21, "segment": 3, "ops": [[4103, 4104, ""]]}
+{"chapter": 22, "segment": 1, "ops": []}
+{"chapter": 23, "segment": 1, "ops": []}
+{"chapter": 23, "segment": 2, "ops": [[151, 152, "\n"], [334, 335, "\n"], [438, 439, "\n"], [550, 551, "\n"], [625, 626, "\n"], [678, 679, "\n"], [796, 797, "\n"], [825, 826, "\n"], [942, 943, "\n"], [978, 979, "\n"], [1282, 1283, "\n"], [1772, 1773, "\n"]]}
+{"chapter": 24, "segment": 1, "ops": []}
+{"chapter": 24, "segment": 2, "ops": []}
+{"chapter": 24, "segment": 3, "ops": []}
+{"chapter": 25, "segment": 1, "ops": []}
+{"chapter": 26, "segment": 1, "ops": []}
+{"chapter": 27, "segment": 1, "ops": [[1037, 1038, " "]]}
+{"chapter": 27, "segment": 2, "ops": [[283, 284, ""], [543, 544, ""]]}
+{"chapter": 27, "segment": 3, "ops": [[1595, 1596, " "]]}
+{"chapter": 27, "segment": 4, "ops": [[464, 465, " "]]}
+{"chapter": 28, "segment": 1, "ops": []}
+{"chapter": 28, "segment": 2, "ops": []}
+{"chapter": 28, "segment": 3, "ops": []}
+{"chapter": 28, "segment": 4, "ops": [[555, 556, " "]]}
+{"chapter": 29, "segment": 1, "ops": []}
+{"chapter": 29, "segment": 2, "ops": []}
+{"chapter": 29, "segment": 3, "ops": [[1188, 1189, "\n"], [1462, 1463, "\n"]]}
+{"chapter": 30, "segment": 1, "ops": []}
+{"chapter": 31, "segment": 1, "ops": []}
+{"chapter": 32, "segment": 1, "ops": []}
+{"chapter": 33, "segment": 1, "ops": []}
+{"chapter": 33, "segment": 2, "ops": [[224, 225, " "]]}
+{"chapter": 33, "segment": 3, "ops": [[2231, 2232, " "], [2261, 2262, " "]]}
+{"chapter": 33, "segment": 4, "ops": []}
+{"chapter": 34, "segment": 1, "ops": [[1201, 1202, " "]]}
+{"chapter": 35, "segment": 1, "ops": []}
+{"chapter": 36, "segment": 1, "ops": []}
+{"chapter": 36, "segment": 2, "ops": []}
+{"chapter": 36, "segment": 3, "ops": []}
+{"chapter": 37, "segment": 1, "ops": []}
