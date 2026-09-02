@@ -24,8 +24,3 @@ uv run scripts/pack_aligned.py unpack all/aligned/en-gemini-terra.delta.jsonl
 Once the site serves the aligned text, drop the last line of the root README's
 **Line alignment** section ("The published text still comes from the unaligned
 files.").
-
-**Also outstanding, unrelated.** `make questions` calls
-`scripts/create_rag_questions.py`, which no longer exists -
-`scripts/generate_questions.py` replaced it and takes different arguments. The
-target is stale and was left alone; `scripts/README.md` notes it.

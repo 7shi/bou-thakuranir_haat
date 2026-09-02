@@ -117,11 +117,12 @@ memoryless approach kept regenerating questions about the same few salient
 events.
 
 ```
-uv run scripts/generate_questions.py -m gemini-3.1-pro-preview -o questions-en.jsonl
+make questions
 ```
 
-`--only single` or `--only cross` runs one session; `--turns` and `--per-turn`
-set the volume.
+which runs this and then `translate_questions.py`. `--only single` or
+`--only cross` runs one session; `--turns` and `--per-turn` set the volume, and
+`-m` overrides the model.
 
 ### `translate_questions.py`
 
@@ -130,6 +131,8 @@ keeping proper nouns consistent with `proper_nouns/all.tsv` and the Japanese
 translation. `anchor_id`, `type` and `chapters` are language-independent and
 copied verbatim so the two files stay line-for-line parallel. Resumable by
 `anchor_id`.
+
+Runs as the second half of `make questions`, or on its own:
 
 ```
 uv run scripts/translate_questions.py -i questions-en.jsonl -o questions-ja.jsonl
@@ -209,9 +212,3 @@ with the source Markdown and returns `{"title": ..., "chapters": [[segment, ...]
 ...]}`. It is how `translate_segments.py` and `align_lines.py` agree on what
 `chapter:segment` refers to. A chapter with no entry in the segmentation file
 comes back as a single block.
-
-## Note on the Makefile
-
-`make questions` still calls `scripts/create_rag_questions.py`, which no longer
-exists - `generate_questions.py` replaced it and takes different arguments. The
-target is stale; use the command above instead.

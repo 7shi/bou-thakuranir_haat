@@ -50,8 +50,8 @@ split:
 	uv run scripts/split-line.py -o all/ja-gemini-lines.md -l ja all/ja-gemini.md
 
 questions:
-	uv run scripts/create_rag_questions.py -m $(MODEL_) -c 100 -o questions-en.jsonl all/en-gemini.md -l English
-	uv run scripts/create_rag_questions.py -m $(MODEL_) -c 100 -o questions-ja.jsonl all/ja-gemini.md -l Japanese
+	uv run scripts/generate_questions.py -o questions-en.jsonl
+	uv run scripts/translate_questions.py -i questions-en.jsonl -o questions-ja.jsonl
 
 titles:
 	uv run scripts/generate_titles.py all/en-gemini.jsonl -m $(GEMMA)
