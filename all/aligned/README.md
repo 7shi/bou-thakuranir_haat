@@ -417,20 +417,21 @@ English/Japanese comparison:
    uv run scripts/jsonl_to_md.py all/en-gemini.jsonl -a all/aligned/en-gemini-terra.jsonl
    ```
 
-   `make convert` does this for English and Japanese, with a pattern rule that
+   `make convert` does this for all four languages, with a pattern rule that
    unpacks a delta into the file it needs; `make unpack` is the same step on its
-   own. Hindi and modern Bengali have not been aligned and convert as before, so
-   `make deploy` waits until they have and all five languages change over in one
-   deployment.
+   own.
 
    The substitution is required to be exact in both directions - every base
    segment aligned, every aligned segment placed - because a partial overlay
    would publish flowing prose next to aligned text without saying so. All 82
-   segments pair in both languages.
+   segments pair in all four languages.
 
-   Effect on the published text: Japanese is the same characters with different
-   line breaks (identical ignoring whitespace), English differs slightly at the
-   seams as decision 2 allows, and the longest English line drops from 4,473 to
+   Effect on the published text: Japanese is the same characters with
+   different line breaks (identical ignoring whitespace). English, modern
+   Bengali and Hindi each differ slightly at the seams as decision 2 allows
+   (3 of 82 modern Bengali segments, 7 of 82 Hindi, both similar in kind to
+   English's), plus Hindi's one accepted correction at 6:3 (see Modern
+   Bengali and Hindi above); the longest English line drops from 4,473 to
    3,333 characters. `make build` and `make deploy` need no change.
 
 ## Verification
@@ -520,9 +521,14 @@ no violations needs no reading; only violations get a word diff against the base
   different composition, so the longer term never matches. Harmless - every listed
   word is a real proper noun, and the list only marks which words are fixed terms.
   Glossary coverage itself is fine: 142 of 143 headwords occur in the source.
-- Only English actually needs this for the opencode truncation problem (Japanese
-  never crosses 2,000 chars), but both languages are processed so the published
-  text is consistent.
+- Only English actually needs this for the opencode truncation problem -
+  `qa-eval/opencode/` only builds English and Japanese chapters
+  (`answer.py`'s `LANGS`), and Japanese never crosses 2,000 chars. Modern
+  Bengali and Hindi are outside that pipeline entirely and do cross the
+  threshold in places (6 and 9 of 82 segments respectively, even after
+  alignment - the source lines themselves run that long, the same limit
+  noted below for English). All four languages are aligned regardless, so
+  the published text is consistent.
 - **The pass does not solve the 2,000-character problem on its own.** 13 English
   segments still exceed it after alignment, against 14 before, because the source
   lines themselves are that long: 25:1's longest source line is 2,875 characters,
