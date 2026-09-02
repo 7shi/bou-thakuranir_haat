@@ -14,8 +14,8 @@ Python API, so the pipeline here is generate-a-script-then-run-it rather than
   Lines are wrapped at 1800 columns: some English segments run past 4000
   characters on a single line, and opencode's file-attachment reader
   truncates (silently drops content past) any line over 2000 characters —
-  see `../../MEMO.md`. Japanese never crosses 1800 chars, so Japanese
-  chapters end up unwrapped.
+  see [`all/aligned/README.md`](../../all/aligned/README.md). Japanese never
+  crosses 1800 chars, so Japanese chapters end up unwrapped.
 - `make_ceiling.py` — generates `ceiling.sh`: one `opencode run` per question
   in `../../questions-<lang>.jsonl`, feeding it that question's gold chapter
   file(s) via `-f`, followed by a call to `build_jsonl.py`.

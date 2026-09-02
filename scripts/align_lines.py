@@ -254,7 +254,8 @@ def check(
     response: str,
     glossary: List[str],
 ) -> Tuple[List[str], float]:
-    """Measure the response. Nothing here rejects it - see MEMO.md decision 3."""
+    """Measure the response. Nothing here rejects it - see
+    all/aligned/README.md decision 3."""
     numbers, texts = parse_numbered(response)
     problems = []
 

@@ -12,9 +12,9 @@ few hundred characters apart). Each line is wrapped to WRAP_WIDTH columns
 before writing, since opencode's file-attachment reader truncates any single
 line past 2000 characters (`packages/opencode/src/tool/read.ts`,
 `MAX_LINE_LENGTH = 2000`), silently dropping content past the cut — see
-../../MEMO.md for how this was found. WRAP_WIDTH sits with a safety margin
-below that 2000-char limit; only English crosses it (Japanese's longest line
-is 1326 chars, per MEMO.md), so Japanese chapters end up unwrapped, unlike
+../../all/aligned/README.md for how this was found. WRAP_WIDTH sits with a
+safety margin below that 2000-char limit; only English crosses it (Japanese's
+longest line is 1326 chars), so Japanese chapters end up unwrapped, unlike
 English's, which wrap at whatever point is nearest to the width and at or
 before an existing space. Wrapping line-by-line — instead of the whole
 segment at once — keeps existing "\n" breaks intact instead of flattening
