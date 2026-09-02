@@ -63,6 +63,12 @@ make convert
 `summary` (per-segment summaries) or `full` (text with summaries and notes).
 This is what produces `all/*.md`, the input to the site build.
 
+`-a`/`--aligned` reads a second file: an aligned JSONL (see Line alignment
+below) whose translations replace the input's, while the structure, summaries
+and notes still come from the input. The pairing must be exact in both
+directions, so a partially aligned file is an error rather than a silent mix.
+`make convert` passes it for English and Japanese, unpacking the deltas first.
+
 ## Line alignment
 
 The translations above store each scene as one flowing paragraph, losing the

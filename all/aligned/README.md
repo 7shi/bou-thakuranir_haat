@@ -358,13 +358,32 @@ positive.**
    Only the constant fields are hoisted into the header (`source_lang`,
    `target_lang`, `model`); `pack` checks that they really are constant rather
    than assuming it.
-8. **Regenerate `all/*.md` from the aligned data and deploy that.** Deferred, and
-   the outstanding work. Because an aligned file holds translations only,
-   `jsonl_to_md.py` needs to take two files: the original JSONL for structure,
-   `summary` and `translation_notes`, and the aligned JSONL to substitute in for
-   the translations. That keeps `--mode summary` and `--mode full` working. Once
-   that is in place, the website build (`make convert`, `make build`,
-   `make deploy`) switches to the aligned translations.
+8. **Regenerate `all/*.md` from the aligned data and deploy that.** Because an
+   aligned file holds translations only, `jsonl_to_md.py` takes two files: the
+   original JSONL for the structure, `summary` and `translation_notes`, and the
+   aligned JSONL passed as `-a`/`--aligned` to substitute in for the
+   translations. That keeps `--mode summary` and `--mode full` working, and the
+   originals stay untouched as decision 5 requires.
+
+   ```
+   uv run scripts/jsonl_to_md.py all/en-gemini.jsonl -a all/aligned/en-gemini-terra.jsonl
+   ```
+
+   `make convert` does this for English and Japanese, with a pattern rule that
+   unpacks a delta into the file it needs; `make unpack` is the same step on its
+   own. Hindi and modern Bengali have not been aligned and convert as before, so
+   `make deploy` waits until they have and all five languages change over in one
+   deployment.
+
+   The substitution is required to be exact in both directions - every base
+   segment aligned, every aligned segment placed - because a partial overlay
+   would publish flowing prose next to aligned text without saying so. All 82
+   segments pair in both languages.
+
+   Effect on the published text: Japanese is the same characters with different
+   line breaks (identical ignoring whitespace), English differs slightly at the
+   seams as decision 2 allows, and the longest English line drops from 4,473 to
+   3,333 characters. `make build` and `make deploy` need no change.
 
 ## Verification
 

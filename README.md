@@ -68,7 +68,9 @@ The source has one line per line of dialogue or narration, but the translation J
 [all/aligned/](all/aligned/) holds the same translations with the line breaks put back — not a re-translation and not a proofreading pass.
 The files there are deltas against the JSONLs above and need unpacking; see [all/aligned/README.md](all/aligned/README.md) for the method, the model comparison and the checks.
 
-The published text still comes from the unaligned files.
+The English and Japanese `.md` files above are built from the aligned text: `make convert` unpacks the deltas and substitutes their translations into the JSONLs, which keep the summaries and translation notes.
+Modern Bengali and Hindi have not been aligned yet, and the deployed site still serves the previous text.
+The JSONLs themselves are unchanged, and [qa-eval/](qa-eval/README.md) still evaluates against them.
 
 ## Docs
 

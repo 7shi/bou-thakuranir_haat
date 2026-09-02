@@ -5,6 +5,12 @@ Convert JSONL translation results to Markdown format.
 This script converts translation results from JSONL format to a structured
 Markdown document, organizing content by chapters and including summaries,
 translation notes, and full translations.
+
+With -a/--aligned it reads two files: the original JSONL for the structure,
+summaries and translation notes, and an aligned JSONL (scripts/align_lines.py,
+unpacked with scripts/pack_aligned.py) whose translations are substituted in.
+The aligned records carry the translation only, so they are an overlay on the
+original rather than a replacement for it; see all/aligned/README.md decision 8.
 """
 
 import json
@@ -21,6 +27,39 @@ def load_jsonl(file_path: str) -> List[Dict[str, Any]]:
             if line.strip():
                 records.append(json.loads(line))
     return records
+
+
+def apply_aligned(
+    records: List[Dict[str, Any]],
+    aligned: List[Dict[str, Any]]
+) -> None:
+    """Substitute the aligned translations into the original records.
+
+    The pairing must be exact in both directions: a base segment left unaligned
+    would publish flowing prose next to aligned text without saying so, and an
+    aligned segment with no base record has nowhere to go. Neither is a
+    situation to paper over, so either one is an error.
+    """
+    base = {
+        (r['chapter'], r['segment']): r
+        for r in records
+        if 'translation' in r.get('response', {})
+    }
+    overlay = {(r['chapter'], r['segment']): r for r in aligned}
+
+    if missing := sorted(base.keys() - overlay.keys()):
+        raise ValueError(
+            "Not in the aligned file: "
+            + ", ".join(f"{c}:{s}" for c, s in missing)
+        )
+    if extra := sorted(overlay.keys() - base.keys()):
+        raise ValueError(
+            "Not in the original file: "
+            + ", ".join(f"{c}:{s}" for c, s in extra)
+        )
+
+    for key, record in base.items():
+        record['response']['translation'] = overlay[key]['response']['translation']
 
 
 def extract_title_translation(records: List[Dict[str, Any]]) -> str:
@@ -159,6 +198,9 @@ def main():
     parser = argparse.ArgumentParser(description='Convert JSONL translation results to Markdown format')
     parser.add_argument('input_file', help='Input JSONL file path')
     parser.add_argument('-o', '--output', help='Output Markdown file path (default: same name with .md extension)')
+    parser.add_argument('-a', '--aligned',
+                       help='Aligned JSONL whose translations replace the input file\'s '
+                            '(structure, summaries and notes still come from the input)')
     parser.add_argument('--mode', choices=['translation', 'summary', 'full'], default='translation',
                        help='Output mode: translation (default, translation only), summary (summaries only), full (all content with headers)')
     
@@ -167,6 +209,15 @@ def main():
     input_path = Path(args.input_file)
     if not input_path.exists():
         print(f"Error: Input file '{args.input_file}' not found")
+        return 1
+
+    aligned_path = Path(args.aligned) if args.aligned else None
+    if aligned_path and not aligned_path.exists():
+        # The aligned files are deltas in the repository and have to be
+        # unpacked before use, so this is the expected first failure.
+        print(f"Error: Aligned file '{args.aligned}' not found")
+        print(f"  uv run scripts/pack_aligned.py unpack "
+              f"{aligned_path.with_suffix('.delta.jsonl')}")
         return 1
     
     # Determine output path
@@ -184,7 +235,17 @@ def main():
             return 1
         
         print(f"Processing {len(records)} records...")
-        
+
+        if aligned_path:
+            print(f"Loading aligned JSONL file: {aligned_path}")
+            aligned = load_jsonl(str(aligned_path))
+            if not aligned:
+                print("Error: No records found in aligned file")
+                return 1
+            apply_aligned(records, aligned)
+            print(f"Substituted {len(aligned)} aligned translations")
+
+
         # Create markdown content
         markdown_content = create_markdown_content(
             records,
