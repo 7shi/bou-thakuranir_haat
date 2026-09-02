@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""Convert tmp/<model-name>/<NN>.txt (opencode ceiling answers, written by
-ceiling.sh) into a results-style JSONL: results/ceiling-<safe-model>-<lang>.jsonl.
+"""Convert tmp/<model-name>-<lang>/<NN>.txt (opencode ceiling answers, written
+by ceiling.sh) into a results-style JSONL: results/ceiling-<safe-model>-<lang>.jsonl.
 
 Mirrors answer_ceiling.py's output shape — one record per question:
   question_id — 1-origin question number (matches <NN>.txt)
   expanded    — the gold chapter numbers, as ["5", ...] (Ceiling's context is
                 always exactly the gold chapters, no retrieval)
-  answer      — the tmp/<model-name>/<NN>.txt content, stripped
+  answer      — the tmp/<model-name>-<lang>/<NN>.txt content, stripped
 
 ":" and "/" in --model are replaced with "_" for the output filename, matching
 the naming convention in ../results/ (see ../results/README.md).
 
 Called as the last step of ceiling.sh (see make_ceiling.py) after every
 question has been answered; can also be run standalone to rebuild the JSONL
-from whatever tmp/<model-name>/*.txt currently exist.
+from whatever tmp/<model-name>-<lang>/*.txt currently exist.
 """
 
 import argparse
@@ -40,7 +40,7 @@ def main():
     lang = args.lang
     input_path = Path(args.input) if args.input else ROOT / f"questions-{lang}.jsonl"
     model_dir = args.model.split("/", 1)[-1]
-    tmp_dir = Path(__file__).resolve().parent / "tmp" / model_dir
+    tmp_dir = Path(__file__).resolve().parent / "tmp" / f"{model_dir}-{lang}"
 
     safe_model = args.model.replace(":", "_").replace("/", "_")
     output_path = Path(args.output) if args.output else ROOT / "qa-eval" / "results" / f"ceiling-{safe_model}-{lang}.jsonl"

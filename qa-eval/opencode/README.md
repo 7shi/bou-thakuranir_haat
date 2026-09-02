@@ -19,7 +19,7 @@ Python API, so the pipeline here is generate-a-script-then-run-it rather than
 - `make_ceiling.py` — generates `ceiling.sh`: one `opencode run` per question
   in `../../questions-<lang>.jsonl`, feeding it that question's gold chapter
   file(s) via `-f`, followed by a call to `build_jsonl.py`.
-- `build_jsonl.py` — converts `tmp/<model-name>/<NN>.txt` into
+- `build_jsonl.py` — converts `tmp/<model-name>-<lang>/<NN>.txt` into
   `../results/ceiling-<safe-model>-<lang>.jsonl`, the format `../results/`
   uses (`question_id` / `expanded` / `answer`), so `judge.py` and `report.py`
   there can pick it up like any other per-model run.
@@ -30,7 +30,7 @@ Python API, so the pipeline here is generate-a-script-then-run-it rather than
 make extract                              # -> en/01.txt .. en/37.txt, ja/01.txt .. ja/37.txt
 make ceiling.sh MODEL=... [LANG=en]       # -> ceiling.sh
 ./ceiling.sh
-    # -> tmp/<model-name>/01.txt ..
+    # -> tmp/<model-name>-<lang>/01.txt ..
     # -> ../results/ceiling-<safe-model>-<lang>.jsonl (last line of ceiling.sh)
 ```
 
@@ -41,7 +41,7 @@ regenerated per run — it's gitignored. Trying a different model means
 ## Notes
 
 - **Resume-safe**: each question's line in `ceiling.sh` is guarded by a check
-  for its `tmp/<model>/<NN>.txt` output, so a re-run only answers what's
+  for its `tmp/<model>-<lang>/<NN>.txt` output, so a re-run only answers what's
   missing.
 - **`-f` quirk**: `opencode run`'s `-f` option is yargs array-type — passed as
   `-f file1.txt file2.txt "prompt"` it swallows the prompt as a third file,

@@ -7,8 +7,9 @@ generation time, so a new model means regenerating ceiling.sh (it's
 gitignored). For each question in questions-<lang>.jsonl, it runs
 `opencode run -m <model> "<question>" -f <lang>/<NN>.txt ...` for that
 question's gold chapter file(s), and tees the output to
-tmp/<model-name>/<NN>.txt (NN = 1-origin question number, zero-padded; the
-model directory drops any "<provider>/" prefix from --model).
+tmp/<model-name>-<lang>/<NN>.txt (NN = 1-origin question number, zero-padded;
+the model directory drops any "<provider>/" prefix from --model and carries a
+"-<lang>" suffix so different languages don't collide in the same directory).
 
 `-f` is yargs array-type: with `-f file1.txt file2.txt "prompt"` it swallows
 the prompt as a third file and leaves the actual prompt (message) empty. The
@@ -22,7 +23,7 @@ bare answer — closing remarks, and citations of the attached file's
 name/path and line numbers (as if writing a code-review comment rather than
 answering a question) — so the question is appended with a fixed
 instruction telling the model to reply with the answer only and without
-such citations, to keep tmp/<model>/<NN>.txt close to a pure answer (opencode
+such citations, to keep tmp/<model>-<lang>/<NN>.txt close to a pure answer (opencode
 itself still prints its own leading "> build · <model>" banner ahead of the
 reply; that one isn't the model's text and isn't addressed by the prompt).
 It is also told not to make any tool call at all — left unconstrained, a
@@ -38,7 +39,7 @@ pipe too (`tee` itself always succeeds), and on that failure the block
 removes its half-written output file before exiting, so the failed question
 is retried — not skipped as done — on the next run.
 
-The last line calls build_jsonl.py, which converts every tmp/<model>/<NN>.txt
+The last line calls build_jsonl.py, which converts every tmp/<model>-<lang>/<NN>.txt
 into results/ceiling-<safe-model>-<lang>.jsonl (the format ../results/ uses)
 — it only runs once every question above it has succeeded, since `set -e`
 stops the script at the first failure.
@@ -78,7 +79,7 @@ def main():
     questions = load_questions(input_path)
     total = len(questions)
     model_dir = args.model.split("/", 1)[-1]
-    out_dir = f"tmp/{model_dir}"
+    out_dir = f"tmp/{model_dir}-{lang}"
 
     lines = [
         "#!/bin/bash",
