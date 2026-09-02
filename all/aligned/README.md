@@ -1,7 +1,7 @@
 # Aligned translations
 
-The segment translations in [`../en-gemini.jsonl`](../en-gemini.jsonl) and
-[`../ja-gemini.jsonl`](../ja-gemini.jsonl) lost the source's line structure.
+The segment translations in [`all/en-gemini.jsonl`](../en-gemini.jsonl) and
+[`all/ja-gemini.jsonl`](../ja-gemini.jsonl) lost the source's line structure.
 This directory holds the same translations with the line breaks put back.
 
 ## Contents
@@ -130,9 +130,9 @@ is a downstream patch, not a fix to the data.
 
 Re-running `translate_segments.py` would invalidate the `qa-eval/` results built
 on the current translations, so
-[`../../scripts/align_lines.py`](../../scripts/align_lines.py) re-flows the
-existing translations onto the source's line structure as a post-processing
-pass instead. It inserts line breaks; it does not edit the translation.
+[`scripts/align_lines.py`](../../scripts/align_lines.py) re-flows the existing
+translations onto the source's line structure as a post-processing pass
+instead. It inserts line breaks; it does not edit the translation.
 
 ```
 uv run scripts/align_lines.py all/en-gemini.jsonl -m openai:gpt-5.6-terra -o all/aligned/en-gemini-terra.jsonl
@@ -306,9 +306,9 @@ positive.**
    re-translates, so the existing translation anchors the output and the result
    cannot be rewritten wholesale.
 7. **Store the aligned files as deltas, not as copies.**
-   [`../../scripts/pack_aligned.py`](../../scripts/pack_aligned.py) packs an
-   aligned JSONL into the edits that turn the base translations into it, and
-   unpacks it back:
+   [`scripts/pack_aligned.py`](../../scripts/pack_aligned.py) packs an aligned
+   JSONL into the edits that turn the base translations into it, and unpacks it
+   back:
 
    ```
    uv run scripts/pack_aligned.py pack   all/aligned/ja-gemini-terra.jsonl
