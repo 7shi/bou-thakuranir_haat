@@ -62,6 +62,14 @@ file|description
 [all/hi-gemini.jsonl](all/hi-gemini.jsonl) | per-segment Hindi translation data (summary, notes, translation) by Gemini 2.5 Pro in JSONL
 [chapters/01-hi.md](chapters/01-hi.md) | Hindi translation (Chapter 1) from [archive.org](https://archive.org/details/dli.ernet.526165)
 
+## Line alignment
+
+The source has one line per line of dialogue or narration, but the translation JSONLs above store each scene as a single flowing paragraph, so that structure is lost.
+[all/aligned/](all/aligned/) holds the same translations with the line breaks put back — not a re-translation and not a proofreading pass.
+The files there are deltas against the JSONLs above and need unpacking; see [all/aligned/README.md](all/aligned/README.md) for the method, the model comparison and the checks.
+
+The published text still comes from the unaligned files.
+
 ## Docs
 
 Analysis and reference documents for the novel.

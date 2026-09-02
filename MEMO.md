@@ -1,64 +1,31 @@
 # MEMO
 
-## Translated segments lose the source's line breaks
+## Handoff (2026-09-03)
 
-`all/en-gemini.jsonl` and `all/ja-gemini.jsonl` (produced by
-`scripts/translate_segments.py`) store each segment's translation as a
-single JSON string in `response.translation`. The source text
-(`wikisource/chapters/NN.txt`) has one line per line of dialogue/narration —
-37 chapters, 1,159 lines total, ~31 lines/chapter — but the translated
-segments collapse almost all of that structure: each segment typically ends
-up as one giant paragraph with only 10-14 embedded `\n` left (vs. dozens in
-the corresponding source lines), some running past 4,000 characters with no
-line break at all.
+The line-alignment pass is finished and documented.
+[`all/aligned/README.md`](all/aligned/README.md) is the full record - what the
+pass does and why, the recovered prompt of the discarded first run, the model
+comparison, the checks, and decisions 1-7. `scripts/README.md` describes every
+script by purpose. Nothing below repeats them; this is only what is left.
 
-Likely cause: `SegmentTranslation.translation` in
-`scripts/translate_segments.py` (`Field(description="Complete translation of
-the segment text into the target language")`) gives the model no
-instruction to preserve the source's per-line/per-utterance structure, so it
-naturally produces flowing prose instead of mirroring the original line
-breaks.
+**Next step: decision 8**, the only one still open.
+[`scripts/jsonl_to_md.py`](scripts/jsonl_to_md.py) has to take two files - the
+original JSONL for structure, `summary` and `translation_notes`, and the aligned
+JSONL to substitute in for the translations - before `all/*.md` can be
+regenerated and the website build (`make convert`, `make build`, `make deploy`)
+can move to the aligned text. That keeps `--mode summary` and `--mode full`
+working. Its inputs are `all/aligned/{en,ja}-gemini-terra.delta.jsonl`, which
+the build has to unpack first:
 
-Discovered while building `qa-eval/opencode/`: `extract.py` writes these
-segments out verbatim as chapter `.txt` files for `opencode run -f`
-(`qa-eval/opencode/make_ceiling.py`), and opencode's file-attachment reader
-truncates any single line past 2,000 characters (confirmed by reading
-opencode's own source — `packages/opencode/src/tool/read.ts`,
-`MAX_LINE_LENGTH = 2000`), silently dropping content past the cut. The
-original report was English chapter 37 (`opencode run -f en/37.txt`): the
-model claimed the file was truncated mid-sentence and refused to use content
-past that point, even though the underlying line was intact.
+```
+uv run scripts/pack_aligned.py unpack all/aligned/en-gemini-terra.delta.jsonl
+```
 
-Only English segments actually cross that 2,000-char threshold — Japanese
-never does (max 1,326 chars, ch25 seg1). 14 English segments across 13
-chapters exceed it:
+Once the site serves the aligned text, drop the last line of the root README's
+**Line alignment** section ("The published text still comes from the unaligned
+files.").
 
-| Chapter | Segment | Max line (chars) |
-| --- | --- | --- |
-| 5  | 1 | 4,473 |
-| 37 | 1 | 3,957 |
-| 25 | 1 | 3,333 |
-| 32 | 1 | 2,633 |
-| 29 | 2 | 2,620 |
-| 30 | 1 | 2,569 |
-| 29 | 3 | 2,442 |
-| 8  | 1 | 2,444 |
-| 34 | 1 | 2,242 |
-| 19 | 2 | 2,198 |
-| 28 | 1 | 2,107 |
-| 31 | 1 | 2,130 |
-| 17 | 1 | 2,064 |
-| 3  | 1 | 2,367 |
-
-Worked around in `qa-eval/opencode/` by having `extract.py` wrap each line
-to 1,800 columns before writing (content-preserving — verified byte-for-byte
-on the non-whitespace characters across all 37 chapters × 2 languages), but
-that's a downstream patch, not a fix to the actual translation data.
-
-**Not fixing now** — re-running `translate_segments.py` would mean
-re-translating (or at least re-diffing) `all/en-gemini.jsonl` and
-`all/ja-gemini.jsonl`, which a lot of `qa-eval/` results are built on top of.
-If this is revisited: have `SegmentTranslation.translation`'s field
-description ask the model to preserve the source segment's paragraph/line
-breaks, and check whether that alone is enough or whether the prompt in
-`translate_segment()` needs the same instruction.
+**Also outstanding, unrelated.** `make questions` calls
+`scripts/create_rag_questions.py`, which no longer exists -
+`scripts/generate_questions.py` replaced it and takes different arguments. The
+target is stale and was left alone; `scripts/README.md` notes it.
