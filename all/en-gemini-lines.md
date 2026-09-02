@@ -329,7 +329,6 @@ One, he was to express his disagreement as long as it existed; two, he was not t
 To this day, the minister had not been able to properly reconcile these two orders.
 
 After a short while, the minister spoke again, “Maharaj, the Emperor of Delhi—!”
-
 Pratapaditya flared up and said, “The Emperor of Delhi again?
 Minister, if you took the name of Jagadishwar as many times a day as you take the name of the Emperor of Delhi, you could have sorted out your afterlife.
 Until this task of mine is finished, do not bring the name of the Emperor of Delhi to your lips.
@@ -470,7 +469,6 @@ Lost in such thoughts, he started walking down that path.
 After going a short distance, he saw a horseman approaching from the opposite direction.
 When he came closer, he called out, 'Who is it?
 Ratan?'
-
 The man immediately dismounted from his horse, bowed to him, and said, 'Indeed, sire.
 Yubaraj, what brings you here at this hour?'
 
@@ -726,73 +724,104 @@ In the end, they all declared that they had understood everything from the very 
 ## Chapter 5
 
 Pratapaditya said, “Look here, Minister, those two Pathans have not yet arrived!”
+
 The minister said slowly, “That is not my fault, Maharaj!”
+
 Pratapaditya said irritably, “This is not about fault.
 There must be a reason for the delay, mustn't there?
 I am asking what you surmise.”
+
 Minister: “Simultali is a great distance from here.
 It is expected there would be a delay in going, completing the task, and returning.”
+
 Pratapaditya was displeased with the minister’s words.
 He wanted the minister to surmise the same thing he was surmising.
 But the minister did not go in that direction.
 Pratapaditya said, “Did Udayaditya go out last night?”
+
 Minister: “Yes, Your Majesty, I have already informed you of that.”
+
 Pratapaditya: “‘I have already informed you’!
 And what a timely moment you chose to inform me.
 Do you think your job is finished as long as you inform me at some point?
 Udayaditya was not like this before.
 The daughter of the Shripur landlord must have given him ill counsel.
 What do you think?”
+
 Minister: “How can I say, Maharaj?”
+
 Pratapaditya exclaimed, “Am I asking you for absolute truth?
 Just tell me what you guess!”
+
 Minister: “You hear everything about the young mistress from the Mahishi.
 You are in the best position to guess in this matter, how could I possibly guess?”
+
 A Pathan entered the room.
+
 Pratapaditya cried out, “What happened?
 Is the job settled?”
+
 Pathan: “Yes, Maharaj, it is settled by now.”
+
 Pratapaditya: “What kind of answer is that?
 So you don’t know for sure?”
+
 Pathan: “Yes, Your Majesty, I do know.
 The job is settled, there is no doubt about it, but I was not present at the time.”
+
 Pratapaditya: “Then how was the job settled?”
+
 Pathan: “As per your advice, I was leading his men away when I left.
 Hosen Khan has finished the job.”
+
 Pratapaditya: “And what if he has not?”
+
 Pathan: “Maharaj, I stake my head on it.”
+
 Pratapaditya: “Very well, wait right there.
 You will receive your reward when your brother returns.”
+
 The Pathan stood at a distance near the door, in the custody of the guards.
+
 After remaining silent for a long time, Pratapaditya said slowly to the minister, “We must try to ensure that the subjects do not find out about this in any way.”
+
 The minister said, “Maharaj, if you will not be displeased, I must say that this will certainly be revealed.”
+
 Pratapaditya: “How do you know that?”
+
 Minister: “Previously, you have openly expressed animosity towards your paternal uncle.
 You did not invite Basanta Ray to your daughter’s wedding; he came on his own, uninvited.
 Today, you suddenly invited him for no reason, and someone killed him on the road.
 Under these circumstances, the subjects will know you to be the root of this incident.”
+
 Pratapaditya said angrily, “I cannot understand your attitude at all, Minister!
 It is as if you would be happy if this news got out, as if your heart’s desire would be fulfilled if my name were slandered.
 Otherwise, why do you keep saying day and night that the matter will surely be revealed?
 I see no reason for it to be revealed.
 I suppose if the news doesn't spread by any other means, you yourself will go door to door and announce it!”
+
 The minister said, “Maharaj, pardon me.
 You understand all matters much better than I do.
 For a person of humble intellect like me to offer you counsel is an act of great audacity.
 However, since you yourself have chosen and kept me as your minister, it is with this courage that I occasionally tell you what comes to my humble mind.
 If you are angered by my counsel, then please relieve this servant of his duties.”
+
 Pratapaditya straightened up.
-Occasionally, when the minister told him a few hard truths, Pratapaditya was inwardly pleased.
+Occasionally, when the minister told him a few hard truths, Pratapaditya was inwardly pleased.”
+
 Pratapaditya said, “I am considering that if I have those two Pathans killed, there will be no further cause for fear in this matter.”
+
 The minister said, “Covering up one murder is a burden enough; managing three murders is impossible.
 The subjects will surely find out.”
 The minister stood by his own words.
+
 Pratapaditya exclaimed, “Then I am overcome with fear!
 The subjects will find out!
 Jessore is not Raigarh; the subjects do not rule here.
 Here, besides the king, everyone else is not the king.
 Therefore, do not try to scare me with the subjects.
 If any subject utters a word against me in this matter, I will burn his tongue with a hot iron.”
+
 The minister smiled to himself.
 He thought to himself, “So much fear of the subjects' tongues.
 And yet he consoles his mind that he fears no subject!”
@@ -960,7 +989,6 @@ Tears fell, one by one, from Vibha’s eyes, and Surma gently wiped them away.
 
 After a long time, as evening fell, Vibha slowly sat up, wiped her tears, and smiled slightly.
 The meaning of that smile was— “What childishness I have displayed today!”
-
 Gradually, she turned her face away and began to make an attempt to slip away.
 Surma, without a word, held her hand.
 Without bringing up their earlier conversation, she said, “Vibha, have you heard?
@@ -1124,7 +1152,6 @@ Returning to Vibha and Surma in the women's quarters, a flurry of sitar playing 
 “Let a smile bloom on this sad face, and soothe these two eyes!”
 
 Embarrassed, Vibha said, “Dada Mahashay, did you tell Father everything about me?”
-
 Basanta Ray continued to sing,
 
 “Let a smile bloom on this sad face, and soothe these two eyes.
@@ -1389,6 +1416,7 @@ The old man laughed, his voice choked with joy.
 Looking at Vibha's face, he said, “If you are so happy, why not laugh properly, my dear, let me see!”
 
 “How can you hold laughter captive at your feet?
+
 Its heart’s desire is to play upon those lips!”
 
 “If my age hadn't passed, seeing that face of yours today, I would have fallen here and died!
@@ -1397,15 +1425,10 @@ In my youth, I would die at every moment.
 In old age, one doesn't get to die unless there's an illness!”
 
 When his brother-in-law came and asked Pratapaditya, “Who has gone to welcome our dear son-in-law?” he replied, “How should I know!”
-
 “Surely the path must be lit today?”
-
 Widening his eyes, the Maharaja said, “There is no rule that it absolutely must be!”
-
 Then the king’s brother-in-law hesitantly said, “Will the Nabat not be played?”
-
 “I have no time to think about all that.”
-
 The truth is, bringing a son-in-law home with musical fanfare was not Pratapaditya's kind of work.
 
 Ramchandra Ray was overcome with great offense.
@@ -1415,7 +1438,6 @@ And even if the Dewanji did come, he brought no more than two hundred and fifty 
 Why, could not another fifty men be found in all of Jessore?
 According to Ramai Bhand, the portly Dewanji himself was larger than the elephant that had been sent to carry the king.
 Ramai had asked the Dewan, “Sir, is that creature perhaps your younger brother?”
-
 The good-natured Dewanji, slightly astonished, had replied, “No, that is an elephant.”
 
 The king, aggrieved, said to the Dewan, “Even the elephant that your minister rides is larger than this one.”
@@ -1553,22 +1575,18 @@ The middle-aged woman then left the chamber and went to the Mahishi's room.
 The Mahishi was there, feeding the servants.
 Rammohan was also sitting to one side, eating.
 The middle-aged woman approached the Mahishi, observed her, and said, “So, it is Mother Nikasha!”
-
 The moment he heard this, Rammohan started and stared at the woman's face.
 Instantly abandoning his meal, he leapt like a tiger, seized her two hands in an iron grip, and roared in a thunderous voice, “I know you, Thakur!”
 With that, he pulled the cloth from her head.
 It was none other than Ramai Thakur!
-
 Rammohan began to tremble with rage and threw off his shawl.
 With both hands, he effortlessly lifted Ramai into the air, declaring, “Today you will die by my hands!” and swung him around in the air once or twice.
 The Mahishi ran over, crying, “Rammohan, what are you doing?”
-
 Ramai pleaded in a pitiful voice, “I beg you, father, do not commit the sin of killing a Brahmin!”
 A great commotion arose from all sides.
 Rammohan then lowered Ramai to the ground and, still trembling, said, “You wretch, could you find no other place to die?”
 
 Ramai said, “The Maharaj has ordered me.”
-
 Rammohan exclaimed, “What did you say, you traitor?
 If you say such a thing again, I will grind your face on this stone floor!”
 and he seized him by the throat.
@@ -1587,18 +1605,13 @@ He sat up from his bed like a lion with a bristling mane.
 He commanded, “Call Lachhman Sardar.”
 To Lachhman Sardar he said, “Tonight, I want to see Ramchandra Ray's severed head!”
 The man immediately saluted and said, “As you command, Maharaj!”
-
 Instantly, his brother-in-law fell at his feet, pleading, “Maharaj, grant him pardon, think of Vibha for a moment.
 Do not do such a thing!”
-
 Pratapaditya repeated in a firm voice, “I want Ramchandra Ray’s head by the end of the night!”
-
 His brother-in-law clung to his feet and said, “Maharaj, they are sleeping in the inner quarters tonight, grant him pardon, Maharaj, grant him pardon!”
-
 Pratapaditya remained silent for a moment and then said, “Lachhman, listen.
 Tomorrow morning, when Ramchandra Ray leaves the inner quarters, you will kill him.
 That is your order.”
-
 The brother-in-law saw that things had gone much further than he had imagined.
 That night, he crept quietly to the door of Vibha’s bedchamber and knocked.
 
@@ -1621,18 +1634,15 @@ All his wounded pride and resentment were directed towards Vibha.
 Vibha sat awake, thinking.
 She glanced once at the moonlight, then at her husband’s face.
 Her chest heaved with intermittent deep sighs—a great pain had struck her heart.
-
 Suddenly, Ramchandra’s sleep broke.
 He suddenly saw Vibha sitting silently, crying.
 In that first moment upon waking, when the memory of the humiliation had not yet resurfaced, when a sense of well-being had returned after a deep sleep and his anger had faded, the sudden sight of Vibha's tear-stained, sorrowful, innocent face awakened a sudden pity in his heart.
 Taking her hand, he said, “Vibha, are you crying?”
-
 Vibha was overcome with emotion.
 Vibha could not speak, Vibha could not see through her tears, Vibha lay down.
 Then Ramchandra Ray sat up, gently took Vibha's head, and placed it on his lap, wiping away her tears.
 Just then, someone knocked on the door.
 Ramchandra called out, “Who is it?”
-
 A voice replied from outside, “Open the door at once!”
 
 ## Chapter 10
@@ -1821,13 +1831,11 @@ He grasped Udayaditya’s hand and said, “Dada, you must find a way to fix thi
 Ramchandra Ray became completely frantic.
 At that, Udayaditya took his sword in hand.
 “Come,” he said, “follow me.”
-
 Everyone followed along.
 Udayaditya said, “Vibha, you stay here.
 Don’t come.”
 Vibha did not listen.
 Ramchandra Ray also said, “No, let Vibha come with us.”
-
 In that silent night, they all began to walk on tiptoe.
 It felt as if a great horror was stretching out its invisible hands from all sides.
 Ramchandra Ray kept glancing in front, behind, and to his sides.
@@ -1835,7 +1843,6 @@ Now and then, suspicion towards his uncle began to arise.
 Reaching the door that led from the inner quarters to the outside, Udayaditya saw that it was locked.
 In a voice trembling with fear, Vibha said, “Dada, perhaps they haven’t locked the door leading downstairs.
 Let’s go there!”
-
 They all headed in that direction.
 They began to descend a long, dark staircase.
 It seemed to Ramchandra Ray that no one who went down these stairs ever came back up—that this must be the pit of the serpent Vasuki, the very stairs leading down to the underworld.
@@ -1850,9 +1857,7 @@ Taking her husband's hand, she led him to their bedchamber.
 She stood firmly by the door and said in an unwavering voice, “Let’s see who can take you out of this room!
 Wherever you go, I will go before you.
 Let’s see who dares to stop me!”
-
 Udayaditya stood near the door and declared, “No one will enter this room without killing me first.”
-
 Surma said nothing, but went and stood by her husband’s side.
 Old Basanta Ray came and stood before them all.
 The uncle slowly walked away.
@@ -1979,7 +1984,6 @@ Whether you keep me or not, I am your servant.”
 Saying this, he stood protectively in front of Ramchandra.
 
 Udayaditya said, “Rammohan, what is the plan?”
-
 Rammohan replied, “With the blessing of your honored feet, this staff is the plan.
 And my trust is in the feet of Ma-Kali.”
 
@@ -2001,7 +2005,6 @@ Basanta Ray, in a flurry, quickly grabbed Rammohan and exclaimed, “No, no, no,
 Rammohan, don’t you go trying such an impossible thing.”
 
 Vibha, startled, cried out in terror, “No, Mohan, what are you saying!”
-
 Ramchandra said, “No, Rammohan, that will not do.”
 
 Then Udayaditya went to the inner quarters and brought back several very thick, large sheets he had collected.
@@ -2043,7 +2046,6 @@ Seeing the delay, everyone began to berate the boat-caller at length.
 He said, “I am not a horse, after all!”
 By the time each of them had finished scolding him, it dawned on them that there was no longer any chance of catching the boat.
 The scolding took three times longer than the delay in bringing the boat.
-
 When Ramchandra’s boat reached the Bhairav river, Fernandez fired a cannon.
 At dawn, sleep had finally overcome Pratapaditya.
 He was startled awake by the sound of that cannon.
@@ -2130,9 +2132,7 @@ He continuously stroked his bald head, looked around, and thought—what has hap
 Something felt amiss; he could not quite grasp the situation.
 The entire incident felt like a complex nightmare.
 Every now and then, Basanta Ray would grab Udayaditya's hand and say in a plaintive voice, “Dada!”
-
 Udayaditya would reply, “Yes, Grand-uncle?”
-
 After that, Basanta Ray had no more words.
 In that single address, “Dada,” a thousand unspoken questions from a distraught and lost heart writhed to be expressed.
 He had no specific question; the meaning of all his words was simply—what is this?
@@ -2140,16 +2140,12 @@ The surrounding darkness spoke to him in some chaotic language that he could not
 At such times, hearing Udayaditya's voice would calm his mind a little.
 Again and again, he clutched Udayaditya's hand and asked plaintively, “Dada, did all this happen because of me?”
 The thought kept returning to him that all this had occurred because they had failed to kill him.
-
 Udayaditya was in no mood to speak much then.
 He said in a gentle voice, “No, Grand-uncle!”
-
 The room fell silent for a long time.
 After a while, Basanta Ray called out again, “Vibha, my dear sister, why are you not speaking?”
 Saying this, Basanta Ray went and sat beside Vibha.
-
 A few moments later, Basanta Ray called out again, “Surma, oh Surma!”
-
 Surma looked up but said nothing more.
 The old man sat there, stroking his head.
 He waited for some unforeseen disaster.
@@ -2171,7 +2167,6 @@ Sitaram had been pondering what to tell Pratapaditya.
 His mind was completely unwilling to mention Udayaditya's name in this matter.
 He had for a moment decided to frame a crooked-legged, three-eyed, palm-tree-sized ghost, but upon finding Basanta Ray, he acquitted the innocent spirit.
 He immediately agreed to Basanta Ray's words.
-
 Then he went to the second guard and said, “Bhagavat, when Pratap asks, tell him Basanta Ray tied you up.”
 Suddenly, Bhagavat's sense of dharma became extremely strong; a profound aversion to falsehood arose in him.
 The main reason for this was that he had become very angry with Udayaditya.
@@ -2266,27 +2261,37 @@ Pratapaditya had no such apprehension regarding Vibha; after all, she was a daug
 
 Coming to Udayaditya’s room, Basanta Ray said, “Grandson, I will not see you anymore.”
 With these words, the old man embraced Udayaditya with both arms.
+
 Udayaditya took Basanta Ray’s hand and said, “Why, Grand-uncle?”
+
 Basanta Ray explained everything.
 Crying, he said, “My boy, you suffer so much only because I love you.
 But, if you can be happy, I will somehow get through my days.”
+
 Shaking his head, Udayaditya said, “No, that will never happen.
 We will see each other.
 No one can prevent it.
 If you leave, Grand-uncle, I will not survive.”
+
 Basanta Ray said in distress, “Pratap did not kill me; he snatched you away from me.
 Grandson, when I leave, do not look back at me, just think that Basanta Ray has died!”
+
 Udayaditya went to Surma in the bedchamber.
 Basanta Ray went to Vibha, held her chin, and said, “My dear Vibha, get up for a moment!
 Run your hand over this old man’s head just once.”
 Vibha sat up, took her grand-uncle’s head, and began to pluck out his grey hairs.
+
 Udayaditya told Surma everything and said, “Surma, it is as if a conspiracy is afoot to snatch away whatever little I have left in this world.”
 Holding Surma’s hand, he said, “Surma, what if someone snatches you away from me?”
+
 Surma embraced Udayaditya firmly and said in a resolute voice, “Only Yama can do that, and no one else.”
+
 A similar fear had been growing in Surma's mind for some time.
 It was as if she could see a cruel hand advancing to push her Udayaditya away from her.
 In her mind, she held Udayaditya in a desperate embrace and said to herself, “I will not let go, no one can make me let go.”
+
 Surma said again, “I have been resolved for a long time that no one can take me from you.”
+
 Surma repeated those words again and again.
 She wanted to gather strength within her mind, the kind of strength with which she could wrap Udayaditya in her arms so tightly that no earthly power could separate them.
 By repeating those words, she was binding her mind with the force of a thunderbolt.
@@ -2489,9 +2494,7 @@ The stars appeared, the lamps were lit, and the road emptied of people.
 Vibha stood and stared silently.
 Searching for her all over, Surma finally found her on the roof.
 Putting an arm around Vibha's neck, she asked in an affectionate tone, “What are you looking at, Vibha?”
-
 Vibha sighed and said, “Who knows, sister!”
-
 Vibha saw only emptiness in everything; there was no happiness in her heart.
 She couldn't find a reason for why she went inside, why she came out, why she lay down, why she got up, why she wandered from room to room in the middle of the day.
 It was as if her home had left the palace, as if she had no room in the palace.
@@ -2517,13 +2520,11 @@ Sitaram's circumstances had changed, yet none of the accompanying changes had fo
 His uncle's hunger and thirst remained exactly the same; as his nephew grew older, the expanse of his stomach and his regard for his uncle's honor and dishonor also grew.
 Besides Sitaram’s money pouch, no one else's stomach showed any signs of shrinking.
 Along with his other hangers-on, Sitaram’s expensive tastes also remained; they were growing on credit, and just as the interest swelled, so did they.
-
 Upon hearing of Sitaram’s poverty, Udayaditya fixed a monthly stipend for him and for Bhagavat.
 Receiving the money, Sitaram felt extremely ashamed.
 Ever since mentioning Udayaditya's name to the Maharaja, he had felt deeply guilty before both himself and Udayaditya.
 He burst into tears upon receiving the money from Udayaditya.
 One day, upon meeting the Yubaraj, he clasped his feet and begged for forgiveness, addressing him as Bhagavan, Jagadishwar, and the Merciful One.
-
 Bhagavat was a very cool-headed fellow.
 He played chess, smoked tobacco, and distributed plots of land in heaven and hell among his neighbors.
 When he received Udayaditya's money, he twisted his face and conveyed through various expressions that for the ruination the Yubaraj had caused him, how could this money be any compensation!
@@ -2575,7 +2576,6 @@ We must find a way to get this done secretly.”
 
 Surma took Udayaditya’s hand and said, “You don't have to do anything more.
 I will do everything, leave the burden to me.”
-
 Surma wanted to shield Udayaditya with her own self.
 This year was a bad one for Udayaditya.
 Whatever task fate compelled him to undertake, it was all against his father; and yet, they were such tasks that a wife like Surma could not, in good conscience, stop her husband from doing them.
@@ -2593,14 +2593,11 @@ For this reason, no one on the outside was aware, except for Mangala.
 When word of the secret stipends reached Pratapaditya's ears, he said nothing, but sent an order to the inner quarters that Surma must go to her paternal home.
 Udayaditya steeled his heart.
 Vibha wept, clinging to Surma's neck, and said, “If you go, what will I do in this graveyard of a palace?”
-
 Surma held Vibha’s chin, kissed her face, and said, “Why would I go, Vibha?
 My everything is here.”
-
 When Surma heard Pratapaditya's order, she said, “I see no reason to go to my paternal home.
 No one has come from there to fetch me, nor is it my husband’s wish.
 Therefore, I see no need to suddenly go to my paternal home without cause.”
-
 Hearing this, Pratapaditya erupted in fury.
 But he reflected and saw he had no way.
 Surma could not be forcibly thrown out of the house; physical force does not work in the inner quarters.
@@ -2612,15 +2609,12 @@ Whenever any trouble arose concerning them, he would hastily hand the matter ove
 He had neither the time, the desire, nor the ability to sit and think about them.
 It was a task entirely unsuited to him.
 This time too, Pratapaditya summoned the Mahishi and said, “Send Surma to her father’s house!”
-
 The Mahishi said, “But then, what will become of our Uday?”
-
 Pratapaditya said irritably, “Uday is not a child.
 For the sake of state affairs, I want to send Surma far from the royal palace.
 This is my order.”
 
 The Mahishi summoned Udayaditya and said, “My dear Uday, let’s send Surma to her father’s house!”
-
 Udayaditya replied, “Why, Mother?
 What crime has Surma committed?”
 
@@ -2681,14 +2675,12 @@ The moment Udayaditya arrived, Surma clung to his feet, pressed them to her ches
 Surma had never cried like this before.
 Her strong heart had shattered into a hundred pieces today.
 Udayaditya lifted Surma’s head onto his lap and asked, “What is it, Surma?”
-
 Looking at Udayaditya’s face, what more could Surma say?
 She looked at his face and burst into tears again.
 She said, “I will not be able to see that face?
 Evening will fall, you will come and sit by the window, and I won’t be by your side?
 The lamp will be lit in the room, you will come and stand by that door, and I will no longer smilingly take your hand and lead you in?
 When you are here, where will I be?”
-
 The way Surma said “where” held so much despair, such a sense of vast, distant separation!
 When a meeting can only happen eye to eye, how great is the distance between!
 When even that cannot happen, how much greater still!
@@ -2812,10 +2804,8 @@ Suddenly, it would seem to him that he heard a voice like Surma's.
 He would startle, and though he knew it was impossible, he would look around, go to the bed, and see if anyone was there!
 The Udayaditya who used to stay busy all day with hundreds of small tasks, to whom poor subjects would come with gifts of fruits, roots, and vegetables from their fields and gardens, and he would make inquiries about them, give them advice; these days he could do none of that, yet by evening he would be exhausted.
 With weary steps, he would come to his chamber, a flicker of hope in his heart that as soon as he opened the door, he would see Surma sitting at that window.
-
 When Udayaditya saw Vibha wandering about alone with a sorrowful face, his heart cried out.
 He would call Vibha to him, caress her, speak so many words of affection to her, and finally, holding her brother's hand, Vibha would burst into tears, and tears would stream from Udayaditya's eyes too!
-
 One day, Udayaditya called Vibha and said, “Vibha, who is left for you in this house?
 Let me arrange to send you to your in-laws' home now.
 What do you say?
@@ -2877,7 +2867,6 @@ Ramai Bhand, the jester, says, “Pratapaditya is the son of Vikramaditya; they 
 Pratapaditya's grandfather was an earthworm, the son of the earthworm became a leech, and that wretch grew monstrously bloated by sucking the blood of his subjects.
 Now, the son of that leech has made his head as wide as a winnowing fan by banging it on the ground and has learned to spread its hood like a snake.
 We have served as jesters in the royal court for generations; we are snake-charmers—do you think we don't know a true snake?”
-
 King Ramchandra Ray, immensely pleased today, began to smoke his hookah with a smiling face.
 Nowadays, an attack on Pratapaditya occurs in the court every day.
 The session adjourns only after the quivers of the courtiers are emptied of their piercing verbal arrows aimed at Pratapaditya's back.
@@ -3194,10 +3183,8 @@ Could she stay away from one so dear?”
 The girl asked once, “Uncle, where is Aunty?”
 
 With a choked voice, Udayaditya said, “Why don’t you call for her once.”
-
 The girl began to call out, “Aunty!
 Aunty!”
-
 It seemed to Udayaditya that someone had answered.
 As if someone called out from a distance, “I’m coming, dear!”
 As if, hearing the sorrowful call of the affectionate child, the loving woman could no longer stay away and was coming to take her into her arms.
@@ -3380,7 +3367,6 @@ Covering her face with both hands, clutching a pillow to her chest, she wept and
 What am I to do?
 My heart is breaking, I pace restlessly from room to room all day, no one tells me any news of you, I do not hear your name from anyone's lips!
 Oh, mother, how will the days pass!”
-
 Many days passed like this.
 On so many afternoons, so many evenings, so many nights, the companionless Vibha would wander through the empty rooms of the palace like a gaunt shadow.
 
@@ -3497,7 +3483,6 @@ Pratapaditya flew into a rage—then, after much consideration, he gave the orde
 The minister said, “Maharaj, it is impossible to believe that the Yubaraj has done such a thing.
 Everyone who hears it is shocked and says such a thing should not even be heard.
 It is not believable that the Yubaraj would do this.”
-
 Pratapaditya said, “I don’t particularly believe it either.
 But what is the harm in him staying in prison because of it?
 As long as he is not subjected to any hardship there.
@@ -3927,7 +3912,6 @@ The world came crashing down on Basanta Ray; he gripped Sitaram’s hand firmly.
 His eyebrows shot up, his eyes widened, and his lips parted—staring at Sitaram’s face with an unblinking gaze, he said, “Eh?”
 
 Sitaram replied, “Yes, indeed, Maharaj.”
-
 After a moment of silence, Basanta Ray said, “Sitaram!”
 
 Sitaram replied, “Maharaj!”
@@ -3938,7 +3922,6 @@ Sitaram said, “In prison, sir!”
 
 Basanta Ray began to run a hand over his head.
 It seemed the news of Udayaditya being in prison was not quite sinking in; he could not conjure the image of it at all.
-
 After another short while, he grabbed Sitaram’s hand again and said, “Sitaram!”
 
 Sitaram replied, “Yes, Maharaj!”
@@ -4032,10 +4015,8 @@ The more he felt that people were making him out to be the villain, the more obs
 
 Basanta Ray returned to the inner quarters, his face so dejected that it pained Vibha deeply to see him.
 Vibha took her grand-uncle’s hand and said, “Grand-uncle, come to my room.”
-
 Basanta Ray silently followed Vibha into her room.
 After he sat down, Vibha touched his grey hairs with her delicate fingers and said, “Grand-uncle, come, let me pluck your grey hairs.”
-
 Basanta Ray replied, “My dear, are there any grey hairs left to pluck?
 When I wasn’t old, I had them, and I would ask you all to pull them out.
 Today I have become an old man—I have no grey hairs anymore.”
@@ -4122,7 +4103,6 @@ Basanta Ray said, “Why, where to, Sitaram?”
 
 Sitaram then came closer and sat down.
 He whispered something very softly.
-
 His eyes widening, Basanta Ray exclaimed, “Is it true?”
 
 Sitaram replied, “Yes, it is, Maharaj.”
@@ -4221,14 +4201,15 @@ She wanted to say something—but who would listen to her?
 Some cursed her, others pushed her away—no one listened to her.
 One who did listen said, “The Yubaraj has escaped, so what's it to me, you wench, and what's it to you?
 Dayal Singh knows about it—I can’t leave my own house now.”
+
 Saying this, he vanished into the crowd.
 Being rebuffed like this again and again, the woman became utterly furious.
 She forcefully grabbed the first person she found and said, “You wretch, are you blind?
 Have you no sense that you are in the king’s service?
 Tomorrow, I will tell the king and have you buried in the ground with thorns below and thorns above!
 The Yubaraj has escaped!”
-“Good for him—what's it to you?”
-he said, and gave her a sound beating.
+
+“Good for him—what's it to you?” he said, and gave her a sound beating.
 This man was one of those who had set the fire.
 After being beaten, the woman’s appearance became terrifying.
 Her eyes blazed like an angry tigress’s, her hair fanned out, and she ground her teeth.
@@ -4438,18 +4419,15 @@ That very night, Sitaram fled Jessore with his family to Raigarh.
 
 In the last watch of the night, clouds gathered and it began to rain in torrents—the fire also gradually went out.
 The rumor of the Yubaraj's death reached Pratapaditya's ears.
-
 Upon hearing it, Pratapaditya immediately came out to his assembly hall and took his seat.
 The guards were summoned, the minister arrived, and one or two other courtiers came.
 One witness testified that when the fire was burning fiercely, he had seen the Yubaraj through the window.
 A few others said they had heard the Yubaraj's screams.
 And another brought forth the melted, burnt remains of his sword from the Yubaraj's cell.
-
 Pratapaditya asked, “Where is my uncle?”
 They searched the palace but could not find him.
 Someone said, “When the fire broke out, he was also in the prison.”
 Someone else said, “No, he had received the news during the night that the Yubaraj had died in the fire, and upon hearing that, he immediately left Jessore.”
-
 As Pratapaditya was thus sitting in court listening to everyone's testimony, a clamor arose at the doorway.
 A woman wanted to enter the room, but the guards were stopping her.
 Hearing this, Pratapaditya ordered her to be brought in.
@@ -4478,7 +4456,6 @@ The old king, Sitaram, and your Yubaraj, these three conspired and did this—I 
 
 Pratapaditya remained silent for a long time!
 He asked, “How did you come to know all this?”
-
 Rukmini said, “What does it matter!
 Give me men, and I will go myself and find them.
 Your palace servants are all sheep—they won't do this job.”
@@ -4585,7 +4562,6 @@ He was thinking, there was no telling what would become of his grand-uncle for w
 In what an unlucky moment I must have been born!
 He went to Basanta Ray and said, “Grand-uncle, I must leave.
 I must return to Jessore.”
-
 At first, Basanta Ray laughed and sang to brush the matter aside.
 He sang—
 
@@ -5084,12 +5060,10 @@ Seeing the festive mood on the riverbank, Udayaditya went for a walk in the vill
 
 A little while passed.
 Someone from the bank asked, “Whose boat is that?”
-
 From the boat, the palace retainers called out.
 “Who’s that?
 It’s Rammohan!
 Hey, come on, come on!”
-
 Rammohan quickly boarded the boat.
 Vibha was sitting alone on the boat.
 Seeing Rammohan, she exclaimed, overflowing with joy, “Mohan.”
@@ -5178,6 +5152,7 @@ Previously, Vibha would have died of shyness, but today it was as if she noticed
 Everything she saw seemed false to her.
 It was like being jostled about in a clamorous dream—as if nothing was anything at all.
 She was merely aware of a crowd on all sides, merely heard a clamor from every direction, but it seemed to hold no meaning.
+
 As she came through the crowd to the palace gate, a guard suddenly grabbed Vibha’s hand to stop her.
 In that instant, Vibha was abruptly plunged into the external world.
 She saw her surroundings and was mortified with shame.
@@ -5186,29 +5161,40 @@ Rammohan was walking ahead; he turned back and glared at the guard.
 Fernandez, who was nearby, came and gave the guard a thorough scolding.
 Vibha entered the palace.
 Like any other maidservant, Vibha entered the palace—no one welcomed her!
+
 In the room, only the king and Ramai Bhand, the jester, were seated.
 Upon entering the room, Vibha looked at the king’s face and fell to the ground at his feet.
 The king, startled, stood up and asked, “Who are you?
 A beggar woman—have you come seeking alms?”
+
 Vibha raised her bowed head, and looking at the king's face with tear-filled eyes, said, “No, Maharaj, I have come to give away my everything.
 I have come to surrender you into another’s hands and take my leave.”
+
 Rammohan could not remain silent.
 He came near and said, “Maharaj, your Mahishi—the princess of Jessore.”
+
 Suddenly, Ramchandra Ray's heart seemed to jolt—but immediately, Ramai Bhand laughed, and glancing slyly at the king, said in a harsh voice, “Why, is your 'dada' no longer to your liking?”
+
 A glimmer of compassion had awakened in Ramchandra Ray’s heart, yet at Ramai’s words, he let out a cruel laugh.
 He thought that showing Vibha affection now might make him an object of ridicule.
+
 A thousand thunderbolts seemed to strike Vibha's head.
 She was utterly mortified with shame.
 Closing her eyes, she thought to herself, “Oh Mother Earth, swallow me whole!”
 Anguished, she looked around, casting a helpless glance at Rammohan's face!
+
 Rammohan rushed forward, forcefully grabbed Ramai Bhand by the scruff of his neck, and threw him out of the room.
+
 The king, enraged, said, “Rammohan, you dare to show such insolence before me!”
+
 Trembling, Rammohan said, “Maharaj, I was insolent!
 That wretch insulted your Mahishi, my lady mother!
 What does he think he is doing?
 I will have his head shaved, pour whey over it, and drive him from the city, or my name is not Rammohan!”
+
 The king snapped at Rammohan, “Who is my Mahishi?
 I do not know her!”
+
 Vibha's face turned blue.
 She pressed the end of her sari to her mouth, her whole body began to tremble violently, and finally, still trembling, Vibha fainted and fell to the floor.
 Then Rammohan, with folded hands, said to the king, “Maharaj, my family has served your line for four generations.
@@ -5222,8 +5208,10 @@ Let us leave this place at once!
 We cannot stay here a moment longer.”
 Saying this, he lifted her and brought her out.
 There were many palanquins near the gate; he placed the unconscious and exhausted Vibha into one of them and returned to the boat.
+
 Vibha went to Kashi with Udayaditya.
 There, she spent her life in charity, meditation, service to the gods, and in caring for her brother.
 As long as Rammohan lived, he remained with them.
 Sitaram also came to Kashi with his family and took refuge with Udayaditya.
+
 The market in Chandradwip in front of which Vibha’s boat had moored is still known by the name: “Bou-Thakurani’s Market.”
