@@ -104,6 +104,9 @@ or directly:
 uv run proper_nouns/survey/cluster.py proper_nouns/survey/bn.jsonl -m openai:gpt-5.6-terra
 ```
 
+Meant to run once, from scratch. After that, `cluster-bn.jsonl` is edited
+data, not something to recluster - don't delete it to force a rebuild.
+
 - `survey` - a survey JSONL produced above
 - `-m/--model` (required)
 - `-o/--output` - default: `cluster-<name>.jsonl` next to the input
@@ -115,12 +118,38 @@ uv run proper_nouns/survey/cluster.py proper_nouns/survey/bn.jsonl -m openai:gpt
 - `-N/--normalize` - make no calls; fold the chapters already clustered into
   one corrected list (see below)
 
+## Patching the clustering - `cluster.py`'s `patch()`
+
+`cluster_chapter()` only ever groups one chapter's forms in isolation, so a
+correction that spans chapters - a form filed under the wrong name, two names
+the text shows to be one, a kind a chapter voted wrong, a pronoun the survey
+mistook for a name - can't be fixed within a single call. `patch()` in
+`cluster.py` applies these after the fact, folding a correction directly into
+`cluster-<lang>.jsonl` - not by hand-editing the JSON, and not by holding the
+correction as data in the script (see the comment above `FORMS` in
+`cluster.py` for why: it stops the script from carrying this book's specific
+fixes). It is called from a one-liner instead, each one checked against
+`all/bn.md` and recorded in the commit that makes it:
+
+```
+uv run python3 -c "
+import sys; sys.path.insert(0, 'proper_nouns/survey')
+from cluster import patch, load_records, save_records
+path = 'proper_nouns/survey/cluster-bn.jsonl'
+save_records(path, patch(load_records(path),
+    reassign={(2, 'রায়ের'): 'প্রতাপাদিত্য'}))
+"
+```
+
+`patch(records, reassign={}, merge={}, kinds={}, drop=set())` takes any
+combination of the four corrections and is idempotent, so a fix already
+folded in is safe to reapply.
+
 ## The corrected list - `cluster.py -N`
 
-`-N` makes no calls. It applies the corrections held in `REASSIGN`, `MERGE`,
-`KINDS` and `DROP` at the top of `cluster.py` - hard-coded there rather than
-edited into `cluster-<lang>.jsonl`, each one annotated with the passage of
-`all/bn.md` that settles it - and writes `normalized-<lang>.jsonl`.
+`-N` makes no calls. It assumes `cluster-<lang>.jsonl` is already patched,
+and folds its chapters into one list - see `collect_names()` below - writing
+`normalized-<lang>.jsonl`.
 
 The file keeps the per-chapter shape, one record per chapter listing the names
 it uses with their canonical spelling, kind, the forms found there, and - when

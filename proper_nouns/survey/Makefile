@@ -14,11 +14,18 @@
 # three are anchored to its names by anchor.py rather than clustered in
 # isolation, so anchor-{en,ja,hi}.jsonl depend on normalized-bn.jsonl.
 #
+# cluster-bn.jsonl's rule is for the initial build only. Once clustered, it
+# is edited data - corrections go in with a cluster.py patch() one-liner (see
+# the comment above FORMS in cluster.py), not by reclustering, which would
+# call the model again and lose them. `make cluster-bn.jsonl` is a no-op once
+# the file exists, same as any other target here, but don't `rm` it to force
+# a rebuild - that's the one target in this file not meant to be regenerated.
+#
 # Usage:
 #   make                       # all four languages
 #   make hi.jsonl              # one language
-#   make cluster-bn.jsonl      # cluster the Bengali survey by entity
-#   make normalized-bn.jsonl   # fold those chapters into one corrected list
+#   make cluster-bn.jsonl      # cluster the Bengali survey by entity (once)
+#   make normalized-bn.jsonl   # fold cluster-bn.jsonl's chapters into one list
 #   make anchor                # tie en/ja/hi to the Bengali names
 #   make anchor-hi.jsonl       # one language
 
@@ -66,5 +73,5 @@ anchor-hi.jsonl: hi.jsonl normalized-bn.jsonl
 	uv run $(ANCHOR) hi.jsonl -m $(MODEL)
 
 clean:
-	rm -f bn.jsonl en.jsonl ja.jsonl hi.jsonl cluster-bn.jsonl normalized-bn.jsonl \
+	rm -f bn.jsonl en.jsonl ja.jsonl hi.jsonl normalized-bn.jsonl \
 	      anchor-en.jsonl anchor-ja.jsonl anchor-hi.jsonl

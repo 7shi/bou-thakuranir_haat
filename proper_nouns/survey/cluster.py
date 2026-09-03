@@ -200,44 +200,30 @@ def load_chapters(path: str) -> Tuple[Dict[int, Counter], str]:
     return chapters, lang
 
 
-# Corrections to the clustering, each one checked against all/bn.md. They are
-# recorded here rather than edited into the output so that the output stays a
-# plain record of what the model answered, and so that a re-run of a chapter
-# does not silently lose them.
+# Book-specific corrections to REASSIGN, MERGE, KINDS and DROP into
+# cluster-<lang>.jsonl - see patch() - do not live here as data. Apply them
+# with a one-liner instead, each one checked against all/bn.md and recorded
+# in the commit that makes it, e.g.:
 #
-# A form the model filed under the wrong name. Most come from the survey
-# splitting a two-word name across two entries, which leaves the chapter's
-# clustering with two halves to place.
-REASSIGN = {
-    # "প্রতাপাদিত্য রায়ের" - the surname is Pratapaditya's here, not Basantaray's,
-    # though the same chapter's "বসন্ত রায়কে" really is Basantaray.
-    (2, "রায়ের"): "প্রতাপাদিত্য",
-    # "রাম চন্দ্র বলিলেন" - Ramchandra written with a space, surveyed as two forms.
-    (11, "রাম"): "রামচন্দ্র রায়",
-    (11, "চন্দ্র"): "রামচন্দ্র রায়",
-    # "রাম, রাম! ও কথা মুখে আনিতে নাই" - the god invoked in dismay, as in ch4, not
-    # Ramchandra Ray.
-    (28, "রাম"): "রাম",
-    # "পরাণ ও হরি দুই ভাই আসিল" - a villager's name, not the word প্রাণ.
-    (33, "পরাণ"): "পরাণ",
-    # "খবর কি দাদা?" - Basantaray's own greeting to Udayaditya, the same দাদা
-    # the other chapters have; the chapter's দাদা মহাশয় is a separate entry.
-    (4, "দাদা"): "দাদা",
+#   uv run python3 -c "
+#   import sys; sys.path.insert(0, 'proper_nouns/survey')
+#   from cluster import patch, load_records, save_records
+#   path = 'proper_nouns/survey/cluster-bn.jsonl'
+#   save_records(path, patch(load_records(path),
+#       reassign={(2, 'রায়ের'): 'প্রতাপাদিত্য'}))
+#   "
+#
+# cluster-bn.jsonl is edited data from here on, not a file this script
+# regenerates - see the Makefile.
+
+# Spelling variants the survey never caught as a name anywhere, so they never
+# entered a chapter's entities and MERGE has nothing to fold - fed directly
+# into the sweep pattern instead.
+FORMS = {
+    # ch5:371 spells the ch2:95 name with শ instead of স - the two sibilants
+    # this book elsewhere keeps distinct, confused for once.
+    "শিমুলতলী": "সিমুলতলী",
 }
-
-# Names the chapters settled on separately that the text shows to be one.
-MERGE = {
-    "রমাই": "রমাই ভাঁড়",       # the jester, also called রমাই ঠাকুর and, in jest,
-    "রমাই ঠাকুর": "রমাই ভাঁড়",  # সেনাপতি রমাই after he bests the general in wit
-    "উদয়": "উদয়াদিত্য",
-}
-
-# The kind to record where the correction changes it.
-KINDS = {"পরাণ": "person"}
-
-# Surveyed as proper nouns but not names at all - pronouns the survey mistook
-# for forms of address.
-DROP = {"তাঁর", "তাহা", "তোরা"}
 
 # Kept out of the sweep below: forms that are also ordinary words, which no
 # amount of matching can tell apart. Each is a name somewhere in the book and
@@ -286,21 +272,62 @@ def resolve_owners(entities: Dict[int, Dict[str, set]]) -> Dict[str, str]:
             # would go unswept otherwise.
             for form in {canonical, *forms}:
                 owners.setdefault(form, set()).add(canonical)
-    return {form: next(iter(names)) for form, names in owners.items()
-            if len(names) == 1 and form not in EXCLUDE}
+    result = {form: next(iter(names)) for form, names in owners.items()
+              if len(names) == 1 and form not in EXCLUDE}
+    result.update(FORMS)
+    return result
 
 
-def resolve_kinds(records: List[Dict]) -> Dict[str, str]:
+def resolve_kinds(records: List[Dict], reassign: Dict[Tuple[int, str], str] = {},
+                   merge: Dict[str, str] = {}, kinds: Dict[str, str] = {},
+                  ) -> Dict[str, str]:
     """One kind per name for the whole book, by majority across its chapters."""
     votes: Dict[str, Counter] = {}
     for record in records:
         for entity in record["entities"]:
             for form in entity["forms"]:
-                canonical = REASSIGN.get((record["chapter"], form), entity["canonical"])
-                canonical = MERGE.get(canonical, canonical)
+                canonical = reassign.get((record["chapter"], form), entity["canonical"])
+                canonical = merge.get(canonical, canonical)
                 votes.setdefault(canonical, Counter())[entity["kind"]] += 1
-    return {name: KINDS.get(name) or v.most_common(1)[0][0]
+    return {name: kinds.get(name) or v.most_common(1)[0][0]
             for name, v in votes.items()}
+
+
+def patch(records: List[Dict], reassign: Dict[Tuple[int, str], str] = {},
+          merge: Dict[str, str] = {}, kinds: Dict[str, str] = {},
+          drop: set = frozenset()) -> List[Dict]:
+    """Apply one-off corrections to the clustering output itself.
+
+    cluster_chapter() only ever grouped one chapter's forms in isolation, so a
+    correction that spans chapters - a form filed under the wrong name
+    (`reassign`), two names the text shows to be one (`merge`), a kind a
+    chapter voted wrong (`kinds`), a non-name to remove (`drop`) - can't be
+    fixed within a single call. Applying it here, once, folds it into the
+    file itself: what normalize() reads afterward already has one canonical,
+    one kind and one set of forms per name, with nothing left to reapply.
+
+    Meant to be called from a one-liner against cluster-<lang>.jsonl - see the
+    comment above FORMS below for the shape - not to hold the corrections as
+    data in this script.
+    """
+    kinds = resolve_kinds(records, reassign, merge, kinds)
+    result = []
+    for record in sorted(records, key=lambda r: r["chapter"]):
+        names: Dict[str, set] = {}
+        for entity in record["entities"]:
+            for form in entity["forms"]:
+                canonical = reassign.get((record["chapter"], form), entity["canonical"])
+                canonical = merge.get(canonical, canonical)
+                if canonical in drop:
+                    continue
+                names.setdefault(canonical, set()).add(form)
+        result.append({
+            "chapter": record["chapter"],
+            "target_lang": record["target_lang"],
+            "entities": [{"canonical": name, "kind": kinds[name], "forms": sorted(forms)}
+                         for name, forms in sorted(names.items())],
+        })
+    return result
 
 
 def sweep(entities: Dict[int, Dict[str, set]], chapters: List[str]) -> Counter:
@@ -366,7 +393,11 @@ def place_names(names: Dict[str, set], segments: List[str],
 
 def normalize(records: List[Dict], chapters: Optional[List[str]] = None,
               ) -> Tuple[List[Dict], Counter]:
-    """Apply the corrections, keeping the per-chapter shape.
+    """Fold the clustered chapters into one corrected list, keeping the shape.
+
+    Assumes `records` is already patch()ed: REASSIGN, MERGE, KINDS and DROP
+    are applied there, once, to cluster-<lang>.jsonl itself, so this step
+    only needs to read one canonical, one kind and one set of forms per name.
 
     Chapter by chapter is how the list is used: anchoring another language to
     Bengali happens one chapter at a time, and that chapter's two or three
@@ -377,17 +408,13 @@ def normalize(records: List[Dict], chapters: Optional[List[str]] = None,
     With the source text in hand the chapters are also swept for the
     occurrences the survey missed; see sweep().
     """
-    kinds = resolve_kinds(records)
     entities: Dict[int, Dict[str, set]] = {}
+    kinds: Dict[str, str] = {}
     for record in sorted(records, key=lambda r: r["chapter"]):
         names: Dict[str, set] = {}
         for entity in record["entities"]:
-            for form in entity["forms"]:
-                canonical = REASSIGN.get((record["chapter"], form), entity["canonical"])
-                canonical = MERGE.get(canonical, canonical)
-                if canonical in DROP:
-                    continue
-                names.setdefault(canonical, set()).add(form)
+            names[entity["canonical"]] = set(entity["forms"])
+            kinds[entity["canonical"]] = entity["kind"]
         entities[record["chapter"]] = names
     added = sweep(entities, chapters) if chapters else Counter()
     langs = {r["chapter"]: r["target_lang"] for r in records}
