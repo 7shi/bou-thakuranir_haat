@@ -226,6 +226,12 @@ FORMS = {
     # ch10's three occurrences are all this one inflection, never the bare
     # form or রায়বংশকে (ch2) that the survey did catch.
     "রায়বংশের": "রায়বংশ",
+    # ch6/23/37's one occurrence each - the survey only ever caught দাদা and
+    # দাদার for this name, never this inflection.
+    "দাদাকে": "দাদা",
+    # ch12's occurrence carries the emphatic -ই clitic; ch1's bare form is
+    # all the survey caught.
+    "অন্তর্যামীই": "অন্তর্যামী",
 }
 
 # Kept out of the sweep below: forms that are also ordinary words, which no
