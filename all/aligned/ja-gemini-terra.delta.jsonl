@@ -53,7 +53,7 @@
 {"chapter": 23, "segment": 1, "ops": [[492, 493, ""]]}
 {"chapter": 23, "segment": 2, "ops": []}
 {"chapter": 24, "segment": 1, "ops": []}
-{"chapter": 24, "segment": 2, "ops": []}
+{"chapter": 24, "segment": 2, "ops": [[506, 506, "ラ"]]}
 {"chapter": 24, "segment": 3, "ops": []}
 {"chapter": 25, "segment": 1, "ops": []}
 {"chapter": 26, "segment": 1, "ops": [[246, 247, ""], [514, 515, ""], [644, 645, ""]]}
@@ -71,11 +71,11 @@
 {"chapter": 30, "segment": 1, "ops": [[481, 482, ""], [1762, 1763, ""], [2026, 2027, ""]]}
 {"chapter": 31, "segment": 1, "ops": []}
 {"chapter": 32, "segment": 1, "ops": []}
-{"chapter": 33, "segment": 1, "ops": [[175, 176, ""], [221, 222, ""], [896, 897, ""]]}
+{"chapter": 33, "segment": 1, "ops": [[175, 176, ""], [221, 222, ""], [359, 360, ""], [896, 897, ""]]}
 {"chapter": 33, "segment": 2, "ops": []}
 {"chapter": 33, "segment": 3, "ops": [[1353, 1354, ""], [2511, 2512, ""]]}
 {"chapter": 33, "segment": 4, "ops": []}
-{"chapter": 34, "segment": 1, "ops": []}
+{"chapter": 34, "segment": 1, "ops": [[36, 37, ""]]}
 {"chapter": 35, "segment": 1, "ops": []}
 {"chapter": 36, "segment": 1, "ops": [[233, 234, ""], [286, 287, ""]]}
 {"chapter": 36, "segment": 2, "ops": []}

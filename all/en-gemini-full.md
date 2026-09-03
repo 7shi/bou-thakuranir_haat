@@ -1683,7 +1683,7 @@ Udayaditya gave no further reply to this. He sat silently for a while, then got 
 
 The Mahishi went weeping to Pratapaditya and fell at his feet, saying, “Maharaj, save us! If Surma is sent away, Uday will not survive. My son is not at fault. It is that Surma, that witch, who has cast some spell on him.” Saying this, the Mahishi was overwhelmed with tears.
 
-Pratapditya, terribly enraged, said, “If Surma does not go, I will have Udayaditya imprisoned!”
+Pratapaditya, terribly enraged, said, “If Surma does not go, I will have Udayaditya imprisoned!”
 
 Coming from the Maharaj, the Mahishi went to Surma and said, “You wretch, what have you done to my son? Give me back my son! What ruin have you not brought upon him since your arrival? In the end—he is the son of a king—will you not be satisfied until you have put fetters on his hands?”
 
@@ -2806,17 +2806,17 @@ The dialogue is filled with dramatic irony, as Udayaditya knows he is leaving fo
 
 Today is Thursday, an inauspicious time; no journey can be made today, it will have to be tomorrow. The day is very bad. It has been drizzling continuously since morning. The entire sky is plastered with clouds. Udayaditya has decided that he must leave Raigarh this very evening. In the morning, when he met with Basanta Ray, Basanta Ray embraced him and said, “Dada, last night I had a terrible nightmare. I can't remember the dream well, only that you and I were—as if—parting for life.”
 
-Taking Basanta Ray's hand, Udayaditya said, “No, Dada Mashay!— Even if we do part, why would it be for life?”
+Taking Basanta Ray's hand, Udayaditya said, “No, Dada Mahashay!— Even if we do part, why would it be for life?”
 
 Basanta Ray, looking away thoughtfully, said, “What else could it be! Tell me, how much longer will I live? I have grown old!”
 
 The final note of last night's nightmare was still echoing in the caverns of Basanta Ray's mind, and so he was lost in thought, distracted.
 
-After remaining quiet for a while, Udayaditya said— “Dada Mashay, what will happen if we are parted again!”
+After remaining quiet for a while, Udayaditya said— “Dada Mahashay, what will happen if we are parted again!”
 
 Basanta Ray put his arm around Udayaditya's neck and said, “Why, bhai, why would we be parted? Don't you leave me. Don't abandon this old man and run away in my old age, bhai!”
 
-Tears came to Udayaditya's eyes. He was astonished;—it was as if Basanta Ray had somehow sensed his secret intention. Sighing, he said, “But my staying near you will only bring you danger, Dada Mashay!”
+Tears came to Udayaditya's eyes. He was astonished;—it was as if Basanta Ray had somehow sensed his secret intention. Sighing, he said, “But my staying near you will only bring you danger, Dada Mahashay!”
 
 Basanta Ray laughed and said— “What danger, bhai? At this age, do I fear danger anymore! There is no greater danger than death! And death is my neighbor; he sends for news of me daily, I am not afraid of him. For a person who has overcome all of life's dangers to survive into old age, what does it matter if his boat sinks upon reaching the shore?”
 
@@ -2828,11 +2828,11 @@ Udayaditya said— “Just going for a short walk!”
 
 Basanta Ray said— “Perhaps you shouldn't go today.”
 
-Udayaditya said— “Why, Dada Mashay?”
+Udayaditya said— “Why, Dada Mahashay?”
 
 Basanta Ray embraced Udayaditya and said, “Don't you go out of the house today, you stay with me today, bhai!”
 
-Udayaditya said, “I won't go far, Dada Mashay, I will be back soon.” And with that, he went out.
+Udayaditya said, “I won't go far, Dada Mahashay, I will be back soon.” And with that, he went out.
 
 As he reached the outer gate of the palace, a guard said, “Maharaj, shall I go with you?”
 

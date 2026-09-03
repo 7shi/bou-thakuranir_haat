@@ -246,3 +246,47 @@ uv run proper_nouns/survey/anchor.py proper_nouns/survey/hi.jsonl -m openai:gpt-
 - `-c/--chapter` - redo only these chapters (comma separated), counting every
   other chapter's renderings as settled; otherwise already-anchored chapters
   are skipped, so a run resumes where the last one stopped
+
+## Reviewing the anchors - `review.py`
+
+`anchor.py` resolves each chapter on its own, so a name's canonical spelling
+can disagree from one chapter to the next, and an unresolved form in one
+chapter may be the very name another chapter already tied to a Bengali name.
+Both are invisible chapter by chapter and only show up once the chapters are
+collapsed into one view - which is what `review.py` does, corpus-wide and
+without making any model calls:
+
+```
+uv run proper_nouns/survey/review.py proper_nouns/survey/anchor-hi.jsonl
+```
+
+- **Drift**: a Bengali name whose chapters chose more than one canonical
+  spelling for it.
+- **Unresolved**: entries with no Bengali name, split into "elsewhere linked"
+  (that canonical is tied to a Bengali name in some other chapter, most
+  likely a `cluster.py` sweep miss) and "never linked" (a translator's
+  addition, a mistaken common noun, or a title the Bengali leaves implicit).
+
+Both reports miss the case where a chapter's own forms already include a
+misspelling tied to the right canonical - one entity's `forms` holding both
+`उदयादित्य` and the typo `उदयदित्य` resolves fine and never disagrees with
+another chapter, so it is neither drift nor unresolved. Catching that kind of
+error is a manual sweep over every multi-form entity instead (see
+`CORRECTIONS.md`'s "Multi-form sweep" pass for what that turned up).
+
+## Recording fixes - `CORRECTIONS.md`
+
+[`CORRECTIONS.md`](CORRECTIONS.md) is the standing log of what `review.py`
+and the manual sweeps above actually found and fixed in the published
+translations - a history, not a to-do list, so it is never emptied out or
+deleted once a pass finishes; each pass gets its own section. Two kinds of
+entries appear there:
+
+- **Bengali-side**: the survey/clustering got a name wrong or missed a form.
+  Fixed with `cluster.py`'s `patch()` on `cluster-bn.jsonl`, then
+  `normalized-bn.jsonl` and any `anchor-*.jsonl` rebuilt.
+- **Target-language-local**: one language's translation drifted between two
+  spellings of the same name with no Bengali-side problem. Fixed by hand in
+  `all/<lang>-gemini.md` and folded back per
+  [`all/aligned/README.md`](../../all/aligned/README.md)'s "Correcting the
+  published text".
