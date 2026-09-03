@@ -97,6 +97,7 @@ questions and no index.
 | `openai:gpt-5.6-terra` | 96 (48/0/2) | 99 (49/1/0) |
 | `opencode/mimo-v2.5-free` | 100 (50/0/0) | 96 (47/2/1) |
 | `opencode/muse-spark-1.2-contributor-free` | 98 (49/0/1) | 100 (50/0/0) |
+| `opencode/muse-spark-1.3-contributor-free` | 100 (50/0/0) | 100 (50/0/0) |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (49/0/1) | 100 (50/0/0) |
 | `openrouter:poolside/laguna-s-2.1:free` | 89 (40/9/1) | 73 (31/11/8) |
 | `openrouter:cohere/north-mini-code:free` | 93 (44/5/1) | 73 (29/15/6) |
@@ -117,12 +118,13 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
 
 * **The top is crowded; the floor has widened.** Most models reach 0.960 or
   better in English, and several sit at 0.990 or 1.000 — `qwen3.8`,
-  `gpt-5.6-luna`, `gpt-5.6-sol`, `gemini-3-flash-preview` and
-  `mimo-v2.5-free` answer all 50 in
+  `gpt-5.6-luna`, `gpt-5.6-sol`, `gemini-3-flash-preview`,
+  `mimo-v2.5-free` and `muse-spark-1.3-contributor-free` answer all 50 in
   English, and `gemma-4-31b-it`, `muse-glimmer` and
-  `nemotron-3-ultra-550b-a55b:free` each drop a single `partial`. `gpt-5.6-sol`
-  is the only model perfect in **both** languages — every other perfect
-  English score drops at least one Japanese question, and
+  `nemotron-3-ultra-550b-a55b:free` each drop a single `partial`.
+  `gpt-5.6-sol` and `muse-spark-1.3-contributor-free` are the only models
+  perfect in **both** languages — every other perfect English score drops at
+  least one Japanese question, and
   `stealth/ox-alpha`'s perfect Japanese score comes with one English miss.
   Ceiling is still a ceiling for that group: it measures whether a model can
   read two or three chapters it has already been handed, and those models
@@ -137,11 +139,12 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   all post a *better* Japanese score than English.
   Among the rest, losses run from 0.010 (`gemma-4-31b-it`, qwen3.8,
   `gemma-4-26b-a4b-it`, `qwen3.6`) to 0.200 (`cohere/north-mini-code:free`,
-  the largest gap, ahead of `poolside/laguna-s-2.1:free`'s 0.160). Two models
-  score identically in both languages: `gemini-3.5-flash-lite` at 0.860 (the
-  same 41/4/5 split, on largely different questions) and `gpt-5.6-sol` at
-  1.000 (50/0/0 in both) — the only model perfect in both. The Japanese miss
-  list is markedly longer than the English one for most models — the same
+  the largest gap, ahead of `poolside/laguna-s-2.1:free`'s 0.160). Three
+  models score identically in both languages: `gemini-3.5-flash-lite` at
+  0.860 (the same 41/4/5 split, on largely different questions), and
+  `gpt-5.6-sol` and `muse-spark-1.3-contributor-free` at 1.000 (50/0/0 in
+  both) — the only models perfect in both. The Japanese miss list is
+  markedly longer than the English one for most models — the same
   questions, the same gold, the same gold chapters.
 
 ### Every question any model missed
@@ -167,6 +170,7 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `openai:gpt-5.6-terra` | — | 22, 49 | 43 | — |
 | `opencode/mimo-v2.5-free` | — | — | 20, 37 | 38 |
 | `opencode/muse-spark-1.2-contributor-free` | — | 22 | — | — |
+| `opencode/muse-spark-1.3-contributor-free` | — | — | — | — |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | — | 22 | — | — |
 | `openrouter:poolside/laguna-s-2.1:free` | 26, 28, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, **29**, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
 | `openrouter:cohere/north-mini-code:free` | 33, 36, 46, 49, 50 | 17 | 6, 26, 31, 32, 33, 34, 35, 37, 38, 39, 42, 47, 48, 49, 50 | 12, 16, 28, **29**, 36, 46 |
