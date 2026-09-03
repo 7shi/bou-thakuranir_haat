@@ -436,6 +436,65 @@ English/Japanese comparison:
    Bengali and Hindi above); the longest English line drops from 4,473 to
    3,333 characters. `make build` and `make deploy` need no change.
 
+## Correcting the published text
+
+A correction found after alignment (a wording inconsistency such as the
+`Dada`/`Grandson` and `Maharaj`/`Your Majesty` drift tallied in
+`proper_nouns/survey/CORRECTIONS.md`) is applied through the deployed
+Markdown, not by editing an aligned JSONL directly - the JSONL is
+gitignored (only its `.delta.jsonl` survives), and hand-editing it would
+be lost on the next `unpack` and leave no reviewable diff.
+
+1. **Edit `all/<lang>-gemini.md` directly.** It is exactly the aligned
+   translation as prose (`jsonl_to_md.py`'s default `--mode translation`
+   render of the aligned JSONL): chapters marked by `## Chapter N`, and
+   below that one blank-line-separated paragraph per aligned line, in
+   order. Edit words within a paragraph freely. Do not add, remove, split
+   or merge a paragraph - the paragraph count per chapter is the aligned
+   JSONL's per-segment line count, and that count is load-bearing (the
+   source-line pairing `align_lines.py` established; see "Acceptance
+   criterion" below). A wording fix is always a same-paragraph edit.
+2. **Fold the edit back into the aligned JSONL:**
+
+   ```
+   uv run all/aligned/md_to_aligned.py all/en-gemini.md -a all/aligned/en-gemini-terra.jsonl
+   ```
+
+   [`md_to_aligned.py`](md_to_aligned.py) is `jsonl_to_md.py --mode
+   translation` inverted: it re-splits the Markdown into chapters and
+   paragraphs and writes each paragraph back into the aligned line it
+   came from, using the `-a` file's existing per-segment line counts to
+   know where one segment ends and the next begins (that boundary is not
+   marked in the Markdown itself). It rewrites the `-a` file in place
+   unless `-o` names a different output. A paragraph added, removed,
+   split or merged is refused with an error naming the chapter, rather
+   than silently misplacing every paragraph after it.
+3. **Re-derive the delta**, the same step any aligned-file edit needs
+   (decision 7):
+
+   ```
+   uv run all/aligned/pack_aligned.py pack en-gemini-terra.jsonl
+   ```
+
+   or `make -C all/aligned pack-en`. This is what actually gets
+   committed - `pack` refuses to write a delta that does not round-trip,
+   so a successful run is proof the edit survives `unpack`.
+4. **Regenerate the Markdown from the repacked delta** to confirm the
+   round trip and pick up the `-full`/`-summary` variants too:
+
+   ```
+   make convert
+   ```
+
+   Re-running step 1's edit against the freshly generated
+   `all/en-gemini.md` should be a no-op - if it isn't, something in steps
+   2-3 lost the edit.
+
+Running `md_to_aligned.py` on an *unedited* `all/<lang>-gemini.md` against
+its own aligned JSONL is a byte-identical round trip; this is how the
+script was checked (both English and Japanese, `pack`'s round-trip check
+passing on the result confirms it end to end).
+
 ## Verification
 
 Every check reports a failure the current prompt is not allowed to produce, so a
