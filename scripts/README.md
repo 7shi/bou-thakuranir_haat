@@ -72,40 +72,12 @@ directions, so a partially aligned file is an error rather than a silent mix.
 ## Line alignment
 
 The translations above store each scene as one flowing paragraph, losing the
-source's one-line-per-utterance structure. These two restore it. Full rationale,
-model comparison and check descriptions are in
-[`all/aligned/README.md`](../all/aligned/README.md).
-
-### `align_lines.py`
-
-Re-flows an existing translation onto the source's line structure. It inserts
-line breaks and nothing else - not a re-translation and deliberately not a
-proofreading pass.
-
-```
-uv run scripts/align_lines.py all/ja-gemini.jsonl -m openai:gpt-5.6-terra -o all/aligned/ja-gemini-terra.jsonl
-```
-
-`-s 30:1` (or a comma-separated list) redoes named segments in place, for
-retesting a prompt change or fixing a batch of failures. Each run ends with a
-violation count from five checks - line count, line proportions, source-language
-leak, glossary preservation and content drift - and lists the segments that
-failed.
-
-### `pack_aligned.py`
-
-Stores an aligned JSONL as the edits against its base rather than as a copy,
-which is a 35-91x reduction because the two files differ only at the line breaks
-and seams.
-
-```
-uv run scripts/pack_aligned.py pack   all/aligned/ja-gemini-terra.jsonl
-uv run scripts/pack_aligned.py unpack all/aligned/ja-gemini-terra.delta.jsonl
-```
-
-`pack` will not write a delta it cannot round-trip, and `unpack` refuses to run
-against a base whose SHA-256 has changed. The unpacked files are gitignored -
-`all/aligned/` holds the deltas.
+source's one-line-per-utterance structure. `align_lines.py` and
+`pack_aligned.py` restore it and live in
+[`all/aligned/`](../all/aligned/) alongside the files they produce; see
+[`all/aligned/README.md`](../all/aligned/README.md) for the full rationale,
+model comparison and check descriptions, and `all/aligned/Makefile` for the
+`unpack`/`align`/`pack` targets.
 
 ## Question set
 

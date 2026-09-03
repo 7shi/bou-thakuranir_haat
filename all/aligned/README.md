@@ -26,7 +26,7 @@ A `.delta.jsonl` is not the aligned data itself but the edits that produce it
 (decision 7). Unpack before use:
 
 ```
-uv run scripts/pack_aligned.py unpack all/aligned/ja-gemini-terra.delta.jsonl
+make -C all/aligned unpack
 ```
 
 That writes `ja-gemini-terra.jsonl`, which `.gitignore` excludes - the unpacked
@@ -135,16 +135,17 @@ is a downstream patch, not a fix to the data.
 
 Re-running `translate_segments.py` would invalidate the `qa-eval/` results built
 on the current translations, so
-[`scripts/align_lines.py`](../../scripts/align_lines.py) re-flows the existing
-translations onto the source's line structure as a post-processing pass
-instead. It inserts line breaks; it does not edit the translation.
+[`align_lines.py`](align_lines.py) re-flows the existing translations onto the
+source's line structure as a post-processing pass instead. It inserts line
+breaks; it does not edit the translation.
 
 ```
-uv run scripts/align_lines.py all/en-gemini.jsonl -m openai:gpt-5.6-terra -o all/aligned/en-gemini-terra.jsonl
-uv run scripts/align_lines.py all/ja-gemini.jsonl -m openai:gpt-5.6-terra -o all/aligned/ja-gemini-terra.jsonl
-uv run scripts/align_lines.py all/bn-gemini.jsonl -m openai:gpt-5.6-terra -o all/aligned/bn-gemini-terra.jsonl
-uv run scripts/align_lines.py all/hi-gemini.jsonl -m openai:gpt-5.6-terra -o all/aligned/hi-gemini-terra.jsonl
+make -C all/aligned align
 ```
+
+which is `align_lines.py` run per language with `-m openai:gpt-5.6-terra`; see
+`Makefile` for the exact commands (`align-en`, `align-ja`, `align-bn`,
+`align-hi` to redo just one).
 
 Add `-s 37:1` to redo a single segment, or `-s 11:1,16:1` for several. Defaults
 for `--source` (`all/bn.md`), `--segmentation` (`segmentations.jsonl`) and
@@ -354,14 +355,15 @@ English/Japanese comparison:
    re-translates, so the existing translation anchors the output and the result
    cannot be rewritten wholesale.
 7. **Store the aligned files as deltas, not as copies.**
-   [`scripts/pack_aligned.py`](../../scripts/pack_aligned.py) packs an aligned
-   JSONL into the edits that turn the base translations into it, and unpacks it
-   back:
+   [`pack_aligned.py`](pack_aligned.py) packs an aligned JSONL into the edits
+   that turn the base translations into it, and unpacks it back:
 
    ```
-   uv run scripts/pack_aligned.py pack   all/aligned/ja-gemini-terra.jsonl
-   uv run scripts/pack_aligned.py unpack all/aligned/ja-gemini-terra.delta.jsonl
+   uv run all/aligned/pack_aligned.py pack   ja-gemini-terra.jsonl
+   uv run all/aligned/pack_aligned.py unpack ja-gemini-terra.delta.jsonl
    ```
+
+   or via `Makefile`: `make -C all/aligned pack-ja` / `make -C all/aligned unpack`.
 
    The pass re-flows rather than re-translates, so an aligned file is very nearly
    a copy of its base - the same words with line breaks inserted and a word or

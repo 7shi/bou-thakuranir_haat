@@ -14,12 +14,16 @@ See all/aligned/README.md for the full rationale.
 import argparse
 import difflib
 import json
+import os
 import re
 import sys
 from typing import Dict, List, Tuple
 
 from llm7shi import Client
-from utils import load_chapter_blocks
+
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+sys.path.append(ROOT)
+from scripts.utils import load_chapter_blocks
 
 
 # The numbering is the alignment protocol, not decoration: it is what makes a
@@ -344,11 +348,11 @@ def main() -> int:
     parser.add_argument("-s", "--segment", type=parse_segment_arg,
                         help="Process only these chapter:segment references, comma separated "
                              "(e.g. 37:1 or 11:1,11:3), overwriting any existing records")
-    parser.add_argument("--source", default="all/bn.md",
-                        help="Source markdown file (default: all/bn.md)")
-    parser.add_argument("--segmentation", default="segmentations.jsonl",
-                        help="Segmentation JSONL file (default: segmentations.jsonl)")
-    parser.add_argument("--proper-nouns", default="proper_nouns/all.tsv",
+    parser.add_argument("--source", default=os.path.join(ROOT, "all/bn.md"),
+                        help="Source markdown file (default: all/bn.md, relative to the repo root)")
+    parser.add_argument("--segmentation", default=os.path.join(ROOT, "segmentations.jsonl"),
+                        help="Segmentation JSONL file (default: segmentations.jsonl, relative to the repo root)")
+    parser.add_argument("--proper-nouns", default=os.path.join(ROOT, "proper_nouns/all.tsv"),
                         help="Proper nouns TSV, checked after the fact "
                              "(default: proper_nouns/all.tsv)")
 

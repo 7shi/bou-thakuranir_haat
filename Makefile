@@ -2,12 +2,13 @@ MODEL_ := gemini-2.5-pro
 MODEL  := google:$(MODEL_)
 GEMMA  := google:gemma-4-31b-it
 
-# The aligned translations are stored as deltas and unpacked before conversion.
+# The aligned translations are stored as deltas and unpacked before conversion
+# (see all/aligned/Makefile for the unpack/align/pack rules).
 ALIGNED := all/aligned/en-gemini-terra.jsonl all/aligned/ja-gemini-terra.jsonl all/aligned/bn-gemini-terra.jsonl all/aligned/hi-gemini-terra.jsonl
 
 all:
 
-.PHONY: proper_nouns translate unpack convert split questions titles images build clean serve deploy
+.PHONY: proper_nouns translate convert split questions titles images build clean serve deploy
 
 build: images
 	uv run templates/build.py
@@ -35,12 +36,8 @@ translate:
 	uv run scripts/translate_segments.py -f Bengali -t Hindi -m $(MODEL) -o all/hi-gemini.jsonl all/bn.md
 	uv run scripts/translate_segments.py -f "Classical Bengali" -t "Modern Bengali" -m $(MODEL) -o all/bn-gemini.jsonl all/bn.md
 
-unpack: $(ALIGNED)
-
-all/aligned/%.jsonl: all/aligned/%.delta.jsonl
-	uv run scripts/pack_aligned.py unpack $<
-
-convert: $(ALIGNED)
+convert:
+	$(MAKE) -C all/aligned unpack
 	uv run scripts/jsonl_to_md.py all/en-gemini.jsonl -a all/aligned/en-gemini-terra.jsonl
 	uv run scripts/jsonl_to_md.py all/ja-gemini.jsonl -a all/aligned/ja-gemini-terra.jsonl
 	uv run scripts/jsonl_to_md.py all/hi-gemini.jsonl -a all/aligned/hi-gemini-terra.jsonl

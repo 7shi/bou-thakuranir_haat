@@ -11,8 +11,12 @@ in the repository. This packs the aligned file into the edits alone: 4.6 KB for
 Japanese, 8.9 KB for English, a 35-91x reduction, and a diff a reviewer can
 read. See all/aligned/README.md decision 7.
 
-    uv run scripts/pack_aligned.py pack   all/aligned/ja-gemini-terra.jsonl
-    uv run scripts/pack_aligned.py unpack all/aligned/ja-gemini-terra.delta.jsonl
+    uv run all/aligned/pack_aligned.py pack   ja-gemini-terra.jsonl
+    uv run all/aligned/pack_aligned.py unpack ja-gemini-terra.delta.jsonl
+
+Run from anywhere - `-b`/the base path and the recorded "base" field resolve
+against the repo root, not the caller's CWD. See Makefile for the `pack`/
+`unpack` targets.
 
 pack refuses to write a delta it cannot round-trip: it unpacks its own output
 in memory and compares the bytes against the file it was given, so a delta on
@@ -35,9 +39,19 @@ from align_lines import load_records, save_records
 PER_RECORD = ("chapter", "segment")
 CONSTANT = ("source_lang", "target_lang", "model")
 
+# The "base" field is stored repo-root-relative (e.g. "all/en-gemini.jsonl"),
+# both in freshly-written headers and in every delta already committed. That
+# string has to resolve against the repo root regardless of the caller's CWD,
+# not just when this script happens to be run from there.
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+
+
+def resolve(path: str) -> str:
+    return path if os.path.isabs(path) else os.path.join(REPO_ROOT, path)
+
 
 def sha256(path: str) -> str:
-    with open(path, "rb") as f:
+    with open(resolve(path), "rb") as f:
         return hashlib.sha256(f.read()).hexdigest()
 
 
@@ -46,23 +60,24 @@ def delta_path(path: str) -> str:
 
 
 def base_path(path: str) -> str:
-    """all/aligned/en-gemini-terra.jsonl -> all/en-gemini.jsonl
+    """en-gemini-terra.jsonl -> all/en-gemini.jsonl (repo-root-relative)
 
-    The aligned files live one directory below their base and are named after
-    it with the model appended, so the base is the parent directory plus the
-    name with that suffix dropped.
+    Aligned files live in all/aligned/ and are named after their base with the
+    model appended; the base itself lives one directory up, in all/. Only the
+    basename of `path` is used, so this does not depend on how much of the
+    directory prefix the caller included.
     """
-    directory, name = os.path.split(path)
+    name = os.path.basename(path)
     name = re.sub(r"\.delta(?=\.jsonl$)", "", name)
     name = re.sub(r"-[^-.]+(?=\.jsonl$)", "", name)
-    return os.path.join(os.path.dirname(directory) or ".", name)
+    return os.path.join("all", name)
 
 
 def load_base(path: str) -> Dict[Tuple[int, int], str]:
     # The title record (chapter 0) has no translation and is not aligned.
     return {
         (r["chapter"], r["segment"]): r["response"]["translation"]
-        for r in load_records(path)
+        for r in load_records(resolve(path))
         if "translation" in r["response"]
     }
 

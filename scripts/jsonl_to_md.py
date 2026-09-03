@@ -7,8 +7,8 @@ Markdown document, organizing content by chapters and including summaries,
 translation notes, and full translations.
 
 With -a/--aligned it reads two files: the original JSONL for the structure,
-summaries and translation notes, and an aligned JSONL (scripts/align_lines.py,
-unpacked with scripts/pack_aligned.py) whose translations are substituted in.
+summaries and translation notes, and an aligned JSONL (all/aligned/align_lines.py,
+unpacked with all/aligned/pack_aligned.py) whose translations are substituted in.
 The aligned records carry the translation only, so they are an overlay on the
 original rather than a replacement for it; see all/aligned/README.md decision 8.
 """
@@ -216,7 +216,7 @@ def main():
         # The aligned files are deltas in the repository and have to be
         # unpacked before use, so this is the expected first failure.
         print(f"Error: Aligned file '{args.aligned}' not found")
-        print(f"  uv run scripts/pack_aligned.py unpack "
+        print(f"  uv run all/aligned/pack_aligned.py unpack "
               f"{aligned_path.with_suffix('.delta.jsonl')}")
         return 1
     
