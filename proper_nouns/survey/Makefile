@@ -21,8 +21,9 @@
 # the file exists, same as any other target here, but don't `rm` it to force
 # a rebuild - that's the one target in this file not meant to be regenerated.
 #
-# all.tsv joins normalized-bn.jsonl and anchor-{en,ja,hi}.jsonl into one row
-# per Bengali name (see build_tsv.py) - no model calls, so it always rebuilds.
+# normalized-bn.jsonl and anchor-{en,ja,hi}.jsonl are joined into
+# ../all.tsv by ../build_tsv.py (see ../Makefile and ../README.md) - not a
+# target here.
 #
 # Usage:
 #   make                       # all four languages
@@ -31,13 +32,11 @@
 #   make normalized-bn.jsonl   # fold cluster-bn.jsonl's chapters into one list
 #   make anchor                # tie en/ja/hi to the Bengali names
 #   make anchor-hi.jsonl       # one language
-#   make all.tsv               # join normalized-bn.jsonl and the anchors
 
 ROOT      := ../..
 SURVEY    := survey.py
 CLUSTER   := cluster.py
 ANCHOR    := anchor.py
-BUILD_TSV := build_tsv.py
 MODEL     := openai:gpt-5.6-terra
 ALIGNED   := $(ROOT)/all/aligned
 SEGMENTATION := $(ROOT)/segmentations.jsonl
@@ -77,9 +76,6 @@ anchor-ja.jsonl: ja.jsonl normalized-bn.jsonl
 anchor-hi.jsonl: hi.jsonl normalized-bn.jsonl
 	uv run $(ANCHOR) hi.jsonl -m $(MODEL)
 
-all.tsv: normalized-bn.jsonl anchor-en.jsonl anchor-ja.jsonl anchor-hi.jsonl
-	uv run $(BUILD_TSV)
-
 clean:
 	rm -f bn.jsonl en.jsonl ja.jsonl hi.jsonl normalized-bn.jsonl \
-	      anchor-en.jsonl anchor-ja.jsonl anchor-hi.jsonl all.tsv
+	      anchor-en.jsonl anchor-ja.jsonl anchor-hi.jsonl

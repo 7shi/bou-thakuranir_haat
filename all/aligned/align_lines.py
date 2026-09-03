@@ -152,7 +152,7 @@ def load_glossary(path: str, language: str) -> List[str]:
 def find_nouns(keys: List[str], text: str) -> List[str]:
     """Pick the glossary's source-side terms that occur in this segment.
 
-    Derived from the text rather than read from proper_nouns/en.jsonl, whose
+    Derived from the text rather than read from proper_nouns/extract/en.jsonl, whose
     per-segment lists only hold each term's first appearance - segment 37:1
     lists three terms and not মহিষী, the one that actually needed protecting.
 

@@ -8,7 +8,7 @@ ALIGNED := all/aligned/en-gemini-terra.jsonl all/aligned/ja-gemini-terra.jsonl a
 
 all:
 
-.PHONY: proper_nouns translate convert split questions titles images build clean serve deploy
+.PHONY: translate convert split questions titles images build clean serve deploy
 
 build: images
 	uv run templates/build.py
@@ -24,11 +24,6 @@ serve:
 
 deploy: build
 	bash templates/deploy.sh
-
-proper_nouns:
-	uv run proper_nouns/extract.py all/bn.md -f Bengali -t English -m $(MODEL) -w proper_nouns/en.jsonl -o proper_nouns/all.tsv
-	uv run proper_nouns/translate.py -f Bengali -i English -t Japanese -m $(MODEL) -o proper_nouns/all.tsv
-	uv run proper_nouns/translate.py -f Bengali -i English -t Hindi -m $(MODEL) -o proper_nouns/all.tsv
 
 translate:
 	uv run scripts/translate_segments.py -f Bengali -t English -m $(MODEL) -o all/en-gemini.jsonl all/bn.md

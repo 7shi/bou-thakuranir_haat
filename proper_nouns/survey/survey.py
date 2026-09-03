@@ -5,8 +5,8 @@ Survey the proper nouns that actually appear in one language's translation.
 Unlike extract.py, this never looks at the source text or the glossary: it
 reads a target-language translation on its own terms and asks the model which
 proper nouns appear on each line, exactly as spelled there. The result is a
-surface-form census that can be compared against proper_nouns/all.tsv, or
-against itself to find spelling that drifts within the same translation (the
+surface-form census that can be compared against proper_nouns/extract/all.tsv,
+or against itself to find spelling that drifts within the same translation (the
 Bibha/Vibha and Udayaditya/Udayditya kind of finding, made by hand before this
 script existed - see all/aligned/README.md).
 """

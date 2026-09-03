@@ -15,7 +15,7 @@ from utils import (
     save_extraction_result
 )
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from scripts.utils import load_chapter_blocks
 
 

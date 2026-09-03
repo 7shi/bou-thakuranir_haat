@@ -302,7 +302,7 @@ English/Japanese comparison:
      spelling, and the glossary has drifted from it - `বিভা` is `Bibha` in the TSV
      and `Vibha` in all 472 occurrences across the translations. Sending the
      glossary's spelling would invite a mass rewrite.
-   - Not `proper_nouns/en.jsonl`. Its per-segment lists record only each term's
+   - Not `proper_nouns/extract/en.jsonl`. Its per-segment lists record only each term's
      first appearance, so segment 37:1 holds three terms and not `মহিষী` - the one
      that actually needed protecting.
 

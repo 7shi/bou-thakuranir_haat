@@ -103,7 +103,7 @@ Scripts used to process and generate the files in this repository.
 
 directory|description
 ---------|----
-[proper_nouns/](proper_nouns/) | proper noun extraction and translation scripts
+[proper_nouns/](proper_nouns/) | corpus-wide proper-noun dictionary and the survey/anchor pipeline that builds it
 [scripts/](scripts/) | translation, segmentation, and conversion scripts
 [templates/](templates/) | site templates, plus build and deploy instructions
 [wikisource/](wikisource/) | Wikisource scraping and text extraction tools

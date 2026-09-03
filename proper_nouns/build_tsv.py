@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Build proper_nouns/survey/all.tsv from the survey/anchor pipeline.
+Build proper_nouns/all.tsv from the survey/anchor pipeline in proper_nouns/survey/.
 
 normalized-bn.jsonl gives the Bengali canonical form and kind for every name
 the book uses; anchor-{en,hi,ja}.jsonl tie each chapter's target-language
 forms to one of those Bengali names. This joins the two: one row per Bengali
 name, with the canonical spelling each language settled on, sourced from the
-corpus as actually spelled rather than the one-off extraction behind the
-existing proper_nouns/all.tsv. That file is left untouched so the two can be
+corpus as actually spelled rather than the one-off extraction behind
+proper_nouns/extract/all.tsv, which is left untouched so the two can be
 compared.
 
 A Bengali name can have more than one canonical spelling in a language
@@ -25,7 +25,8 @@ import sys
 from collections import defaultdict
 from typing import Dict, List, Tuple
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+SURVEY_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "survey")
+sys.path.append(SURVEY_DIR)
 from cluster import load_records, collect_names
 
 LANGS = [("en", "English"), ("hi", "Hindi"), ("ja", "Japanese")]
@@ -67,9 +68,9 @@ def main() -> int:
                          help="output TSV (default: all.tsv next to this script)")
     args = parser.parse_args()
 
-    survey_dir = os.path.dirname(os.path.abspath(__file__))
-    output = args.output or os.path.join(survey_dir, "all.tsv")
-    rows = build_rows(survey_dir)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output = args.output or os.path.join(script_dir, "all.tsv")
+    rows = build_rows(SURVEY_DIR)
 
     with open(output, "w", encoding="utf-8") as f:
         for row in rows:
