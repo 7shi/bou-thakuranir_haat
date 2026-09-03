@@ -95,9 +95,9 @@ questions and no index.
 | `openai:gpt-5.6-luna` | 100 (50/0/0) | 97 (47/3/0) |
 | `openai:gpt-5.6-sol` | 100 (50/0/0) | 100 (50/0/0) |
 | `openai:gpt-5.6-terra` | 96 (48/0/2) | 99 (49/1/0) |
-| `opencode/mimo-v2.5-free` | 100 (50/0/0) | 96 (47/2/1) |
-| `opencode/muse-spark-1.2-contributor-free` | 98 (49/0/1) | 100 (50/0/0) |
-| `opencode/muse-spark-1.3-contributor-free` | 100 (50/0/0) | 100 (50/0/0) |
+| `opencode:mimo-v2.5-free` | 100 (50/0/0) | 96 (47/2/1) |
+| `opencode:muse-spark-1.2-contributor-free` | 98 (49/0/1) | 100 (50/0/0) |
+| `opencode:muse-spark-1.3-contributor-free` | 100 (50/0/0) | 100 (50/0/0) |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (49/0/1) | 100 (50/0/0) |
 | `openrouter:poolside/laguna-s-2.1:free` | 89 (40/9/1) | 73 (31/11/8) |
 | `openrouter:cohere/north-mini-code:free` | 93 (44/5/1) | 73 (29/15/6) |
@@ -112,7 +112,7 @@ questions and no index.
 down, then correct/partial/incorrect out of 50 in parentheses. The
 `gemma-4-31b-it` row is the canonical `results-<lang>/ceiling.jsonl` run; the
 other rows live in this directory and are aggregated in [report.md](report.md).
-The `opencode/*` rows are produced by a separate pipeline that drives the
+The `opencode:*` rows are produced by a separate pipeline that drives the
 `opencode` coding-agent CLI instead of the llm7shi-based `answer_ceiling.py`
 used for every other row — see [opencode/README.md](../opencode/README.md).)
 
@@ -168,9 +168,9 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `openai:gpt-5.6-luna` | — | — | **29**, 35, 48 | — |
 | `openai:gpt-5.6-sol` | — | — | — | — |
 | `openai:gpt-5.6-terra` | — | 22, 49 | 43 | — |
-| `opencode/mimo-v2.5-free` | — | — | 20, 37 | 38 |
-| `opencode/muse-spark-1.2-contributor-free` | — | 22 | — | — |
-| `opencode/muse-spark-1.3-contributor-free` | — | — | — | — |
+| `opencode:mimo-v2.5-free` | — | — | 20, 37 | 38 |
+| `opencode:muse-spark-1.2-contributor-free` | — | 22 | — | — |
+| `opencode:muse-spark-1.3-contributor-free` | — | — | — | — |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | — | 22 | — | — |
 | `openrouter:poolside/laguna-s-2.1:free` | 26, 28, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, **29**, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
 | `openrouter:cohere/north-mini-code:free` | 33, 36, 46, 49, 50 | 17 | 6, 26, 31, 32, 33, 34, 35, 37, 38, 39, 42, 47, 48, 49, 50 | 12, 16, 28, **29**, 36, 46 |
