@@ -460,6 +460,8 @@ be lost on the next `unpack` and leave no reviewable diff.
    uv run all/aligned/md_to_aligned.py all/en-gemini.md -a all/aligned/en-gemini-terra.jsonl
    ```
 
+   or `make -C all/aligned fold-en` (`fold` for all four languages).
+
    [`md_to_aligned.py`](md_to_aligned.py) is `jsonl_to_md.py --mode
    translation` inverted: it re-splits the Markdown into chapters and
    paragraphs and writes each paragraph back into the aligned line it

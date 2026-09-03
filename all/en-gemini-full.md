@@ -733,17 +733,17 @@ The initial playful dialogue serves as a stark contrast to the serious revelatio
 
 **Translation:**
 
-Surma said, “Dadamahashay, we can discuss your baldness later. For now, you must find a solution for Vibha!”
+Surma said, “Dada Mahashay, we can discuss your baldness later. For now, you must find a solution for Vibha!”
 
-Vibha quickly went up to Basanta Ray and exclaimed, “Dadamahashay—let me pluck your grey hairs.”
+Vibha quickly went up to Basanta Ray and exclaimed, “Dada Mahashay—let me pluck your grey hairs.”
 
 Surma: “What I was saying is—”
 
-Vibha: “Listen, Dadamahashay, your—”
+Vibha: “Listen, Dada Mahashay, your—”
 
 Surma: “Vibha, be quiet. What I was saying is, if you would just go once—”
 
-Vibha: “Dadamahashay, there is nothing but grey hair on your head! If I pluck them, you will go completely bald!”
+Vibha: “Dada Mahashay, there is nothing but grey hair on your head! If I pluck them, you will go completely bald!”
 
 Basanta Ray: “If you won't let me listen, Didi, if you keep bothering me, then I shall begin to play Raag Hindol.”
 
@@ -823,7 +823,7 @@ King Ramchandra Ray of Chandradwip was seated in his royal chamber. The room was
 
 The king said, “Well, Ramai!”
 
-Ramai replied, “Yes, Your Majesty!”
+Ramai replied, “Yes, Maharaj!”
 
 The king was convulsed with laughter. The minister laughed even harder than the king. Fernandez clapped his hands and burst out laughing. Ramai’s eyes twinkled with satisfaction. The king thought that not laughing at Ramai's words would show a lack of refinement; the minister thought it was his duty to laugh when the king laughed; Fernandez thought there must be something to laugh at. Besides, if any unfortunate soul happened not to laugh when Ramai opened his mouth, Ramai would make him cry before letting him go. Otherwise, few people would laugh in genuine amusement at Ramai’s jokes, which were as old as time. However, out of fear and a sense of duty, everyone from the king down to the doorman would force a terrible laugh.
 
@@ -837,7 +837,7 @@ The general grew restless. He understood that an old story was being trotted out
 
 The king winked and asked, “And then?”
 
-“I submit, Your Majesty! (Fernandez began to unbutton and button his tunic.) For the last three or four days, a thief had been frequenting the general’s house at night. The Saheb’s wife found out and prodded her husband many times, but she could not wake him by any means.”
+“I submit, Maharaj! (Fernandez began to unbutton and button his tunic.) For the last three or four days, a thief had been frequenting the general’s house at night. The Saheb’s wife found out and prodded her husband many times, but she could not wake him by any means.”
 
 King: “Ha, ha, ha, ha.”
 
@@ -909,7 +909,7 @@ A key challenge in this segment is translating Bengali idioms and cultural refer
 
 The king said, “Ramai, you have heard everything. Last time at my father-in-law’s house, they had utterly humiliated me, hadn't they?”
 
-Ramai replied, “Yes, Your Majesty, they gave you a tail.”
+Ramai replied, “Yes, Maharaj, they gave you a tail.”
 
 The king laughed, and though his teeth flashed like lightning, a great cloud gathered in his mind. He was not very pleased to hear that Ramai had learned of this news. It would not have been so damaging had anyone else known. He began to puff incessantly on his hookah.
 
@@ -1171,13 +1171,13 @@ The light of day has broken, but my heart’s desire remains unfulfilled!”
 
 Udayaditya said, “Grand-uncle, a disaster has occurred.”
 
-Basanta Ray’s song stopped instantly. He rose in alarm, came to Udayaditya, and asked agitatedly, “What! What is it, grandson! What has happened? What disaster!”
+Basanta Ray’s song stopped instantly. He rose in alarm, came to Udayaditya, and asked agitatedly, “What! What is it, Dada! What has happened? What disaster!”
 
-Udayaditya told him everything. Basanta Ray sank down onto the bed. Looking at Udayaditya’s face, he shook his head and said, “No, grandson, no. Can this ever happen? Is this even possible?”
+Udayaditya told him everything. Basanta Ray sank down onto the bed. Looking at Udayaditya’s face, he shook his head and said, “No, Dada, no. Can this ever happen? Is this even possible?”
 
 Udayaditya said, “There is no more time, go to Father at once!”
 
-Basanta Ray got up and started to leave, asking again and again as he went, “Grandson, can this ever happen? Is this even possible?”
+Basanta Ray got up and started to leave, asking again and again as he went, “Dada, can this ever happen? Is this even possible?”
 
 ### Segment 3
 
@@ -1454,7 +1454,7 @@ The Bengali text uses various familial terms of endearment that don't have direc
 
 **Translation:**
 
-Coming to Udayaditya’s room, Basanta Ray said, “Grandson, I will not see you anymore.” With these words, the old man embraced Udayaditya with both arms.
+Coming to Udayaditya’s room, Basanta Ray said, “Dada, I will not see you anymore.” With these words, the old man embraced Udayaditya with both arms.
 
 Udayaditya took Basanta Ray’s hand and said, “Why, Grand-uncle?”
 
@@ -1462,7 +1462,7 @@ Basanta Ray explained everything. Crying, he said, “My boy, you suffer so much
 
 Shaking his head, Udayaditya said, “No, that will never happen. We will see each other. No one can prevent it. If you leave, Grand-uncle, I will not survive.”
 
-Basanta Ray said in distress, “Pratap did not kill me; he snatched you away from me. Grandson, when I leave, do not look back at me, just think that Basanta Ray has died!”
+Basanta Ray said in distress, “Pratap did not kill me; he snatched you away from me. Dada, when I leave, do not look back at me, just think that Basanta Ray has died!”
 
 Udayaditya went to Surma in the bedchamber. Basanta Ray went to Vibha, held her chin, and said, “My dear Vibha, get up for a moment! Run your hand over this old man’s head just once.” Vibha sat up, took her grand-uncle’s head, and began to pluck out his grey hairs.
 
@@ -2162,7 +2162,7 @@ Rammohan said, “Everything has been in vain!”
 
 The king, startled, shot up and said, “You couldn’t bring her?”
 
-Rammohan replied, “No, Your Majesty. I set out at an inauspicious time!”
+Rammohan replied, “No, Maharaj. I set out at an inauspicious time!”
 
 Furious, the king exclaimed, “Who told you to consult the time of your departure, you fellow? I warned you again and again, yet you went with your chest puffed out, and today—”
 
@@ -2290,7 +2290,7 @@ The Bengali text uses several idioms and culturally specific expressions. 'স�
 
 **Translation:**
 
-Ramchandra Ray concluded that Vibha had not come to Chandradwip solely because of Pratapaditya’s command and Udayaditya’s counsel. The thought that Vibha might have refused of her own accord was a great blow to his self-esteem. He thought, ‘Pratapaditya wants to insult me, therefore he will never send Vibha to me. But why don't I turn this insult back on him? Why don't I write him a letter saying that I have renounced your daughter, and she should not be sent to Chandradwip again?’ After much deliberation and consultation with five people, a letter to that effect was written to Pratapaditya. To write such a letter to Pratapaditya was no act of ordinary courage. Ramchandra Ray was quite afraid in his heart. But just as it is impossible to stop midway while descending a steep mountain at high speed, a similar feeling had arisen in Ramchandra Ray's mind!—having suddenly embarked on a reckless course, it was as if he could not stop until he reached the very end. Calling Rammohan, he said, “Take this letter to Jessore.” Rammohan, with folded hands, replied, “Your Majesty, no, I cannot. I have resolved not to go to Jessore again. If you command me to go once more to bring back our lady mother, then perhaps I could go, but otherwise, I cannot take this letter.” Saying nothing more to Rammohan, the king handed the letter to the old Nayanchand. He set off for Jessore with that letter.
+Ramchandra Ray concluded that Vibha had not come to Chandradwip solely because of Pratapaditya’s command and Udayaditya’s counsel. The thought that Vibha might have refused of her own accord was a great blow to his self-esteem. He thought, ‘Pratapaditya wants to insult me, therefore he will never send Vibha to me. But why don't I turn this insult back on him? Why don't I write him a letter saying that I have renounced your daughter, and she should not be sent to Chandradwip again?’ After much deliberation and consultation with five people, a letter to that effect was written to Pratapaditya. To write such a letter to Pratapaditya was no act of ordinary courage. Ramchandra Ray was quite afraid in his heart. But just as it is impossible to stop midway while descending a steep mountain at high speed, a similar feeling had arisen in Ramchandra Ray's mind!—having suddenly embarked on a reckless course, it was as if he could not stop until he reached the very end. Calling Rammohan, he said, “Take this letter to Jessore.” Rammohan, with folded hands, replied, “Maharaj, no, I cannot. I have resolved not to go to Jessore again. If you command me to go once more to bring back our lady mother, then perhaps I could go, but otherwise, I cannot take this letter.” Saying nothing more to Rammohan, the king handed the letter to the old Nayanchand. He set off for Jessore with that letter.
 
 He took the letter, it is true, but Nayanchand was greatly afraid. He did not know what Pratapaditya might do if this letter fell into his hands. After much thought, he resolved to give this letter to the Mahishi. The Mahishi’s state of mind was not good at all. On one hand, she worried for Vibha, and on the other, she was pained for Udayaditya. It was as if she had become completely overwhelmed by the chaos of the household. She was often seen crying. It seemed she no longer had any heart for her domestic duties. It was in this state that she received the letter—she could not think what to do. She could not say anything to Vibha; if she did, the delicate Vibha would not survive. There was no telling what disaster would befall if word of this letter reached the Maharaj's ears. Yet, in such a crisis, the Mahishi could not bear to live without telling someone, without seeking advice from anyone. Seeing a shoreless ocean on all sides, the Mahishi went to Pratapaditya, weeping. She said, “Maharaj, something must be done about Vibha.”
 
@@ -3032,9 +3032,9 @@ Udayaditya held his mother's hand and said with tearful eyes, “Ma, you know th
 
 Udayaditya went to Vibha and said, “Vibha, my dear sister, I will see you happy before I go to Kashi. I will personally take you to your husband's home, this is my only remaining wish!”
 
-Vibha asked Udayaditya, “Dada, how is Dadamahashay?”
+Vibha asked Udayaditya, “Dada, how is Dada Mahashay?”
 
-“Dadamahashay is well.” Saying this, Udayaditya quickly left the room.
+“Dada Mahashay is well.” Saying this, Udayaditya quickly left the room.
 
 ## Chapter 35
 

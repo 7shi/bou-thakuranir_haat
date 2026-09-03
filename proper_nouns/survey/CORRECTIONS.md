@@ -20,27 +20,20 @@ Two kinds of entries:
 
 Review order: hi first, then en and ja (see MEMO / `project-bengali-bv-no-distinction`).
 
-Review status: hi, en, and ja have all been reviewed (see MEMO). hi and ja
-turned up no target-language-local corrections - hence no section for
-them below. The Bengali-side gap found during review (পিতা missing its
-oblique form পিতার) is already fixed in `cluster-bn.jsonl`/
-`normalized-bn.jsonl` and re-anchored, so it's not listed here either.
-
-## English
-
-- ch13: দাদা - Basanta Ray's affectionate address to Udayaditya - renders
-  as "Grandson" in segment 2 (both occurrences there) and as "Dada" in
-  segment 10 (both occurrences there), same word, same speaker, same
-  addressee, same chapter. Confirmed still present after the re-anchor.
-  Target-language-local: unify to one spelling in the chapter 13 English
-  text.
-- ch7, ch24, ch26: মহারাজ/রাজা (direct address to a king) renders
-  inconsistently as "Maharaj" vs "Your Majesty" within the same chapter -
-  ch7 has Ramai say both "Your Majesty" (seg 4, 11, 39) and "Maharaj" (seg
-  26, 28, 35, 44) to Ramchandra Ray; ch24 has Rammohan say both to
-  Ramchandra Ray likewise (seg 5 "Your Majesty" vs seg 7/9/13/15
-  "Maharaj"); ch26 has Rammohan say "Your Majesty" to Ramchandra Ray where
-  every other chapter (26 of them) settles on "Maharaj" for direct address.
-  Target-language-local: the corpus-wide convention is "Maharaj"
-  (transliterated, not translated); ch7, ch24 and ch26's "Your Majesty"
-  instances are the outliers.
+Review status: hi, en, and ja have all been reviewed (see MEMO). All
+findings have been applied or resolved - ja turned up no
+target-language-local corrections; en's three (ch13 দাদা
+"Grandson"/"Dada", ch7/ch24/ch26 মহারাজ "Your Majesty"/"Maharaj",
+and "Dadamahashay"/"Dada Mahashay" spacing found while answering a
+follow-up question, not from the original anchor-en.jsonl review) were
+unified to "Dada", "Maharaj" and "Dada Mahashay" respectively; hi's one
+(ch1 উদয়াদিত্য rendered as उदयदित्य 7 times against उदयादित्य 214 times
+elsewhere - the exact drift MEMO's Goal names as the motivating example,
+missed by the mechanical `review.py` pass because both forms already tied
+to the same canonical within one chapter, so neither its "drift" nor its
+"unresolved" report catches it; found only by a direct follow-up
+question) was unified to उदयादित्य. All via the workflow in
+`all/aligned/README.md` ("Correcting the published text"). The
+Bengali-side gap found during review (পিতা missing its oblique form
+পিতার) is already fixed in `cluster-bn.jsonl`/`normalized-bn.jsonl` and
+re-anchored. No open items remain.

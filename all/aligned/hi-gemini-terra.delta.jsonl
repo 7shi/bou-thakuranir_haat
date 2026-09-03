@@ -1,6 +1,6 @@
 {"base": "all/hi-gemini.jsonl", "base_sha256": "30a421e0e9c1687eb345bf93fbd8434ec2464fc6e6e9dd68218f2cae6977bebd", "source_lang": "bengali", "target_lang": "hindi", "model": "openai:gpt-5.6-terra"}
 {"chapter": 1, "segment": 1, "ops": []}
-{"chapter": 1, "segment": 2, "ops": []}
+{"chapter": 1, "segment": 2, "ops": [[780, 780, "ा"], [1285, 1285, "ा"], [2589, 2589, "ा"], [2771, 2771, "ा"], [3539, 3539, "ा"], [5477, 5477, "ा"], [5701, 5701, "ा"]]}
 {"chapter": 1, "segment": 3, "ops": []}
 {"chapter": 2, "segment": 1, "ops": []}
 {"chapter": 2, "segment": 2, "ops": []}
