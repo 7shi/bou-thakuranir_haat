@@ -232,6 +232,10 @@ FORMS = {
     # ch12's occurrence carries the emphatic -ই clitic; ch1's bare form is
     # all the survey caught.
     "অন্তর্যামীই": "অন্তর্যামী",
+    # ch10's two occurrences (Udayaditya referring to Pratapaditya, twice)
+    # are both this oblique inflection; the survey only ever caught the bare
+    # form, in ch15 and ch34.
+    "পিতার": "পিতা",
 }
 
 # Kept out of the sweep below: forms that are also ordinary words, which no
