@@ -9,12 +9,20 @@
 # (all/aligned/*-gemini-terra.jsonl), so line numbers correspond to source
 # lines across languages, not the raw pre-alignment translations.
 #
+# cluster.py then groups one survey's surface forms by entity, per chapter
+# (see cluster.py). Bengali only for now: it is the source language, and the
+# other three are meant to be anchored to it rather than clustered in
+# isolation.
+#
 # Usage:
-#   make            # all four languages
-#   make hi.jsonl   # one language
+#   make                       # all four languages
+#   make hi.jsonl              # one language
+#   make cluster-bn.jsonl      # cluster the Bengali survey by entity
+#   make normalized-bn.jsonl   # fold those chapters into one corrected list
 
 ROOT    := ../..
 SURVEY  := survey.py
+CLUSTER := cluster.py
 MODEL   := openai:gpt-5.6-terra
 ALIGNED := $(ROOT)/all/aligned
 SEGMENTATION := $(ROOT)/segmentations.jsonl
@@ -35,5 +43,11 @@ ja.jsonl: $(ALIGNED)/ja-gemini-terra.jsonl
 hi.jsonl: $(ALIGNED)/hi-gemini-terra.jsonl
 	uv run $(SURVEY) $(ALIGNED)/hi-gemini-terra.jsonl -m $(MODEL)
 
+cluster-bn.jsonl: bn.jsonl
+	uv run $(CLUSTER) bn.jsonl -m $(MODEL)
+
+normalized-bn.jsonl: cluster-bn.jsonl
+	uv run $(CLUSTER) bn.jsonl -m $(MODEL) -N
+
 clean:
-	rm -f bn.jsonl en.jsonl ja.jsonl hi.jsonl
+	rm -f bn.jsonl en.jsonl ja.jsonl hi.jsonl cluster-bn.jsonl normalized-bn.jsonl
