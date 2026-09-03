@@ -294,3 +294,31 @@ entries appear there:
   `all/<lang>-gemini.md` and folded back per
   [`all/aligned/README.md`](../../all/aligned/README.md)'s "Correcting the
   published text".
+
+## The corpus-wide dictionary - `build_tsv.py`
+
+Once `normalized-bn.jsonl` and the three anchors are settled, `build_tsv.py`
+joins them into `survey/all.tsv`, one row per Bengali name: canonical
+spelling, `kind`, and the canonical each language settled on. It makes no
+model calls and never touches [`proper_nouns/all.tsv`](../all.tsv) - that file
+came from a one-off extraction while the text was being read; this one is
+sourced from the corpus as actually spelled, so the two are meant to be
+compared, not merged.
+
+A Bengali name can have more than one canonical spelling in a language
+without that being an error - `review.py`'s "drift" report catches real
+typos, but also genuine polysemy, such as দাদা rendering as both "Dada" and
+"Grandson" depending on which character says it (see `CORRECTIONS.md`). Such
+a cell lists every canonical, most-used first, joined by `; `. A Bengali name
+no anchor ties any form to in a language - untranslated, or the translator
+dropped it - is left blank there.
+
+```
+make -C proper_nouns/survey all.tsv
+```
+
+or directly:
+
+```
+uv run proper_nouns/survey/build_tsv.py
+```
