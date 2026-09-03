@@ -64,50 +64,27 @@ uv run proper_nouns/survey/survey.py all/aligned/hi-gemini-terra.jsonl -m openai
 - `--segmentation` - segmentation JSONL, only used for a markdown input
   (default: `segmentations.jsonl` at the repo root)
 
-## Clustering by entity - `cluster.py`
+## Clustering into names - `cluster.py`
 
 The survey records spelling as found, so one name is spread over many entries:
 inflected (প্রতাপাদিত্যের), shortened (প্রতাপ), and now and then misspelled
-(প্রতপাদিত্য). `cluster.py` groups a survey's forms by the name they spell and
-gives each group that name's base form, which is what makes the misspellings
-stand out.
-
-Grouping is by **name, not by referent**. A character called by name, by
-title, by kinship term and by epithet yields four entries, not one: the
-glossary is a table of spellings, so collapsing নারায়ণ and বিধাতা into one
-entity, or filing প্রতাপাদিত্য under মহারাজ, would destroy exactly what it
-records. Each entity carries a `kind` (`person`, `place`, `title`, `other`) so
-the titles and forms of address can be told apart later.
-
-The canonical form is the name's base form and is allowed not to appear among
-the forms: a name whose every occurrence in a chapter is case-marked has no
-uninflected form to pick from.
-
-Chapters are processed in order, and each call carries the names the earlier
-chapters settled - base form and kind, one line each. That is what keeps a
-name to one spelling across the book, with no separate reconciliation pass
-afterwards, and it is also what catches a chapter where a name is misspelled
-in every one of its occurrences: with the established spelling in hand, the
-chapter's own is read as a variant of it rather than becoming a name of its
-own. The list is given as a reference, not a checklist - a chapter is free to
-introduce names that are not on it. Redoing a chapter with `-c` counts every
-other chapter's names as established, whichever side of it they fall on.
-
-The unit is the **chapter**. A chapter holds few enough distinct forms for one
-call to cover exhaustively and for a human to check afterwards (Bengali: 11 at
-the least, 29 typically, 48 at most), while its recurring cast is the context
-that tells the model two spellings are the same person. The whole corpus at
-once (361 distinct Bengali forms) invites dropped and invented forms. Grouping
-mechanically instead is not enough either: blocking on a prefix collects Indic
-suffix inflection well, but splits any variant that differs near the head of
-the word - exactly the drift being looked for.
-
-Every answer is checked to be a partition of that chapter's forms: same set,
-no duplicates, nothing invented. A chapter that fails is retried with the
-offending forms named.
+(প্রতপাদিত্য). `cluster.py` groups a chapter's forms by the name they spell and
+gives each group that name's base form and a `kind`, which is what makes the
+misspellings stand out. Why it works by chapter, why it groups by name rather
+than by referent, and why a base form may be one the chapter never uses: see
+the comments in the script.
 
 Bengali only for now. It is the source language, and the other three are meant
-to be tied to its entities rather than clustered on their own.
+to be tied to its names rather than clustered on their own. The measurements
+behind the chapter unit: Bengali runs 11 to 48 distinct forms per chapter, 29
+typically, against 361 for the corpus at once.
+
+Chapters are processed in order and each call is given the names the earlier
+chapters settled, as a reference rather than a checklist. `-c` redoes named
+chapters, counting every other chapter's names as established, whichever side
+of it they fall on. Every answer is checked to be a partition of that
+chapter's forms - same set, no duplicates, nothing invented - and a chapter
+that fails is retried with the offending forms named.
 
 Output, one JSON object per chapter:
 
@@ -140,42 +117,18 @@ uv run proper_nouns/survey/cluster.py proper_nouns/survey/bn.jsonl -m openai:gpt
 
 ## The corrected list - `cluster.py -N`
 
-`-N` applies the corrections to the clustered chapters and writes
-`normalized-<lang>.jsonl`, which keeps the per-chapter shape: one record per
-chapter, listing the names that chapter uses with their canonical spelling,
-kind, and the forms found there. For Bengali, 359 forms across 37 chapters
-resolve to 180 names, 5 to 29 of them per chapter.
+`-N` makes no calls. It applies the corrections held in `REASSIGN`, `MERGE`,
+`KINDS` and `DROP` at the top of `cluster.py` - hard-coded there rather than
+edited into `cluster-<lang>.jsonl`, each one annotated with the passage of
+`all/bn.md` that settles it - and writes `normalized-<lang>.jsonl`.
 
-The list stays per chapter because that is how it gets used: anchoring
-another language to Bengali happens a chapter at a time, and what should be
-offered to the model is that chapter's two or three dozen names, not the
-book's entire cast - a full list only invites matches to characters who are
-not in the passage. `collect_names()` aggregates the records into one entry
-per name (canonical, kind, every form found anywhere, and the chapters it
-appears in) for whatever needs the corpus-wide view, such as rebuilding
-`all.tsv`.
+The file keeps the per-chapter shape, one record per chapter listing the names
+it uses with their canonical spelling, kind, and the forms found there. For
+Bengali, 359 forms across 37 chapters resolve to 180 names, 5 to 29 of them
+per chapter. `collect_names()` aggregates the records into one entry per name
+- canonical, kind, every form found anywhere, and the chapters it appears in -
+for whatever wants the corpus-wide view, such as rebuilding `all.tsv`.
 
 ```
 make -C proper_nouns/survey normalized-bn.jsonl
 ```
-
-Folding applies the corrections held in `REASSIGN`, `MERGE`, `KINDS` and
-`DROP` at the top of `cluster.py`. They are hard-coded there, rather than
-edited into `cluster-<lang>.jsonl`, so that the clustered file stays a plain
-record of what the model answered and re-running a chapter cannot silently
-lose them. Each was checked against `all/bn.md`:
-
-- **Reassigned.** A form filed under the wrong name, mostly where the survey
-  split a two-word name across two entries and left the chapter's clustering
-  two halves to place: chapter 2's রায়ের belongs to প্রতাপাদিত্য rather than
-  বসন্তরায় (the same chapter's বসন্ত রায়কে really is Basantaray); chapter
-  11's রাম and চন্দ্র are the one name রাম চন্দ্র written with a space;
-  chapter 28's রাম, রাম! is the god invoked in dismay, as in chapter 4, not
-  Ramchandra Ray; chapter 33's পরাণ is a villager - পরাণ ও হরি দুই ভাই আসিল -
-  not the word প্রাণ it was filed under.
-- **Merged.** Names the chapters settled separately that the text shows to be
-  one: রমাই, রমাই ঠাকুর and রমাই ভাঁড় are the jester, who is also called
-  সেনাপতি রমাই in jest after he bests the general in a battle of wit; উদয় is
-  short for উদয়াদিত্য.
-- **Dropped.** তাঁর, তাহা and তোরা - pronouns the survey mistook for forms of
-  address.

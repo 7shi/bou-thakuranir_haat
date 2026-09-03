@@ -1,18 +1,28 @@
 #!/usr/bin/env python3
 """
-Cluster the surface forms found by survey.py into one entry per entity.
+Cluster the surface forms found by survey.py into one entry per name.
 
-survey.py records proper nouns exactly as spelled, so one person appears under
-many forms: inflected (প্রতাপাদিত্যের), shortened (প্রতাপ), and occasionally
-misspelled (প্রতপাদিত্য). This script groups a chapter's forms by entity and
-names a canonical form for each, which is what makes the misspellings visible.
+survey.py records proper nouns exactly as spelled, so one name appears in many
+forms: inflected (প্রতাপাদিত্যের), shortened (প্রতাপ), and occasionally
+misspelled (প্রতপাদিত্য). This script groups a chapter's forms by the name
+they spell and gives each group that name's base form, which is what makes the
+misspellings visible.
+
+Grouping is by name, not by referent. Asked to group by entity, the model
+resolves coreference instead - it filed প্রতাপাদিত্য under মহারাজ and merged
+নারায়ণ, বিধাতা and অন্তর্যামী into one. Correct as reading, useless as a
+spelling table, so a character named, titled and addressed four ways yields
+four entries here. The `kind` field is what lets the titles and forms of
+address be told apart afterwards; the existing all.tsv, which has none, mixes
+মহারাজ and দাদা মহাশয় in among the names.
 
 The chapter is the unit: a chapter has a few dozen distinct forms, few enough
 for one call to cover exhaustively and for a human to check, and its recurring
 cast is the context that tells the model two spellings are the same person.
-The whole corpus at once is too much, and mechanical grouping by prefix -
-which does handle Indic suffix inflection - splits variants that differ near
-the head of the word.
+The whole corpus at once is too much - omissions and invented forms creep in.
+Mechanical grouping is not enough either: blocking on a prefix does handle
+Indic suffix inflection, but splits variants that differ near the head of the
+word, which is exactly the drift being looked for.
 """
 
 import argparse
@@ -95,7 +105,12 @@ def format_known(known: Dict[str, str]) -> str:
 
 
 def check(result: Dict, forms: set) -> List[str]:
-    """Report the ways the clustering fails to be a partition of `forms`."""
+    """Report the ways the clustering fails to be a partition of `forms`.
+
+    A dropped or invented form is the failure mode to expect from a list this
+    long, and requiring a partition is what makes it detectable rather than
+    silent - one reason the chapter, not the corpus, is the unit.
+    """
     used = [f for entity in result["entities"] for f in entity["forms"]]
     problems = []
     if missing := forms - set(used):
