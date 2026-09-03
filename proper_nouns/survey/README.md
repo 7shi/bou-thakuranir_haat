@@ -38,6 +38,10 @@ matching the input's own line numbering), listing every proper noun found on
 that line exactly as spelled - not normalized to a base form, since surface
 spelling is the whole point.
 
+The raw census before clustering: distinct surface forms run 7 to 34 per
+chapter (18-19 typically), 218 to 246 for a language's corpus at once, of
+which roughly half occur only once (en 128, hi 106, ja 124).
+
 ## Usage
 
 ```
