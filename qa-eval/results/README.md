@@ -95,6 +95,7 @@ questions and no index.
 | `openai:gpt-5.6-luna` | 100 (50/0/0) | 97 (47/3/0) |
 | `openai:gpt-5.6-sol` | 100 (50/0/0) | 100 (50/0/0) |
 | `openai:gpt-5.6-terra` | 96 (48/0/2) | 99 (49/1/0) |
+| `opencode:big-pickle` | 97 (48/1/1) | 97 (48/1/1) |
 | `opencode:mimo-v2.5-free` | 100 (50/0/0) | 96 (47/2/1) |
 | `opencode:muse-spark-1.2-contributor-free` | 98 (49/0/1) | 100 (50/0/0) |
 | `opencode:muse-spark-1.3-contributor-free` | 100 (50/0/0) | 100 (50/0/0) |
@@ -168,6 +169,7 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `openai:gpt-5.6-luna` | — | — | **29**, 35, 48 | — |
 | `openai:gpt-5.6-sol` | — | — | — | — |
 | `openai:gpt-5.6-terra` | — | 22, 49 | 43 | — |
+| `opencode:big-pickle` | 37 | 22 | 29 | 42 |
 | `opencode:mimo-v2.5-free` | — | — | 20, 37 | 38 |
 | `opencode:muse-spark-1.2-contributor-free` | — | 22 | — | — |
 | `opencode:muse-spark-1.3-contributor-free` | — | — | — | — |
