@@ -223,6 +223,9 @@ FORMS = {
     # ch5:371 spells the ch2:95 name with শ instead of স - the two sibilants
     # this book elsewhere keeps distinct, confused for once.
     "শিমুলতলী": "সিমুলতলী",
+    # ch10's three occurrences are all this one inflection, never the bare
+    # form or রায়বংশকে (ch2) that the survey did catch.
+    "রায়বংশের": "রায়বংশ",
 }
 
 # Kept out of the sweep below: forms that are also ordinary words, which no
