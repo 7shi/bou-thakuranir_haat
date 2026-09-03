@@ -37,6 +37,10 @@ from pydantic import BaseModel, Field
 from llm7shi.compat import generate_with_schema
 from llm7shi import create_json_descriptions_prompt
 
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+sys.path.append(ROOT)
+from scripts.utils import load_chapter_blocks
+
 
 class Entity(BaseModel):
     canonical: str = Field(
@@ -216,6 +220,9 @@ REASSIGN = {
     (28, "রাম"): "রাম",
     # "পরাণ ও হরি দুই ভাই আসিল" - a villager's name, not the word প্রাণ.
     (33, "পরাণ"): "পরাণ",
+    # "খবর কি দাদা?" - Basantaray's own greeting to Udayaditya, the same দাদা
+    # the other chapters have; the chapter's দাদা মহাশয় is a separate entry.
+    (4, "দাদা"): "দাদা",
 }
 
 # Names the chapters settled on separately that the text shows to be one.
@@ -232,6 +239,56 @@ KINDS = {"পরাণ": "person"}
 # for forms of address.
 DROP = {"তাঁর", "তাহা", "তোরা"}
 
+# Kept out of the sweep below: forms that are also ordinary words, which no
+# amount of matching can tell apart. Each is a name somewhere in the book and
+# a common word elsewhere, so sweeping them in would file the ordinary uses
+# under a character.
+EXCLUDE = {
+    "প্রাণ",    # "life" throughout; the villager পরাণ is a different spelling
+    "উদয়",     # "উদয় হইল" - dawned, arose - as often as the short name
+    "আদিত্য",   # the sun, and the wordplay resting on it, beside the split name
+    "বসন্ত",    # spring, and the first half of বসন্ত রায় written with a space
+    "চন্দ্র",   # the moon, and the second half of রাম চন্দ্র likewise
+    "রায়",     # the surname alone belongs to three different characters
+    "রায়ের",
+    "রায়কে",
+}
+
+# A Bengali letter on either side means the match is part of a longer word.
+LETTER = "ঀ-৿"
+
+
+def build_pattern(forms: List[str]) -> Optional[re.Pattern]:
+    """Longest form first, so a name is never matched as a fragment of itself.
+
+    "দাদা মহাশয়ের" is then one match rather than a দাদা inside it.
+    """
+    if not forms:
+        return None
+    alts = "|".join(re.escape(f) for f in sorted(forms, key=len, reverse=True))
+    return re.compile(f"(?<![{LETTER}])(?:{alts})(?![{LETTER}])")
+
+
+def resolve_owners(entities: Dict[int, Dict[str, set]]) -> Dict[str, str]:
+    """One name per form, for the forms where the book agrees on one.
+
+    A form the chapters file under two different names - দাদা for দাদামহাশয় in
+    one chapter and for দাদা in another - is left out rather than guessed at,
+    which is also how the corrections above get the last word: fix the outlier
+    with REASSIGN and the form becomes sweepable.
+    """
+    owners: Dict[str, set] = {}
+    for chapter in entities.values():
+        for canonical, forms in chapter.items():
+            # The canonical form counts as one of the name's spellings even
+            # where no chapter happens to use it: ঊষা is established as a name
+            # by chapters that only ever inflect it, and chapter 1's bare ঊষা
+            # would go unswept otherwise.
+            for form in {canonical, *forms}:
+                owners.setdefault(form, set()).add(canonical)
+    return {form: next(iter(names)) for form, names in owners.items()
+            if len(names) == 1 and form not in EXCLUDE}
+
 
 def resolve_kinds(records: List[Dict]) -> Dict[str, str]:
     """One kind per name for the whole book, by majority across its chapters."""
@@ -246,7 +303,69 @@ def resolve_kinds(records: List[Dict]) -> Dict[str, str]:
             for name, v in votes.items()}
 
 
-def normalize(records: List[Dict]) -> List[Dict]:
+def sweep(entities: Dict[int, Dict[str, set]], chapters: List[str]) -> Counter:
+    """Add the occurrences of established names that the survey missed.
+
+    survey.py reads one segment at a time and is not perfectly consistent
+    about what counts as a name; titles and kinship terms are where it wavers
+    most. It recorded মহারাজ 116 times out of 116 across the book yet missed
+    both of chapter 1's, and মা, দাদা, পিতা and বাবা are recorded in some
+    chapters and passed over in others. In Bengali alone that unevenness is
+    invisible. It surfaces in anchor.py, where a chapter whose Bengali list
+    has no মহারাজ does not leave the English "Maharaj" unresolved as
+    instructed but ties it to whatever name is nearest - chapter 1 gave
+    Father -> অন্তর্যামী and Dada folded into Grand-uncle from exactly this.
+
+    By this point the clustering has settled which name each form spells, so
+    the gaps can be closed without asking the model again: every form the book
+    has established as a name is searched for in each chapter's source, and
+    one it finds where the chapter has no entry for it is added to that name.
+    Nothing is invented - a form must already belong to a name somewhere - and
+    nothing is removed. Only presence per chapter is recorded, which is all
+    the per-chapter list is for.
+    """
+    owners = resolve_owners(entities)
+    pattern = build_pattern(sorted(owners))
+    added: Counter = Counter()
+    if pattern is None:
+        return added
+    for chapter, names in entities.items():
+        if chapter > len(chapters):
+            continue
+        present = {form for forms in names.values() for form in forms}
+        for match in pattern.finditer("\n".join(chapters[chapter - 1])):
+            form = match.group(0)
+            if form not in present:
+                names.setdefault(owners[form], set()).add(form)
+                present.add(form)
+                added[form] += 1
+    return added
+
+
+def place_names(names: Dict[str, set], segments: List[str],
+                ) -> Dict[str, List[str]]:
+    """Where in the chapter each name is used, as "segment:line" positions.
+
+    Read from the source rather than from the survey, which has no position
+    for a swept-in occurrence. Within a chapter the forms partition the names,
+    so a match belongs to exactly one of them; longest first, so দাদামহাশয় is
+    not counted as a দাদা. A name whose form is not found verbatim - the
+    survey does not always copy exactly - keeps an empty list, and the count
+    that goes with it treats it as used once.
+    """
+    owners = {form: canonical for canonical, forms in names.items() for form in forms}
+    pattern = build_pattern(sorted(owners))
+    places: Dict[str, List[str]] = {name: [] for name in names}
+    if pattern:
+        for si, segment in enumerate(segments, 1):
+            for li, line in enumerate(segment.split("\n"), 1):
+                for match in pattern.finditer(line):
+                    places[owners[match.group(0)]].append(f"{si}:{li}")
+    return places
+
+
+def normalize(records: List[Dict], chapters: Optional[List[str]] = None,
+              ) -> Tuple[List[Dict], Counter]:
     """Apply the corrections, keeping the per-chapter shape.
 
     Chapter by chapter is how the list is used: anchoring another language to
@@ -254,26 +373,38 @@ def normalize(records: List[Dict]) -> List[Dict]:
     dozen names are what should be offered to the model - not the book's
     entire cast, which only invites matches to characters who are not there.
     Whatever needs the corpus-wide view aggregates these with collect_names.
+
+    With the source text in hand the chapters are also swept for the
+    occurrences the survey missed; see sweep().
     """
     kinds = resolve_kinds(records)
-    result = []
+    entities: Dict[int, Dict[str, set]] = {}
     for record in sorted(records, key=lambda r: r["chapter"]):
-        entities: Dict[str, set] = {}
+        names: Dict[str, set] = {}
         for entity in record["entities"]:
             for form in entity["forms"]:
                 canonical = REASSIGN.get((record["chapter"], form), entity["canonical"])
                 canonical = MERGE.get(canonical, canonical)
                 if canonical in DROP:
                     continue
-                entities.setdefault(canonical, set()).add(form)
+                names.setdefault(canonical, set()).add(form)
+        entities[record["chapter"]] = names
+    added = sweep(entities, chapters) if chapters else Counter()
+    langs = {r["chapter"]: r["target_lang"] for r in records}
+    result = []
+    for chapter, names in sorted(entities.items()):
+        places = (place_names(names, chapters[chapter - 1])
+                  if chapters and chapter <= len(chapters) else {})
         result.append({
-            "chapter": record["chapter"],
-            "target_lang": record["target_lang"],
+            "chapter": chapter,
+            "target_lang": langs[chapter],
             "entities": [{"canonical": name, "kind": kinds[name],
+                          **({"count": max(1, len(places[name])),
+                              "lines": places[name]} if places else {}),
                           "forms": sorted(forms)}
-                         for name, forms in sorted(entities.items())],
+                         for name, forms in sorted(names.items())],
         })
-    return result
+    return result, added
 
 
 def collect_names(records: List[Dict]) -> List[Dict]:
@@ -347,6 +478,14 @@ def main() -> int:
     parser.add_argument("-c", "--chapter", type=parse_chapter_arg,
                         help="Process only these chapters, comma separated (e.g. 1 or 1,3), "
                              "overwriting any existing records")
+    parser.add_argument("-S", "--source",
+                        help="Source markdown the survey was made from (e.g. all/bn.md); "
+                             "with -N, the chapters are swept for the occurrences of "
+                             "established names that the survey missed")
+    parser.add_argument("--segmentation",
+                        default=os.path.join(ROOT, "segmentations.jsonl"),
+                        help="Segmentation JSONL for -S "
+                             "(default: segmentations.jsonl at the repo root)")
     parser.add_argument("-N", "--normalize", action="store_true",
                         help="Make no calls: fold the clustered chapters into one corrected "
                              "list of names, written as normalized-<lang>.jsonl")
@@ -358,7 +497,13 @@ def main() -> int:
         if not records:
             print(f"Nothing clustered yet in {output}", file=sys.stderr)
             return 1
-        normalized = normalize(records)
+        chapters = None
+        if args.source:
+            chapters = load_chapter_blocks(args.segmentation, args.source)["chapters"]
+        else:
+            print("No source given (-S), so the chapters are not swept for the "
+                  "occurrences the survey missed", file=sys.stderr)
+        normalized, added = normalize(records, chapters)
         path = default_normalized(output)
         save_records(path, normalized)
         entities = collect_names(normalized)
@@ -366,6 +511,11 @@ def main() -> int:
         forms = sum(len(e["forms"]) for e in entities)
         print(f"{len(records)} chapters, {forms} forms -> {len(entities)} names")
         print("  " + ", ".join(f"{kind} {n}" for kind, n in kinds.most_common()))
+        if added:
+            print(f"  swept in from the source: {sum(added.values())} chapter "
+                  f"entries over {len(added)} forms")
+            print("  " + ", ".join(f"{form} x{n}" if n > 1 else form
+                                   for form, n in added.most_common(20)))
         print(f"  written to {path}")
         return 0
 
