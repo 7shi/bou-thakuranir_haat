@@ -281,8 +281,39 @@ that turned up; see that file's own README section,
 [`proper_nouns/README.md`](../README.md#recording-fixes---correctionsmd),
 for what it records and how a fix gets applied).
 
-## The corpus-wide dictionary
+## The corpus-wide dictionary - `build_tsv.py`
 
-Once `normalized-bn.jsonl` and the three anchors are settled, they are joined
-into `proper_nouns/all.tsv` - see [`proper_nouns/README.md`](../README.md)
-for `build_tsv.py`, which does that.
+Once `normalized-bn.jsonl` and the three `anchor-*.jsonl` are settled,
+`build_tsv.py` joins them into `../all.tsv`, one row per Bengali name:
+canonical spelling, `kind`, and the canonical each language settled on. It
+makes no model calls and never touches
+[`../extract/all.tsv`](../extract/all.tsv) - that file came from a one-off
+extraction while the text was being read; this one is sourced from the
+corpus as actually spelled, so the two are meant to be compared, not
+merged.
+
+A Bengali name can have more than one canonical spelling in a language
+without that being an error - `review.py`'s "drift" report catches real
+typos, but also genuine polysemy, such as দাদা rendering as both "Dada" and
+"Grandson" depending on which character says it (see
+[`../CORRECTIONS.md`](../CORRECTIONS.md)). Such a cell lists every
+canonical, most-used first, joined by `; `. A Bengali name no anchor ties
+any form to in a language - untranslated, or the translator dropped it - is
+left blank there.
+
+```
+make -C proper_nouns/survey all.tsv
+```
+
+or directly:
+
+```
+uv run proper_nouns/survey/build_tsv.py
+```
+
+**`../all.tsv` is hand-edited after this initial build** - see
+[`../README.md`](../README.md)'s "Correcting a rendering found by
+inspection" and [`../CORRECTIONS.md`](../CORRECTIONS.md). Re-running this
+target or script overwrites those edits, so treat it as a one-time or
+deliberate-full-rebuild step, never a routine one; it is intentionally not
+part of the default `make`.
