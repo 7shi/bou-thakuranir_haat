@@ -108,3 +108,14 @@ workflow:
   589) name the same person and role - both refer to Pratapaditya,
   confirmed by reading ch1 line 9 and ch6 line 589 in `all/bn.md` -
   unified to "ジョソール王" (1 occurrence changed, ch1 line 9).
+
+## Pass 4: more `মহারাজ`/"Your Majesty" drift in en
+
+Pass 1 already unified this drift in ch7/ch24/ch26, but "Your Majesty"
+survived in four other chapters, found by inspection.
+
+Target-language-local, applied via `all/aligned/README.md`'s workflow:
+
+- en ch2/ch4/ch22/ch34: মহারাজ rendered as both "Your Majesty" and
+  "Maharaj" (8 occurrences of "Your Majesty"). Not in `proper_nouns/all.tsv`
+  since it is a vocative, not a proper noun. Unified to "Maharaj".

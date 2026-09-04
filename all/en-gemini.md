@@ -108,7 +108,7 @@ The minister—“Maharaj has not quite understood my sentiment.”
 
 Pratap—“I have understood it perfectly. But let me ask you one thing: a deed that I can do, you cannot even bring yourself to speak of? You should have considered that when I am about to do such a thing, there must be a grave reason for it; I must have considered all aspects of dharma and adharma.”
 
-The minister—“Your Majesty, I—”
+The minister—“Maharaj, I—”
 
 Pratap—“Be quiet, listen to all I have to say first. When I am doing this—when I am preparing to kill my own paternal uncle, I have of course thought about it far more than you have. There is no adharma in this act. This is my vow—that these Mlechchhas who have come to our country and begun their misdeeds, by whose oppression the eternal Arya Dharma is on the verge of being erased from our land, Kshatriyas are giving their daughters to the Mughal, Hindus are deviating from their customs—I will drive these Mlechchhas out, I will free our Arya Dharma from the grasp of Rahu. To fulfill this vow, much strength is needed. I want all the kings of Bengal to be united under me. This will not be accomplished without destroying those who are friends of the Yavana. My paternal uncle Basanta Ray is venerable, but there is no sin in speaking the truth—he is a stain on our lineage. He has acknowledged himself as a slave to the Mlechchha; Pratapaditya Ray has no relation to such a man. If a wound develops, one can cut off one's own arm. It is my wish to cut off that wound of our lineage, that wound of Bengal, that Basanta Ray, and save the Ray Bamsa, save Bengal.”
 
@@ -160,7 +160,7 @@ The minister: “Last night, around midnight.”
 
 Pratapaditya said, “Is the daughter of the zamindar of Shripur still here?”
 
-The minister: “Yes, Your Majesty!”
+The minister: “Yes, Maharaj!”
 
 Pratapaditya: “It would be better if she stayed at her father’s house.”
 
@@ -186,7 +186,7 @@ The minister: “I have heard that a complaint has been lodged against you with 
 
 Pratapaditya: “Who? Your Prince Udayaditya, is it?”
 
-The minister: “Your Majesty, please do not say such things. I have not discovered who did it.”
+The minister: “Maharaj, please do not say such things. I have not discovered who did it.”
 
 Pratapaditya: “Whoever it may be, do not worry much about it. I am the judge of the Emperor of Delhi; I myself am arranging his punishment. Have those Pathans not returned yet? Has Udayaditya still not come? Summon the guards quickly.”
 
@@ -372,7 +372,7 @@ Minister: “Simultali is a great distance from here. It is expected there would
 
 Pratapaditya was displeased with the minister’s words. He wanted the minister to surmise the same thing he was surmising. But the minister did not go in that direction. Pratapaditya said, “Did Udayaditya go out last night?”
 
-Minister: “Yes, Your Majesty, I have already informed you of that.”
+Minister: “Yes, Maharaj, I have already informed you of that.”
 
 Pratapaditya: “‘I have already informed you’! And what a timely moment you chose to inform me. Do you think your job is finished as long as you inform me at some point? Udayaditya was not like this before. The daughter of the Shripur landlord must have given him ill counsel. What do you think?”
 
@@ -390,7 +390,7 @@ Pathan: “Yes, Maharaj, it is settled by now.”
 
 Pratapaditya: “What kind of answer is that? So you don’t know for sure?”
 
-Pathan: “Yes, Your Majesty, I do know. The job is settled, there is no doubt about it, but I was not present at the time.”
+Pathan: “Yes, Maharaj, I do know. The job is settled, there is no doubt about it, but I was not present at the time.”
 
 Pratapaditya: “Then how was the job settled?”
 
@@ -1498,7 +1498,7 @@ What they decided after consultation was this: a forged petition had to be writt
 
 The plan was put into action. A forged petition was written and stamped with the Yubaraj's name. The foolish Sitaram could not be trusted, so it was decided that Bhagavat himself would take the petition and deliver it into the hands of the Dillishwar.
 
-Taking the petition, Bhagavat went not toward Delhi, but to Pratapaditya. He said to the Maharaj, “A servant of Udayaditya was taking this petition toward Delhi. I found out about it through certain channels. The servant has fled the country, and I have brought the petition to Your Majesty.” Bhagavat did not mention Sitaram's name. There is no need to describe what state Pratapaditya was in after reading the petition. Bhagavat got his job back at the palace.
+Taking the petition, Bhagavat went not toward Delhi, but to Pratapaditya. He said to the Maharaj, “A servant of Udayaditya was taking this petition toward Delhi. I found out about it through certain channels. The servant has fled the country, and I have brought the petition to Maharaj.” Bhagavat did not mention Sitaram's name. There is no need to describe what state Pratapaditya was in after reading the petition. Bhagavat got his job back at the palace.
 
 ## Chapter 23
 
@@ -2098,11 +2098,11 @@ Muktiyar offered a salaam and replied curtly, “Yes, Maharaj!”
 
 Basanta Ray said, “Have you had your meal?”
 
-Muktiyar replied, “Yes, Your Majesty.”
+Muktiyar replied, “Yes, Maharaj.”
 
 Basanta Ray said, “Then today, let me make arrangements for you to stay here.”
 
-Muktiyar said, “No, Your Majesty, there is no need. I have a task to finish and must leave immediately!”
+Muktiyar said, “No, Maharaj, there is no need. I have a task to finish and must leave immediately!”
 
 Basanta Ray said, “No, that will not do, Khan Saheb. I will not let you go today; you must stay here today.”
 
@@ -2114,7 +2114,7 @@ Muktiyar said, “The Maharaja is well.”
 
 Basanta Ray said, “Then what is your task? Tell me quickly. Hearing it is so urgent is making me anxious. No misfortune has befallen Pratap, has it?”
 
-Muktiyar said, “No, Your Majesty, no misfortune has befallen him. I have come to carry out an order from the Maharaja!”
+Muktiyar said, “No, Maharaj, no misfortune has befallen him. I have come to carry out an order from the Maharaja!”
 
 Basanta Ray asked hurriedly, “What order—tell me now!”
 
