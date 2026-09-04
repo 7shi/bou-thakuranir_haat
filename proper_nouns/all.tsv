@@ -1,7 +1,7 @@
 Bengali	Kind	English	Hindi	Japanese
 অন্তর্যামী	title	One	अंतर्यामी	
 আবদুল	person	Abdul	अब्दुल	アブドゥル
-ঈশ্বর	title	God	ईश्वर	イーシュワル
+ঈশ্বর	title	God	ईश्वर	神
 উজীর	title			
 উদয়াদিত্য	person	Udayaditya	उदयादित्य	ウダヤディティヤ
 উমেশ রায়	person	Umesh Ray	उमेश राय	ウメシュ・ライ
@@ -41,7 +41,7 @@ Bengali	Kind	English	Hindi	Japanese
 দাদামহাশয়	title	Grand-uncle	दादा महाशय	大おじ様
 দিদি	title	Didi	दीदी	姉上
 দিল্লী	place	Delhi	दिल्ली	デリー
-দিল্লীশ্বর	title	Emperor of Delhi	दिल्लीश्वर	ディリーシュワル
+দিল্লীশ্বর	title	Emperor of Delhi	दिल्लीश्वर	デリー皇帝
 দুর্গা	person	Durga	दुर्गा	ドゥルガ
 দেওয়ান	title	Dewan	दीवान	ディーワーン
 দেওয়ানজি	title	Dewanji	दीवानजी	ディーワーンジー
@@ -122,9 +122,9 @@ Bengali	Kind	English	Hindi	Japanese
 মোহন	person	Mohan	मोहन	モーハン
 যম	person	Yama	यम	ヤマ
 যশোহর	place	Jessore	यशोहर	ジョソール
-যশোহর-অধিপতি	title		यशोहर-नरेश	ジョソール君主
+যশোহর-অধিপতি	title		यशोहर-नरेश	ジョソール王
 যশোহর-ছত্র	other			
-যশোহর-পতি	title	Lord of Jessore	यशोहर	ジョソール
+যশোহর-পতি	title	Lord of Jessore	यशोहर	ジョソール王
 যুবরাজ	title	Yubaraj	युवराज	王太子
 যোড়াঘাটা	place	Joraghata	जोड़ाघाटा	ジョラガタ
 রতন	person	Ratan	रतन	ラタン

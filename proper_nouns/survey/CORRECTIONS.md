@@ -86,3 +86,25 @@ three translations correctly preserved it.
 No open items remain from either pass; the next thing this file needs is
 a new section if a future pass (or `all.tsv` comparison work) turns up
 more.
+
+## Pass 3: `all.tsv` review against the English column
+
+A spot review comparing `all.tsv`'s Japanese column against its English
+column, looking for titles where the English is a translated word or
+phrase but the Japanese had stayed a transliteration.
+
+Target-language-local (Japanese only; `normalized-bn.jsonl` and the
+en/hi columns were already correct), applied via `all/aligned/README.md`'s
+workflow:
+
+- ja: দিল্লীশ্বর, "Emperor of Delhi" in English, was "ディリーシュワル"
+  (transliteration) - unified to "デリー皇帝" (10 occurrences).
+- ja: ঈশ্বর, "God" in English, was "イーシュワル" (transliteration) in
+  its two generic-noun uses (ch2 line 169, ch34 line 2161) - unified to
+  "神". A third occurrence (ch2 line 123, দিল্লীশ্বর ত আমার ঈশ্বর নহেন)
+  was already "神" and needed no change.
+- ja: যশোহর-অধিপতি ("ジョソール君主") and যশোহর-পতি ("Lord of Jessore" in
+  English, already "ジョソール王" in the one place it occurs, ch6 line
+  589) name the same person and role - both refer to Pratapaditya,
+  confirmed by reading ch1 line 9 and ch6 line 589 in `all/bn.md` -
+  unified to "ジョソール王" (1 occurrence changed, ch1 line 9).
