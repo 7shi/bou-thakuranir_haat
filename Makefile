@@ -8,7 +8,7 @@ ALIGNED := all/aligned/en-gemini-terra.jsonl all/aligned/ja-gemini-terra.jsonl a
 
 all:
 
-.PHONY: translate convert split questions titles images build clean serve deploy
+.PHONY: translate convert split questions titles images build clean serve deploy release
 
 build: images
 	uv run templates/build.py
@@ -24,6 +24,10 @@ serve:
 
 deploy: build
 	bash templates/deploy.sh
+
+release:
+	mkdir -p release
+	cd images && git ls-files --others --ignored --exclude-standard | grep -v '^__pycache__/' | zip ../release/images.zip -@
 
 translate:
 	uv run scripts/translate_segments.py -f Bengali -t English -m $(MODEL) -o all/en-gemini.jsonl all/bn.md

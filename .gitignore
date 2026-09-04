@@ -12,6 +12,9 @@ wheels/
 # Images
 images/
 
+# Release archives (see `make release`)
+release/
+
 # Generated files
 questions-en-cache.tsv
 qa-eval/index-*.safetensors
