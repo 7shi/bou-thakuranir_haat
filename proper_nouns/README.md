@@ -20,9 +20,10 @@ A Bengali name can have more than one canonical spelling in a language
 without that being an error - `survey/review.py`'s "drift" report catches
 real typos, but also genuine polysemy, such as দাদা rendering as both "Dada"
 and "Grandson" depending on which character says it (see
-`survey/CORRECTIONS.md`). Such a cell lists every canonical, most-used
-first, joined by `; `. A Bengali name no anchor ties any form to in a
-language - untranslated, or the translator dropped it - is left blank there.
+[`CORRECTIONS.md`](CORRECTIONS.md)). Such a cell lists every canonical,
+most-used first, joined by `; `. A Bengali name no anchor ties any form to
+in a language - untranslated, or the translator dropped it - is left blank
+there.
 
 ```
 make -C proper_nouns all.tsv
@@ -51,12 +52,31 @@ in three steps:
    published text" workflow: edit `all/<lang>-gemini.md`, then
    `fold-<lang>`, `pack-<lang>` and `make convert` to fold it back into the
    aligned JSONL/delta and regenerate the other Markdown variants.
-3. **Log it in [`survey/CORRECTIONS.md`](survey/CORRECTIONS.md)** as a new
-   entry (a new pass section if the existing ones are already closed out) -
-   this is a target-language-local correction as that file defines it,
-   since the fix is confined to one language's rendering with no
-   Bengali-side problem.
+3. **Log it in [`CORRECTIONS.md`](CORRECTIONS.md)** as a new entry (a new
+   pass section if the existing ones are already closed out) - this is a
+   target-language-local correction as that file defines it, since the fix
+   is confined to one language's rendering with no Bengali-side problem.
 
 `all.tsv` step 1 and the published text in step 2 must not drift apart -
 the TSV is the glossary `align_lines.py` and `translate_segments.py` read,
 and the Markdown is what is actually deployed.
+
+## Recording fixes - `CORRECTIONS.md`
+
+[`CORRECTIONS.md`](CORRECTIONS.md) is the standing log of what
+`survey/review.py`, the manual sweeps described in
+[`survey/README.md`](survey/README.md), and direct inspection of `all.tsv`
+have found and fixed in the published translations - a history, not a
+to-do list, so it is never emptied out or deleted once a pass finishes;
+each pass gets its own section. Two kinds of entries appear there:
+
+- **Bengali-side**: the survey/clustering got a name wrong or missed a
+  form. Fixed with `cluster.py`'s `patch()` on `survey/cluster-bn.jsonl`,
+  then `survey/normalized-bn.jsonl` and any `survey/anchor-*.jsonl`
+  rebuilt.
+- **Target-language-local**: one language's translation drifted between
+  two spellings of the same name, or stayed transliterated where it
+  should read as a translation, with no Bengali-side problem. Fixed by
+  hand in `all/<lang>-gemini.md` and folded back per
+  [`all/aligned/README.md`](../all/aligned/README.md)'s "Correcting the
+  published text".

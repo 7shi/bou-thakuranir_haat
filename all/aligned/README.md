@@ -440,7 +440,7 @@ English/Japanese comparison:
 
 A correction found after alignment (a wording inconsistency such as the
 `Dada`/`Grandson` and `Maharaj`/`Your Majesty` drift tallied in
-`proper_nouns/survey/CORRECTIONS.md`) is applied through the deployed
+`proper_nouns/CORRECTIONS.md`) is applied through the deployed
 Markdown, not by editing an aligned JSONL directly - the JSONL is
 gitignored (only its `.delta.jsonl` survives), and hand-editing it would
 be lost on the next `unpack` and leave no reviewable diff.

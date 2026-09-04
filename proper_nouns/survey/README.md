@@ -276,24 +276,10 @@ misspelling tied to the right canonical - one entity's `forms` holding both
 `उदयादित्य` and the typo `उदयदित्य` resolves fine and never disagrees with
 another chapter, so it is neither drift nor unresolved. Catching that kind of
 error is a manual sweep over every multi-form entity instead (see
-`CORRECTIONS.md`'s "Multi-form sweep" pass for what that turned up).
-
-## Recording fixes - `CORRECTIONS.md`
-
-[`CORRECTIONS.md`](CORRECTIONS.md) is the standing log of what `review.py`
-and the manual sweeps above actually found and fixed in the published
-translations - a history, not a to-do list, so it is never emptied out or
-deleted once a pass finishes; each pass gets its own section. Two kinds of
-entries appear there:
-
-- **Bengali-side**: the survey/clustering got a name wrong or missed a form.
-  Fixed with `cluster.py`'s `patch()` on `cluster-bn.jsonl`, then
-  `normalized-bn.jsonl` and any `anchor-*.jsonl` rebuilt.
-- **Target-language-local**: one language's translation drifted between two
-  spellings of the same name with no Bengali-side problem. Fixed by hand in
-  `all/<lang>-gemini.md` and folded back per
-  [`all/aligned/README.md`](../../all/aligned/README.md)'s "Correcting the
-  published text".
+[`../CORRECTIONS.md`](../CORRECTIONS.md)'s "Multi-form sweep" pass for what
+that turned up; see that file's own README section,
+[`proper_nouns/README.md`](../README.md#recording-fixes---correctionsmd),
+for what it records and how a fix gets applied).
 
 ## The corpus-wide dictionary
 
