@@ -1,9 +1,13 @@
 """Static site builder for bou-thakuranir_haat.
 
-Reads all/{bn,bn-gemini,hi-gemini,en-gemini,ja-gemini}.md, questions-{en,ja}.jsonl, docs/*.md
-and generates:
+Reads all/{bn,bn-gemini,hi-gemini,en-gemini,ja-gemini}.md, all/captions.jsonl,
+questions-{en,ja}.jsonl, docs/*.md and, for the segment boundaries alone,
+segmentations.jsonl and all/aligned/*-gemini-terra.jsonl (unpacked from the
+committed deltas by `make build`), and generates:
 - dist/chapter-{NN}.html  per-chapter page with a 5-language tab switcher
-                          (original, modern Bengali, Hindi, English, Japanese)
+                          (original, modern Bengali, Hindi, English, Japanese),
+                          each language's text split into its segments and
+                          headed by that segment's caption in that language
 - dist/qa-en.html         English QA list (with links to referenced chapters)
 - dist/qa-ja.html         Japanese QA list (with links to referenced chapters)
 - dist/docs/{stem}.html   pages converted from docs/*.md
@@ -27,15 +31,21 @@ ROOT = Path(__file__).parent.parent
 TEMPLATES_DIR = ROOT / "templates"
 STATIC_DIR = TEMPLATES_DIR / "static"
 DIST_DIR = ROOT / "dist"
+ALIGNED_DIR = ROOT / "all" / "aligned"
+CAPTIONS_FILE = ROOT / "all" / "captions.jsonl"
+SEGMENTATIONS_FILE = ROOT / "segmentations.jsonl"
 
 NUM_CHAPTERS = 37
 
+# `caption` is which of all/captions.jsonl's four languages heads this text's
+# segments. The original is captioned in modern Bengali, there being no
+# classical-Bengali caption to pair with it.
 TEXTS: dict[str, dict] = {
-    "bn": {"file": "all/bn.md", "label": "Classical Bengali", "lang": "bn"},
-    "bn-gemini": {"file": "all/bn-gemini.md", "label": "Bengali", "lang": "bn"},
-    "hi-gemini": {"file": "all/hi-gemini.md", "label": "Hindi", "lang": "hi"},
-    "en-gemini": {"file": "all/en-gemini.md", "label": "English", "lang": "en"},
-    "ja-gemini": {"file": "all/ja-gemini.md", "label": "Japanese", "lang": "ja"},
+    "bn": {"file": "all/bn.md", "label": "Classical Bengali", "lang": "bn", "caption": "bn"},
+    "bn-gemini": {"file": "all/bn-gemini.md", "label": "Bengali", "lang": "bn", "caption": "bn"},
+    "hi-gemini": {"file": "all/hi-gemini.md", "label": "Hindi", "lang": "hi", "caption": "hi"},
+    "en-gemini": {"file": "all/en-gemini.md", "label": "English", "lang": "en", "caption": "en"},
+    "ja-gemini": {"file": "all/ja-gemini.md", "label": "Japanese", "lang": "ja", "caption": "ja"},
 }
 
 SUMMARIES: dict[str, dict] = {
@@ -43,11 +53,6 @@ SUMMARIES: dict[str, dict] = {
     "hi-gemini": {"file": "all/hi-gemini-summary.md", "label": "Hindi", "lang": "hi"},
     "en-gemini": {"file": "all/en-gemini-summary.md", "label": "English", "lang": "en"},
     "ja-gemini": {"file": "all/ja-gemini-summary.md", "label": "Japanese", "lang": "ja"},
-}
-
-TITLES: dict[str, dict] = {
-    "en": {"file": "all/en-gemini.tsv"},
-    "ja": {"file": "all/ja-gemini.tsv"},
 }
 
 DOCS: list[dict] = [
@@ -73,10 +78,16 @@ DOCS: list[dict] = [
 
 
 @dataclass
+class Segment:
+    number: int  # 1-based, within its chapter
+    captions: dict[str, str] = field(default_factory=dict)  # caption language -> caption
+    texts: dict[str, str] = field(default_factory=dict)  # TEXTS key -> HTML paragraphs
+
+
+@dataclass
 class Chapter:
     number: int
-    texts: dict[str, str] = field(default_factory=dict)  # key -> HTML paragraphs
-    titles: list[tuple[str, str]] = field(default_factory=list)  # (title_en, title_ja)
+    segments: list[Segment] = field(default_factory=list)
 
 
 def split_chapters(filepath: Path) -> list[str]:
@@ -88,13 +99,17 @@ def split_chapters(filepath: Path) -> list[str]:
     return bodies
 
 
-def paragraphs_to_html(body: str) -> str:
-    """Convert blank-line-separated paragraphs to `<p>` tags. `*text*` becomes `<em>`."""
+def split_paragraphs(body: str) -> list[str]:
+    """Split a chapter body into its blank-line-separated paragraphs."""
+    return [p.strip() for p in re.split(r"\n\s*\n", body.strip()) if p.strip()]
+
+
+def paragraphs_to_html(paragraphs: list[str] | str) -> str:
+    """Convert paragraphs to `<p>` tags. `*text*` becomes `<em>`."""
+    if isinstance(paragraphs, str):
+        paragraphs = split_paragraphs(paragraphs)
     out = []
-    for para in re.split(r"\n\s*\n", body.strip()):
-        para = para.strip()
-        if not para:
-            continue
+    for para in paragraphs:
         escaped = html.escape(para)
         escaped = re.sub(r"\*([^*]+)\*", r"<em>\1</em>", escaped)
         escaped = escaped.replace("\n", "<br>\n")
@@ -102,35 +117,115 @@ def paragraphs_to_html(body: str) -> str:
     return "\n".join(out)
 
 
-def load_titles(lang: str) -> dict[int, list[str]]:
-    """Return a dict mapping chapter -> [segment title, ...]."""
-    path = ROOT / TITLES[lang]["file"]
-    result: dict[int, list[str]] = {}
-    lines = path.read_text(encoding="utf-8").splitlines()
-    for line in lines[1:]:
-        chapter_s, _segment_s, title = line.split("\t", 2)
-        chapter = int(chapter_s)
-        result.setdefault(chapter, []).append(title)
-    return result
+def load_captions() -> dict[int, list[dict[str, str]]]:
+    """Return chapter -> [{caption language: caption}, ...], one entry per segment."""
+    if not CAPTIONS_FILE.exists():
+        raise SystemExit(
+            f"Missing {CAPTIONS_FILE.relative_to(ROOT)}. Run 'make captions' to generate it."
+        )
+    records: dict[int, list[tuple[int, dict[str, str]]]] = {}
+    for line in CAPTIONS_FILE.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            entry = json.loads(line)
+            records.setdefault(entry["chapter"], []).append((entry["segment"], entry["captions"]))
+    return {
+        chapter: [captions for _, captions in sorted(entries)]
+        for chapter, entries in records.items()
+    }
+
+
+def load_translation_segment_sizes(key: str) -> dict[int, list[int]]:
+    """Return chapter -> [paragraph count per segment, ...] for one translation.
+
+    The `all/*-gemini.md` files concatenate their segments without marking the
+    boundaries, so the sizes come from the aligned JSONL the Markdown was built
+    from: one paragraph per aligned line, in segment order.
+    """
+    lang = key.split("-")[0]
+    path = ALIGNED_DIR / f"{lang}-gemini-terra.jsonl"
+    if not path.exists():
+        raise SystemExit(
+            f"Missing {path.relative_to(ROOT)}. "
+            f"Run 'make -C all/aligned unpack' to regenerate it from the committed delta."
+        )
+    sizes: dict[int, list[tuple[int, int]]] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            entry = json.loads(line)
+            lines = [x for x in entry["response"]["translation"].split("\n") if x.strip()]
+            sizes.setdefault(entry["chapter"], []).append((entry["segment"], len(lines)))
+    return {chapter: [n for _, n in sorted(entries)] for chapter, entries in sizes.items()}
+
+
+def load_original_segment_sizes() -> dict[int, list[int]]:
+    """Return chapter -> [paragraph count per segment, ...] for all/bn.md.
+
+    The original is segmented by line range rather than by translation record,
+    so the sizes come from `segmentations.jsonl`. A chapter with no entry there
+    was never split, and is left for the caller to treat as one segment.
+    """
+    lines = (ROOT / "all" / "bn.md").read_text(encoding="utf-8").splitlines()
+    sizes: dict[int, list[int]] = {}
+    for line in SEGMENTATIONS_FILE.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        entry = json.loads(line)
+        sizes[entry["chapter"]] = [
+            sum(
+                1
+                for i in range(b["start_line"] - 1, min(b["end_line"], len(lines)))
+                if lines[i].strip() and not lines[i].startswith("##")
+            )
+            for b in entry["boundaries"]
+        ]
+    return sizes
+
+
+def split_into_segments(
+    filename: str, chapter: int, paragraphs: list[str], sizes: list[int]
+) -> list[str]:
+    """Group a chapter's paragraphs into its segments, as HTML."""
+    if sum(sizes) != len(paragraphs):
+        raise SystemExit(
+            f"{filename}: chapter {chapter} has {len(paragraphs)} paragraphs, "
+            f"but its segments account for {sum(sizes)} ({sizes})."
+        )
+    out = []
+    start = 0
+    for size in sizes:
+        out.append(paragraphs_to_html(paragraphs[start:start + size]))
+        start += size
+    return out
 
 
 def load_chapters() -> list[Chapter]:
     chapters = [Chapter(number=i) for i in range(1, NUM_CHAPTERS + 1)]
 
+    captions = load_captions()
+    for chapter in chapters:
+        chapter.segments = [
+            Segment(number=i, captions=c)
+            for i, c in enumerate(captions.get(chapter.number, []), 1)
+        ]
+
+    original_sizes = load_original_segment_sizes()
     for key, cfg in TEXTS.items():
         bodies = split_chapters(ROOT / cfg["file"])
         if len(bodies) != NUM_CHAPTERS:
             raise ValueError(f"{cfg['file']}: expected {NUM_CHAPTERS} chapters, got {len(bodies)}")
+        sizes = original_sizes if key == "bn" else load_translation_segment_sizes(key)
         for chapter, body in zip(chapters, bodies):
-            chapter.texts[key] = paragraphs_to_html(body)
-
-    titles_en = load_titles("en")
-    titles_ja = load_titles("ja")
-    for chapter in chapters:
-        chapter.titles = list(zip(
-            titles_en.get(chapter.number, []),
-            titles_ja.get(chapter.number, []),
-        ))
+            paragraphs = split_paragraphs(body)
+            # A chapter absent from segmentations.jsonl is a single segment.
+            chapter_sizes = sizes.get(chapter.number) or [len(paragraphs)]
+            if len(chapter_sizes) != len(chapter.segments):
+                raise SystemExit(
+                    f"{cfg['file']}: chapter {chapter.number} has {len(chapter_sizes)} segments, "
+                    f"but all/captions.jsonl has {len(chapter.segments)}."
+                )
+            texts = split_into_segments(cfg["file"], chapter.number, paragraphs, chapter_sizes)
+            for segment, text in zip(chapter.segments, texts):
+                segment.texts[key] = text
 
     return chapters
 
@@ -163,12 +258,18 @@ def chapter_href(number: int) -> str:
 
 
 def build_chapter_rows(chapters: list[Chapter]) -> list[dict]:
-    """Build the (number, href, title_summary) list for the sidebar's chapter grid."""
+    """Build the (number, href, title_summary) list for the sidebar's chapter grid.
+
+    The tooltip is English throughout, whichever language the reader is on, so
+    it takes the English captions rather than the ones the page is showing.
+    """
     return [
         {
             "number": chapter.number,
             "href": chapter_href(chapter.number),
-            "title_summary": " / ".join(title_en for title_en, _ in chapter.titles),
+            "title_summary": " / ".join(
+                segment.captions["en"] for segment in chapter.segments
+            ),
         }
         for chapter in chapters
     ]
@@ -243,7 +344,10 @@ def build_chapters(
     sidebar_docs: list[dict],
 ) -> None:
     template = env.get_template("chapter.html")
-    text_tabs = [{"key": key, "label": cfg["label"], "lang": cfg["lang"]} for key, cfg in TEXTS.items()]
+    text_tabs = [
+        {"key": key, "label": cfg["label"], "lang": cfg["lang"], "caption": cfg["caption"]}
+        for key, cfg in TEXTS.items()
+    ]
     for chapter in chapters:
         prev_href = chapter_href(chapter.number - 1) if chapter.number > 1 else None
         next_href = chapter_href(chapter.number + 1) if chapter.number < NUM_CHAPTERS else None

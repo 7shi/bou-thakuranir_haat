@@ -8,9 +8,12 @@ ALIGNED := all/aligned/en-gemini-terra.jsonl all/aligned/ja-gemini-terra.jsonl a
 
 all:
 
-.PHONY: translate convert split questions titles images build clean serve deploy release
+.PHONY: translate convert split questions titles captions images build clean serve deploy release
 
+# build.py takes the per-segment paragraph counts from the aligned translations,
+# which are stored as deltas and unpacked first (as in convert below).
 build: images
+	$(MAKE) -C all/aligned unpack
 	uv run templates/build.py
 
 images:
@@ -60,3 +63,6 @@ questions:
 titles:
 	uv run scripts/generate_titles.py all/en-gemini.jsonl -m $(GEMMA)
 	uv run scripts/generate_titles.py all/ja-gemini.jsonl -m $(GEMMA) --title-lang Japanese
+
+captions:
+	uv run scripts/generate_captions.py -m $(MODEL)

@@ -160,6 +160,28 @@ already segmented, so no re-slicing of the Markdown is involved. Resumable, and
 make titles
 ```
 
+### `generate_captions.py`
+
+Writes a short caption - a scene label, not a sentence summarizing the scene -
+per segment in all four languages to `all/captions.jsonl`, from the per-segment
+summaries in `all/<lang>-gemini-summary.md`.
+
+```
+make captions
+```
+
+The four summaries of a segment were written independently, one per translation
+run, so they differ in detail and emphasis. The captions must not: they are an
+index key, and the same scene has to be named the same way in every language or
+the four embedding indexes stop agreeing. So a segment is captioned in one
+structured-output call covering all four languages - Bengali first from the
+Bengali summary, then Hindi, English and Japanese as strict translations of it.
+Resumable by `chapter:segment`; `-s 1:2` prints one segment without writing.
+
+A caption is the same kind of label as a title from `generate_titles.py` above;
+what differs is that that script titles each language separately from its own
+translation and covers only English and Japanese.
+
 ### `split-line.py`
 
 Re-splits a Markdown translation to one sentence per line with spaCy, producing

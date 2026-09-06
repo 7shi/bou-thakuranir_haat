@@ -17,14 +17,6 @@
 
                 <img src="images/{{ "%02d"|format(chapter.number) }}.jpg" alt="" class="header-image">
 
-                {% if chapter.titles %}
-                <ul class="segment-titles">
-                    {% for title_en, title_ja in chapter.titles %}
-                    <li>{{ title_en }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-
                 <div class="lang-tabs" role="tablist">
                     {% for tab in text_tabs %}
                     <button type="button" class="lang-tab" data-key="{{ tab.key }}">{{ tab.label }}</button>
@@ -33,7 +25,16 @@
 
                 {% for tab in text_tabs %}
                 <article class="text-panel" data-key="{{ tab.key }}" lang="{{ tab.lang }}">
-                    {{ chapter.texts[tab.key]|safe }}
+                    {% for segment in chapter.segments %}
+                    {% set anchor = tab.key ~ "-s" ~ segment.number %}
+                    <section class="segment" id="{{ anchor }}">
+                        <h2 class="segment-caption">
+                            <a href="#{{ anchor }}" title="Permalink to this segment">{{ segment.number }}</a>
+                            <span>{{ segment.captions[tab.caption] }}</span>
+                        </h2>
+                        {{ segment.texts[tab.key]|safe }}
+                    </section>
+                    {% endfor %}
                 </article>
                 {% endfor %}
 

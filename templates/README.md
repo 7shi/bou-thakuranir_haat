@@ -6,7 +6,7 @@ generate the static site published at
 
 file|description
 ----|----
-[chapter.html](chapter.html) | per-chapter page with a 5-language tab switcher (original, modern Bengali, Hindi, English, Japanese)
+[chapter.html](chapter.html) | per-chapter page with a 5-language tab switcher (original, modern Bengali, Hindi, English, Japanese), the text split into segments headed by their captions
 [qa.html](qa.html) | QA list page (English/Japanese, with links to referenced chapters)
 [doc.html](doc.html) | page for a converted `docs/*.md` file
 [summary.html](summary.html) | per-chapter summaries for one language on a single page
