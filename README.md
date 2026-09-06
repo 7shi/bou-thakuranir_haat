@@ -37,7 +37,6 @@ file|description
 [all/en-gemini-summary.md](all/en-gemini-summary.md) | per-segment English summaries by Gemini 2.5 Pro
 [all/en-gemini-lines.md](all/en-gemini-lines.md) | English translation with one sentence per line by Gemini 2.5 Pro
 [all/en-gemini.jsonl](all/en-gemini.jsonl) | per-segment English translation data (summary, notes, translation) by Gemini 2.5 Pro in JSONL
-[all/en-gemini.tsv](all/en-gemini.tsv) | per-segment English scene titles in TSV
 
 ### Japanese Translation
 

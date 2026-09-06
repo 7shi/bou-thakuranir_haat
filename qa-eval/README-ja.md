@@ -28,7 +28,7 @@
 
 これらの結果を出力するパイプライン（インデックス構築、各質問への回答、採点、集計）は以下の通りです（Filter と Ceiling はオプトインです）：
 
-- `build_index.py` — シーンの埋め込みインデックス作成 → `index-<lang>.safetensors`
+- `build_index.py` — シーンの埋め込みインデックス作成 (タイトル + 本文) → `index-<lang>.safetensors`
 - `answer_vector.py` — Vector k=5/10、Vector-line (`--line`)、および V-hybrid (`--hybrid`、SegmentとLineの密ベクトル集合和; [VECTOR-HYBRID.md](VECTOR-HYBRID.md) 参照) → `results-<lang>/vector[-line|-hybrid]<k>.jsonl`
 - `answer_extract.py` — Extract → `results-<lang>/extract.jsonl`
 - `answer_filter.py` — Filter2 / Filter3 (リトリーバーとしてのLLM; [FILTER.md](FILTER.md) 参照) → `results-<lang>/filter{2,3}.jsonl`
@@ -38,6 +38,8 @@
 - `report.py` — 精度 + 検索チャプターの比較 + ペアワイズの不一致分析 (ターミナルに表を出力)
 
 `answer.py` は、5つのすべての回答スクリプト（vector / extract / filter / ceiling / hybrid）でインポートされる共有ヘルパー（`LANGS`, `PART_RANGES`, `load_questions`, `load_chapters`, `answer_question`）を保持しています。
+
+いずれの検索手法も、シーンの**タイトル**を本文と一緒にインデックスします。タイトルは `all/<lang>-gemini.tsv`（`chapter`, `segment`, `title`）に由来し、`scripts/generate_titles.py` で生成されます。`qa-eval/Makefile` では `TSV := $(ROOT)/all/$(LANG)-gemini.tsv` として組み込まれています。`build_index.py` は EmbeddingGemma のドキュメント用プロンプト `title: {title} | text: {text}` で各シーンを埋め込み、`bm25.py` は `"{title} {text}"` をドキュメントとしてトークン化します。行単位のインデックス（`--line`）には行ごとのタイトルがないため `title: "none"` を使用します。TSV に存在しないシーンはエラーとなるため、TSV は JSONL のすべてのシーンを網羅している必要があります。
 
 両言語ともに、回答モデルには `google:gemma-4-31b-it`、インデックスには `embeddinggemma`、そして判定には同じプロンプトを使用しています。**別の回答モデル**を用いたランは [results/README.md](results/README.md) にまとめてあります（5モデルによる Ceiling の比較と、Hybrid k=8 と Ceiling の比較。いずれもコンテキストはバイト単位で同一のため、差は回答生成能力のみに由来します）。
 
