@@ -11,8 +11,10 @@ Related tooling lives elsewhere and is documented with its own data:
 [`proper_nouns/`](../proper_nouns/README.md) for the glossary,
 [`qa-eval/`](../qa-eval/README.md) for the retrieval evaluation, and
 [`templates/`](../templates/README.md) for the site build.
+[`WORKFLOW.md`](../WORKFLOW.md) is the map of how these stages fit together
+and why; this file documents the scripts themselves.
 
-## Translation pipeline
+## Translation workflow
 
 The main path, in order. Each stage writes a file the next one reads, and the
 expensive ones are resumable: re-running after an interruption skips the records
@@ -30,7 +32,7 @@ where the story breaks. Everything downstream addresses text as
 uv run scripts/segment_chapters.py -m google:gemini-2.5-pro -o segmentations.jsonl
 ```
 
-Run once; `segmentations.jsonl` is committed and the rest of the pipeline takes
+Run once; `segmentations.jsonl` is committed and the rest of the workflow takes
 it as a default. Re-running it renumbers the corpus and invalidates every
 translation, so treat it as frozen.
 

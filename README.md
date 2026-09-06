@@ -100,6 +100,9 @@ file|description
 ## Tools
 
 Scripts used to process and generate the files in this repository.
+[WORKFLOW.md](WORKFLOW.md) is the developer's map of how they fit together —
+the route from the Wikisource dump to the published site, and why the stages
+are shaped the way they are.
 
 directory|description
 ---------|----
