@@ -11,6 +11,15 @@ tmp/<model-name>-<lang>/<NN>.txt (NN = 1-origin question number, zero-padded;
 the model directory drops any "<provider>/" prefix from --model and carries a
 "-<lang>" suffix so different languages don't collide in the same directory).
 
+With --copilot, it runs the `copilot` CLI instead:
+`copilot --model <model> --add-dir <lang> -s -p "@<lang>/<NN>.txt ... <question>"`
+(--add-dir grants copilot access to the gold chapter files, which live
+outside its working directory; -s silences copilot's own tool-call chatter
+from the reply). --model then takes a plain model name with no provider
+prefix, so the model directory (and the model string handed to
+build_jsonl.py) is tagged with a "copilot_" prefix to keep it from colliding
+with an opencode run of a same-named model.
+
 `-f` is yargs array-type: with `-f file1.txt file2.txt "prompt"` it swallows
 the prompt as a third file and leaves the actual prompt (message) empty. The
 prompt is therefore placed first (as the positional message) and every gold
@@ -31,6 +40,12 @@ coding-agent model may reach for a shell tool to inspect the attached file
 or this directory (defeating the point of Ceiling, whose context must be
 exactly the gold chapters), which also stalls the run since ceiling.sh has
 no TTY to approve the resulting permission prompt.
+
+copilot's `@file` reference doesn't attach the file's content the way
+opencode's `-f` does — the model still has to read it via a tool call — so
+its instruction (ANSWER_ONLY_COPILOT) can't forbid tool calls the way
+opencode's does; doing so left the model unable to answer at all, replying
+that it lacked tool access to the file's content.
 
 Resume-safe: each generated block skips the question if its output file
 already exists, so re-running ceiling.sh after an interruption only answers
@@ -54,10 +69,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from answer import ROOT, LANGS, load_questions
 
-ANSWER_ONLY = (
+ANSWER_ONLY_OPENCODE = (
     "Do not make any tool call — answer using only the file(s) already "
     "attached above. Do not cite file names, paths, or line numbers. Reply "
     "with the answer only — no preamble, no reasoning, no closing remarks."
+)
+
+# Unlike opencode's `-f`, copilot's `@file` reference does not attach file
+# content directly — the model must read it itself, so tool calls can't be
+# forbidden here the way they are for opencode (that leaves the model unable
+# to answer at all, replying that it lacks tool access to the file).
+ANSWER_ONLY_COPILOT = (
+    "Read the referenced file(s) above and answer using only their content. "
+    "Do not cite file names, paths, or line numbers. Reply with the answer "
+    "only — no preamble, no reasoning, no closing remarks."
 )
 
 
@@ -66,7 +91,12 @@ def main():
     parser.add_argument("-l", "--lang", default="en", choices=sorted(LANGS),
                         help="evaluation language (selects default questions file and chapter-file directory)")
     parser.add_argument("-m", "--model", required=True,
-                        help="opencode model string, e.g. opencode/muse-spark-1.2-contributor-free")
+                        help="opencode model string, e.g. opencode/muse-spark-1.2-contributor-free "
+                             "(with --copilot, a plain model name with no provider prefix)")
+    parser.add_argument("--copilot", action="store_true",
+                        help="use the `copilot` CLI instead of `opencode run`; the model has no "
+                             "provider prefix, so output paths are tagged with a copilot_ prefix "
+                             "to keep them from colliding with opencode's")
     parser.add_argument("-i", "--input", default=None, help="questions JSONL (default: questions-<lang>.jsonl)")
     parser.add_argument("-o", "--output", default=None,
                         help="output shell script path (default: ceiling.sh, next to this script)")
@@ -79,6 +109,10 @@ def main():
     questions = load_questions(input_path)
     total = len(questions)
     model_dir = args.model.split("/", 1)[-1]
+    build_jsonl_model = args.model
+    if args.copilot:
+        model_dir = f"copilot_{model_dir}"
+        build_jsonl_model = model_dir
     out_dir = f"tmp/{model_dir}-{lang}"
 
     lines = [
@@ -90,11 +124,16 @@ def main():
         "",
     ]
     for qid, q in enumerate(questions, start=1):
-        prompt = f'{q["question"]}\n\n{ANSWER_ONLY}'
-        file_list = " ".join(f"{lang}/{ch:02d}.txt" for ch in sorted(q["chapters"]))
-        files = f"-f {file_list}"
         out_file = shlex.quote(f"{out_dir}/{qid:02d}.txt")
-        cmd = f"opencode run -m {args.model} {shlex.quote(prompt)} {files} | tee {out_file}"
+        if args.copilot:
+            prompt = f'{q["question"]}\n\n{ANSWER_ONLY_COPILOT}'
+            file_list = " ".join(f"@{lang}/{ch:02d}.txt" for ch in sorted(q["chapters"]))
+            cmd = f"copilot --model {args.model} --add-dir {shlex.quote(lang)} -s -p {shlex.quote(f'{file_list} {prompt}')} | tee {out_file}"
+        else:
+            prompt = f'{q["question"]}\n\n{ANSWER_ONLY_OPENCODE}'
+            file_list = " ".join(f"{lang}/{ch:02d}.txt" for ch in sorted(q["chapters"]))
+            files = f"-f {file_list}"
+            cmd = f"opencode run -m {args.model} {shlex.quote(prompt)} {files} | tee {out_file}"
         if qid > 1:
             lines.append("echo")
         lines.append(f"echo '{'=' * 60}'")
@@ -104,7 +143,7 @@ def main():
         lines.append("fi")
         lines.append("")
 
-    lines.append(f"uv run build_jsonl.py -l {shlex.quote(lang)} -m {shlex.quote(args.model)}")
+    lines.append(f"uv run build_jsonl.py -l {shlex.quote(lang)} -m {shlex.quote(build_jsonl_model)}")
 
     output_path.write_text("\n".join(lines), encoding="utf-8")
     output_path.chmod(0o755)
