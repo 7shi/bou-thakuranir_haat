@@ -95,6 +95,8 @@ questions and no index.
 | `google:gemma-4-26b-a4b-it` | 95 (46/3/1) | 94 (45/4/1) |
 | `ollama:gemma4:12b-it-qat` | 84 (41/2/7) | 84 (39/6/5) |
 | `ollama:gemma4:26b-a4b-it-qat` | 95 (46/3/1) | 92 (42/8/0) |
+| `ollama:qwen3.5:4b` | 81 (34/13/3) | 71 (28/15/7) |
+| `ollama:qwen3.5:9b` | 89 (40/9/1) | 78 (32/14/4) |
 | `ollama:qwen3.6` (35B-A3B) | 98 (48/2/0) | 97 (47/3/0) |
 | `ollama:qwen3.8` (27B) | 100 (50/0/0) | 99 (49/1/0) |
 | `ollama:muse-glimmer` (30B) | 99 (49/1/0) | 97 (47/3/0) |
@@ -137,12 +139,15 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   range up to `cohere/north-mini-code:free`'s 0.200, the largest gap. The
   Japanese miss list is markedly longer than the English one for most
   models — the same questions, the same gold, the same gold chapters.
-* **`ollama:gemma4:12b-it-qat` needs `NO_THINK=1` to stay on task in
-  Japanese.** Without it, English still scores 84 (40/4/6) — unchanged — but
-  Japanese drops to 70 (33/4/13): the model's thinking trace sometimes loses
-  track of the context and produces no usable answer. `NO_THINK=1` suppresses
-  the thinking step and recovers the Japanese score to the same 84 shown in
-  the table.
+* **Three models needed `NO_THINK=1` to produce a usable ceiling run.**
+  `ollama:gemma4:12b-it-qat` stays on task in English without it (84,
+  40/4/6 — unchanged) but drops to 70 (33/4/13) in Japanese, where its
+  thinking trace sometimes loses track of the context and produces no usable
+  answer; `NO_THINK=1` recovers the Japanese score to the 84 shown in the
+  table. `ollama:qwen3.5:9b` is worse: with thinking enabled its CoT falls
+  into a loop and never terminates, so both rows above are `NO_THINK=1` runs.
+  `ollama:qwen3.5:4b` was presumed even less stable and was only run with
+  `NO_THINK=1`.
 
 ### Every question any model missed
 
@@ -165,6 +170,8 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `google:gemma-4-26b-a4b-it` | 34, 37, 50 | 17 | 27, 34, 35, 37 | **29** |
 | `ollama:gemma4:12b-it-qat` | 35, 36 | 17, 31, 34, 38, 41, 43, 50 | 35, 38, 39, 41, 47, 49 | 4, 6, 22, 34, 50 |
 | `ollama:gemma4:26b-a4b-it-qat` | 31, 33, 35 | 17 | **29**, 34, 35, 37, 40, 44, 46, 50 | — |
+| `ollama:qwen3.5:4b` | 28, 30, 31, 32, 35, 36, 37, 39, 40, 41, 43, 47, 50 | 27, 34, 42 | 20, 27, 28, 30, 33, 34, 35, 37, 38, 41, 42, 43, 46, 47, 50 | 25, 26, 32, 36, 39, 45, 49 |
+| `ollama:qwen3.5:9b` | 27, 29, 31, 34, 41, 43, 46, 48, 50 | 28 | **29**, 30, 34, 35, 36, 37, 41, 42, 43, 45, 46, 47, 49, 50 | 26, 28, 32, 44 |
 | `ollama:qwen3.6` (35B-A3B) | 6, 31 | — | **29**, 36, 48 | — |
 | `ollama:qwen3.8` (27B) | — | — | **29** | — |
 | `ollama:muse-glimmer` (30B) | 6 | — | 34, 35, 43 | — |

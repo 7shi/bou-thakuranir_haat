@@ -26,6 +26,8 @@ as "_").
 | `ollama_gemma4_12b-it-qat` | ceiling | 84 (41/2/7) | 84 (39/6/5) |
 | `ollama_gemma4_26b-a4b-it-qat` | ceiling | 95 (46/3/1) | 92 (42/8/0) |
 | `ollama_muse-glimmer` | ceiling | 99 (49/1/0) | 97 (47/3/0) |
+| `ollama_qwen3.5_4b` | ceiling | 81 (34/13/3) | 71 (28/15/7) |
+| `ollama_qwen3.5_9b` | ceiling | 89 (40/9/1) | 78 (32/14/4) |
 | `ollama_qwen3.6` | ceiling | 98 (48/2/0) | 97 (47/3/0) |
 | `ollama_qwen3.8` | ceiling | 100 (50/0/0) | 99 (49/1/0) |
 | `openai_gpt-5.6-luna` | ceiling | 100 (50/0/0) | 97 (47/3/0) |
@@ -69,6 +71,8 @@ language). A question absent from every column of a row was graded
 | `ollama_gemma4_12b-it-qat` | ceiling | 35, 36 | 17, 31, 34, 38, 41, 43, 50 | 35, 38, 39, 41, 47, 49 | 4, 6, 22, 34, 50 |
 | `ollama_gemma4_26b-a4b-it-qat` | ceiling | 31, 33, 35 | 17 | 29, 34, 35, 37, 40, 44, 46, 50 | — |
 | `ollama_muse-glimmer` | ceiling | 6 | — | 34, 35, 43 | — |
+| `ollama_qwen3.5_4b` | ceiling | 28, 30, 31, 32, 35, 36, 37, 39, 40, 41, 43, 47, 50 | 27, 34, 42 | 20, 27, 28, 30, 33, 34, 35, 37, 38, 41, 42, 43, 46, 47, 50 | 25, 26, 32, 36, 39, 45, 49 |
+| `ollama_qwen3.5_9b` | ceiling | 27, 29, 31, 34, 41, 43, 46, 48, 50 | 28 | 29, 30, 34, 35, 36, 37, 41, 42, 43, 45, 46, 47, 49, 50 | 26, 28, 32, 44 |
 | `ollama_qwen3.6` | ceiling | 6, 31 | — | 29, 36, 48 | — |
 | `ollama_qwen3.8` | ceiling | — | — | 29 | — |
 | `openai_gpt-5.6-luna` | ceiling | — | — | 29, 35, 48 | — |
