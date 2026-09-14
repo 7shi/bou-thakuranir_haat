@@ -61,6 +61,9 @@ def main():
                         help="output JSONL path (default: qa-eval/results-<lang>/ceiling.jsonl)")
     parser.add_argument("-c", "--count", type=int, default=None,
                         help="stop after answering this many questions")
+    parser.add_argument("--no-think", action="store_true",
+                        help="disable the model's thinking channel (Ollama think=False) — "
+                             "for small models whose CoT can run away and never terminate")
     args = parser.parse_args()
 
     lang = args.lang
@@ -122,6 +125,7 @@ def main():
                 answer = answer_question(
                     question_text, context, args.model, lang_name,
                     preamble=CEILING_PREAMBLE, context_prefix="Context:\n",
+                    no_think=args.no_think,
                     file=ui.stream, log=ui.stream.print,
                 )
 

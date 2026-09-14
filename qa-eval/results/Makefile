@@ -21,11 +21,15 @@
 #   make judge                            # opt-in: grade every ungraded answer file
 #   make report                           # aggregate every judged run → report.md + MODELS.svg
 #
-#   MODEL — llm7shi model string of the answerer (e.g. google:gemini-4-31b-it)
-#   LANG  — en | ja
+#   MODEL     — llm7shi model string of the answerer (e.g. google:gemini-4-31b-it)
+#   LANG      — en | ja
+#   NO_THINK  — ceiling only: set to 1 to disable the model's thinking channel
+#               (Ollama think=False) — for small models whose CoT can run away
+#               and never terminate
 #
 # Example:
 #   make ceiling MODEL=google:gemini-4-31b-it LANG=ja
+#   make ceiling MODEL=ollama:gemma4:12b-it-qat LANG=ja NO_THINK=1
 
 # <(...) process substitution in the `test` target needs bash, not the
 # POSIX-sh default.
@@ -34,6 +38,10 @@ SHELL := /bin/bash
 MODEL ?=
 LANG ?=
 K := 8
+# NO_THINK=1 disables the model's thinking channel (Ollama think=False) for
+# `make ceiling` — small models can otherwise run their CoT forever and never
+# terminate.
+NO_THINK ?=
 
 # Fixed once per `make` invocation and passed to every `judge.py` call in the
 # `judge` target below via --started-at, so the sequential per-file judge.py
@@ -64,7 +72,7 @@ CEILING_ANSWER := ceiling-$(SAFE_MODEL)-$(LANG).jsonl
 
 help:
 	@echo "Usage: make hybrid8 MODEL=... LANG={en,ja}"
-	@echo "       make ceiling MODEL=... LANG={en,ja}"
+	@echo "       make ceiling MODEL=... LANG={en,ja} [NO_THINK=1]"
 	@echo "       make test MODEL=... LANG={en,ja}"
 	@echo "       make judge"
 	@echo "       make report"
@@ -91,7 +99,8 @@ hybrid8: check-args
 # Perfect-retrieval ceiling: the gold chapters fed verbatim as context. No
 # index needed — there is no retrieval step at all.
 ceiling: check-args
-	cd $(ROOT) && uv run answer_ceiling.py -l $(LANG) -m $(MODEL) -o results/$(CEILING_ANSWER)
+	cd $(ROOT) && uv run answer_ceiling.py -l $(LANG) -m $(MODEL) -o results/$(CEILING_ANSWER) \
+		$(if $(NO_THINK),--no-think,)
 
 # Quick smoke test for backend/model trouble (e.g. the ROCm prompt-ordering
 # issue in the README) — runs question 1 only, under both methods, with no

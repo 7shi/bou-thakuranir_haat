@@ -85,6 +85,7 @@ def answer_question(
     *,
     preamble: str,
     context_prefix: str = "",
+    no_think: bool = False,
     file=sys.stdout,
     log=print,
 ) -> str:
@@ -99,6 +100,10 @@ def answer_question(
 
     The model occasionally returns an empty answer; retry up to 3 times
     (4 attempts total), then keep the empty result rather than loop forever.
+
+    ``no_think=True`` disables the model's thinking channel (Ollama
+    ``think=False``, via ``include_thoughts=False``) — for small models whose
+    chain-of-thought can run away and never terminate.
     """
     prompt = (
         f"{preamble.format(lang_name=lang_name)}\n\n"
@@ -108,7 +113,9 @@ def answer_question(
     max_retries = 3
     answer = ""
     for attempt in range(max_retries + 1):
-        result = generate_with_schema([prompt], model=model, show_params=False, file=file)
+        result = generate_with_schema(
+            [prompt], model=model, include_thoughts=not no_think, show_params=False, file=file,
+        )
         answer = result.text.strip()
         if answer:
             return answer
