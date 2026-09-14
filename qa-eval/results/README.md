@@ -93,6 +93,7 @@ questions and no index.
 | `google:gemini-3.8-flash` | 98 (49/0/1) | 97 (48/1/1) |
 | `google:gemma-4-31b-it` | 99 (49/1/0) | 98 (48/2/0) |
 | `google:gemma-4-26b-a4b-it` | 95 (46/3/1) | 94 (45/4/1) |
+| `ollama:gemma4:12b-it-qat` | 84 (41/2/7) | 84 (39/6/5) |
 | `ollama:gemma4:26b-a4b-it-qat` | 95 (46/3/1) | 92 (42/8/0) |
 | `ollama:qwen3.6` (35B-A3B) | 98 (48/2/0) | 97 (47/3/0) |
 | `ollama:qwen3.8` (27B) | 100 (50/0/0) | 99 (49/1/0) |
@@ -136,6 +137,12 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   range up to `cohere/north-mini-code:free`'s 0.200, the largest gap. The
   Japanese miss list is markedly longer than the English one for most
   models — the same questions, the same gold, the same gold chapters.
+* **`ollama:gemma4:12b-it-qat` needs `NO_THINK=1` to stay on task in
+  Japanese.** Without it, English still scores 84 (40/4/6) — unchanged — but
+  Japanese drops to 70 (33/4/13): the model's thinking trace sometimes loses
+  track of the context and produces no usable answer. `NO_THINK=1` suppresses
+  the thinking step and recovers the Japanese score to the same 84 shown in
+  the table.
 
 ### Every question any model missed
 
@@ -156,6 +163,7 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `google:gemini-3.8-flash` | — | 17 | 37 | **29** |
 | `google:gemma-4-31b-it` | 48 | — | **29**, 36 | — |
 | `google:gemma-4-26b-a4b-it` | 34, 37, 50 | 17 | 27, 34, 35, 37 | **29** |
+| `ollama:gemma4:12b-it-qat` | 35, 36 | 17, 31, 34, 38, 41, 43, 50 | 35, 38, 39, 41, 47, 49 | 4, 6, 22, 34, 50 |
 | `ollama:gemma4:26b-a4b-it-qat` | 31, 33, 35 | 17 | **29**, 34, 35, 37, 40, 44, 46, 50 | — |
 | `ollama:qwen3.6` (35B-A3B) | 6, 31 | — | **29**, 36, 48 | — |
 | `ollama:qwen3.8` (27B) | — | — | **29** | — |

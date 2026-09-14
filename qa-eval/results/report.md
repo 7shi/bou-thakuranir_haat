@@ -23,6 +23,7 @@ as "_").
 | `google_gemini-3.7-flash` | ceiling | 97 (48/1/1) | 98 (49/0/1) |
 | `google_gemini-3.8-flash` | ceiling | 98 (49/0/1) | 97 (48/1/1) |
 | `google_gemma-4-26b-a4b-it` | ceiling | 95 (46/3/1) | 94 (45/4/1) |
+| `ollama_gemma4_12b-it-qat` | ceiling | 84 (41/2/7) | 84 (39/6/5) |
 | `ollama_gemma4_26b-a4b-it-qat` | ceiling | 95 (46/3/1) | 92 (42/8/0) |
 | `ollama_muse-glimmer` | ceiling | 99 (49/1/0) | 97 (47/3/0) |
 | `ollama_qwen3.6` | ceiling | 98 (48/2/0) | 97 (47/3/0) |
@@ -65,6 +66,7 @@ language). A question absent from every column of a row was graded
 | `google_gemini-3.7-flash` | ceiling | 50 | 17 | — | 29 |
 | `google_gemini-3.8-flash` | ceiling | — | 17 | 37 | 29 |
 | `google_gemma-4-26b-a4b-it` | ceiling | 34, 37, 50 | 17 | 27, 34, 35, 37 | 29 |
+| `ollama_gemma4_12b-it-qat` | ceiling | 35, 36 | 17, 31, 34, 38, 41, 43, 50 | 35, 38, 39, 41, 47, 49 | 4, 6, 22, 34, 50 |
 | `ollama_gemma4_26b-a4b-it-qat` | ceiling | 31, 33, 35 | 17 | 29, 34, 35, 37, 40, 44, 46, 50 | — |
 | `ollama_muse-glimmer` | ceiling | 6 | — | 34, 35, 43 | — |
 | `ollama_qwen3.6` | ceiling | 6, 31 | — | 29, 36, 48 | — |
