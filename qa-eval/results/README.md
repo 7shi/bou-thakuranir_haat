@@ -81,6 +81,10 @@ questions and no index.
 
 | Model | English | Japanese |
 | --- | --- | --- |
+| `copilot:claude-haiku-4.5` | 98 (48/2/0) | 98 (48/2/0) |
+| `copilot:grok-4.5` | 100 (50/0/0) | 99 (49/1/0) |
+| `copilot:kimi-k2.7-code` | 99 (49/1/0) | 99 (49/1/0) |
+| `copilot:mai-code-1.1-flash` | 97 (47/3/0) | 93 (44/5/1) |
 | `google:gemini-2.5-flash` | 94 (45/4/1) | 95 (45/5/0) |
 | `google:gemini-3-flash-preview` | 100 (50/0/0) | 97 (47/3/0) |
 | `google:gemini-3.5-flash-lite` | 86 (41/4/5) | 86 (41/4/5) |
@@ -120,9 +124,10 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
 * **The top is crowded; the floor has widened.** Most models reach 0.960 or
   better in English, and several sit at 0.990 or 1.000 — `qwen3.8`,
   `gpt-5.6-luna`, `gpt-5.6-sol`, `gemini-3-flash-preview`,
-  `mimo-v2.5-free` and `muse-spark-1.3-contributor-free` answer all 50 in
-  English, and `gemma-4-31b-it`, `muse-glimmer` and
-  `nemotron-3-ultra-550b-a55b:free` each drop a single `partial`.
+  `mimo-v2.5-free`, `muse-spark-1.3-contributor-free` and `copilot:grok-4.5`
+  answer all 50 in English, and `gemma-4-31b-it`, `muse-glimmer`,
+  `nemotron-3-ultra-550b-a55b:free` and `copilot:kimi-k2.7-code` each drop a
+  single `partial`.
   `gpt-5.6-sol` and `muse-spark-1.3-contributor-free` are the only models
   perfect in **both** languages — every other perfect English score drops at
   least one Japanese question, and
@@ -139,12 +144,15 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   `minimax-m2.7:free`, `minimax-m3:free` and `muse-spark-1.2-contributor-free`
   all post a *better* Japanese score than English.
   Among the rest, losses run from 0.010 (`gemma-4-31b-it`, qwen3.8,
-  `gemma-4-26b-a4b-it`, `qwen3.6`) to 0.200 (`cohere/north-mini-code:free`,
-  the largest gap, ahead of `poolside/laguna-s-2.1:free`'s 0.160). Three
-  models score identically in both languages: `gemini-3.5-flash-lite` at
-  0.860 (the same 41/4/5 split, on largely different questions), and
-  `gpt-5.6-sol` and `muse-spark-1.3-contributor-free` at 1.000 (50/0/0 in
-  both) — the only models perfect in both. The Japanese miss list is
+  `gemma-4-26b-a4b-it`, `qwen3.6`, `copilot:grok-4.5`) to 0.200
+  (`cohere/north-mini-code:free`, the largest gap, ahead of
+  `poolside/laguna-s-2.1:free`'s 0.160). Five models score identically in
+  both languages: `gemini-3.5-flash-lite` at 0.860 (the same 41/4/5 split, on
+  largely different questions), `copilot:claude-haiku-4.5` at 0.980 (48/2/0,
+  also on different questions) and `copilot:kimi-k2.7-code` at 0.990
+  (49/1/0, also on different questions), and `gpt-5.6-sol` and
+  `muse-spark-1.3-contributor-free` at 1.000 (50/0/0 in both) — the only
+  models perfect in both. The Japanese miss list is
   markedly longer than the English one for most models — the same
   questions, the same gold, the same gold chapters.
 
@@ -155,6 +163,10 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 
 | Model | en partial | en incorrect | ja partial | ja incorrect |
 | --- | --- | --- | --- | --- |
+| `copilot:claude-haiku-4.5` | 6, 33 | — | 28, 50 | — |
+| `copilot:grok-4.5` | — | — | 34 | — |
+| `copilot:kimi-k2.7-code` | 22 | — | 50 | — |
+| `copilot:mai-code-1.1-flash` | 6, 32, 49 | — | 3, 28, 32, 34, 50 | **29** |
 | `google:gemini-2.5-flash` | 28, 30, 36, 41 | 17 | 28, **29**, 32, 35, 36 | — |
 | `google:gemini-3-flash-preview` | — | — | 7, 33, 43 | — |
 | `google:gemini-3.5-flash-lite` | 26, 28, 36, 48 | 17, 37, 40, 42, 47 | 28, **29**, 34, 40 | 35, 36, 39, 42, 50 |
