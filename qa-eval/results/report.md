@@ -13,6 +13,7 @@ as "_").
 | Model | Method | English | Japanese |
 | --- | --- | --- | --- |
 | `copilot_claude-haiku-4.5` | ceiling | 98 (48/2/0) | 98 (48/2/0) |
+| `copilot_gpt-5.6-luna` | ceiling | 99 (49/1/0) | 98 (49/0/1) |
 | `copilot_grok-4.5` | ceiling | 100 (50/0/0) | 99 (49/1/0) |
 | `copilot_kimi-k2.7-code` | ceiling | 99 (49/1/0) | 99 (49/1/0) |
 | `copilot_mai-code-1.1-flash` | ceiling | 97 (47/3/0) | 93 (44/5/1) |
@@ -54,6 +55,7 @@ language). A question absent from every column of a row was graded
 | Model | Method | en partial | en incorrect | ja partial | ja incorrect |
 | --- | --- | --- | --- | --- | --- |
 | `copilot_claude-haiku-4.5` | ceiling | 6, 33 | — | 28, 50 | — |
+| `copilot_gpt-5.6-luna` | ceiling | 31 | — | — | 29 |
 | `copilot_grok-4.5` | ceiling | — | — | 34 | — |
 | `copilot_kimi-k2.7-code` | ceiling | 22 | — | 50 | — |
 | `copilot_mai-code-1.1-flash` | ceiling | 6, 32, 49 | — | 3, 28, 32, 34, 50 | 29 |

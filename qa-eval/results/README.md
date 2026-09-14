@@ -82,6 +82,7 @@ questions and no index.
 | Model | English | Japanese |
 | --- | --- | --- |
 | `copilot:claude-haiku-4.5` | 98 (48/2/0) | 98 (48/2/0) |
+| `copilot:gpt-5.6-luna` | 99 (49/1/0) | 98 (49/0/1) |
 | `copilot:grok-4.5` | 100 (50/0/0) | 99 (49/1/0) |
 | `copilot:kimi-k2.7-code` | 99 (49/1/0) | 99 (49/1/0) |
 | `copilot:mai-code-1.1-flash` | 97 (47/3/0) | 93 (44/5/1) |
@@ -144,6 +145,7 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | Model | en partial | en incorrect | ja partial | ja incorrect |
 | --- | --- | --- | --- | --- |
 | `copilot:claude-haiku-4.5` | 6, 33 | — | 28, 50 | — |
+| `copilot:gpt-5.6-luna` | 31 | — | — | **29** |
 | `copilot:grok-4.5` | — | — | 34 | — |
 | `copilot:kimi-k2.7-code` | 22 | — | 50 | — |
 | `copilot:mai-code-1.1-flash` | 6, 32, 49 | — | 3, 28, 32, 34, 50 | **29** |
