@@ -79,43 +79,46 @@ is not a variable at all here and the whole difference is **synthesis**, which
 is what makes this the comparison worth growing: one more model costs 100
 questions and no index.
 
+Rows are grouped by provider, and within the same model series, ordered
+roughly by performance (not a strict mechanical sort on any single column).
+
 | Model | English | Japanese |
 | --- | --- | --- |
-| `copilot:claude-haiku-4.5` | 98 (48/2/0) | 98 (48/2/0) |
-| `copilot:gpt-5.6-luna` | 99 (49/1/0) | 98 (49/0/1) |
 | `copilot:grok-4.5` | 100 (50/0/0) | 99 (49/1/0) |
+| `copilot:claude-haiku-4.5` | 98 (48/2/0) | 98 (48/2/0) |
 | `copilot:kimi-k2.7-code` | 99 (49/1/0) | 99 (49/1/0) |
+| `copilot:gpt-5.6-luna` | 99 (49/1/0) | 98 (49/0/1) |
 | `copilot:mai-code-1.1-flash` | 97 (47/3/0) | 93 (44/5/1) |
-| `google:gemini-2.5-flash` | 94 (45/4/1) | 95 (45/5/0) |
-| `google:gemini-3-flash-preview` | 100 (50/0/0) | 97 (47/3/0) |
-| `google:gemini-3.5-flash-lite` | 86 (41/4/5) | 86 (41/4/5) |
-| `google:gemini-3.7-flash` | 97 (48/1/1) | 98 (49/0/1) |
 | `google:gemini-3.8-flash` | 98 (49/0/1) | 97 (48/1/1) |
+| `google:gemini-3.7-flash` | 97 (48/1/1) | 98 (49/0/1) |
+| `google:gemini-3-flash-preview` | 100 (50/0/0) | 97 (47/3/0) |
+| `google:gemini-2.5-flash` | 94 (45/4/1) | 95 (45/5/0) |
+| `google:gemini-3.5-flash-lite` | 86 (41/4/5) | 86 (41/4/5) |
 | `google:gemma-4-31b-it` | 99 (49/1/0) | 98 (48/2/0) |
 | `google:gemma-4-26b-a4b-it` | 95 (46/3/1) | 94 (45/4/1) |
-| `ollama:gemma4:12b-it-qat` | 84 (41/2/7) | 84 (39/6/5) |
 | `ollama:gemma4:26b-a4b-it-qat` | 95 (46/3/1) | 92 (42/8/0) |
-| `ollama:qwen3.5:4b` | 81 (34/13/3) | 71 (28/15/7) |
-| `ollama:qwen3.5:9b` | 89 (40/9/1) | 78 (32/14/4) |
-| `ollama:qwen3.6` (35B-A3B) | 98 (48/2/0) | 97 (47/3/0) |
+| `ollama:gemma4:12b-it-qat` | 84 (41/2/7) | 84 (39/6/5) |
 | `ollama:qwen3.8` (27B) | 100 (50/0/0) | 99 (49/1/0) |
+| `ollama:qwen3.6` (35B-A3B) | 98 (48/2/0) | 97 (47/3/0) |
+| `ollama:qwen3.5:9b` | 89 (40/9/1) | 78 (32/14/4) |
+| `ollama:qwen3.5:4b` | 81 (34/13/3) | 71 (28/15/7) |
 | `ollama:muse-glimmer` (30B) | 99 (49/1/0) | 97 (47/3/0) |
-| `openai:gpt-5.6-luna` | 100 (50/0/0) | 97 (47/3/0) |
 | `openai:gpt-5.6-sol` | 100 (50/0/0) | 100 (50/0/0) |
 | `openai:gpt-5.6-terra` | 96 (48/0/2) | 99 (49/1/0) |
+| `openai:gpt-5.6-luna` | 100 (50/0/0) | 97 (47/3/0) |
 | `opencode:big-pickle` | 97 (48/1/1) | 97 (48/1/1) |
 | `opencode:mimo-v2.5-free` | 100 (50/0/0) | 96 (47/2/1) |
-| `opencode:muse-spark-1.2-contributor-free` | 98 (49/0/1) | 100 (50/0/0) |
 | `opencode:muse-spark-1.3-contributor-free` | 100 (50/0/0) | 100 (50/0/0) |
+| `opencode:muse-spark-1.2-contributor-free` | 98 (49/0/1) | 100 (50/0/0) |
 | `opencode:union-alpha` | 100 (50/0/0) | 100 (50/0/0) |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (49/0/1) | 100 (50/0/0) |
 | `openrouter:poolside/laguna-s-2.1:free` | 89 (40/9/1) | 73 (31/11/8) |
 | `openrouter:cohere/north-mini-code:free` | 93 (44/5/1) | 73 (29/15/6) |
 | `openrouter:inclusionai/ling-3.0-flash-fin:free` | 97 (47/3/0) | 95 (45/5/0) |
-| `openrouter:minimax/minimax-m2.7:free` | 96 (46/4/0) | 97 (47/3/0) |
 | `openrouter:minimax/minimax-m3:free` | 98 (49/0/1) | 99 (49/1/0) |
-| `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 93 (43/7/0) | 90 (41/8/1) |
+| `openrouter:minimax/minimax-m2.7:free` | 96 (46/4/0) | 97 (47/3/0) |
 | `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 99 (49/1/0) | 97 (47/3/0) |
+| `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 93 (43/7/0) | 90 (41/8/1) |
 | `openrouter:nvidia/nemotron-3.5-lightning:free` | 93 (43/7/0) | 86 (38/10/2) |
 
 (Weighted score `(correct + 0.5×partial) / n`, as an integer percentage rounded
