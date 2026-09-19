@@ -103,6 +103,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `ollama:qwen3.5:9b` | 89 (40/9/1) | 78 (32/14/4) |
 | `ollama:qwen3.5:4b` | 81 (34/13/3) | 71 (28/15/7) |
 | `ollama:muse-glimmer` (30B) | 99 (49/1/0) | 97 (47/3/0) |
+| `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 99 (49/1/0) | 96 (46/4/0) |
 | `openai:gpt-5.6-sol` | 100 (50/0/0) | 100 (50/0/0) |
 | `openai:gpt-5.6-terra` | 96 (48/0/2) | 99 (49/1/0) |
 | `openai:gpt-5.6-luna` | 100 (50/0/0) | 97 (47/3/0) |
@@ -129,6 +130,12 @@ The `opencode:*` rows are produced by a separate pipeline that drives the
 `opencode` coding-agent CLI instead of the llm7shi-based `answer_ceiling.py`
 used for every other row — see [opencode/README.md](../opencode/README.md).)
 
+* **`llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` is a ternary ({-1, 0, +1})
+  quantization of Qwen 3.8 27B, not an independent model.** Its
+  publisher claims 98.2% performance retention against the full-precision
+  base at a 9x smaller footprint (5.9 GB). Here it scores 99/96 against
+  qwen3.8's 100/99 — a 1-point English gap and 3-point Japanese gap, roughly
+  consistent with that retention claim.
 * **The top is crowded; the floor has widened.** Most models reach 0.960 or
   better in English, and several answer all 50 or drop only one. `gpt-5.6-sol`,
   `muse-spark-1.3-contributor-free`, and `union-alpha` are the only models
@@ -179,6 +186,7 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `ollama:qwen3.6` (35B-A3B) | 6, 31 | — | **29**, 36, 48 | — |
 | `ollama:qwen3.8` (27B) | — | — | **29** | — |
 | `ollama:muse-glimmer` (30B) | 6 | — | 34, 35, 43 | — |
+| `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 31 | — | 29, 34, 37, 49 | — |
 | `openai:gpt-5.6-luna` | — | — | **29**, 35, 48 | — |
 | `openai:gpt-5.6-sol` | — | — | — | — |
 | `openai:gpt-5.6-terra` | — | 22, 49 | 43 | — |
