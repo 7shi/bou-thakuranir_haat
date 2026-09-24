@@ -24,8 +24,16 @@ For each question in questions-<lang>.jsonl:
   - expanded — the gold chapter numbers, as ["5", "10", ...] strings (always
     exactly the gold set, so report.py scores chapter recall/precision as 1.0)
   - answer — the model's answer
+  - usage — token usage summed over this question's attempts (Usage.to_dict();
+    omitted when the provider reported none)
 
 Resume-safe: re-running skips question IDs already present in the output file.
+
+Token usage: each question's usage is printed after its answer, and the run
+total is printed at the end. For metered models (openai: / gpt- prefixes, or
+--save-usage) the run total is also appended to llm7shi's shared usage.jsonl,
+followed by today's total for the model. When interrupted, the total is still
+appended silently, without printing either total.
 """
 
 import argparse
@@ -33,6 +41,7 @@ import json
 from pathlib import Path
 
 from llm7shi.statusline import StatusLine
+from llm7shi.usage import append_usage, find_usage_file, print_today_totals
 
 from answer import (
     ROOT, LANGS,
@@ -49,6 +58,9 @@ CEILING_PREAMBLE = (
     "Reply with the answer only — no preamble, no reasoning, no closing remarks."
 )
 
+# Set to a path to record usage; None means "don't record"
+USAGE_PATH = None
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -64,7 +76,13 @@ def main():
     parser.add_argument("--no-think", action="store_true",
                         help="disable the model's thinking channel (Ollama think=False) — "
                              "for small models whose CoT can run away and never terminate")
+    parser.add_argument("--save-usage", action="store_true",
+                        help="record token usage to usage.jsonl regardless of the model")
     args = parser.parse_args()
+
+    global USAGE_PATH
+    if args.model.startswith(("openai:", "gpt-")) or args.save_usage:
+        USAGE_PATH = find_usage_file()
 
     lang = args.lang
     lang_name = LANGS[lang]
@@ -94,50 +112,71 @@ def main():
     label = f"{args.model} {lang}"
     ui = StatusLine()
     answered = 0
-    with open(output_path, "a", encoding="utf-8") as out_f, \
-         ui.progress(total, start=len(done_qids), label=label) as prog:
-        for qid, q in enumerate(questions, start=1):
-            if qid in done_qids:
-                continue
-            if args.count is not None and answered >= args.count:
-                ui.stream.print(f"Stopping after {answered} question(s) (--count {args.count})")
-                break
+    # Every call's Usage in this run (including empty-answer retries). A run
+    # can take long and be interrupted, so the total is recorded in `finally`.
+    usages = []
+    try:
+        with open(output_path, "a", encoding="utf-8") as out_f, \
+             ui.progress(total, start=len(done_qids), label=label) as prog:
+            for qid, q in enumerate(questions, start=1):
+                if qid in done_qids:
+                    continue
+                if args.count is not None and answered >= args.count:
+                    ui.stream.print(f"Stopping after {answered} question(s) (--count {args.count})")
+                    break
 
-            question_text = q["question"]
-            # The gold `chapters` are the context by definition — no retrieval,
-            # no filtering, no verdict map. Any chapter missing from the scenes
-            # file is skipped with a notice rather than crashing.
-            selected_chapters = sorted(ch for ch in q["chapters"] if ch in chapters)
-            missing = sorted(ch for ch in q["chapters"] if ch not in chapters)
-            if missing:
-                ui.stream.print(f"  note: gold chapters {missing} not found in scenes — excluded")
+                question_text = q["question"]
+                # The gold `chapters` are the context by definition — no retrieval,
+                # no filtering, no verdict map. Any chapter missing from the scenes
+                # file is skipped with a notice rather than crashing.
+                selected_chapters = sorted(ch for ch in q["chapters"] if ch in chapters)
+                missing = sorted(ch for ch in q["chapters"] if ch not in chapters)
+                if missing:
+                    ui.stream.print(f"  note: gold chapters {missing} not found in scenes — excluded")
 
-            print_answer_banner(qid, total, selected_chapters, question_text, log=ui.stream.print)
+                print_answer_banner(qid, total, selected_chapters, question_text, log=ui.stream.print)
 
-            if not selected_chapters:
-                answer = "No relevant content found."
-                ui.stream.print(answer)
-            else:
-                context = "\n\n".join(
-                    f"[Chapter {ch}]\n" + "\n\n".join(s["text"] for s in chapters[ch])
-                    for ch in selected_chapters
-                )
-                answer = answer_question(
-                    question_text, context, args.model, lang_name,
-                    preamble=CEILING_PREAMBLE, context_prefix="Context:\n",
-                    no_think=args.no_think,
-                    file=ui.stream, log=ui.stream.print,
-                )
+                q_usages = []
+                if not selected_chapters:
+                    answer = "No relevant content found."
+                    ui.stream.print(answer)
+                else:
+                    context = "\n\n".join(
+                        f"[Chapter {ch}]\n" + "\n\n".join(s["text"] for s in chapters[ch])
+                        for ch in selected_chapters
+                    )
+                    answer = answer_question(
+                        question_text, context, args.model, lang_name,
+                        preamble=CEILING_PREAMBLE, context_prefix="Context:\n",
+                        no_think=args.no_think, usages=q_usages,
+                        file=ui.stream, log=ui.stream.print,
+                    )
+                usages.extend(q_usages)
 
-            record = {
-                "question_id": qid,
-                "expanded": [str(ch) for ch in selected_chapters],
-                "answer": answer,
-            }
-            out_f.write(json.dumps(record, ensure_ascii=False) + "\n")
-            out_f.flush()
-            answered += 1
-            prog.update(len(done_qids) + answered)
+                record = {
+                    "question_id": qid,
+                    "expanded": [str(ch) for ch in selected_chapters],
+                    "answer": answer,
+                }
+                if q_usages:
+                    q_usage = sum(q_usages)
+                    ui.stream.print(repr(q_usage))
+                    record["usage"] = q_usage.to_dict()
+                out_f.write(json.dumps(record, ensure_ascii=False) + "\n")
+                out_f.flush()
+                answered += 1
+                prog.update(len(done_qids) + answered)
+    finally:
+        # Record silently so an interrupted run still logs what it consumed;
+        # the report below is printed only on normal completion.
+        if usages and USAGE_PATH is not None:
+            append_usage(sum(usages), args.model, USAGE_PATH)
+
+    if usages:
+        print(f"\n--- Total Usage ---\n{sum(usages)}")
+        if USAGE_PATH is not None:
+            print("")
+            print_today_totals(USAGE_PATH, models=[args.model])
 
     print(f"Done → {output_path}")
 

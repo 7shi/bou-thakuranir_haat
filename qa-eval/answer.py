@@ -86,6 +86,7 @@ def answer_question(
     preamble: str,
     context_prefix: str = "",
     no_think: bool = False,
+    usages: list | None = None,
     file=sys.stdout,
     log=print,
 ) -> str:
@@ -104,6 +105,10 @@ def answer_question(
     ``no_think=True`` disables the model's thinking channel (Ollama
     ``think=False``, via ``include_thoughts=False``) — for small models whose
     chain-of-thought can run away and never terminate.
+
+    If ``usages`` is given, every attempt's ``Usage`` (including empty-answer
+    retries, which still consumed tokens) is appended to it; attempts whose
+    provider reported no usage are skipped.
     """
     prompt = (
         f"{preamble.format(lang_name=lang_name)}\n\n"
@@ -116,6 +121,8 @@ def answer_question(
         result = generate_with_schema(
             [prompt], model=model, include_thoughts=not no_think, show_params=False, file=file,
         )
+        if usages is not None and result.usage is not None:
+            usages.append(result.usage)
         answer = result.text.strip()
         if answer:
             return answer
