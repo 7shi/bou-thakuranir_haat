@@ -104,6 +104,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `ollama:qwen3.5:4b` | 81 (34/13/3) | 71 (28/15/7) |
 | `ollama:muse-glimmer` (30B) | 99 (49/1/0) | 97 (47/3/0) |
 | `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 99 (49/1/0) | 96 (46/4/0) |
+| `openai:gpt-6-luna` | 100 (50/0/0) | 100 (50/0/0) |
 | `openai:gpt-5.6-sol` | 100 (50/0/0) | 100 (50/0/0) |
 | `openai:gpt-5.6-terra` | 96 (48/0/2) | 99 (49/1/0) |
 | `openai:gpt-5.6-luna` | 100 (50/0/0) | 97 (47/3/0) |
@@ -137,8 +138,9 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   qwen3.8's 100/99 — a 1-point English gap and 3-point Japanese gap, roughly
   consistent with that retention claim.
 * **The top is crowded; the floor has widened.** Most models reach 0.960 or
-  better in English, and several answer all 50 or drop only one. `gpt-5.6-sol`,
-  `muse-spark-1.3-contributor-free`, and `union-alpha` are the only models
+  better in English, and several answer all 50 or drop only one. `gpt-6-luna`,
+  `gpt-5.6-sol`, `muse-spark-1.3-contributor-free`, and `union-alpha` are the
+  only models
   perfect in **both** languages — every other perfect score in one language drops at
   least one question in the other. Ceiling is still a ceiling for that group:
   it measures whether a model can read two or three chapters it has already
@@ -190,6 +192,7 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `openai:gpt-5.6-luna` | — | — | **29**, 35, 48 | — |
 | `openai:gpt-5.6-sol` | — | — | — | — |
 | `openai:gpt-5.6-terra` | — | 22, 49 | 43 | — |
+| `openai:gpt-6-luna` | — | — | — | — |
 | `opencode:big-pickle` | 37 | 22 | 29 | 42 |
 | `opencode:mimo-v2.5-free` | — | — | 20, 37 | 38 |
 | `opencode:muse-spark-1.2-contributor-free` | — | 22 | — | — |
@@ -251,10 +254,8 @@ a k=8 retrieved context instead of the gold one.
   0.030 (0.980 → 0.950) from a slightly different ceiling distribution
   (48/2/0 vs qwen3.8's 49/1/0), so the two end level at 0.950 by different
   routes — Gemma with three partials, qwen3.8 with two outright errors.
-- **`stealth/ox-alpha` pays least in Japanese, and starts from the top.** It
-  drops only 0.020 (1.000 → 0.980) against Gemma's 0.030 and qwen3.8's 0.040,
-  and its ceiling score was the only perfect Japanese run in the wider
-  comparison (see [Ceiling](#ceiling-comparing-answerer-models) above).
+- **`stealth/ox-alpha` pays least in Japanese.** It drops only 0.020
+  (1.000 → 0.980) against Gemma's 0.030 and qwen3.8's 0.040.
 
 ### Hybrid8: every question any model missed
 
