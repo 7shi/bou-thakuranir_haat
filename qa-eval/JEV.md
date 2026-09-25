@@ -22,6 +22,32 @@ why a single Choice question: [jev/README.md](jev/README.md).
   P(correct) + 0.5·P(partial), the same score taken over the probabilities
   instead of the verdicts.
 
+## Cost
+
+One `judge-jev.py` call per language (15 files × 50 questions = 750
+requests each); token counts from llm7shi's `usage.jsonl`:
+
+| Language | Requests | Input | Output | Input / request | Output / request |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| English | 750 | 516,082 | 29,250 | 688 | 39 |
+| Japanese | 750 | 676,351 | 29,250 | 902 | 39 |
+| Total | 1,500 | 1,192,433 | 58,500 | 795 | 39 |
+
+Billed $0.0501 in total, about $0.033 per 1,000 requests, in line with the
+per-model runs in [results/JEV.md](results/JEV.md).
+
+Wall time, estimated from the creation time of `results-<lang>/jev/` (made just
+before the first request) to the last write in it (the final row of
+`vector5.tsv`, matching the `usage.jsonl` timestamp):
+
+| Language | Start | End | Elapsed | Per request |
+| --- | --- | --- | ---: | ---: |
+| English | 14:20:25 | 14:23:11 | 2m 46s | 0.22 s |
+| Japanese | 14:25:16 | 14:28:07 | 2m 51s | 0.23 s |
+
+About 5m 37s for both languages, excluding the gap between the two runs and
+the few seconds of start-up before the directory is created.
+
 ## Results
 
 | Method | en qwen | en Jev | en Δ | en E | ja qwen | ja Jev | ja Δ | ja E |

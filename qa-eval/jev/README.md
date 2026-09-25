@@ -135,8 +135,20 @@ Per request, with the Choice and the Noul together:
 | ceiling | 300 | 236,187 | 787 | 56 |
 
 Input is dominated by the candidate answer (graphrag-local averages 1,037);
-output is fixed at 56 regardless of content. The cost of the Choice alone has
-not been measured.
+output is fixed at 56 regardless of content. The Choice alone takes 39 output
+tokens ([../JEV.md](../JEV.md#cost)), so the Noul accounts for 17.
+
+The experiment ran as three `judge-jev.py --debug` calls, each logged once in
+llm7shi's `usage.jsonl`:
+
+| Run | Requests | Input | Output |
+| --- | ---: | ---: | ---: |
+| retrieval, first 3 questions of graphrag-local (`-n 3` trial) | 3 | 2,479 | 168 |
+| retrieval, the remaining questions of the four files | 197 | 166,946 | 11,032 |
+| ceiling, six models | 300 | 236,187 | 16,800 |
+| Total | 500 | 405,612 | 28,000 |
+
+Billed $0.017 in total, about $0.034 per 1,000 requests.
 
 ## Decision
 
