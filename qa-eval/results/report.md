@@ -37,6 +37,7 @@ as "_").
 | `openai_gpt-6-luna` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
 | `opencode_big-pickle` | ceiling | 97 (48/1/1) | 97 (48/1/1) |
 | `opencode_mimo-v2.5-free` | ceiling | 100 (50/0/0) | 96 (47/2/1) |
+| `opencode_mimo-v2.6-flash-free` | ceiling | 100 (50/0/0) | 95 (47/1/2) |
 | `opencode_muse-spark-1.2-contributor-free` | ceiling | 98 (49/0/1) | 100 (50/0/0) |
 | `opencode_muse-spark-1.3-contributor-free` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
 | `opencode_union-alpha` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
@@ -49,6 +50,7 @@ as "_").
 | `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 93 (43/7/0) | 86 (38/10/2) |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 89 (40/9/1) | 73 (31/11/8) |
 | `openrouter_stealth_ox-alpha` | ceiling | 98 (49/0/1) | 100 (50/0/0) |
+| `openrouter_stealth_space-bunny-alpha` | ceiling | 97 (47/3/0) | 92 (45/2/3) |
 | `ollama_qwen3.8` | hybrid8 | 99 (49/1/0) | 95 (47/1/2) |
 | `openrouter_stealth_ox-alpha` | hybrid8 | 97 (47/3/0) | 98 (49/0/1) |
 
@@ -85,6 +87,7 @@ language). A question absent from every column of a row was graded
 | `openai_gpt-6-luna` | ceiling | — | — | — | — |
 | `opencode_big-pickle` | ceiling | 37 | 22 | 29 | 42 |
 | `opencode_mimo-v2.5-free` | ceiling | — | — | 20, 37 | 38 |
+| `opencode_mimo-v2.6-flash-free` | ceiling | — | — | 46 | 17, 29 |
 | `opencode_muse-spark-1.2-contributor-free` | ceiling | — | 22 | — | — |
 | `opencode_muse-spark-1.3-contributor-free` | ceiling | — | — | — | — |
 | `opencode_union-alpha` | ceiling | — | — | — | — |
@@ -97,5 +100,6 @@ language). A question absent from every column of a row was graded
 | `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 6, 28, 30, 31, 34, 36, 37 | — | 6, 27, 28, 33, 35, 36, 37, 40, 43, 50 | 29, 45 |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 26, 28, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, 29, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
 | `openrouter_stealth_ox-alpha` | ceiling | — | 22 | — | — |
+| `openrouter_stealth_space-bunny-alpha` | ceiling | 6, 31, 45 | — | 44, 46 | 28, 33, 37 |
 | `ollama_qwen3.8` | hybrid8 | 31 | — | 27 | 29, 42 |
 | `openrouter_stealth_ox-alpha` | hybrid8 | 31, 32, 50 | — | — | 27 |

@@ -110,10 +110,12 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `openai:gpt-5.6-luna` | 100 (50/0/0) | 97 (47/3/0) |
 | `opencode:big-pickle` | 97 (48/1/1) | 97 (48/1/1) |
 | `opencode:mimo-v2.5-free` | 100 (50/0/0) | 96 (47/2/1) |
+| `opencode:mimo-v2.6-flash-free` | 100 (50/0/0) | 95 (47/1/2) |
 | `opencode:muse-spark-1.3-contributor-free` | 100 (50/0/0) | 100 (50/0/0) |
 | `opencode:muse-spark-1.2-contributor-free` | 98 (49/0/1) | 100 (50/0/0) |
 | `opencode:union-alpha` | 100 (50/0/0) | 100 (50/0/0) |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (49/0/1) | 100 (50/0/0) |
+| `openrouter:stealth/space-bunny-alpha` | 97 (47/3/0) | 92 (45/2/3) |
 | `openrouter:poolside/laguna-s-2.1:free` | 89 (40/9/1) | 73 (31/11/8) |
 | `openrouter:cohere/north-mini-code:free` | 93 (44/5/1) | 73 (29/15/6) |
 | `openrouter:inclusionai/ling-3.0-flash-fin:free` | 97 (47/3/0) | 95 (45/5/0) |
@@ -195,10 +197,12 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `openai:gpt-6-luna` | — | — | — | — |
 | `opencode:big-pickle` | 37 | 22 | 29 | 42 |
 | `opencode:mimo-v2.5-free` | — | — | 20, 37 | 38 |
+| `opencode:mimo-v2.6-flash-free` | — | — | 46 | 17, **29** |
 | `opencode:muse-spark-1.2-contributor-free` | — | 22 | — | — |
 | `opencode:muse-spark-1.3-contributor-free` | — | — | — | — |
 | `opencode:union-alpha` | — | — | — | — |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | — | 22 | — | — |
+| `openrouter:stealth/space-bunny-alpha` | 6, 31, 45 | — | 44, 46 | 28, 33, 37 |
 | `openrouter:poolside/laguna-s-2.1:free` | 26, 28, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, **29**, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
 | `openrouter:cohere/north-mini-code:free` | 33, 36, 46, 49, 50 | 17 | 6, 26, 31, 32, 33, 34, 35, 37, 38, 39, 42, 47, 48, 49, 50 | 12, 16, 28, **29**, 36, 46 |
 | `openrouter:inclusionai/ling-3.0-flash-fin:free` | 33, 45, 49 | — | 33, 35, 37, 38, 50 | — |
