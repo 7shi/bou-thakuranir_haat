@@ -5,7 +5,7 @@ Pure mechanical aggregation of existing files — no LLM calls. Independent of
 the parent `report.py`, which scans only `results-<lang>/` and deliberately
 ignores this directory.
 
-Discovery is simply every `judge-*.jsonl` present. The judge stem is split as
+Discovery is simply every `judge/*.jsonl` present. The judge stem is split as
 `<METHOD>-<MODEL>-<LANG>` (METHOD e.g. `hybrid8` or `ceiling`, LANG = en|ja,
 MODEL is the filename-sanitized model string with ":" and "/" written as "_"),
 so a new run appears here as soon as it is graded. The matching answer file
@@ -43,6 +43,7 @@ accuracy = _qa_eval_report.accuracy
 load_gold = _qa_eval_report.load_gold
 load_jsonl = _qa_eval_report.load_jsonl
 retrieval = _qa_eval_report.retrieval
+JUDGE_DIR = _qa_eval_report.JUDGE_DIR
 
 # <METHOD>-<MODEL>-<LANG>: MODEL is the only field that may contain "-" (e.g.
 # "google_gemma-4-31b-it"), so METHOD is everything up to the first "-" and LANG
@@ -53,13 +54,13 @@ LANG_LABELS = {"en": "English", "ja": "Japanese"}
 
 
 def discover_runs(results: Path) -> list[dict]:
-    """One record per judge-*.jsonl, sorted by (method, model, lang)."""
+    """One record per judge/*.jsonl, sorted by (method, model, lang)."""
     found = []
-    for judge in sorted(results.glob("judge-*.jsonl")):
-        stem = judge.stem[len("judge-"):]
+    for judge in sorted((results / JUDGE_DIR).glob("*.jsonl")):
+        stem = judge.stem
         m = RUN_RE.fullmatch(stem)
         if not m:
-            print(f"skipping {judge.name}: not <METHOD>-<MODEL>-<LANG>.jsonl")
+            print(f"skipping {JUDGE_DIR}/{judge.name}: not <METHOD>-<MODEL>-<LANG>.jsonl")
             continue
         answer = results / f"{stem}.jsonl"
         found.append({"model": m["model"], "lang": m["lang"],
@@ -182,7 +183,7 @@ def main():
 
     rows = collect_rows(HERE)
     if not rows:
-        print(f"No judge-*.jsonl found in {HERE}")
+        print(f"No {JUDGE_DIR}/*.jsonl found in {HERE}")
         return
 
     print_table(rows)

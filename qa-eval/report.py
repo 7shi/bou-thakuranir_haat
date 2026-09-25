@@ -4,7 +4,7 @@
 Pure mechanical aggregation of existing files — no LLM calls. Prints one
 comparison table to the terminal (methods as rows). Two independent axes:
 
-1. Answer accuracy (from results-<lang>/judge-<method>.jsonl): raw correct / partial /
+1. Answer accuracy (from results-<lang>/judge/<method>.jsonl): raw correct / partial /
    incorrect counts plus a weighted score = (correct + 0.5*partial) / total.
    `partial` stays visible as its own column so the half-credit weighting never
    hides the raw distribution. See the convergent-validity caveat in README.md:
@@ -24,7 +24,7 @@ performance can be compared side by side.
 
 **Method discovery** is automatic from the results directory, so a newly judged
 depth or method appears with no code change. Each `vector<k>.jsonl` with a
-matching `judge-vector<k>.jsonl` becomes a `Vector k=<k>` row, each
+matching `judge/vector<k>.jsonl` becomes a `Vector k=<k>` row, each
 `vector-line<k>.jsonl` a `Vector-line k=<k>` row, each `vector-hybrid<k>.jsonl`
 a `V-hybrid k=<k>` row (segment ∪ line dense Union), each `hybrid<k>.jsonl` a
 `Hybrid k=<k>` row (dense ∪ BM25 union); then Extract, Filter2, Filter3, and
@@ -53,6 +53,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 QA_EVAL = Path(__file__).resolve().parent
+# Verdicts live in a subdirectory of the results dir, one file per answer file
+# with the same name (judge.py writes them there).
+JUDGE_DIR = "judge"
 
 # Verdict ordering for display (best first) and ranking (higher = better). The
 # agreement matrix is indexed [rank_a][rank_b]; "strictly better" is rank_a >
@@ -238,7 +241,7 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
 
     Vector variants are discovered from results-<lang>/vector<k>.jsonl answer
     files (e.g. vector5.jsonl → "Vector k=5", vector10.jsonl → "Vector k=10").
-    A variant is included only when its judge-vector<k>.jsonl also exists, so a
+    A variant is included only when its judge/vector<k>.jsonl also exists, so a
     not-yet-judged vector15.jsonl simply doesn't appear. Hybrid variants
     (dense ∪ BM25 union, the Phase 2 QA of the HYBRID.md Union approach) are
     discovered the same way from hybrid<k>.jsonl → "Hybrid k=<k>". Between the
@@ -271,7 +274,7 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
         stem = ans.stem
         k = int(re.fullmatch(r"vector(\d+)", stem).group(1))
         label = f"Vector k={k}"  # vector5 → "Vector k=5", vector10 → "Vector k=10"
-        judge = f"judge-{stem}.jsonl"
+        judge = f"{JUDGE_DIR}/{stem}.jsonl"
         if (results / judge).exists():
             found.append((label, ans.name, judge))
 
@@ -284,7 +287,7 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
         stem = ans.stem
         k = int(re.fullmatch(r"vector-line(\d+)", stem).group(1))
         label = f"Vector-line k={k}"  # vector-line5 → "Vector-line k=5"
-        judge = f"judge-{stem}.jsonl"
+        judge = f"{JUDGE_DIR}/{stem}.jsonl"
         if (results / judge).exists():
             found.append((label, ans.name, judge))
 
@@ -300,7 +303,7 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
         stem = ans.stem
         k = int(re.fullmatch(r"vector-hybrid(\d+)", stem).group(1))
         label = f"V-hybrid k={k}"  # vector-hybrid5 → "V-hybrid k=5"
-        judge = f"judge-{stem}.jsonl"
+        judge = f"{JUDGE_DIR}/{stem}.jsonl"
         if (results / judge).exists():
             found.append((label, ans.name, judge))
 
@@ -313,17 +316,17 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
         stem = ans.stem
         k = int(re.fullmatch(r"hybrid(\d+)", stem).group(1))
         label = f"Hybrid k={k}"  # hybrid5 → "Hybrid k=5", hybrid10 → "Hybrid k=10"
-        judge = f"judge-{stem}.jsonl"
+        judge = f"{JUDGE_DIR}/{stem}.jsonl"
         if (results / judge).exists():
             found.append((label, ans.name, judge))
 
-    if (results / "extract.jsonl").exists() and (results / "judge-extract.jsonl").exists():
-        found.append(("Extract", "extract.jsonl", "judge-extract.jsonl"))
+    if (results / "extract.jsonl").exists() and (results / JUDGE_DIR / "extract.jsonl").exists():
+        found.append(("Extract", "extract.jsonl", f"{JUDGE_DIR}/extract.jsonl"))
     # Filter2 (yes/no) first, then Filter3 (yes/maybe/no, default). Each is
     # included only when both its answer file and its judge file exist.
     for stem, label in [("filter2", "Filter2"), ("filter3", "Filter3")]:
         ans = f"{stem}.jsonl"
-        judge = f"judge-{stem}.jsonl"
+        judge = f"{JUDGE_DIR}/{stem}.jsonl"
         if (results / ans).exists() and (results / judge).exists():
             found.append((label, ans, judge))
     # Ceiling: the gold chapters fed verbatim as context (no retrieval). A
@@ -331,15 +334,15 @@ def discover_methods(results: Path) -> list[tuple[str, str, str]]:
     # synthesis by definition — it isolates reading comprehension, not
     # retrieval, and sits below the retrieval strategies as the upper bound
     # they chase.
-    if (results / "ceiling.jsonl").exists() and (results / "judge-ceiling.jsonl").exists():
-        found.append(("Ceiling", "ceiling.jsonl", "judge-ceiling.jsonl"))
+    if (results / "ceiling.jsonl").exists() and (results / JUDGE_DIR / "ceiling.jsonl").exists():
+        found.append(("Ceiling", "ceiling.jsonl", f"{JUDGE_DIR}/ceiling.jsonl"))
     # GraphRAG (Microsoft GraphRAG, external knowledge-graph retriever). Two
     # search modes: local (entity-anchored) and global (community summaries).
     # Appended after Ceiling for cross-system comparison. Works for both
     # languages (graphrag-en/ and graphrag-ja/ sub-projects).
     for mode in ("local", "global"):
         ans = f"graphrag-{mode}.jsonl"
-        judge = f"judge-graphrag-{mode}.jsonl"
+        judge = f"{JUDGE_DIR}/graphrag-{mode}.jsonl"
         if (results / ans).exists() and (results / judge).exists():
             found.append((f"GraphRAG {mode}", ans, judge))
     return found

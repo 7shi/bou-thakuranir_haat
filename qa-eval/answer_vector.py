@@ -13,7 +13,7 @@ one record per question — `question_id`, `hits` (top-k scenes as
 `"chapter:segment"` strings), and `answer`. Resume-safe: skips question IDs
 already present in the output file. The k-aware filename lets a deeper run
 (e.g. `-k 10`) coexist with the k=5 baseline; judge.py derives its stem from the
-input, so `judge-vector10.jsonl` follows automatically.
+input, so `judge/vector10.jsonl` follows automatically.
 
 `--line` switches to **line-level** retrieval: it loads
 `index-line-<lang>.safetensors` (one vector per line, built by `build_index.py

@@ -34,7 +34,7 @@
 - `answer_filter.py` — Filter2 / Filter3 (リトリーバーとしてのLLM; [FILTER.md](FILTER.md) 参照) → `results-<lang>/filter{2,3}.jsonl`
 - `answer_hybrid.py` — Hybrid k=5/10 (Dense ∪ BM25; [HYBRID.md](HYBRID.md) 参照) → `results-<lang>/hybrid<k>.jsonl`
 - `answer_ceiling.py` — Ceiling、正解チャプターをコンテキストとして使用 → `results-<lang>/ceiling.jsonl`
-- `judge.py` — ゴールドスタンダードに対するLLMでの回答採点 → `results-<lang>/judge-<stem>.jsonl`
+- `judge.py` — ゴールドスタンダードに対するLLMでの回答採点 → `results-<lang>/judge/<stem>.jsonl`
 - `report.py` — 精度 + 検索チャプターの比較 + ペアワイズの不一致分析 (ターミナルに表を出力)
 
 `answer.py` は、5つのすべての回答スクリプト（vector / extract / filter / ceiling / hybrid）でインポートされる共有ヘルパー（`LANGS`, `PART_RANGES`, `load_questions`, `load_chapters`, `answer_question`）を保持しています。

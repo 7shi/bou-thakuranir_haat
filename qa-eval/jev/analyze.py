@@ -4,8 +4,8 @@
 Reads every jev-*.jsonl written by `judge-jev.py --debug` (the raw response,
 holding the Choice `verdict` and the Noul `correct`) and pairs it with the
 judge.py (qwen) verdicts in the matching qa-eval result directory:
-  results-en/jev-<stem>.jsonl ↔ ../results-en/judge-<stem>.jsonl
-  results/jev-<stem>.jsonl    ↔ ../results/judge-<stem>.jsonl
+  results-en/jev-<stem>.jsonl ↔ ../results-en/judge/<stem>.jsonl
+  results/jev-<stem>.jsonl    ↔ ../results/judge/<stem>.jsonl
 
 A Noul verdict is derived with two thresholds on the yes probability `p`:
 correct if p >= hi, partial if lo <= p < hi, incorrect otherwise.
@@ -30,7 +30,7 @@ def load_set(subdir: str) -> dict[str, list[dict]]:
     sets = {}
     for path in sorted((HERE / subdir).glob("jev-*.jsonl")):
         stem = path.stem[len("jev-"):]
-        with open(QA_EVAL / subdir / f"judge-{stem}.jsonl", encoding="utf-8") as f:
+        with open(QA_EVAL / subdir / "judge" / f"{stem}.jsonl", encoding="utf-8") as f:
             qwen = {r["question_id"]: r["verdict"] for r in map(json.loads, f) if r}
         rows = []
         with open(path, encoding="utf-8") as f:

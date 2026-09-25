@@ -26,7 +26,7 @@ are on incompatible scales), `expanded`, and `answer`. Resume-safe: skips
 question IDs already present in the output file.
 
 Pipeline: built into `make judge` for both languages (the aggregate includes
-`judge-hybrid5/8/10.jsonl`); report.py auto-discovers `hybrid<k>.jsonl` into a
+`judge/hybrid5/8/10.jsonl`); report.py auto-discovers `hybrid<k>.jsonl` into a
 `Hybrid k=<k>` row beside the Vector variants. Run `make hybrid` (k=5) /
 `make hybrid K=10` for the answer file, or `make hybrid-judge` for k=5, 8 and 10
 plus judgements. The retrieval coverage (40/50 @ k=5, 46/50 @ k=10) is the upper

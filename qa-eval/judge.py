@@ -20,9 +20,9 @@ authorities and muddy the verdict. The gold answers are not ground truth (Gemini
 *agreement with the Gemini full-text baseline*, not absolute accuracy; any
 systematic gold bias cancels when two methods are judged against the same gold.
 
-Output: judge-<input-stem>.jsonl next to each input (e.g. judge-vector5.jsonl), one
-record per question. Resume-safe: skips question IDs already present in the
-output file.
+Output: judge/<input-name> in each input's directory (e.g. results-en/vector5.jsonl
+→ results-en/judge/vector5.jsonl), one record per question. Resume-safe: skips
+question IDs already present in the output file.
 
 Retrieval quality (chapter recall) is computed mechanically by report.py, not
 here; this script only produces the LLM verdict.
@@ -116,7 +116,8 @@ def main():
 
     for input_str in args.inputs:
         in_path = Path(input_str)
-        out_path = in_path.with_name(f"judge-{in_path.stem}.jsonl")
+        out_path = in_path.parent / "judge" / f"{in_path.stem}.jsonl"
+        out_path.parent.mkdir(exist_ok=True)
         label = in_path.stem
 
         # Resume: collect already-done question IDs

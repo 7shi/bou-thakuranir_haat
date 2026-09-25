@@ -27,7 +27,7 @@ Filenames encode the method, model and language so multiple experiments coexist
 
 - `<METHOD>-<MODEL>-<LANG>.jsonl` — answers, e.g.
   `hybrid8-google_gemini-4-31b-it-ja.jsonl`
-- `judge-<METHOD>-<MODEL>-<LANG>.jsonl` — verdicts (`judge.py`, opt-in)
+- `judge/<METHOD>-<MODEL>-<LANG>.jsonl` — verdicts (`judge.py`, opt-in)
 
 The method leads so runs group by method, and the language trails so it can be
 read straight off the filename — the model is the only field that may itself
@@ -63,7 +63,7 @@ for checking a model/backend combination (e.g. the ROCm issue below) without
 polluting the directory with a throwaway file to clean up afterward.
 
 `make judge` needs neither: it scans this directory for answer files that have
-no `judge-` counterpart yet and reads the language off each filename.
+no `judge/` counterpart yet and reads the language off each filename.
 
 Example:
 
@@ -361,6 +361,6 @@ question.
   reads only `results-<lang>/hybrid<k>.jsonl`), so these runs never leak into
   the main table. `make report` here is the independent aggregation: it reuses
   the parent's `accuracy` / `retrieval` helpers but simply tallies every
-  `judge-*.jsonl` present in this directory and writes `report.md`.
+  `judge/*.jsonl` present in this directory and writes `report.md`.
 - `report.md` is generated — re-run `make report` after judging a new model
   rather than editing it by hand.

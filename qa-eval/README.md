@@ -45,7 +45,7 @@ aggregate (Filter and Ceiling are opt-in):
 - `answer_filter.py` — Filter2 / Filter3 (LLM as retriever; see [FILTER.md](FILTER.md)) → `results-<lang>/filter{2,3}.jsonl`
 - `answer_hybrid.py` — Hybrid k=5/10 (dense ∪ BM25; see [HYBRID.md](HYBRID.md)) → `results-<lang>/hybrid<k>.jsonl`
 - `answer_ceiling.py` — Ceiling, gold chapters as context → `results-<lang>/ceiling.jsonl`
-- `judge.py` — LLM grading of answers vs. gold → `results-<lang>/judge-<stem>.jsonl`
+- `judge.py` — LLM grading of answers vs. gold → `results-<lang>/judge/<stem>.jsonl`
 - `report.py` — accuracy + chapter retrieval comparison + pairwise disagreement analysis (terminal table)
 
 `answer.py` holds the shared helpers (`LANGS`, `PART_RANGES`, `load_questions`,
