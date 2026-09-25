@@ -41,7 +41,7 @@
 
 いずれの検索手法も、シーンの**タイトル**を本文と一緒にインデックスします。タイトルは `all/<lang>-gemini.tsv`（`chapter`, `segment`, `title`）に由来し、`scripts/generate_titles.py` で生成されます。`qa-eval/Makefile` では `TSV := $(ROOT)/all/$(LANG)-gemini.tsv` として組み込まれています。`build_index.py` は EmbeddingGemma のドキュメント用プロンプト `title: {title} | text: {text}` で各シーンを埋め込み、`bm25.py` は `"{title} {text}"` をドキュメントとしてトークン化します。行単位のインデックス（`--line`）には行ごとのタイトルがないため `title: "none"` を使用します。TSV に存在しないシーンはエラーとなるため、TSV は JSONL のすべてのシーンを網羅している必要があります。
 
-両言語ともに、回答モデルには `google:gemma-4-31b-it`、インデックスには `embeddinggemma`、そして判定には同じプロンプトを使用しています。**別の回答モデル**を用いたランは [results/README.md](results/README.md) にまとめてあります（5モデルによる Ceiling の比較と、Hybrid k=8 と Ceiling の比較。いずれもコンテキストはバイト単位で同一のため、差は回答生成能力のみに由来します）。
+両言語ともに、回答モデルには `google:gemma-4-31b-it`、インデックスには `embeddinggemma`、そして判定には同じプロンプトを使用しています。**別の回答モデル**を用いたランは [results/README.md](results/README.md) にまとめてあります（複数モデルによる Ceiling の比較と、Hybrid k=8 と Ceiling の比較。いずれもコンテキストはバイト単位で同一のため、差は回答生成能力のみに由来します）。
 
 > [!IMPORTANT]
 > **実用的な最適解**

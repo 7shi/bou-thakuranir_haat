@@ -99,16 +99,16 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `copilot:mai-code-1.1-flash` | 97 (47/3/0) | 93 (44/5/1) |
 | `google:gemini-3.8-flash` | 98 (49/0/1) | 97 (48/1/1) |
 | `google:gemini-3.7-flash` | 97 (48/1/1) | 98 (49/0/1) |
-| `google:gemini-3-flash-preview` | 100 (50/0/0) | 97 (47/3/0) |
-| `google:gemini-2.5-flash` | 94 (45/4/1) | 95 (45/5/0) |
+| `google:gemini-3-flash-preview` | 100 (50/0/0) | 98 (48/2/0) |
+| `google:gemini-2.5-flash` | 94 (45/4/1) | 96 (46/4/0) |
 | `google:gemini-3.5-flash-lite` | 86 (41/4/5) | 86 (41/4/5) |
 | `google:gemma-4-31b-it` | 99 (49/1/0) | 98 (48/2/0) |
 | `google:gemma-4-26b-a4b-it` | 95 (46/3/1) | 94 (45/4/1) |
 | `ollama:gemma4:26b-a4b-it-qat` | 95 (46/3/1) | 92 (42/8/0) |
-| `ollama:gemma4:12b-it-qat` | 84 (41/2/7) | 84 (39/6/5) |
+| `ollama:gemma4:12b-it-qat` | 84 (41/2/7) | 83 (38/7/5) |
 | `ollama:qwen3.8` (27B) | 100 (50/0/0) | 99 (49/1/0) |
 | `ollama:qwen3.6` (35B-A3B) | 98 (48/2/0) | 97 (47/3/0) |
-| `ollama:qwen3.5:9b` | 89 (40/9/1) | 78 (32/14/4) |
+| `ollama:qwen3.5:9b` | 90 (40/10/0) | 78 (32/14/4) |
 | `ollama:qwen3.5:4b` | 81 (34/13/3) | 71 (28/15/7) |
 | `ollama:muse-glimmer` (30B) | 99 (49/1/0) | 97 (47/3/0) |
 | `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 99 (49/1/0) | 96 (46/4/0) |
@@ -123,14 +123,14 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `opencode:muse-spark-1.2-contributor-free` | 98 (49/0/1) | 100 (50/0/0) |
 | `opencode:union-alpha` | 100 (50/0/0) | 100 (50/0/0) |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (49/0/1) | 100 (50/0/0) |
-| `openrouter:stealth/space-bunny-alpha` | 97 (47/3/0) | 92 (45/2/3) |
-| `openrouter:poolside/laguna-s-2.1:free` | 89 (40/9/1) | 73 (31/11/8) |
-| `openrouter:cohere/north-mini-code:free` | 93 (44/5/1) | 73 (29/15/6) |
+| `openrouter:stealth/space-bunny-alpha` | 97 (47/3/0) | 93 (45/3/2) |
+| `openrouter:poolside/laguna-s-2.1:free` | 89 (40/9/1) | 72 (30/12/8) |
+| `openrouter:cohere/north-mini-code:free` | 92 (43/6/1) | 73 (29/15/6) |
 | `openrouter:inclusionai/ling-3.0-flash-fin:free` | 97 (47/3/0) | 95 (45/5/0) |
 | `openrouter:minimax/minimax-m3:free` | 98 (49/0/1) | 99 (49/1/0) |
-| `openrouter:minimax/minimax-m2.7:free` | 96 (46/4/0) | 97 (47/3/0) |
+| `openrouter:minimax/minimax-m2.7:free` | 95 (45/5/0) | 97 (47/3/0) |
 | `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 99 (49/1/0) | 97 (47/3/0) |
-| `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 93 (43/7/0) | 90 (41/8/1) |
+| `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 94 (44/6/0) | 90 (41/8/1) |
 | `openrouter:nvidia/nemotron-3.5-lightning:free` | 93 (43/7/0) | 86 (38/10/2) |
 
 (Weighted score `(correct + 0.5×partial) / n`, as an integer percentage rounded
@@ -159,14 +159,14 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   supplied.
 * **Japanese doesn't cost every model — a handful score higher there, and a
   few score identically in both.** Among the rest, English-to-Japanese losses
-  range up to `cohere/north-mini-code:free`'s 0.200, the largest gap. The
+  range up to `cohere/north-mini-code:free`'s 0.190, the largest gap. The
   Japanese miss list is markedly longer than the English one for most
   models — the same questions, the same gold, the same gold chapters.
 * **Three models needed `NO_THINK=1` to produce a usable ceiling run.**
-  `ollama:gemma4:12b-it-qat` stays on task in English without it (84,
-  40/4/6 — unchanged) but drops to 70 (33/4/13) in Japanese, where its
+  `ollama:gemma4:12b-it-qat` stays on task in English without it (the 84,
+  41/2/7 in the table) but drops to 70 (33/4/13) in Japanese, where its
   thinking trace sometimes loses track of the context and produces no usable
-  answer; `NO_THINK=1` recovers the Japanese score to the 84 shown in the
+  answer; `NO_THINK=1` recovers the Japanese score to the 83 shown in the
   table. `ollama:qwen3.5:9b` is worse: with thinking enabled its CoT falls
   into a loop and never terminates, so both rows above are `NO_THINK=1` runs.
   `ollama:qwen3.5:4b` was presumed even less stable and was only run with
@@ -184,39 +184,39 @@ Question IDs, listed per model. Questions 1–25 are `single` (one gold chapter)
 | `copilot:grok-4.5` | — | — | 34 | — |
 | `copilot:kimi-k2.7-code` | 22 | — | 50 | — |
 | `copilot:mai-code-1.1-flash` | 6, 32, 49 | — | 3, 28, 32, 34, 50 | **29** |
-| `google:gemini-2.5-flash` | 28, 30, 36, 41 | 17 | 28, **29**, 32, 35, 36 | — |
-| `google:gemini-3-flash-preview` | — | — | 7, 33, 43 | — |
+| `google:gemini-2.5-flash` | 28, 30, 36, 41 | 17 | **29**, 32, 35, 36 | — |
+| `google:gemini-3-flash-preview` | — | — | 33, 43 | — |
 | `google:gemini-3.5-flash-lite` | 26, 28, 36, 48 | 17, 37, 40, 42, 47 | 28, **29**, 34, 40 | 35, 36, 39, 42, 50 |
 | `google:gemini-3.7-flash` | 50 | 17 | — | **29** |
 | `google:gemini-3.8-flash` | — | 17 | 37 | **29** |
 | `google:gemma-4-31b-it` | 48 | — | **29**, 36 | — |
 | `google:gemma-4-26b-a4b-it` | 34, 37, 50 | 17 | 27, 34, 35, 37 | **29** |
-| `ollama:gemma4:12b-it-qat` | 35, 36 | 17, 31, 34, 38, 41, 43, 50 | 35, 38, 39, 41, 47, 49 | 4, 6, 22, 34, 50 |
+| `ollama:gemma4:12b-it-qat` | 35, 36 | 17, 31, 34, 38, 41, 43, 50 | 28, 35, 38, 39, 41, 47, 49 | 4, 6, 22, 34, 50 |
 | `ollama:gemma4:26b-a4b-it-qat` | 31, 33, 35 | 17 | **29**, 34, 35, 37, 40, 44, 46, 50 | — |
 | `ollama:qwen3.5:4b` | 28, 30, 31, 32, 35, 36, 37, 39, 40, 41, 43, 47, 50 | 27, 34, 42 | 20, 27, 28, 30, 33, 34, 35, 37, 38, 41, 42, 43, 46, 47, 50 | 25, 26, 32, 36, 39, 45, 49 |
-| `ollama:qwen3.5:9b` | 27, 29, 31, 34, 41, 43, 46, 48, 50 | 28 | **29**, 30, 34, 35, 36, 37, 41, 42, 43, 45, 46, 47, 49, 50 | 26, 28, 32, 44 |
+| `ollama:qwen3.5:9b` | 27, 28, 29, 31, 34, 41, 43, 46, 48, 50 | — | **29**, 30, 34, 35, 36, 37, 41, 42, 43, 45, 46, 47, 49, 50 | 26, 28, 32, 44 |
 | `ollama:qwen3.6` (35B-A3B) | 6, 31 | — | **29**, 36, 48 | — |
 | `ollama:qwen3.8` (27B) | — | — | **29** | — |
 | `ollama:muse-glimmer` (30B) | 6 | — | 34, 35, 43 | — |
-| `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 31 | — | 29, 34, 37, 49 | — |
+| `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 31 | — | **29**, 34, 37, 49 | — |
 | `openai:gpt-5.6-luna` | — | — | **29**, 35, 48 | — |
 | `openai:gpt-5.6-sol` | — | — | — | — |
 | `openai:gpt-5.6-terra` | — | 22, 49 | 43 | — |
 | `openai:gpt-6-luna` | — | — | — | — |
-| `opencode:big-pickle` | 37 | 22 | 29 | 42 |
+| `opencode:big-pickle` | 37 | 22 | **29** | 42 |
 | `opencode:mimo-v2.5-free` | — | — | 20, 37 | 38 |
 | `opencode:mimo-v2.6-flash-free` | — | — | 46 | 17, **29** |
 | `opencode:muse-spark-1.2-contributor-free` | — | 22 | — | — |
 | `opencode:muse-spark-1.3-contributor-free` | — | — | — | — |
 | `opencode:union-alpha` | — | — | — | — |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | — | 22 | — | — |
-| `openrouter:stealth/space-bunny-alpha` | 6, 31, 45 | — | 44, 46 | 28, 33, 37 |
-| `openrouter:poolside/laguna-s-2.1:free` | 26, 28, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, **29**, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
-| `openrouter:cohere/north-mini-code:free` | 33, 36, 46, 49, 50 | 17 | 6, 26, 31, 32, 33, 34, 35, 37, 38, 39, 42, 47, 48, 49, 50 | 12, 16, 28, **29**, 36, 46 |
+| `openrouter:stealth/space-bunny-alpha` | 6, 31, 45 | — | 28, 44, 46 | 33, 37 |
+| `openrouter:poolside/laguna-s-2.1:free` | 26, 28, 34, 37, 38, 39, 46, 48, 50 | 45 | 4, 27, 28, **29**, 30, 32, 37, 39, 41, 43, 46, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
+| `openrouter:cohere/north-mini-code:free` | 28, 33, 36, 46, 49, 50 | 17 | 6, 26, 31, 32, 33, 34, 35, 37, 38, 39, 42, 47, 48, 49, 50 | 12, 16, 28, **29**, 36, 46 |
 | `openrouter:inclusionai/ling-3.0-flash-fin:free` | 33, 45, 49 | — | 33, 35, 37, 38, 50 | — |
-| `openrouter:minimax/minimax-m2.7:free` | 6, 31, 34, 37 | — | 36, 37, 47 | — |
+| `openrouter:minimax/minimax-m2.7:free` | 6, 28, 31, 34, 37 | — | 36, 37, 47 | — |
 | `openrouter:minimax/minimax-m3:free` | — | 22 | 50 | — |
-| `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 6, 26, 28, 31, 34, 37, 49 | — | **29**, 31, 33, 34, 37, 46, 49, 50 | 36 |
+| `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 6, 26, 31, 34, 37, 49 | — | **29**, 31, 33, 34, 37, 46, 49, 50 | 36 |
 | `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 31 | — | 37, 43, 44 | — |
 | `openrouter:nvidia/nemotron-3.5-lightning:free` | 6, 28, 30, 31, 34, 36, 37 | — | 6, 27, 28, 33, 35, 36, 37, 40, 43, 50 | **29**, 45 |
 
@@ -225,11 +225,12 @@ the context, a `correct` verdict says the question and its gold answer agree.
 The questions appearing above are the ones that need auditing — every question
 absent from the table is answered from the gold chapters by every model.
 
-* **No question is missed by every model.** The widest row is ja Q29, then ja
-  Q35, then a cluster of `cross` questions behind them. A question that no model
+* **No question is missed by every model.** The widest column is ja Q29 (20
+  models), then ja Q37 and ja Q50, then a cluster of `cross` questions behind
+  them. A question that no model
   answers from the gold chapters in either language is the signature of a broken
   gold rather than a hard question, and the set does not contain one — ja Q29 included: every model
-  answers it correctly in English, and several reach the scored fact in Japanese
+  but `ollama:qwen3.5:9b` (partial) answers it correctly in English, and several reach the scored fact in Japanese
   too, so the widest row is language ability rather than question quality.
 * **Nothing here is a missing-evidence failure** — the context is the gold
   annotation, so every miss is synthesis inside two or three chapters.
