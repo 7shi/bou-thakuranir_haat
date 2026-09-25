@@ -272,16 +272,17 @@ all      Vector k=5        50      38       5         7     0.810     0.720    0
 all      Vector k=10       50      43       4         3     0.900     0.900    0.206
 all      Extract           50      41       4         5     0.860     0.760    0.807
 all      V-hybrid k=5      50      42       5         3     0.890     0.820    0.298
-all      V-hybrid k=10     50      43       4         3     0.900     0.900    0.179
+all      V-hybrid k=10     50      44       3         3     0.910     0.900    0.179
 all      Ceiling           50      48       2         0     0.980     1.000    1.000
 single   V-hybrid k=5      25      25       0         0     1.000     1.000    0.213
 cross    Vector k=10       25      18       4         3     0.800     0.800    0.276
 cross    V-hybrid k=5      25      17       5         3     0.780     0.640    0.383
-cross    V-hybrid k=10     25      18       4         3     0.800     0.800    0.237
+cross    V-hybrid k=10     25      19       3         3     0.820     0.800    0.237
 ```
 
 **V-hybrid k=5 (0.890) lands just under plain Vector k=10 (0.900)**, and V-hybrid
-k=10 (0.900) exactly matches it. The reason is budget: V-hybrid k=5 pools
+k=10 (0.910) edges it by a single question on roughly twice its context
+(Q32 and Q46 against Q36). The reason is budget: V-hybrid k=5 pools
 `seg5 ∪ line5`, a ~k=10 segment context, so the fair baseline is Vector k=10, not
 Vector k=5. At that matched budget the dense union has no edge over the
 single-index retriever.
@@ -369,24 +370,24 @@ scope    method             n correct partial incorrect  weighted ch.recall  ch.
 all      Vector k=5        50      38       5         7     0.810     0.720    0.332
 all      Vector k=10       50      43       4         3     0.900     0.900    0.206
 all      Extract           50      41       4         5     0.860     0.760    0.807
-all      Filter2           50      40       4         6     0.840     0.640    0.809
+all      Filter2           50      41       3         6     0.850     0.640    0.809
 all      Filter3           50      43       3         4     0.890     0.880    0.783
 all      Ceiling           50      48       2         0     0.980     1.000    1.000
 single   Filter2           25      25       0         0     1.000     1.000    1.000
 single   Filter3           25      25       0         0     1.000     1.000    0.980
-cross    Filter2           25      15       4         6     0.680     0.280    0.619
+cross    Filter2           25      16       3         6     0.700     0.280    0.619
 cross    Filter3           25      18       3         4     0.780     0.760    0.586
 ```
 
-**Filter3 (0.890) leads Filter2 (0.840) by 3 questions**, driven by the same
+**Filter3 (0.890) leads Filter2 (0.850) by 2 questions**, driven by the same
 mechanism as English: Filter3's "keep ≠ no" rule retains chapters the strict
-"yes-only" Filter2 drops. Filter3 beats Filter2 on 6 (all missed-context: Q26
-Ch11/29, Q28 Ch37, Q31 Ch23, Q35 Ch8/19, Q38 Ch28/32, Q45 Ch18/25); Filter2
+"yes-only" Filter2 drops. Filter3 beats Filter2 on 5 (all missed-context: Q26
+Ch11/29, Q28 Ch37, Q35 Ch8/19, Q38 Ch28/32, Q45 Ch18/25); Filter2
 beats Filter3 on 3 (Q36, Q40 synthesis; Q48 missed-context). Single-passage is
 perfect under both variants (25/25 each); all losses are cross-reference.
 
-**Filter3 (0.890) falls just short of both V-hybrid k=10 and Vector k=10
-(0.900)** — the reverse of English, where Filter3 (0.940) topped Vector k=10
+**Filter3 (0.890) falls just short of both V-hybrid k=10 (0.910) and Vector
+k=10 (0.900)** — the reverse of English, where Filter3 (0.940) topped Vector k=10
 (0.930). Filter3 and Vector k=10 are tied 4–4 on pairwise disagreements: Filter3
 wins Q31 (Ch21/22 ring-seal chain), Q32 (Ch11/15/16 secret-stipend), Q43 (Ch37
 Rammohan rescue), Q46 (synthesis); Vector k=10 wins Q34 (Ch30/31/33 Lukmini
@@ -426,8 +427,8 @@ cross    GraphRAG global   25       5       7        13     0.340     0.320    0
 
 ### GraphRAG local (0.640)
 
-Local search scores 28/50 (0.640) — just below the English run (0.660), below
-Filter2 (0.840), and far below Hybrid k=8 (0.950). As in English, the
+Local search scores 28/50 (0.640) — just below the English run (0.650), below
+Filter2 (0.850), and far below Hybrid k=8 (0.950). As in English, the
 chapter-retrieval numbers explain why: **recall 0.880** (nearly every gold
 chapter is somewhere in the expanded context) but **precision 0.239** — low,
 though notably *higher* than English's 0.135. The Japanese local search
@@ -445,7 +446,7 @@ GraphRAG local never beats Ceiling and never beats Hybrid k=8 on any question
 local search is *stronger* on single-passage (19/25, 0.780) than English
 (15/25, 0.620) — the single-passage synthesis collapse that dominates the
 English write-up is much milder here. But it is *weaker* on cross-reference
-(9/25, 0.500 vs. English's 13/25, 0.700). Net effect: the two shifts largely
+(9/25, 0.500 vs. English's 12/25, 0.680). Net effect: the two shifts largely
 cancel, leaving the overall score close to English's.
 
 ### Where the English "structural strengths" don't transfer
@@ -458,8 +459,8 @@ Neither holds cleanly in Japanese:
 
 - **No question is answered from zero context.** Japanese local search has 5
   zero-context questions (Q9, Q14, Q16, Q30, Q33); all 5 are wrong (4
-  incorrect, 1 partial) — compared to English's 6 zero-context questions, 2 of
-  which (Q26, Q28) were correct. Q26 in Japanese is answered correctly, but
+  incorrect, 1 partial) — compared to English's 6 zero-context questions, of
+  which Q26 is correct and Q28 partial. Q26 in Japanese is answered correctly, but
   only after expanding *all 37 chapters* — it wins on volume, not on pure graph
   traversal.
 - **Only one of the two Class A questions is recovered.** Q49 (デリー皇帝の脅威
@@ -507,7 +508,7 @@ of the two modes when it is available at all.
 
 Neither GraphRAG mode reaches the simplest pipeline method (Vector k=5, 0.810),
 let alone Hybrid k=8 (0.950). Local search's language-comparison story is
-mixed — slightly weaker overall than English (0.640 vs 0.660), stronger on
+mixed — slightly weaker overall than English (0.640 vs 0.650), stronger on
 single-passage, weaker on cross-reference, and missing the "zero-context
 graph traversal" mechanism that made English's local search occasionally
 outperform its overall score. Global search is uniformly the weakest method in
@@ -544,17 +545,17 @@ this task in either language.
   not to a capability gap. Retrieval-side findings (which gold chapters dense
   search drops) are identical because the embedding model is the same.
 - **Filter3 (0.890) replicates the English ordering** but narrows relative to
-  Vector k=10 (0.900 in both languages; English Filter3 tops Vector k=10 by one
+  Vector k=10 (0.930 English, 0.900 Japanese; English Filter3 tops Vector k=10 by one
   question, Japanese trails it by one). The strict-vs-lenient pattern holds:
-  Filter3 beats Filter2 by 3 questions, 6 of its 6 wins missed-context. Filter is still
+  Filter3 beats Filter2 by 2 questions, 5 of its 5 wins missed-context. Filter is still
   impractical at ~1,850× Vector's call cost.
 - The retrieval levers are unchanged: Vector's residual losses are dense top-5
   misses on rare proper nouns / second-side facts, the target of `sweep_vector.py`
   and the BM25 hybrid follow-up in [HYBRID.md](../HYBRID.md).
 - **GraphRAG's language comparison is mixed, not uniform.** Local search scores
-  close to English overall (0.640 vs 0.660) but the composition differs:
+  close to English overall (0.640 vs 0.650) but the composition differs:
   stronger on single-passage (0.780 vs 0.620), weaker on cross-reference (0.500
-  vs 0.700), and missing English's "answer from zero retrieved context"
-  mechanism entirely (0/5 vs 2/6 zero-context questions correct). Global search
+  vs 0.680), and missing English's "answer from zero retrieved context"
+  mechanism entirely (0/5 vs 1/6 zero-context questions correct). Global search
   is weak in both languages but less so in Japanese (0.240 vs 0.170). See
   [§ GraphRAG](#graphrag) above.

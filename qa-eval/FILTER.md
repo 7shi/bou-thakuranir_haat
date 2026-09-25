@@ -17,7 +17,7 @@ score = `(correct + 0.5·partial) / 50` (from [README](README.md#results)).
 
 | method | strict recall | partial recall | avg kept | gold floor | Phase 2 score |
 |---|---:|---:|---:|---:|---:|
-| Filter2 (keep `yes`) | 0.60 | 0.73 | 1.3 | 33/86 | 0.800 |
+| Filter2 (keep `yes`) | 0.60 | 0.73 | 1.3 | 33/86 | 0.790 |
 | Filter3 (keep ≠ `no`) | 0.88 | 0.92 | 2.3 | 12/86 | 0.940 |
 | Filter10 ≥3 (F1 peak) | 0.76 | 0.86 | 1.7 | 7/86 | — |
 | Filter100 (any threshold) | — | — | — | 11/86 | — |

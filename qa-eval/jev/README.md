@@ -53,27 +53,25 @@ On the retrieval set (weighted score = `(correct + 0.5·partial) / n`):
 
 | Judge | c/p/i | Weighted | Agree w/ qwen | Agree w/ Choice |
 | --- | --- | ---: | ---: | ---: |
-| qwen | 105/34/61 | 61.0 | — | 168 |
-| Choice | 79/61/60 | 54.8 | 168 | — |
-| Noul 0.1/0.35 | 109/23/68 | 60.2 | 186 | 162 |
-| Noul 0.1/0.6 | 91/41/68 | 55.8 | 178 | 180 |
-| Noul 0.1/0.8 | 79/53/68 | 52.8 | 168 | 190 |
+| qwen | 103/35/62 | 60.2 | — | 169 |
+| Choice | 79/61/60 | 54.8 | 169 | — |
+| Noul 0.1/0.35 | 109/23/68 | 60.2 | 187 | 162 |
+| Noul 0.1/0.6 | 91/41/68 | 55.8 | 181 | 180 |
+| Noul 0.1/0.8 | 79/53/68 | 52.8 | 171 | 190 |
 
 | qwen \ Choice | correct | partial | incorrect |
 | --- | ---: | ---: | ---: |
-| correct | 79 | 25 | 1 |
-| partial | 0 | 32 | 2 |
-| incorrect | 0 | 4 | 57 |
+| correct | 79 | 23 | 1 |
+| partial | 0 | 33 | 2 |
+| incorrect | 0 | 5 | 57 |
 
-Noul thresholds can be fitted to qwen (best 0.07/0.37, 187/200; 184/200 when
+Noul thresholds can be fitted to qwen (best 0.1/0.37, 187/200; 183/200 when
 each file's thresholds are fitted on the other three), but reproducing qwen is
 not the goal. The disagreements are almost all qwen *correct* → Jev *partial*,
 and reading them shows Jev catching real gaps:
 
 - graphrag-global Q20: the candidate says it cannot answer; qwen graded it
   *correct* (Noul 0.01).
-- vector-line5 Q28: the second location is given as the king's room instead
-  of the Chandradwip court (Noul 0.11).
 - filter2 Q49, Q36, Q46: two-part questions whose first half is missing (the
   rejected warnings, the youthful infatuation, the flirtatious loans).
 - The verbose GraphRAG answers that stay vague or break off before the key
@@ -85,32 +83,30 @@ Weighted score per answerer model on the ceiling set:
 
 | Model | qwen | Choice | Noul 0.1/0.6 | Noul 0.1/0.8 | Mean Noul |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `ollama_qwen3.8` | 100 | 95 | 99 | 97 | 0.923 |
-| `openai_gpt-6-luna` | 100 | 95 | 99 | 94 | 0.898 |
-| `openai_gpt-5.6-sol` | 100 | 93 | 100 | 92 | 0.914 |
-| `ollama_qwen3.6` | 98 | 87 | 95 | 88 | 0.844 |
-| `google_gemini-3.5-flash-lite` | 86 | 81 | 85 | 81 | 0.779 |
-| `ollama_qwen3.5_9b` | 89 | 77 | 85 | 76 | 0.745 |
+| `ollama_qwen3.8` | 100 | 96 | 100 | 98 | 0.929 |
+| `openai_gpt-6-luna` | 100 | 96 | 99 | 95 | 0.904 |
+| `openai_gpt-5.6-sol` | 100 | 93 | 100 | 92 | 0.915 |
+| `ollama_qwen3.6` | 98 | 88 | 96 | 89 | 0.856 |
+| `google_gemini-3.5-flash-lite` | 86 | 81 | 85 | 81 | 0.782 |
+| `ollama_qwen3.5_9b` | 90 | 78 | 85 | 77 | 0.749 |
 
 The Choice moves the three saturated models off 100 and widens the gap to
 qwen3.6. The Noul needs its upper threshold near 0.8 to do the same; at 0.6
 the top stays at 99–100.
 
-The Choice's *partial* verdicts on the two OpenAI models (12 in all) are mostly
+The Choice's *partial* verdicts on the two OpenAI models (11 in all) are mostly
 answers that address the question but omit a supporting fact the gold answer
 carries — e.g. Q29 omits that the maid Matangini engaged the poisoner, Q30 that
 Vibha arrives on the wedding day, Q42 the forged petition. That is a strict but
 defensible reading of "misses key facts"; the margins are mostly narrow
-(P(correct) 0.18–0.46), the exception being gpt-6-luna Q34 (0.01). Q28 (where Ramai is thrown out) was answered "the king's room" by
-both gpt-6-luna and vector-line5, which may point at the gold answer's wording
-rather than the candidates.
+(P(correct) 0.18–0.46), the exception being gpt-6-luna Q34 (0.01).
 
 ### A Noul at 0.8 reproduces the Choice
 
 | Set | Noul 0.1/0.8 vs Choice | Best | Best thresholds |
 | --- | ---: | ---: | --- |
 | retrieval | 190/200 | 199/200 | 0.05/0.79 |
-| ceiling | 292/300 | 292/300 | 0.11/0.8 |
+| ceiling | 292/300 | 292/300 | 0.13/0.8 |
 
 Noul yes probability by Choice verdict (min / median / max):
 
@@ -131,24 +127,28 @@ Per request, with the Choice and the Noul together:
 
 | Set | Requests | Input total | Input / request | Output / request |
 | --- | ---: | ---: | ---: | ---: |
-| retrieval | 200 | 169,425 | 847 | 56 |
-| ceiling | 300 | 236,187 | 787 | 56 |
+| retrieval | 200 | 170,089 | 850 | 56 |
+| ceiling | 300 | 237,183 | 791 | 56 |
 
-Input is dominated by the candidate answer (graphrag-local averages 1,037);
+Input is dominated by the candidate answer (graphrag-local averages 1,041);
 output is fixed at 56 regardless of content. The Choice alone takes 39 output
 tokens ([../JEV.md](../JEV.md#cost)), so the Noul accounts for 17.
 
-The experiment ran as three `judge-jev.py --debug` calls, each logged once in
-llm7shi's `usage.jsonl`:
+The experiment ran as five `judge-jev.py --debug` calls, each logged once in
+llm7shi's `usage.jsonl`. The last two grade Q7 and Q28, whose rows the first
+three no longer hold:
 
 | Run | Requests | Input | Output |
 | --- | ---: | ---: | ---: |
 | retrieval, first 3 questions of graphrag-local (`-n 3` trial) | 3 | 2,479 | 168 |
 | retrieval, the remaining questions of the four files | 197 | 166,946 | 11,032 |
 | ceiling, six models | 300 | 236,187 | 16,800 |
-| Total | 500 | 405,612 | 28,000 |
+| retrieval, Q7 and Q28 of the four files | 8 | 6,947 | 448 |
+| ceiling, Q7 and Q28 of the six models | 12 | 9,998 | 672 |
+| Total | 520 | 422,557 | 29,120 |
 
-Billed $0.017 in total, about $0.034 per 1,000 requests.
+Billed $0.017 for the first 500 requests, about $0.034 per 1,000; the last 20
+add about $0.001 at the same rate.
 
 ## Decision
 

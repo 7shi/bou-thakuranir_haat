@@ -22,18 +22,18 @@ and **Ceiling** have been run for both languages.
 | --- | --- | --- | --- |
 | Vector k=5 | 40/50 (0.840) | 38/50 (0.810) | Standard dense vector search (k=5) |
 | Vector k=10 | 45/50 (0.930) | 43/50 (0.900) | Standard dense vector search (k=10) |
-| Vector-line k=5 | 36/50 (0.810) | 36/50 (0.800) | Line-level dense vector search (k=5) |
+| Vector-line k=5 | 35/50 (0.800) | 36/50 (0.800) | Line-level dense vector search (k=5) |
 | Vector-line k=10 | 41/50 (0.890) | 41/50 (0.860) | Line-level dense vector search (k=10) |
 | V-hybrid k=5 | 40/50 (0.880) | 42/50 (0.890) | Segment ∪ Line dense union (k=5) |
-| V-hybrid k=10 | 43/50 (0.910) | 43/50 (0.900) | Segment ∪ Line dense union (k=10) |
+| V-hybrid k=10 | 43/50 (0.910) | 44/50 (0.910) | Segment ∪ Line dense union (k=10) |
 | Hybrid k=5 | 42/50 (0.900) | 45/50 (0.930) | Dense ∪ BM25 union (k=5) |
 | Hybrid k=8 | 45/50 (0.930) | 46/50 (0.950) | Dense ∪ BM25 union (k=8) |
 | Hybrid k=10 | 47/50 (0.960) | 45/50 (0.930) | Dense ∪ BM25 union (k=10) |
 | Extract | 40/50 (0.850) | 41/50 (0.860) | Per-chapter summarization-based extraction |
-| Filter2 | 36/50 (0.800) | 40/50 (0.840) | LLM-as-retriever (binary: yes/no) |
+| Filter2 | 36/50 (0.790) | 41/50 (0.850) | LLM-as-retriever (binary: yes/no) |
 | Filter3 | 46/50 (0.940) | 43/50 (0.890) | LLM-as-retriever (ternary: yes/maybe/no) |
 | Ceiling | 49/50 (0.990) | 48/50 (0.980) | Perfect-retrieval upper bound (gold chapters directly) |
-| GraphRAG local | 28/50 (0.660) | 28/50 (0.640) | Microsoft GraphRAG (local entity search) |
+| GraphRAG local | 27/50 (0.650) | 28/50 (0.640) | Microsoft GraphRAG (local entity search) |
 | GraphRAG global | 5/50 (0.170) | 8/50 (0.240) | Microsoft GraphRAG (global community search) |
 
 The pipeline behind these rows — build the index, answer each question, grade,
@@ -127,21 +127,21 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 * **Retrieval is the Frontier:** Single-passage QA is essentially solved. The remaining difficulty lies entirely in cross-reference questions.
 * **Ceiling Verification:** The Ceiling run (gold chapters verbatim) scores 0.990 (en) and 0.980 (ja), proving that given the correct context, LLM comprehension is near-perfect. The three remaining losses are completeness gaps on multi-part cross questions (en Q48; ja Q29, Q36), not misreadings.
 * **Extract Failures:** Extract’s losses are predominantly Phase 1 false negatives (where the summary drops the gold chapter) rather than synthesis errors.
-* **Language Invariance:** Language makes little difference to accuracy — most methods land within 2 questions of each other across EN and JA, and the widest gap is 4 (Filter2). Retrieval misses are identical because they share the same embedding model.
+* **Language Invariance:** Language makes little difference to accuracy — most methods land within 2 questions of each other across EN and JA, and the widest gap is 5 (Filter2). Retrieval misses are identical because they share the same embedding model.
 
 ### GraphRAG — [graphrag-en/README.md](graphrag-en/README.md) & [graphrag-ja/README.md](graphrag-ja/README.md)
 
-* **Synthesis Collapse:** GraphRAG local scores 0.660 (EN) / 0.640 (JA), well below flat retrieval in both languages. Recall is high (0.860 EN / 0.880 JA) but precision collapses (0.135 EN / 0.239 JA), overloading the context and causing synthesis failure.
-* **Structural Strengths Don't Transfer:** In English it answers entity-relationship arcs with zero context passages (Q26/Q28) and resolves both Class A questions (signet ring, Delhi petition) through graph traversal. In Japanese no question is answered from zero context, and only one of the two Class A questions (the Delhi petition) is recovered — the signet-ring chain is missed even though the graph clearly encodes it, since it surfaces in the *other* question's own answer. See [results-ja/README.md § GraphRAG](results-ja/README.md#graphrag) for the case study.
+* **Synthesis Collapse:** GraphRAG local scores 0.650 (EN) / 0.640 (JA), well below flat retrieval in both languages. Recall is high (0.860 EN / 0.880 JA) but precision collapses (0.135 EN / 0.239 JA), overloading the context and causing synthesis failure.
+* **Structural Strengths Don't Transfer:** In English it answers entity-relationship arcs with zero context passages (Q26 correct, Q28 partial) and resolves both Class A questions (signet ring, Delhi petition) through graph traversal. In Japanese no question is answered from zero context, and only one of the two Class A questions (the Delhi petition) is recovered — the signet-ring chain is missed even though the graph clearly encodes it, since it surfaces in the *other* question's own answer. See [results-ja/README.md § GraphRAG](results-ja/README.md#graphrag) for the case study.
 * **Global Search Failure:** Global community summaries are too abstract for passage-level QA in either language (0.170 EN, 0.240 JA — the weakest score in each language).
 * **Extreme Cost:** Building the graph and running all 100 queries takes 13h 6m (EN) / 20h 19m (JA)—impractical compared to minutes for flat vector indexing. Japanese takes longer because the same token-based chunk size splits the (larger, denser) Japanese text into more chunks, cascading into more LLM calls throughout indexing and querying.
 
 ### Jev as the Judge — [jev/README.md](jev/README.md) & [JEV.md](JEV.md)
 
 * **qwen Is Lenient:** The `ollama:qwen3.6` judge saturates the multi-model Ceiling table at 98–100. TypeSafe's Jev (`jev-1.13.0`), asked one Choice question over the same rubric, is stricter, and its extra *partial* verdicts are missing parts of multi-part gold answers rather than style, including one "cannot answer" that qwen graded *correct*.
-* **Separates the Top:** On six Ceiling models (EN), the three that qwen scores 100 drop to 93–95 under Jev, and the gap to qwen3.6 (87) widens.
+* **Separates the Top:** On six Ceiling models (EN), the three that qwen scores 100 drop to 93–96 under Jev, and the gap to qwen3.6 (88) widens.
 * **Choice Over Noul:** A yes/no Noul with thresholds reproduces the Choice only at an upper threshold of about 0.8 (292/300 identical verdicts), so the Choice is kept, with no threshold to tune.
-* **Re-grading `results-<lang>/`:** Every method scores 0.03–0.12 lower under Jev, almost entirely qwen *correct* → Jev *partial* on multi-part cross questions; single questions are essentially unchanged. Ceiling falls to 0.960 (EN) / 0.900 (JA), and Hybrid and Filter3 end within one question of each other at the top. The results above keep the qwen verdicts.
+* **Re-grading `results-<lang>/`:** Every method scores 0.02–0.11 lower under Jev, almost entirely qwen *correct* → Jev *partial* on multi-part cross questions; single questions are essentially unchanged. Ceiling falls to 0.970 (EN) / 0.920 (JA), and Hybrid and Filter3 end within one question of each other at the top. The results above keep the qwen verdicts.
 
 ## Overall Conclusions and Practical Takeaways
 

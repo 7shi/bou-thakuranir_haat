@@ -39,7 +39,7 @@ scope    method             n correct partial incorrect  weighted ch.recall  ch.
 ------------------------------------------------------------------------------------
 all      Vector k=5        50      40       4         6     0.840     0.720    0.337
 all      Vector k=10       50      45       3         2     0.930     0.840    0.205
-all      Vector-line k=5   50      36       9         5     0.810     0.660    0.401
+all      Vector-line k=5   50      35      10         5     0.800     0.660    0.401
 all      Vector-line k=10  50      41       7         2     0.890     0.780    0.274
 all      V-hybrid k=5      50      40       8         2     0.880     0.760    0.297
 all      V-hybrid k=10     50      43       5         2     0.910     0.900    0.182
@@ -47,10 +47,10 @@ all      Hybrid k=5        50      42       6         2     0.900     0.800    0
 all      Hybrid k=8        50      45       3         2     0.930     0.900    0.179
 all      Hybrid k=10       50      47       2         1     0.960     0.920    0.154
 all      Extract           50      40       5         5     0.850     0.740    0.843
-all      Filter2           50      36       8         6     0.800     0.600    0.808
+all      Filter2           50      36       7         7     0.790     0.600    0.808
 all      Filter3           50      46       2         2     0.940     0.880    0.775
 all      Ceiling           50      49       1         0     0.990     1.000    1.000
-all      GraphRAG local    50      28      10        12     0.660     0.860    0.135
+all      GraphRAG local    50      27      11        12     0.650     0.860    0.135
 all      GraphRAG global   50       5       7        38     0.170     0.220    0.029
 
 single   Vector k=5        25      24       0         1     0.960     1.000    0.263
@@ -71,7 +71,7 @@ single   GraphRAG global   25       2       1        22     0.100     0.080    0
 
 cross    Vector k=5        25      16       4         5     0.720     0.440    0.411
 cross    Vector k=10       25      20       3         2     0.860     0.680    0.274
-cross    Vector-line k=5   25      11       9         5     0.620     0.320    0.409
+cross    Vector-line k=5   25      10      10         5     0.600     0.320    0.409
 cross    Vector-line k=10  25      16       7         2     0.780     0.560    0.305
 cross    V-hybrid k=5      25      15       8         2     0.760     0.520    0.369
 cross    V-hybrid k=10     25      19       5         1     0.860     0.800    0.245
@@ -79,10 +79,10 @@ cross    Hybrid k=5        25      18       6         1     0.840     0.600    0
 cross    Hybrid k=8        25      21       3         1     0.900     0.800    0.242
 cross    Hybrid k=10       25      23       2         0     0.960     0.840    0.211
 cross    Extract           25      16       5         4     0.740     0.480    0.686
-cross    Filter2           25      12       7         6     0.620     0.200    0.617
+cross    Filter2           25      12       6         7     0.600     0.200    0.617
 cross    Filter3           25      21       2         2     0.880     0.760    0.611
 cross    Ceiling           25      24       1         0     0.980     1.000    1.000
-cross    GraphRAG local    25      13       9         3     0.700     0.840    0.069
+cross    GraphRAG local    25      12      10         3     0.680     0.840    0.069
 cross    GraphRAG global   25       3       6        16     0.240     0.360    0.053
 ```
 
@@ -108,7 +108,7 @@ all three land at 24/25 — because the wider union context occasionally
 confuses synthesis on single-passage questions.
 
 The **Filter** rows use the LLM as retriever rather than dense embeddings:
-Filter3 posts 0.940, Filter2 0.800. The `maybe`-verdict mechanism, cost/gold-floor
+Filter3 posts 0.940, Filter2 0.790. The `maybe`-verdict mechanism, cost/gold-floor
 analysis, and verdict that finds no retrieval advantage over Vector k=10 are in
 [FILTER.md](../FILTER.md).
 
@@ -392,13 +392,13 @@ expansion and answering. The question is whether a finer unit — matching the o
 sentence that answers the question, rather than diluting it across a whole scene
 — retrieves better.
 
-It does not, on balance. The headline is **0.810 (k=5) / 0.890 (k=10)**, below
+It does not, on balance. The headline is **0.800 (k=5) / 0.890 (k=10)**, below
 segment Vector's 0.840 / 0.930 at both depths. The line unit does exactly what
 finer granularity should — it lifts **chapter precision** (k=5 0.337→0.401, k=10
 0.205→0.274, the highest of any dense method) and **saturates single-passage to
 1.000 at both depths**, beating segment k=5's 0.960. But it lowers **chapter
 recall** (k=5 0.720→0.660, k=10 0.840→0.780), and the entire deficit is
-cross-reference: cross drops to 0.620 (k=5) and 0.780 (k=10).
+cross-reference: cross drops to 0.600 (k=5) and 0.780 (k=10).
 
 ### Why cross-reference suffers
 
@@ -427,7 +427,8 @@ that segment search drops. At k=10 it recovers **Q34 (Ch31)** and **Q49 (Ch22)**
 — the latter a [Class A](#both-wrong-what-k10-cannot-fix) chapter (the forged
 Delhi petition) that dense *segment* search misses at both depths, here surfaced
 because one lexically sharp line ranks where the averaged scene did not. At k=5
-it additionally fixes Q21/Q29 by synthesis and Q28/Q45 by retrieval. So line and
+it additionally fixes Q21/Q29 by synthesis and Q45 by retrieval, and lifts Q28
+from incorrect to partial by retrieving both of its chapters. So line and
 segment granularity fail on **orthogonal chapters** — the same dense-vs-lexical
 tension [Hybrid](#hybrid-dense--bm25-union) exploits, in miniature — but the line
 unit drops more cross chapters than it recovers, so the net is negative and
@@ -435,9 +436,10 @@ segment-level retrieval stays the stronger dense baseline.
 
 ### Depth still helps
 
-Like segment Vector, deepening k=5→k=10 is a pure retrieval gain: Vector-line
-k=10 beats k=5 on 7 questions, **all missed-context**, against a single
-regression (Q50, Ch23). The k=5 unit is simply too tight for cross-reference —
+Like segment Vector, deepening k=5→k=10 is almost purely a retrieval gain:
+Vector-line k=10 beats k=5 on 8 questions, **7 of them missed-context** (the
+eighth, Q28, already has both gold chapters at k=5 but answers only partially),
+against a single regression (Q50, Ch23). The k=5 unit is simply too tight for cross-reference —
 the same lesson [`sweep_vector.py`](../README.md#sweep_vectorpy) drew for the
 segment index, only sharper here because the line unit retrieves less per hit.
 
@@ -452,7 +454,7 @@ dense + BM25, so it needs no score-scale reconciliation and works in both
 languages.
 
 It scores **0.880 (k=5) / 0.910 (k=10)** — above plain Vector k=5 (0.840) and
-Vector-line (0.810 / 0.890), below segment Vector k=10 (0.930) and the dense∪BM25
+Vector-line (0.800 / 0.890), below segment Vector k=10 (0.930) and the dense∪BM25
 Hybrid (0.900 / 0.960). The most striking column is `incorrect`: V-hybrid k=5
 has just **2** (vs Vector k=5's 6, Vector-line k=5's 5), with 8 partials. The
 union surfaces so many gold chapters that almost nothing is fully missed — chapter
@@ -501,7 +503,7 @@ per-chapter Extract gets, confirming those are a dense-retrieval problem rather
 than a gold one. Its residual losses are confident-wrong-`no` wipeouts (Q34,
 Q42, and the Class B Q32), the same chapters Extract also drops. The `maybe`
 verdict is the lever — the strict two-level Filter2 (keep only `yes`) falls to
-0.800, below Extract — but the gold-floor and cost analysis in FILTER.md finds
+0.790, below Extract — but the gold-floor and cost analysis in FILTER.md finds
 no retrieval advantage over Vector k=10. The Ceiling comparison below uses Filter3
 as the best-scoring retrieval method.
 
@@ -522,7 +524,7 @@ and the gradient tracks retrieval quality exactly:
 
 | method | method score | Ceiling beats it on | missed-context | synthesis | beats Ceiling on |
 | --- | --- | --- | --- | --- | --- |
-| Filter2 | 0.800 | 13 | 12 | 1 | 0 |
+| Filter2 | 0.790 | 13 | 12 | 1 | 0 |
 | Vector k=5 | 0.840 | 10 | 8 | 2 | 1 |
 | Extract | 0.850 | 10 | 7 | 3 | 1 |
 | Hybrid k=5 | 0.900 | 7 | 6 | 1 | 0 |
@@ -619,18 +621,18 @@ graph over the corpus and answers queries through two distinct search modes —
 modes run on `ollama:gemma4:31b-it-qat` with the same corpus; details in
 [graphrag-en/README.md](../graphrag-en/README.md).
 
-### GraphRAG local (0.660)
+### GraphRAG local (0.650)
 
-Local search posts 28/50 (0.660) — below Filter2 (0.800) and far below Hybrid
+Local search posts 27/50 (0.650) — below Filter2 (0.790) and far below Hybrid
 k=10 (0.960). The chapter-retrieval numbers tell the story: **recall 0.860,
 precision 0.135** (the lowest of any non-global method). Entity-graph expansion
 tends to pull in nearly all 37 chapters as expanded context, so gold chapters
 are almost always present — but the answerer is forced to synthesize from an
 overloaded context with minimal signal-to-noise.
 
-The failure mode is therefore **synthesis-dominated**. Of GraphRAG local's 21
+The failure mode is therefore **synthesis-dominated**. Of GraphRAG local's 22
 losses to Ceiling, **16 are synthesis** (the gold chapter is present but the
-answer is wrong or vague) and only 5 are missed context. This is the inverse of
+answer is wrong or vague) and only 6 are missed context. This is the inverse of
 Vector k=5 (where most losses are retrieval misses) and is structurally similar
 to the "lost in the middle" effect: the right content is there, but buried under
 noise. Hybrid k=10 keeps its context to the union top-k and avoids this;
@@ -640,12 +642,13 @@ The synthesis collapse is sharpest on **single-passage questions** (15/25,
 0.620) — the category every retrieval method with adequate recall saturates to
 ≥24/25. GraphRAG local drops 9 of those 25 to incorrect (and 1 to partial),
 producing the worst single-passage score of any method. On cross-reference it
-lands at 13/25 (0.700), just below Vector k=5 (0.720) — the chapter-graph's
+lands at 12/25 (0.680), below Vector k=5 (0.720) — the chapter-graph's
 entity links provide no structural advantage when the bottleneck is synthesis
 over a noisy context.
 
-GraphRAG local **never beats Hybrid k=10** on any question. Hybrid k=10 wins 20
-questions against it (15 synthesis, 5 missed context); GraphRAG local wins 0.
+GraphRAG local **beats Hybrid k=10 on a single question** (Q31, where the
+union context still lacks Ch22). Hybrid k=10 wins 21 questions against it (15
+synthesis, 6 missed context).
 
 ### What GraphRAG local gets right
 
@@ -654,13 +657,16 @@ answers correctly reveals a coherent pattern: it succeeds on questions whose
 answers are encoded as **entity relationships or narrative arcs**, and fails on
 questions requiring **specific microdetail from the raw text**.
 
-**Pure graph traversal (0 chapters retrieved, yet correct).** Two cross-reference
-questions — Q26 and Q28 — receive correct answers with `expanded=[]`: no chapter
+**Pure graph traversal (0 chapters retrieved).** Two cross-reference
+questions — Q26 and Q28 — are answered with `expanded=[]`: no chapter
 text is retrieved at all. Q26 asks how the dynamic between Udayaditya and the
 guard Sitaram *reverses* across two escapes; Q28 asks in what two locations and
-disguises Ramai Bhand faces retaliation. Both turns on the *shape of a
+disguises Ramai Bhand faces retaliation. Both turn on the *shape of a
 relationship arc* — exactly what a knowledge graph's entity/relationship edges
-encode. The graph answered without needing any passage context.
+encode. Q26 is correct; Q28 is partial, pairing each incident with its target
+and disguise but placing the second only in "a room", without Chandradwip. The
+graph supplied the arc without any passage context, though not every place
+detail.
 
 **Class A recovery (Q31, Q49).** The two Class A questions that every Vector
 depth and Hybrid misses — Q31 (signet ring → seal forgery → imprisonment) and
@@ -670,8 +676,8 @@ blind to Ch21/22 and Ch22 because those chapters are semantically generic; BM25
 recovers them via lexical matching. GraphRAG takes a third path: the
 knowledge graph explicitly encodes the entity chain (ring → conspiracy →
 imprisonment) as relationship edges, so local graph traversal reaches the answer
-independently of chapter ranking. The same mechanism explains why Q26/Q28 need
-zero chapters — entity chains suffice.
+independently of chapter ranking. The same mechanism explains why Q26/Q28 can
+be answered from zero chapters — entity chains carry the arc.
 
 **The entity-vs-procedural boundary (Q43).** Q43 (Class A, Ch37 — palanquin
 extraction) is partial: the graph correctly identifies *who* was rescued by
@@ -703,7 +709,7 @@ Single-passage (2/25, 0.100) is almost a complete failure: community-level
 summaries cannot anchor a question to the specific scene where an event occurs.
 Cross-reference (3/25, 0.240) fares slightly better because a handful of
 prominent cross-cutting themes appear in the community summaries, but the score
-is still far below every other method including Filter2 (0.620).
+is still far below every other method including Filter2 (0.600).
 
 ### Summary
 
@@ -722,7 +728,7 @@ index).
   single saturates to 1.00, and Vector k=10 overtakes Extract on accuracy
   (0.93 vs 0.85). The win is broad — six questions fixed — at the cost of one
   synthesis regression (Q34) and lower chapter precision. (The Filter rows —
-  Filter3 at 0.94, Filter2 at 0.80 — are analyzed in [FILTER.md](../FILTER.md).)
+  Filter3 at 0.94, Filter2 at 0.79 — are analyzed in [FILTER.md](../FILTER.md).)
 - **The 0.93 vs 0.85 margin is Extract's Phase 1 filter, not its synthesis —
   and Filter3 confirms the fix.** `report.py`'s disagreement pass shows 6 of
   Extract's 9 losses to k=10 are Phase 1 false negatives (a gold chapter
@@ -781,13 +787,14 @@ index).
   under Ceiling) and Q32 (the secret-stipend question, correct under Ceiling
   despite being partial for every retrieval method).
 - **GraphRAG does not match the pipeline on this task overall, but reveals what
-  graph structure can and cannot do.** Local search (0.660) falls below Filter2:
+  graph structure can and cannot do.** Local search (0.650) falls below Filter2:
   entity-graph expansion overloads context (recall 0.860, precision 0.135) and
-  16 of 21 losses to Ceiling are synthesis failures, not missed context. Yet it
+  16 of 22 losses to Ceiling are synthesis failures, not missed context. Yet it
   has a coherent strength — questions about *character relationship arcs and
   narrative causality* (e.g. Q26/Q28, answered with 0 chapters from pure graph
-  traversal; Q31/Q49, the Class A cases that dense+BM25 also recovers via
-  lexical matching, here recovered via entity chains). It fails on microdetail
-  questions requiring specific text. Global search (0.170) is non-functional:
-  community summaries are the wrong granularity (37 of 45 losses to Ceiling are
-  missed context). Neither mode beats Hybrid k=10 on any question.
+  traversal, Q26 correct and Q28 partial; Q31/Q49, the Class A cases that
+  dense+BM25 also recovers via lexical matching, here recovered via entity
+  chains). It fails on microdetail questions requiring specific text. Global
+  search (0.170) is non-functional: community summaries are the wrong
+  granularity (37 of 45 losses to Ceiling are missed context). Global never
+  beats Hybrid k=10; local beats it only on Q31.
