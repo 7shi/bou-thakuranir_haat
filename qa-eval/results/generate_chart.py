@@ -2,11 +2,13 @@
 
 Reads scores through `report.collect_rows` (the same discovery/aggregation
 code `make report` uses), so this chart and report.md can never disagree.
-Run via `make report` (see Makefile), which regenerates both.
+Run via `make report` (see Makefile), which regenerates both; `--jev` (via
+`make report-jev`) charts the Jev verdicts into MODELS-jev.svg/png instead.
 """
 # /// script
 # dependencies = ["matplotlib"]
 # ///
+import argparse
 from pathlib import Path
 
 import matplotlib
@@ -19,17 +21,15 @@ from report import LANGS, collect_rows
 matplotlib.rcParams["svg.hashsalt"] = "qa-eval-models-chart"
 
 HERE = Path(__file__).parent
-OUTPUT = HERE / "MODELS.svg"
-OUTPUT_PNG = HERE / "MODELS.png"
 
 
 def weighted_pct(row: dict) -> int:
     return (2 * row["correct"] + row["partial"]) * 100 // (2 * row["total"])
 
 
-def load_ceiling_scores() -> list[tuple[str, int, int]]:
+def load_ceiling_scores(jev: bool = False) -> list[tuple[str, int, int]]:
     by_model: dict[str, dict[str, dict]] = {}
-    for row in collect_rows(HERE):
+    for row in collect_rows(HERE, jev):
         if row["method"] != "ceiling":
             continue
         by_model.setdefault(row["model"], {})[row["lang"]] = row
@@ -43,7 +43,15 @@ def load_ceiling_scores() -> list[tuple[str, int, int]]:
 
 
 def main() -> None:
-    rows = load_ceiling_scores()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--jev", action="store_true",
+                        help="chart the Jev verdicts (jev/*.tsv) into MODELS-jev.svg/png")
+    args = parser.parse_args()
+    suffix = "-jev" if args.jev else ""
+    output = HERE / f"MODELS{suffix}.svg"
+    output_png = HERE / f"MODELS{suffix}.png"
+
+    rows = load_ceiling_scores(args.jev)
     if not rows:
         print("No ceiling runs with both en and ja judged")
         return
@@ -64,16 +72,16 @@ def main() -> None:
     ax.set_yticklabels(models, fontsize=8)
     ax.invert_yaxis()
     ax.set_xlabel("Weighted score (correct + 0.5*partial, %)")
-    ax.set_title("Ceiling: per-model answerer comparison")
+    ax.set_title("Ceiling: per-model answerer comparison" + (" (Jev)" if args.jev else ""))
     ax.set_xlim(0, 100)
     ax.legend(loc="lower left")
     ax.grid(axis="x", alpha=0.3)
 
     fig.tight_layout()
-    fig.savefig(OUTPUT)
-    print(f"Saved: {OUTPUT}")
-    fig.savefig(OUTPUT_PNG)
-    print(f"Saved: {OUTPUT_PNG}")
+    fig.savefig(output)
+    print(f"Saved: {output}")
+    fig.savefig(output_png)
+    print(f"Saved: {output_png}")
 
 
 if __name__ == "__main__":

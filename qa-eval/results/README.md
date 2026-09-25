@@ -28,6 +28,10 @@ Filenames encode the method, model and language so multiple experiments coexist
 - `<METHOD>-<MODEL>-<LANG>.jsonl` — answers, e.g.
   `hybrid8-google_gemini-4-31b-it-ja.jsonl`
 - `judge/<METHOD>-<MODEL>-<LANG>.jsonl` — verdicts (`judge.py`, opt-in)
+- `jev/<METHOD>-<MODEL>-<LANG>.tsv` — Jev probabilities (`judge-jev.py`,
+  opt-in; see [JEV.md](../JEV.md)), with `jev/MODELS.tsv` recording the Jev
+  version and scheme per file; the run's cost and time are in
+  [JEV.md](JEV.md)
 
 The method leads so runs group by method, and the language trails so it can be
 read straight off the filename — the model is the only field that may itself
@@ -49,7 +53,9 @@ make hybrid8 MODEL=... LANG={en,ja}   # answer 50 questions → hybrid8-<MODEL>-
 make ceiling MODEL=... LANG={en,ja}   # answer 50 questions → ceiling-<MODEL>-<LANG>.jsonl
 make test    MODEL=... LANG={en,ja}   # answer question 1 only, both methods, no file output
 make judge                            # opt-in: grade every ungraded answer file
+make judge-jev                        # opt-in: the same with Jev → jev/*.tsv
 make report                           # aggregate every judged run → report.md
+make report-jev                       # aggregate jev/*.tsv → report-jev.md
 ```
 
 - `MODEL` — llm7shi model string of the answerer (e.g.
@@ -64,6 +70,8 @@ polluting the directory with a throwaway file to clean up afterward.
 
 `make judge` needs neither: it scans this directory for answer files that have
 no `judge/` counterpart yet and reads the language off each filename.
+`make judge-jev` does the same against `jev/`, passing the pending files to one
+`judge-jev.py` call per language.
 
 Example:
 
