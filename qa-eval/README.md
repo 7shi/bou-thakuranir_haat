@@ -136,6 +136,12 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 * **Global Search Failure:** Global community summaries are too abstract for passage-level QA in either language (0.170 EN, 0.240 JA — the weakest score in each language).
 * **Extreme Cost:** Building the graph and running all 100 queries takes 13h 6m (EN) / 20h 19m (JA)—impractical compared to minutes for flat vector indexing. Japanese takes longer because the same token-based chunk size splits the (larger, denser) Japanese text into more chunks, cascading into more LLM calls throughout indexing and querying.
 
+### Jev as the Judge — [jev/README.md](jev/README.md)
+
+* **qwen Is Lenient:** The `ollama:qwen3.6` judge saturates the multi-model Ceiling table at 98–100. TypeSafe's Jev (`jev-1.13.0`), asked one Choice question over the same rubric, is stricter, and its extra *partial* verdicts are missing parts of multi-part gold answers rather than style, including one "cannot answer" that qwen graded *correct*.
+* **Separates the Top:** On six Ceiling models (EN), the three that qwen scores 100 drop to 93–95 under Jev, and the gap to qwen3.6 (87) widens.
+* **Choice Over Noul:** A yes/no Noul with thresholds reproduces the Choice only at an upper threshold of about 0.8 (292/300 identical verdicts), so the Choice is kept, with no threshold to tune.
+
 ## Overall Conclusions and Practical Takeaways
 
 1. **Evaluation Collapses to Retrieval:** The `Ceiling` run proves that as long as the correct chapters are included in the context, the model can generate answers with high accuracy. Therefore, improving a QA system is almost entirely equivalent to improving retrieval recall.
