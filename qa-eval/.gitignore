@@ -9,6 +9,7 @@ graphrag-*/global/
 graphrag-*/.env
 graphrag-*/settings.yaml
 results/MODELS.png
+results/MODELS-jev.png
 opencode/en/
 opencode/ja/
 opencode/tmp/

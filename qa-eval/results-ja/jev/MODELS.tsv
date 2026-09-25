@@ -1,0 +1,16 @@
+file	model	scheme
+ceiling.tsv	jev-1.13.0	choice@19579e23
+extract.tsv	jev-1.13.0	choice@19579e23
+filter2.tsv	jev-1.13.0	choice@19579e23
+filter3.tsv	jev-1.13.0	choice@19579e23
+graphrag-global.tsv	jev-1.13.0	choice@19579e23
+graphrag-local.tsv	jev-1.13.0	choice@19579e23
+hybrid10.tsv	jev-1.13.0	choice@19579e23
+hybrid5.tsv	jev-1.13.0	choice@19579e23
+hybrid8.tsv	jev-1.13.0	choice@19579e23
+vector-hybrid10.tsv	jev-1.13.0	choice@19579e23
+vector-hybrid5.tsv	jev-1.13.0	choice@19579e23
+vector-line10.tsv	jev-1.13.0	choice@19579e23
+vector-line5.tsv	jev-1.13.0	choice@19579e23
+vector10.tsv	jev-1.13.0	choice@19579e23
+vector5.tsv	jev-1.13.0	choice@19579e23
