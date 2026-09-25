@@ -1,11 +1,27 @@
 # Jev grading of the per-model runs
 
-Every answer file in this directory was graded with Jev by one
-`make judge-jev` run (see [Makefile](Makefile)), writing `jev/*.tsv`. Why Jev,
-and how its verdicts compare with the qwen judge on `results-<lang>/`:
-[../JEV.md](../JEV.md).
+The per-model runs in this directory are graded with TypeSafe's Jev instead of
+the `ollama:qwen3.6` judge, and the scores in [README.md](README.md) are the
+Jev verdicts. This document records how the switch was made: the experiment
+that chose Jev, the grading run, and how the verdicts compare with qwen's. The
+same switch for `results-<lang>/`: [../JEV.md](../JEV.md).
 
-## Run
+## Introduction experiment
+
+The switch started from this directory. Under qwen the multi-model Ceiling
+table had saturated: many models scored 98–100 in both languages, so the top
+no longer separated models. [../jev/README.md](../jev/README.md) tried Jev on
+the English Ceiling answers of six models from here, from saturated to
+mid-table, plus four retrieval runs from `results-en/`. A single Choice
+question over `judge.py`'s rubric moved the three models qwen scored 100 off
+the top and widened the gap to `ollama_qwen3.6`, and its extra *partial*
+verdicts were omitted parts of multi-part gold answers rather than style, so
+the Choice was adopted as the judge.
+
+## Grading run
+
+Every answer file here was then graded by one `make judge-jev` run (see
+[Makefile](Makefile)), writing `jev/*.tsv`.
 
 - Judge: [judge-jev.py](../judge-jev.py), `jev-1.13.0`, scheme `choice@19579e23`
   (recorded for all 82 files in `jev/MODELS.tsv`)
@@ -26,15 +42,16 @@ Output is a fixed 39 tokens per request regardless of content. Input follows
 the length of the question, gold answer, rationale and candidate answer;
 Japanese needs about 1.34× the tokens of English for the same material.
 
+`make report-jev` aggregates the Jev verdicts into [report-jev.md](report-jev.md)
+and [MODELS-jev.svg](MODELS-jev.svg); the qwen verdicts stay in `judge/` and
+[report.md](report.md) / [MODELS.svg](MODELS.svg).
+
 ## Comparison with qwen
 
-`make report-jev` aggregates the Jev verdicts into [report-jev.md](report-jev.md)
-and [MODELS-jev.svg](MODELS-jev.svg), beside the qwen [report.md](report.md) and
-[MODELS.svg](MODELS.svg). As in `report-jev.md`, each question counts as its most
-probable verdict (the stricter one on a tie), and scores are
-`(correct + 0.5·partial) / 50` in percent. **E** is the same score over the
-probabilities, mean of P(correct) + 0.5·P(partial), which also separates models
-that tie on verdicts.
+Each question counts as its most probable Jev verdict (the stricter one on a
+tie), and scores are `(correct + 0.5·partial) / 50` in percent. **E** is the
+same score over the probabilities, mean of P(correct) + 0.5·P(partial), which
+also separates models that tie on verdicts.
 
 ### Ceiling
 
@@ -82,7 +99,7 @@ that tie on verdicts.
 
 Sorted by the Jev score summed over both languages.
 
-- **The ceiling is gone.** Under qwen, 21 of 39 models score ≥ 98 in English
+- **The saturation is gone.** Under qwen, 21 of 39 models score ≥ 98 in English
   (10 at 100) and 15 in Japanese (6 at 100). Under Jev none reaches 98; the top
   is 97 (en) / 96 (ja). The mean drop is 6.8 points (en) and 8.3 (ja).
 - **The order is broadly kept.** Spearman's rank correlation between the qwen
@@ -92,17 +109,10 @@ Sorted by the Jev score summed over both languages.
   in Japanese under qwen but 89 and 92 under Jev, while
   `opencode_muse-spark-1.2/1.3` and `openrouter_stealth_ox-alpha`, also 100
   under qwen, drop only to 96.
-- **The top is still compressed.** The 15 best English models lie within 93–97,
-  and one question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
-  incorrect), so neighbours there differ by one or two questions, within the
-  grading noise. E, which does not round each question to a verdict, is the
-  finer tiebreaker.
-- **Almost every loss is a cross question.** Of the non-correct verdicts across
-  the 39 Ceiling runs, 363 of 394 (en) and 501 of 526 (ja) are on cross
-  questions. The most frequent are en Q42 (32 of 39 models) and ja Q46 (34 of
-  39).
 
-Verdict transitions over all 41 runs per language (Ceiling and Hybrid8):
+### Verdict transitions
+
+Over all 41 runs per language (Ceiling and Hybrid8):
 
 | qwen \ Jev | en correct | en partial | en incorrect | ja correct | ja partial | ja incorrect |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -113,16 +123,16 @@ Verdict transitions over all 41 runs per language (Ceiling and Hybrid8):
 As on `results-<lang>/`, the shift is almost entirely qwen *correct* → Jev
 *partial*; Jev never turns a qwen *correct* into *incorrect*.
 
-### Hybrid8 vs. Ceiling
+### Hybrid8
 
-| Model | Lang | Ceiling qwen | Ceiling Jev | Hybrid8 qwen | Hybrid8 Jev |
-| --- | --- | ---: | ---: | ---: | ---: |
-| `openrouter_stealth_ox-alpha` | en | 98 | 95 | 97 | 95 |
-| `openrouter_stealth_ox-alpha` | ja | 100 | 96 | 98 | 95 |
-| `ollama_qwen3.8` | en | 100 | 96 | 99 | 94 |
-| `ollama_qwen3.8` | ja | 99 | 91 | 95 | 90 |
+The conclusion that the Hybrid k=8 context costs `ollama_qwen3.8` and
+`openrouter_stealth_ox-alpha` little over the gold chapters holds under both
+judges: each stays within 2 points of its Ceiling score in both languages
+([README.md § Hybrid8 vs. ceiling](README.md#hybrid8-vs-ceiling-what-retrieval-costs)).
 
-Under Jev, Hybrid8 stays within 2 points (one question) of Ceiling for both
-models in both languages, and ox-alpha en is level, so the
-qwen-era reading that the Hybrid k=8 context costs these answerers little over
-the gold chapters still holds.
+What changes is the grading of questions whose gold chapters are absent from
+the k=8 context. qwen split answers that name what they can and leave the rest
+open between *partial* and *incorrect*: ja Q27 was *incorrect* for
+`stealth_ox-alpha` but *partial* for Gemma and qwen3.8, and ja Q42 was
+*incorrect* for qwen3.8. Jev grades all of these *partial*, and no
+missing-evidence question is *incorrect* for any of the three models.

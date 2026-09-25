@@ -11,7 +11,10 @@ counting as its most probable verdict). The judge stem is split as
 `<METHOD>-<MODEL>-<LANG>` (METHOD e.g. `hybrid8` or `ceiling`, LANG = en|ja,
 MODEL is the filename-sanitized model string with ":" and "/" written as "_"),
 so a new run appears here as soon as it is graded. The matching answer file
-(`<stem>.jsonl`) supplies the retrieval columns when present.
+(`<stem>.jsonl`) supplies the retrieval columns when present. The default
+answerer's canonical ceiling and hybrid8 runs (`results-<lang>/<method>.jsonl`
+with their `judge/` or `jev/` verdicts) are added as `google_gemma-4-31b-it`
+rows, so this report covers every model in the README tables.
 
 Two axes, both computed the same way as the parent report:
 
@@ -54,6 +57,10 @@ load_judge = _qa_eval_report.load_judge
 # everything after the last one.
 RUN_RE = re.compile(r"(?P<method>[^-]+)-(?P<model>.+)-(?P<lang>en|ja)")
 LANGS = ("en", "ja")
+# The default answerer (filename-sanitized) and the methods whose canonical
+# results-<lang>/<method>.jsonl runs are aggregated alongside this directory's.
+CANONICAL_MODEL = "google_gemma-4-31b-it"
+CANONICAL_METHODS = ("ceiling", "hybrid8")
 LANG_LABELS = {"en": "English", "ja": "Japanese"}
 
 
@@ -77,6 +84,19 @@ def discover_runs(results: Path, jev: bool = False) -> list[dict]:
                       "method": m["method"],
                       "judge_path": judge,
                       "answer_path": answer if answer.exists() else None})
+    # The default answerer's runs of the same methods live in the canonical
+    # results-<lang>/ trees, not here; they join the table as ordinary rows.
+    for method in CANONICAL_METHODS:
+        for lang in LANGS:
+            tree = QA_EVAL / f"results-{lang}"
+            judge = tree / (f"{JEV_DIR}/{method}.tsv" if jev
+                            else f"{JUDGE_DIR}/{method}.jsonl")
+            if not judge.exists():
+                continue
+            answer = tree / f"{method}.jsonl"
+            found.append({"model": CANONICAL_MODEL, "lang": lang, "method": method,
+                          "judge_path": judge,
+                          "answer_path": answer if answer.exists() else None})
     return sorted(found, key=lambda r: (r["method"], r["model"],
                                         LANGS.index(r["lang"])))
 
@@ -132,11 +152,13 @@ def render_markdown(rows: list[dict], jev: bool = False) -> str:
             "",
         ]
     out += [
-        "Every judged run in this directory, aggregated independently of the main",
-        "table in [qa-eval/README.md](../README.md). Cells read `weighted% (correct/partial/",
-        "incorrect)`, matching the tables README.md copies rows from",
-        "([Ceiling](../README.md#ceiling-comparing-answerer-models),",
-        "[Hybrid8 vs. ceiling](../README.md#hybrid8-vs-ceiling-what-retrieval-costs)).",
+        "Every judged run in this directory, plus the default answerer's canonical",
+        "`results-<lang>/{ceiling,hybrid8}.jsonl` runs as `google_gemma-4-31b-it`,",
+        "aggregated independently of the main table in [qa-eval/README.md](../README.md).",
+        "Cells read `weighted% (correct/partial/incorrect)`, matching the tables",
+        "[README.md](README.md) copies rows from",
+        "([Ceiling](README.md#ceiling-comparing-answerer-models),",
+        "[Hybrid8 vs. ceiling](README.md#hybrid8-vs-ceiling-what-retrieval-costs)).",
         "Model names are the filename-sanitized llm7shi strings (\":\" and \"/\" written",
         'as "_").',
         "",

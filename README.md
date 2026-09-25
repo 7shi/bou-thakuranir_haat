@@ -115,6 +115,6 @@ directory|description
 
 [qa-eval/](qa-eval/) evaluates retrieval strategies for answering questions about the novel — vector search, BM25, hybrid union, LLM-as-retriever filtering, per-chapter extraction, and GraphRAG — plus a per-model comparison of answerer models under a fixed context. See [qa-eval/README.md](qa-eval/README.md) for the full writeup.
 
-**Per-model answerer comparison** ([qa-eval/results/README.md](qa-eval/results/README.md)): ceiling score (gold chapters as context, byte-identical across models) per model, English vs. Japanese.
+**Per-model answerer comparison** ([qa-eval/results/README.md](qa-eval/results/README.md)): ceiling score (gold chapters as context, byte-identical across models) per model, English vs. Japanese, graded by Jev.
 
-![Per-model answerer comparison](qa-eval/results/MODELS.svg)
+![Per-model answerer comparison](qa-eval/results/MODELS-jev.svg)

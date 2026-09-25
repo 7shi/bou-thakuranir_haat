@@ -6,11 +6,13 @@ Graded by TypeSafe Jev (`judge-jev.py`, `jev/*.tsv`) instead of the qwen
 judge; each question counts as its most probable verdict, the stricter
 one on a tie. See [jev/README.md](../jev/README.md) for why.
 
-Every judged run in this directory, aggregated independently of the main
-table in [qa-eval/README.md](../README.md). Cells read `weighted% (correct/partial/
-incorrect)`, matching the tables README.md copies rows from
-([Ceiling](../README.md#ceiling-comparing-answerer-models),
-[Hybrid8 vs. ceiling](../README.md#hybrid8-vs-ceiling-what-retrieval-costs)).
+Every judged run in this directory, plus the default answerer's canonical
+`results-<lang>/{ceiling,hybrid8}.jsonl` runs as `google_gemma-4-31b-it`,
+aggregated independently of the main table in [qa-eval/README.md](../README.md).
+Cells read `weighted% (correct/partial/incorrect)`, matching the tables
+[README.md](README.md) copies rows from
+([Ceiling](README.md#ceiling-comparing-answerer-models),
+[Hybrid8 vs. ceiling](README.md#hybrid8-vs-ceiling-what-retrieval-costs)).
 Model names are the filename-sanitized llm7shi strings (":" and "/" written
 as "_").
 
@@ -27,6 +29,7 @@ as "_").
 | `google_gemini-3.7-flash` | ceiling | 87 (38/11/1) | 85 (36/13/1) |
 | `google_gemini-3.8-flash` | ceiling | 91 (42/7/1) | 88 (39/10/1) |
 | `google_gemma-4-26b-a4b-it` | ceiling | 85 (36/13/1) | 81 (32/17/1) |
+| `google_gemma-4-31b-it` | ceiling | 97 (47/3/0) | 92 (42/8/0) |
 | `llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0` | ceiling | 90 (40/10/0) | 86 (36/14/0) |
 | `ollama_gemma4_12b-it-qat` | ceiling | 78 (32/14/4) | 72 (27/18/5) |
 | `ollama_gemma4_26b-a4b-it-qat` | ceiling | 87 (38/11/1) | 82 (32/18/0) |
@@ -55,6 +58,7 @@ as "_").
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 78 (29/20/1) | 63 (20/23/7) |
 | `openrouter_stealth_ox-alpha` | ceiling | 95 (45/5/0) | 96 (46/4/0) |
 | `openrouter_stealth_space-bunny-alpha` | ceiling | 90 (40/10/0) | 80 (30/20/0) |
+| `google_gemma-4-31b-it` | hybrid8 | 87 (39/9/2) | 86 (37/12/1) |
 | `ollama_qwen3.8` | hybrid8 | 94 (44/6/0) | 90 (41/8/1) |
 | `openrouter_stealth_ox-alpha` | hybrid8 | 95 (45/5/0) | 95 (45/5/0) |
 
@@ -77,6 +81,7 @@ language). A question absent from every column of a row was graded
 | `google_gemini-3.7-flash` | ceiling | 29, 33, 34, 35, 36, 37, 40, 42, 46, 49, 50 | 17 | 27, 31, 32, 34, 35, 36, 37, 42, 45, 46, 47, 48, 49 | 29 |
 | `google_gemini-3.8-flash` | ceiling | 13, 29, 31, 35, 37, 40, 49 | 17 | 31, 32, 37, 41, 42, 46, 47, 48, 49, 50 | 29 |
 | `google_gemma-4-26b-a4b-it` | ceiling | 26, 27, 31, 32, 34, 37, 38, 41, 42, 45, 47, 49, 50 | 17 | 26, 27, 31, 32, 34, 35, 36, 37, 40, 42, 43, 44, 46, 47, 48, 49, 50 | 29 |
+| `google_gemma-4-31b-it` | ceiling | 34, 42, 48 | — | 29, 34, 36, 37, 41, 46, 47, 48 | — |
 | `llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0` | ceiling | 26, 29, 30, 31, 33, 36, 37, 42, 46, 50 | — | 29, 30, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 46, 49 | — |
 | `ollama_gemma4_12b-it-qat` | ceiling | 28, 29, 30, 31, 32, 36, 37, 38, 41, 42, 45, 47, 48, 49 | 17, 34, 43, 50 | 27, 28, 29, 31, 32, 35, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49 | 4, 6, 22, 34, 50 |
 | `ollama_gemma4_26b-a4b-it-qat` | ceiling | 26, 27, 29, 31, 33, 35, 37, 42, 47, 49, 50 | 17 | 27, 29, 31, 32, 34, 35, 36, 37, 38, 40, 41, 42, 44, 46, 47, 48, 49, 50 | — |
@@ -105,5 +110,6 @@ language). A question absent from every column of a row was graded
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 26, 27, 28, 29, 31, 32, 33, 34, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48, 50 | 45 | 4, 18, 26, 27, 28, 29, 30, 31, 32, 33, 36, 37, 38, 39, 40, 41, 43, 44, 45, 46, 47, 49, 50 | 2, 8, 12, 22, 34, 35, 42 |
 | `openrouter_stealth_ox-alpha` | ceiling | 22, 32, 33, 37, 42 | — | 33, 34, 35, 46 | — |
 | `openrouter_stealth_space-bunny-alpha` | ceiling | 6, 28, 30, 31, 34, 35, 37, 41, 42, 45 | — | 5, 26, 27, 28, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 49, 50 | — |
+| `google_gemma-4-31b-it` | hybrid8 | 30, 31, 32, 36, 37, 42, 46, 48, 50 | 17, 29 | 27, 30, 31, 32, 34, 35, 36, 41, 43, 46, 47, 48 | 29 |
 | `ollama_qwen3.8` | hybrid8 | 22, 31, 32, 36, 37, 50 | — | 27, 30, 32, 35, 36, 42, 46, 47 | 29 |
 | `openrouter_stealth_ox-alpha` | hybrid8 | 22, 31, 32, 46, 50 | — | 27, 32, 34, 36, 42 | — |

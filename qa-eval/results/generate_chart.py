@@ -65,15 +65,20 @@ def main() -> None:
     height = 0.35
     # After invert_yaxis, a smaller offset sits higher on screen, so English
     # (listed first) goes above Japanese for each model.
-    ax.barh([i - height / 2 for i in y], en_scores, height=height, label="English")
-    ax.barh([i + height / 2 for i in y], ja_scores, height=height, label="Japanese")
+    en_bars = ax.barh([i - height / 2 for i in y], en_scores, height=height, label="English")
+    ja_bars = ax.barh([i + height / 2 for i in y], ja_scores, height=height, label="Japanese")
+    # Each score just past its bar's end; the x-axis runs a little past 100
+    # (below) so a 100 still has room for its label.
+    for bars in (en_bars, ja_bars):
+        ax.bar_label(bars, padding=2, fontsize=6)
 
     ax.set_yticks(list(y))
     ax.set_yticklabels(models, fontsize=8)
     ax.invert_yaxis()
-    ax.set_xlabel("Weighted score (correct + 0.5*partial, %)")
+    ax.set_xlabel("Score (correct × 2 + partial, out of 50 questions)")
     ax.set_title("Ceiling: per-model answerer comparison" + (" (Jev)" if args.jev else ""))
-    ax.set_xlim(0, 100)
+    ax.set_xlim(0, 105)
+    ax.set_xticks(range(0, 101, 20))
     ax.legend(loc="lower left")
     ax.grid(axis="x", alpha=0.3)
 
