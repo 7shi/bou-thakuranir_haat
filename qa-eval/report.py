@@ -4,8 +4,9 @@
 Pure mechanical aggregation of existing files — no LLM calls. Prints one
 comparison table to the terminal (methods as rows). Two independent axes:
 
-1. Answer accuracy (from results-<lang>/judge/<method>.jsonl, or with --jev from
-   results-<lang>/jev/<method>.tsv, taking each question's most probable
+1. Answer accuracy (from results-<lang>/judge/<method>.jsonl, with --jev from
+   results-<lang>/jev/<method>.tsv, or with --nimble from
+   results-<lang>/nimble/<method>.tsv, taking each question's most probable
    verdict, the stricter one on a tie): raw correct / partial /
    incorrect counts plus a weighted score = (correct + 0.5*partial) / total.
    `partial` stays visible as its own column so the half-credit weighting never
@@ -56,10 +57,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 QA_EVAL = Path(__file__).resolve().parent
 # Verdicts live in a subdirectory of the results dir, one file per answer file
-# with the same stem: judge/<stem>.jsonl from judge.py (qwen), or with --jev
-# jev/<stem>.tsv from judge-jev.py.
+# with the same stem: judge/<stem>.jsonl from judge.py (qwen), with --jev
+# jev/<stem>.tsv from judge-jev.py, or with --nimble nimble/<stem>.tsv from
+# judge-nimble.py.
 JUDGE_DIR = "judge"
 JEV_DIR = "jev"
+NIMBLE_DIR = "nimble"
 
 # Verdict ordering for display (best first) and ranking (higher = better). The
 # agreement matrix is indexed [rank_a][rank_b]; "strictly better" is rank_a >
@@ -73,9 +76,13 @@ def load_jsonl(path: Path) -> list[dict]:
         return [json.loads(l) for l in f if l.strip()]
 
 
-def judge_file(stem: str, jev: bool = False) -> str:
+def judge_file(stem: str, jev: bool = False, nimble: bool = False) -> str:
     """Path of `stem`'s verdict file, relative to its results dir."""
-    return f"{JEV_DIR}/{stem}.tsv" if jev else f"{JUDGE_DIR}/{stem}.jsonl"
+    if nimble:
+        return f"{NIMBLE_DIR}/{stem}.tsv"
+    if jev:
+        return f"{JEV_DIR}/{stem}.tsv"
+    return f"{JUDGE_DIR}/{stem}.jsonl"
 
 
 def load_jev(path: Path) -> list[dict]:
@@ -271,10 +278,11 @@ def print_disagreement(label_a: str, label_b: str, result: dict) -> None:
     print()
 
 
-def discover_methods(results: Path, jev: bool = False) -> list[tuple[str, str, str]]:
+def discover_methods(results: Path, jev: bool = False, nimble: bool = False) -> list[tuple[str, str, str]]:
     """(label, answer_file, judge_file) triples for every available method.
 
-    The judge file is judge/<stem>.jsonl, or jev/<stem>.tsv with `jev`.
+    The judge file is judge/<stem>.jsonl, jev/<stem>.tsv with `jev`, or
+    nimble/<stem>.tsv with `nimble`.
 
     Vector variants are discovered from results-<lang>/vector<k>.jsonl answer
     files (e.g. vector5.jsonl → "Vector k=5", vector10.jsonl → "Vector k=10").
@@ -311,7 +319,7 @@ def discover_methods(results: Path, jev: bool = False) -> list[tuple[str, str, s
         stem = ans.stem
         k = int(re.fullmatch(r"vector(\d+)", stem).group(1))
         label = f"Vector k={k}"  # vector5 → "Vector k=5", vector10 → "Vector k=10"
-        judge = judge_file(stem, jev)
+        judge = judge_file(stem, jev, nimble)
         if (results / judge).exists():
             found.append((label, ans.name, judge))
 
@@ -324,7 +332,7 @@ def discover_methods(results: Path, jev: bool = False) -> list[tuple[str, str, s
         stem = ans.stem
         k = int(re.fullmatch(r"vector-line(\d+)", stem).group(1))
         label = f"Vector-line k={k}"  # vector-line5 → "Vector-line k=5"
-        judge = judge_file(stem, jev)
+        judge = judge_file(stem, jev, nimble)
         if (results / judge).exists():
             found.append((label, ans.name, judge))
 
@@ -340,7 +348,7 @@ def discover_methods(results: Path, jev: bool = False) -> list[tuple[str, str, s
         stem = ans.stem
         k = int(re.fullmatch(r"vector-hybrid(\d+)", stem).group(1))
         label = f"V-hybrid k={k}"  # vector-hybrid5 → "V-hybrid k=5"
-        judge = judge_file(stem, jev)
+        judge = judge_file(stem, jev, nimble)
         if (results / judge).exists():
             found.append((label, ans.name, judge))
 
@@ -353,17 +361,17 @@ def discover_methods(results: Path, jev: bool = False) -> list[tuple[str, str, s
         stem = ans.stem
         k = int(re.fullmatch(r"hybrid(\d+)", stem).group(1))
         label = f"Hybrid k={k}"  # hybrid5 → "Hybrid k=5", hybrid10 → "Hybrid k=10"
-        judge = judge_file(stem, jev)
+        judge = judge_file(stem, jev, nimble)
         if (results / judge).exists():
             found.append((label, ans.name, judge))
 
-    if (results / "extract.jsonl").exists() and (results / judge_file("extract", jev)).exists():
-        found.append(("Extract", "extract.jsonl", judge_file("extract", jev)))
+    if (results / "extract.jsonl").exists() and (results / judge_file("extract", jev, nimble)).exists():
+        found.append(("Extract", "extract.jsonl", judge_file("extract", jev, nimble)))
     # Filter2 (yes/no) first, then Filter3 (yes/maybe/no, default). Each is
     # included only when both its answer file and its judge file exist.
     for stem, label in [("filter2", "Filter2"), ("filter3", "Filter3")]:
         ans = f"{stem}.jsonl"
-        judge = judge_file(stem, jev)
+        judge = judge_file(stem, jev, nimble)
         if (results / ans).exists() and (results / judge).exists():
             found.append((label, ans, judge))
     # Ceiling: the gold chapters fed verbatim as context (no retrieval). A
@@ -371,15 +379,15 @@ def discover_methods(results: Path, jev: bool = False) -> list[tuple[str, str, s
     # synthesis by definition — it isolates reading comprehension, not
     # retrieval, and sits below the retrieval strategies as the upper bound
     # they chase.
-    if (results / "ceiling.jsonl").exists() and (results / judge_file("ceiling", jev)).exists():
-        found.append(("Ceiling", "ceiling.jsonl", judge_file("ceiling", jev)))
+    if (results / "ceiling.jsonl").exists() and (results / judge_file("ceiling", jev, nimble)).exists():
+        found.append(("Ceiling", "ceiling.jsonl", judge_file("ceiling", jev, nimble)))
     # GraphRAG (Microsoft GraphRAG, external knowledge-graph retriever). Two
     # search modes: local (entity-anchored) and global (community summaries).
     # Appended after Ceiling for cross-system comparison. Works for both
     # languages (graphrag-en/ and graphrag-ja/ sub-projects).
     for mode in ("local", "global"):
         ans = f"graphrag-{mode}.jsonl"
-        judge = judge_file(f"graphrag-{mode}", jev)
+        judge = judge_file(f"graphrag-{mode}", jev, nimble)
         if (results / ans).exists() and (results / judge).exists():
             found.append((f"GraphRAG {mode}", ans, judge))
     return found
@@ -395,6 +403,9 @@ def main():
     parser.add_argument("--jev", action="store_true",
                         help="read Jev verdicts (jev/<stem>.tsv, most probable verdict) "
                              "instead of judge/<stem>.jsonl")
+    parser.add_argument("--nimble", action="store_true",
+                        help="read Nimble verdicts (nimble/<stem>.tsv, most probable verdict) "
+                             "instead of judge/<stem>.jsonl")
     args = parser.parse_args()
 
     args.input = args.input or str(ROOT / f"questions-{args.lang}.jsonl")
@@ -409,7 +420,7 @@ def main():
     scopes += [(t, {qid for qid, g in gold.items() if g["type"] == t})
                for t in types_present]
 
-    methods = discover_methods(results, args.jev)
+    methods = discover_methods(results, args.jev, args.nimble)
     if not methods:
         print(f"No answer/judge pairs found in {results}")
         return

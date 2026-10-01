@@ -3,7 +3,9 @@
 Reads scores through `report.collect_rows` (the same discovery/aggregation
 code `make report` uses), so this chart and report.md can never disagree.
 Run via `make report` (see Makefile), which regenerates both; `--jev` (via
-`make report-jev`) charts the Jev verdicts into MODELS-jev.svg/png instead.
+`make report-jev`) charts the Jev verdicts into MODELS-jev.svg/png instead,
+and `--nimble` (via `make report-nimble`) charts the Nimble verdicts into
+MODELS-nimble.svg/png instead.
 """
 # /// script
 # dependencies = ["matplotlib"]
@@ -27,9 +29,9 @@ def weighted_pct(row: dict) -> int:
     return (2 * row["correct"] + row["partial"]) * 100 // (2 * row["total"])
 
 
-def load_ceiling_scores(jev: bool = False) -> list[tuple[str, int, int]]:
+def load_ceiling_scores(jev: bool = False, nimble: bool = False) -> list[tuple[str, int, int]]:
     by_model: dict[str, dict[str, dict]] = {}
-    for row in collect_rows(HERE, jev):
+    for row in collect_rows(HERE, jev, nimble):
         if row["method"] != "ceiling":
             continue
         by_model.setdefault(row["model"], {})[row["lang"]] = row
@@ -46,12 +48,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--jev", action="store_true",
                         help="chart the Jev verdicts (jev/*.tsv) into MODELS-jev.svg/png")
+    parser.add_argument("--nimble", action="store_true",
+                        help="chart the Nimble verdicts (nimble/*.tsv) into MODELS-nimble.svg/png")
     args = parser.parse_args()
-    suffix = "-jev" if args.jev else ""
+    suffix = "-nimble" if args.nimble else ("-jev" if args.jev else "")
     output = HERE / f"MODELS{suffix}.svg"
     output_png = HERE / f"MODELS{suffix}.png"
 
-    rows = load_ceiling_scores(args.jev)
+    rows = load_ceiling_scores(args.jev, args.nimble)
     if not rows:
         print("No ceiling runs with both en and ja judged")
         return
@@ -76,7 +80,8 @@ def main() -> None:
     ax.set_yticklabels(models, fontsize=8)
     ax.invert_yaxis()
     ax.set_xlabel("Score (correct × 2 + partial, out of 50 questions)")
-    ax.set_title("Ceiling: per-model answerer comparison" + (" (Jev)" if args.jev else ""))
+    title_suffix = " (Nimble)" if args.nimble else (" (Jev)" if args.jev else "")
+    ax.set_title(f"Ceiling: per-model answerer comparison{title_suffix}")
     ax.set_xlim(0, 105)
     ax.set_xticks(range(0, 101, 20))
     ax.legend(loc="lower left")
