@@ -117,6 +117,13 @@ Segment ∪ Line (VECTOR-HYBRID), 英語 / 日本語:
 * **Noul ではなく Choice:** Yes/No の Noul に閾値を置く方式は、上側の閾値を約 0.8 にしたときに Choice をほぼ再現します（300問中292問で同じ判定）。そのため、閾値の調整が不要な Choice を採用しています。
 * **`results-<lang>/` の再判定:** Jev では全手法のスコアが 0.02〜0.11 下がり、その差はほぼすべて、複数要素を問う cross 質問で qwen の *correct* が Jev の *partial* になったものです。single 質問はほぼ変わりません。Ceiling は 0.970（英語）/ 0.920（日本語）に下がり、上位の Hybrid と Filter3 の差は1問以内に縮まります。上記の結果は qwen の判定のままです。
 
+### Nimble によるローカル判定 (Nimble as a Local Judge) — [NIMBLE.md](NIMBLE.md)
+
+* **ローカルかつ無料:** Bespoke Labs の [Nimble](https://ollama.com/library/nimble)（Qwen 3.5 9B をファインチューニング、Apache 2.0）は Ollama 経由（`ollama pull nimble`）で直接動作し、クラウド API 費用なしで決定モデルの判定を利用できます。
+* **厳格さのスイートスポット:** 日英計1,500問の再判定において、Nimble の判定分布（1,068 correct / 273 partial）は qwen の甘さ（1,170 correct）と Jev の厳しさ（954 correct）のちょうど中間に位置し、qwen と 88.2%、Jev と 87.1% の高い一致率を示します。
+* **高スループット:** 自己回帰的なテキスト生成を行わず、フォワードパス1回で厳密に1出力トークンで決定を出すため、ローカル GPU でも1問あたり約0.64秒と高速に処理できます。
+* **日英での高い安定性:** Jev では日本語のスコアが下がりやすかったのに対し、Nimble では日英で極めて安定した較正を保っています（Ceiling は英語 0.950、日本語 0.960。全手法の平均スコア差は −0.007）。
+
 ## 総括とプラクティカルな結論 (Overall Conclusions and Practical Takeaways)
 
 1. **評価軸はリトリーバルに集約される:** `Ceiling` の結果が示す通り、回答生成用のコンテキスト内に「正解のチャプター」が過不足なく含まれてさえいれば、モデルは高い精度で回答を生成できます。したがって、QAシステムの改善はリトリーバル（検索）の再現率向上にほぼ完全に等しいと言えます。

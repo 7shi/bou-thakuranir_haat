@@ -143,6 +143,13 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 * **Choice Over Noul:** A yes/no Noul with thresholds reproduces the Choice only at an upper threshold of about 0.8 (292/300 identical verdicts), so the Choice is kept, with no threshold to tune.
 * **Re-grading `results-<lang>/`:** Every method scores 0.02–0.11 lower under Jev, almost entirely qwen *correct* → Jev *partial* on multi-part cross questions; single questions are essentially unchanged. Ceiling falls to 0.970 (EN) / 0.920 (JA), and Hybrid and Filter3 end within one question of each other at the top. The results above keep the qwen verdicts.
 
+### Nimble as a Local Judge — [NIMBLE.md](NIMBLE.md)
+
+* **Local and Free:** Bespoke Labs' [Nimble](https://ollama.com/library/nimble) (fine-tuned on Qwen 3.5 9B, Apache 2.0) runs directly inside Ollama (`ollama pull nimble`). It provides an open-weights System One decision judge with zero cloud API costs.
+* **The Strictness Sweet Spot:** Across all 1,500 questions (EN + JA), Nimble lands squarely between Qwen's leniency (1,170 correct) and Jev's strictness (954 correct) at 1,068 correct (71.2%), achieving 88.2% agreement with Qwen and 87.1% with Jev.
+* **High Efficiency:** Evaluates in a single parallel forward pass, emitting strictly 1 output token per question without autoregressive decoding overhead (~0.64 s per decision on local GPUs).
+* **Bilingual Consistency:** Unlike Jev, where Japanese scores dropped across 11 methods, Nimble maintains consistent calibration across both languages (Ceiling 0.950 EN vs. 0.960 JA; mean difference −0.007).
+
 ## Overall Conclusions and Practical Takeaways
 
 1. **Evaluation Collapses to Retrieval:** The `Ceiling` run proves that as long as the correct chapters are included in the context, the model can generate answers with high accuracy. Therefore, improving a QA system is almost entirely equivalent to improving retrieval recall.
