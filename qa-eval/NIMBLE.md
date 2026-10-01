@@ -4,7 +4,8 @@ Every answer file in `results-en/` and `results-ja/` (15 methods × 50 questions
 per language = 1,500 requests in total) was re-graded with Bespoke Labs'
 **[Nimble](https://ollama.com/library/nimble)** (hosted locally via Ollama) and
 compared with the existing **`ollama:qwen3.6`** verdicts and TypeSafe's **Jev**
-(`jev-1.13.0`).
+(`jev-1.13.0`). For the multi-model comparison across 40 models in `results/`,
+see [results/NIMBLE.md](results/NIMBLE.md).
 
 Why Nimble and System One decision models: see
 [systemone_overview.md](~/.gemini/antigravity-cli/brain/849cad52-8525-48f2-b302-77d6403bb0f2/systemone_overview.md),
@@ -52,7 +53,8 @@ a separate reasoning generation step. Unlike Jev, it runs on local hardware at
 
 Because Nimble produces its verdict in a single pass without token-by-token text
 generation, its output is strictly 1 token per question, eliminating decoding
-overhead and KV-cache expansion.
+overhead and KV-cache expansion. (A larger 4,100-request evaluation across 40
+models was similarly completed in 46m 24s; see [results/NIMBLE.md](results/NIMBLE.md)).
 
 ---
 
