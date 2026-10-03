@@ -7,6 +7,8 @@ ceiling-copilot_grok-4.5-en.tsv	jev-1.13.0	choice@19579e23
 ceiling-copilot_grok-4.5-ja.tsv	jev-1.13.0	choice@19579e23
 ceiling-copilot_kimi-k2.7-code-en.tsv	jev-1.13.0	choice@19579e23
 ceiling-copilot_kimi-k2.7-code-ja.tsv	jev-1.13.0	choice@19579e23
+ceiling-copilot_kimi-k3-en.tsv	jev-1.13.0	choice@19579e23
+ceiling-copilot_kimi-k3-ja.tsv	jev-1.13.0	choice@19579e23
 ceiling-copilot_mai-code-1.1-flash-en.tsv	jev-1.13.0	choice@19579e23
 ceiling-copilot_mai-code-1.1-flash-ja.tsv	jev-1.13.0	choice@19579e23
 ceiling-google_gemini-2.5-flash-en.tsv	jev-1.13.0	choice@19579e23

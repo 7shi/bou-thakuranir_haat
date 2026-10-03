@@ -22,6 +22,7 @@ as "_").
 | `copilot_gpt-5.6-luna` | ceiling | 91 (41/9/0) | 88 (39/10/1) |
 | `copilot_grok-4.5` | ceiling | 94 (44/6/0) | 93 (43/7/0) |
 | `copilot_kimi-k2.7-code` | ceiling | 94 (45/4/1) | 91 (41/9/0) |
+| `copilot_kimi-k3` | ceiling | 94 (44/6/0) | 95 (45/5/0) |
 | `copilot_mai-code-1.1-flash` | ceiling | 88 (38/12/0) | 82 (33/16/1) |
 | `google_gemini-2.5-flash` | ceiling | 88 (39/10/1) | 85 (35/15/0) |
 | `google_gemini-3-flash-preview` | ceiling | 94 (44/6/0) | 91 (41/9/0) |
@@ -74,6 +75,7 @@ language). A question absent from every column of a row was graded
 | `copilot_gpt-5.6-luna` | ceiling | 13, 27, 30, 31, 34, 42, 43, 46, 50 | — | 31, 35, 36, 37, 38, 40, 41, 46, 47, 48 | 29 |
 | `copilot_grok-4.5` | ceiling | 30, 36, 37, 40, 42, 49 | — | 28, 29, 34, 35, 36, 37, 46 | — |
 | `copilot_kimi-k2.7-code` | ceiling | 31, 34, 36, 37 | 22 | 29, 33, 34, 42, 43, 46, 47, 49, 50 | — |
+| `copilot_kimi-k3` | ceiling | 22, 31, 33, 35, 37, 42 | — | 31, 37, 40, 46, 48 | — |
 | `copilot_mai-code-1.1-flash` | ceiling | 6, 28, 30, 32, 34, 37, 39, 40, 42, 46, 49, 50 | — | 3, 23, 26, 27, 28, 31, 32, 33, 34, 36, 38, 43, 45, 46, 49, 50 | 29 |
 | `google_gemini-2.5-flash` | ceiling | 28, 29, 30, 35, 36, 37, 41, 42, 48, 49 | 17 | 29, 31, 32, 33, 34, 35, 36, 37, 40, 42, 46, 47, 48, 49, 50 | — |
 | `google_gemini-3-flash-preview` | ceiling | 29, 33, 37, 42, 45, 49 | — | 23, 27, 29, 33, 37, 41, 42, 43, 46 | — |
