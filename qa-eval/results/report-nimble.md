@@ -21,6 +21,7 @@ as "_").
 | `copilot_claude-haiku-4.5` | ceiling | 92 (42/8/0) | 94 (44/6/0) |
 | `copilot_gpt-5.6-luna` | ceiling | 93 (43/7/0) | 96 (47/2/1) |
 | `copilot_grok-4.5` | ceiling | 95 (45/5/0) | 97 (47/3/0) |
+| `copilot_grok-4.6` | ceiling | 95 (45/5/0) | 95 (45/5/0) |
 | `copilot_kimi-k2.7-code` | ceiling | 94 (44/6/0) | 96 (46/4/0) |
 | `copilot_kimi-k3` | ceiling | 95 (45/5/0) | 98 (48/2/0) |
 | `copilot_mai-code-1.1-flash` | ceiling | 92 (42/8/0) | 89 (40/9/1) |
@@ -74,6 +75,7 @@ language). A question absent from every column of a row was graded
 | `copilot_claude-haiku-4.5` | ceiling | 6, 27, 29, 33, 36, 38, 46, 49 | — | 27, 33, 37, 40, 45, 50 | — |
 | `copilot_gpt-5.6-luna` | ceiling | 13, 26, 27, 31, 32, 36, 49 | — | 27, 46 | 29 |
 | `copilot_grok-4.5` | ceiling | 34, 36, 37, 46, 49 | — | 34, 35, 36 | — |
+| `copilot_grok-4.6` | ceiling | 27, 34, 40, 46, 49 | — | 22, 23, 27, 35, 46 | — |
 | `copilot_kimi-k2.7-code` | ceiling | 22, 27, 29, 32, 34, 36 | — | 33, 46, 47, 50 | — |
 | `copilot_kimi-k3` | ceiling | 22, 27, 33, 34, 49 | — | 39, 46 | — |
 | `copilot_mai-code-1.1-flash` | ceiling | 6, 28, 29, 38, 39, 42, 46, 49 | — | 3, 22, 26, 27, 28, 32, 34, 36, 43 | 29 |

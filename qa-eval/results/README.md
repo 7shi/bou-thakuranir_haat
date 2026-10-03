@@ -96,6 +96,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | Model | English | Japanese |
 | --- | --- | --- |
 | `copilot:grok-4.5` | 94 (44/6/0) | 93 (43/7/0) |
+| `copilot:grok-4.6` | 93 (43/7/0) | 90 (40/10/0) |
 | `copilot:kimi-k3` | 94 (44/6/0) | 95 (45/5/0) |
 | `copilot:kimi-k2.7-code` | 94 (45/4/1) | 91 (41/9/0) |
 | `copilot:gpt-5.6-luna` | 91 (41/9/0) | 88 (39/10/1) |
@@ -149,7 +150,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
 * **No model is perfect, and the top is compressed.** The best scores are 97
   in English (`muse-spark-1.3-contributor-free` and the default
   `gemma-4-31b-it`) and 96 in Japanese (`muse-spark-1.2/1.3-contributor-free`
-  and `stealth/ox-alpha`). The 17 best English models lie within 93–97, and one
+  and `stealth/ox-alpha`). The 18 best English models lie within 93–97, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
   grading noise. [JEV.md](JEV.md)'s expected score E is the finer tiebreaker.
@@ -157,7 +158,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   Japanese to 63 (`poolside/laguna-s-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 36 of the 41 models score lower in
+* **Japanese costs almost every model.** 37 of the 42 models score lower in
   Japanese; `nemotron-3-ultra`, `stealth/ox-alpha` and `kimi-k3` score 1 point
   higher,
   and `big-pickle` and `muse-spark-1.2-contributor-free` score the same in both.
