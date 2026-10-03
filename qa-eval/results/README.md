@@ -100,6 +100,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `copilot:kimi-k3` | 94 (44/6/0) | 95 (45/5/0) |
 | `copilot:kimi-k2.7-code` | 94 (45/4/1) | 91 (41/9/0) |
 | `copilot:gpt-5.6-luna` | 91 (41/9/0) | 88 (39/10/1) |
+| `copilot:claude-sonnet-5` | 97 (47/3/0) | 86 (37/12/1) |
 | `copilot:claude-haiku-4.5` | 90 (40/10/0) | 85 (35/15/0) |
 | `copilot:mai-code-1.1-flash` | 88 (38/12/0) | 82 (33/16/1) |
 | `google:gemini-3-flash-preview` | 94 (44/6/0) | 91 (41/9/0) |
@@ -148,9 +149,10 @@ The `opencode:*` rows are produced by a separate pipeline that drives the
 used for every other row — see [opencode/README.md](../opencode/README.md).)
 
 * **No model is perfect, and the top is compressed.** The best scores are 97
-  in English (`muse-spark-1.3-contributor-free` and the default
-  `gemma-4-31b-it`) and 96 in Japanese (`muse-spark-1.2/1.3-contributor-free`
-  and `stealth/ox-alpha`). The 18 best English models lie within 93–97, and one
+  in English (`muse-spark-1.3-contributor-free`, `copilot:claude-sonnet-5` and
+  the default `gemma-4-31b-it`) and 96 in Japanese
+  (`muse-spark-1.2/1.3-contributor-free` and `stealth/ox-alpha`). The 19 best
+  English models lie within 93–97, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
   grading noise. [JEV.md](JEV.md)'s expected score E is the finer tiebreaker.
@@ -158,7 +160,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   Japanese to 63 (`poolside/laguna-s-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 37 of the 42 models score lower in
+* **Japanese costs almost every model.** 38 of the 43 models score lower in
   Japanese; `nemotron-3-ultra`, `stealth/ox-alpha` and `kimi-k3` score 1 point
   higher,
   and `big-pickle` and `muse-spark-1.2-contributor-free` score the same in both.

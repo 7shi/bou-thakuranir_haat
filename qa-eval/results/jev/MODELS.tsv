@@ -1,6 +1,8 @@
 file	model	scheme
 ceiling-copilot_claude-haiku-4.5-en.tsv	jev-1.13.0	choice@19579e23
 ceiling-copilot_claude-haiku-4.5-ja.tsv	jev-1.13.0	choice@19579e23
+ceiling-copilot_claude-sonnet-5-en.tsv	jev-1.13.0	choice@19579e23
+ceiling-copilot_claude-sonnet-5-ja.tsv	jev-1.13.0	choice@19579e23
 ceiling-copilot_gpt-5.6-luna-en.tsv	jev-1.13.0	choice@19579e23
 ceiling-copilot_gpt-5.6-luna-ja.tsv	jev-1.13.0	choice@19579e23
 ceiling-copilot_grok-4.5-en.tsv	jev-1.13.0	choice@19579e23
