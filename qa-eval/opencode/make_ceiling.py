@@ -134,11 +134,11 @@ def main():
             file_list = " ".join(f"{lang}/{ch:02d}.txt" for ch in sorted(q["chapters"]))
             files = f"-f {file_list}"
             cmd = f"opencode run -m {args.model} {shlex.quote(prompt)} {files} | tee {out_file}"
-        if qid > 1:
-            lines.append("echo")
-        lines.append(f"echo '{'=' * 60}'")
-        lines.append(f"echo '[Q{qid}/{total}]'")
         lines.append(f"if [ ! -f {out_file} ]; then")
+        if qid > 1:
+            lines.append("  echo")
+        lines.append(f"  echo '{'=' * 60}'")
+        lines.append(f"  echo '[Q{qid}/{total}]'")
         lines.append(f"  {cmd} || {{ rm -f {out_file}; exit 1; }}")
         lines.append("fi")
         lines.append("")
