@@ -133,6 +133,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `opencode:big-pickle` | 88 (38/12/0) | 88 (38/12/0) |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 95 (45/5/0) | 96 (46/4/0) |
 | `openrouter:stealth/space-bunny-alpha` | 90 (40/10/0) | 80 (30/20/0) |
+| `openrouter:poolside/laguna-xs-2.1:free` | 79 (30/19/1) | 65 (21/23/6) |
 | `openrouter:poolside/laguna-s-2.1:free` | 78 (29/20/1) | 63 (20/23/7) |
 | `openrouter:cohere/north-mini-code:free` | 85 (36/13/1) | 67 (23/21/6) |
 | `openrouter:inclusionai/ling-3.0-flash-fin:free` | 88 (39/10/1) | 82 (33/16/1) |
@@ -163,7 +164,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   Japanese to 63 (`poolside/laguna-s-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 41 of the 46 models score lower in
+* **Japanese costs almost every model.** 42 of the 47 models score lower in
   Japanese; `nemotron-3-ultra`, `stealth/ox-alpha` and `kimi-k3` score 1 point
   higher,
   and `big-pickle` and `muse-spark-1.2-contributor-free` score the same in both.
