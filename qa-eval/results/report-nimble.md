@@ -54,6 +54,7 @@ as "_").
 | `opencode_muse-spark-1.2-contributor-free` | ceiling | 95 (45/5/0) | 96 (46/4/0) |
 | `opencode_muse-spark-1.3-contributor-free` | ceiling | 98 (48/2/0) | 93 (43/7/0) |
 | `opencode_union-alpha` | ceiling | 95 (45/5/0) | 96 (46/4/0) |
+| `openrouter_apodex_apodex-1.1-mini_free` | ceiling | 92 (42/8/0) | 91 (42/7/1) |
 | `openrouter_cohere_north-mini-code_free` | ceiling | 91 (42/7/1) | 73 (29/15/6) |
 | `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 92 (42/8/0) | 94 (44/6/0) |
 | `openrouter_minimax_minimax-m2.7_free` | ceiling | 96 (46/4/0) | 90 (40/10/0) |
@@ -113,6 +114,7 @@ language). A question absent from every column of a row was graded
 | `opencode_muse-spark-1.2-contributor-free` | ceiling | 22, 27, 31, 33, 34 | — | 31, 34, 40, 49 | — |
 | `opencode_muse-spark-1.3-contributor-free` | ceiling | 27, 33 | — | 22, 33, 34, 38, 40, 42, 46 | — |
 | `opencode_union-alpha` | ceiling | 22, 33, 34, 40, 46 | — | 27, 35, 42, 49 | — |
+| `openrouter_apodex_apodex-1.1-mini_free` | ceiling | 31, 33, 34, 36, 37, 42, 46, 49 | — | 22, 33, 34, 35, 41, 43, 46 | 42 |
 | `openrouter_cohere_north-mini-code_free` | ceiling | 23, 33, 36, 37, 38, 46, 50 | 17 | 6, 26, 32, 33, 34, 35, 36, 37, 38, 39, 43, 44, 45, 47, 49 | 9, 12, 16, 28, 29, 46 |
 | `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 30, 31, 33, 34, 38, 45, 46, 49 | — | 33, 35, 37, 40, 46, 50 | — |
 | `openrouter_minimax_minimax-m2.7_free` | ceiling | 6, 31, 34, 46 | — | 22, 29, 33, 34, 36, 37, 40, 43, 46, 47 | — |
