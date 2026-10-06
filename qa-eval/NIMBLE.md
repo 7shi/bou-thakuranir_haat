@@ -99,14 +99,14 @@ flowchart LR
 
 | Judge | Correct | Partial | Incorrect | Mean Weighted (en / ja) |
 | :--- | ---: | ---: | ---: | :---: |
-| **Qwen 3.6** | 1,170 (78.0%) | 147 (9.8%) | 183 (12.2%) | 0.835 / 0.829 |
-| **Nimble** | **1,068 (71.2%)** | **273 (18.2%)** | **159 (10.6%)** | **0.809 / 0.803** |
-| **Jev** | 954 (63.6%) | 374 (24.9%) | 172 (11.5%) | 0.774 / 0.760 |
+| **Qwen 3.6** | 1,170 (78.0%) | 147 (9.8%) | 183 (12.2%) | 0.829 / 0.829 |
+| **Nimble** | **1,068 (71.2%)** | **273 (18.2%)** | **159 (10.6%)** | **0.808 / 0.798** |
+| **Jev** | 954 (63.6%) | 374 (24.9%) | 172 (11.5%) | 0.766 / 0.755 |
 
 - **Qwen 3.6** is overly lenient, frequently awarding full credit (*correct*) to
   answers that omit supporting details.
-- **Jev** is aggressive in penalizing any omitted detail as *partial*, pushing
-  top methods down by 0.06–0.11.
+- **Jev** is aggressive in penalizing any omitted detail as *partial*, scoring
+  every method 0.02–0.11 below Qwen (0.063 en / 0.074 ja on average).
 - **Nimble** occupies the sweet spot: stricter than Qwen on multi-part omissions
   without Jev's tendency to over-penalize.
 
@@ -150,14 +150,14 @@ variation across judges is the boundary between *correct* and *partial*.
 
 ### 4. Language Consistency
 
-In Jev, Japanese scores dropped across 11 of 15 methods (average −0.014, with
+In Jev, Japanese scores dropped across 11 of 15 methods (average −0.011, with
 Ceiling dropping 0.970 → 0.920), likely influenced by Jev reading Japanese text
 against English rubric instructions.
 
 In Nimble:
 - **Ceiling**: en 0.950 vs ja 0.960 (consistent and non-saturated in both languages).
-- **Average delta**: Across all 15 methods, ja − en difference averages **−0.007**
-  (less than half a question difference).
+- **Average delta**: Across all 15 methods, ja − en difference averages **−0.010**
+  (half a question difference).
 - **Method rankings**: In both languages, Filter3 leads (en 0.940, ja 0.910)
   followed by Hybrid k=8 (en 0.920, ja 0.910) and Hybrid k=10 (en 0.910, ja 0.890).
 
