@@ -145,7 +145,11 @@ sum). The 11 models without Qwen verdicts show "—".
   the table: `openrouter_cohere_north-mini-code_free` (87 → 61),
   `openrouter_poolside_laguna-s-2.1_free` (83 → 61),
   `openrouter_poolside_laguna-xs-2.1_free` (80 → 58) and `ollama_qwen3.5_9b`
-  (82 → 65) fall by 17–26 points, against 5–19 under OpenAI.
+  (82 → 65) fall by 17–26 points, against 5–19 under OpenAI. Grading the
+  Japanese answers against the English gold answers, or translated into
+  English, leaves the gap in place: it lies in the Japanese answers, which lack
+  details of the gold answer, not in the Japanese gold answers or in grading
+  Japanese ([ja2en/](ja2en/README.md)).
 - **Correlation**:
   Pearson correlation of the Ceiling scores summed over both languages is
   **$r = 0.980$** with OpenAI (51 models), **$r = 0.967$** with Jev (51

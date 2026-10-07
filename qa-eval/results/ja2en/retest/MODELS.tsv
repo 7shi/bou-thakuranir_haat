@@ -1,0 +1,12 @@
+file	model	scheme
+ceiling-copilot_claude-haiku-4.5-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-copilot_claude-sonnet-5-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-copilot_mai-code-1.1-flash-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-ollama_gemma4_12b-it-qat-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-openai_gpt-6-sol-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-openai_gpt-6.1-sol-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-opencode_longcat-2.5-preview-free-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-opencode_mimo-v2.5-free-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-opencode_mimo-v2.6-flash-free-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-openrouter_nvidia_nemotron-3.5-lightning_free-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-openrouter_stealth_space-bunny-alpha-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
