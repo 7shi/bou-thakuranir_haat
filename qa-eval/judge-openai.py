@@ -34,8 +34,8 @@ resumed file never mixes versions or wordings.
 
 Token usage: each question's usage is printed, and per-file and run totals are
 printed at the end. The Decisions API is paid, so the run total is always
-appended to llm7shi's shared usage.jsonl (also when interrupted), followed by
-today's total for the model.
+appended to llm7shi's shared usage.jsonl (also when interrupted) under
+`decisions:<model>`, followed by today's total for it.
 
 Requires OPENAI_API_KEY in the environment.
 """
@@ -52,6 +52,10 @@ from openai import OpenAI
 ROOT = Path(__file__).resolve().parent.parent
 
 DEFAULT_MODEL = "gpt-6-luna"
+
+# Prefixed to the model name in usage.jsonl, so Decisions requests are totalled
+# apart from the same model's other APIs.
+USAGE_PREFIX = "decisions:"
 
 VERDICTS = ["correct", "partial", "incorrect"]
 
@@ -326,7 +330,7 @@ def main():
         # Record silently so an interrupted run still logs what it consumed;
         # the report below is printed only on normal completion.
         if usages:
-            append_usage(sum(usages), served_model, usage_path)
+            append_usage(sum(usages), USAGE_PREFIX + served_model, usage_path)
 
     if usages:
         total_usage = sum(usages)
@@ -335,7 +339,7 @@ def main():
             print(f"Per request: {total_usage.input_tokens / len(usages):.1f} input, "
                   f"{total_usage.output_tokens / len(usages):.1f} output tokens")
         print("")
-        print_today_totals(usage_path, models=[served_model])
+        print_today_totals(usage_path, models=[USAGE_PREFIX + served_model])
 
 
 if __name__ == "__main__":
