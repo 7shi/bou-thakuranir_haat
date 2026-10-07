@@ -5,7 +5,8 @@ Pure mechanical aggregation of existing files — no LLM calls. Prints one
 comparison table to the terminal (methods as rows). Two independent axes:
 
 1. Answer accuracy (from results-<lang>/judge/<method>.jsonl, or with --jev /
-   --nimble / --openai from results-<lang>/<jev|nimble|openai>/<method>.tsv,
+   --nimble / --openai / --ternary from
+   results-<lang>/<jev|nimble|openai|ternary>/<method>.tsv,
    taking each question's most probable
    verdict, the stricter one on a tie): raw correct / partial /
    incorrect counts plus a weighted score = (correct + 0.5*partial) / total.
@@ -58,12 +59,14 @@ ROOT = Path(__file__).resolve().parent.parent
 QA_EVAL = Path(__file__).resolve().parent
 # Verdicts live in a subdirectory of the results dir, one file per answer file
 # with the same stem: judge/<stem>.jsonl from judge.py (qwen), or with --jev /
-# --nimble / --openai <dir>/<stem>.tsv from judge-<dir>.py.
+# --nimble / --openai / --ternary <dir>/<stem>.tsv from judge-<dir>.py.
+# judge-ternary.py writes 1/0 in place of probabilities, so it reads the same way.
 JUDGE_DIR = "judge"
 JEV_DIR = "jev"
 NIMBLE_DIR = "nimble"
 OPENAI_DIR = "openai"
-TSV_DIRS = (JEV_DIR, NIMBLE_DIR, OPENAI_DIR)
+TERNARY_DIR = "ternary"
+TSV_DIRS = (JEV_DIR, NIMBLE_DIR, OPENAI_DIR, TERNARY_DIR)
 
 # Verdict ordering for display (best first) and ranking (higher = better). The
 # agreement matrix is indexed [rank_a][rank_b]; "strictly better" is rank_a >
@@ -281,7 +284,7 @@ def discover_methods(results: Path, tsv_dir: str | None = None) -> list[tuple[st
     """(label, answer_file, judge_file) triples for every available method.
 
     The judge file is judge/<stem>.jsonl, or <tsv_dir>/<stem>.tsv when
-    `tsv_dir` names a probability judge's directory (jev, nimble, openai).
+    `tsv_dir` names a TSV judge's directory (jev, nimble, openai, ternary).
 
     Vector variants are discovered from results-<lang>/vector<k>.jsonl answer
     files (e.g. vector5.jsonl → "Vector k=5", vector10.jsonl → "Vector k=10").

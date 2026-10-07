@@ -153,8 +153,14 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 ### OpenAI Decisions as the Judge — [OPENAI.md](OPENAI.md)
 
 * **Same Rubric, Different API:** OpenAI's Decisions API (`gpt-6-luna`) answers the same Choice question as Jev ([judge-openai.py](judge-openai.py)), returning probabilities with zero output tokens: ~0.28 s per decision and $0.08 for all 1,500 questions (EN + JA).
-* **Between Nimble and Jev:** 1,002 correct (66.8%) sits between Nimble (1,068) and Jev (954), and its verdicts agree most with Jev (89.5%, the highest of all judge pairs).
+* **Between Nimble and Jev:** 1,002 correct (66.8%) sits between Nimble (1,068) and Jev (954), and its verdicts agree most with Jev (89.5%, the highest pair of different models; only the same model through the ordinary API agrees more, see below).
 * **Language Sensitivity:** Japanese scores drop by 0.028 on average (Ceiling 0.960 EN → 0.920 JA), about three times Jev's or Nimble's drop, so the method ranking differs between languages.
+
+### A Plain LLM as the Judge (Ternary) — [TERNARY.md](TERNARY.md)
+
+* **Same Model, Plain Reply:** `gpt-6-luna` through the ordinary OpenAI API, with reasoning off, replies with the verdict word only ([judge-ternary.py](judge-ternary.py)): no structured output, no reason, no probabilities. It uses the Decisions judge's rubric and input, and agrees with those verdicts on 91.0% of questions, the highest of all judge pairs.
+* **Slower Than Decisions:** 5 output tokens and no reasoning tokens per request, but ~1.41 s per decision, about five times the Decisions API; the 1,500 questions fit in the free tier.
+* **Stricter at the Bottom:** 996 correct (66.4%), about the same as Decisions (1,002), but the most *incorrect* verdicts of all judges (187), and the largest Japanese drop (−0.038; Ceiling 0.970 EN → 0.900 JA).
 
 ## Overall Conclusions and Practical Takeaways
 

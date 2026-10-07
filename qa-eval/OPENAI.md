@@ -108,7 +108,9 @@ Pairwise agreement across all 1,500 questions (750 en + 750 ja):
 
 For reference, the other pairs are Qwen vs Nimble 88.2%, Jev vs Nimble 87.1%
 and Qwen vs Jev 83.9% (see [NIMBLE.md](NIMBLE.md)). Jev vs OpenAI is the
-highest of all six pairs overall.
+highest of all six pairs overall. The same `gpt-6-luna` through the ordinary
+API, replying with the verdict word only, agrees with OpenAI on 91.0% (see
+[TERNARY.md](TERNARY.md)).
 
 #### Combined Confusion Matrix (1,500 Questions)
 

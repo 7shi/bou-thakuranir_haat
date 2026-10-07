@@ -127,8 +127,14 @@ Segment ∪ Line (VECTOR-HYBRID), 英語 / 日本語:
 ### OpenAI Decisions による判定 (OpenAI Decisions as the Judge) — [OPENAI.md](OPENAI.md)
 
 * **同じルーブリック、別の API:** OpenAI の Decisions API (`gpt-6-luna`) に、Jev と同じ Choice の質問を投げます（[judge-openai.py](judge-openai.py)）。判定は確率で返り、出力トークンは 0 です。1問あたり約0.28秒で、日英計1,500問の費用は $0.08 です。
-* **Nimble と Jev の中間:** correct は 1,002件（66.8%）で、Nimble（1,068）と Jev（954）の間に入ります。判定は Jev と最もよく一致します（89.5%、全判定モデルの組み合わせで最高）。
+* **Nimble と Jev の中間:** correct は 1,002件（66.8%）で、Nimble（1,068）と Jev（954）の間に入ります。判定は Jev と最もよく一致します（89.5%、異なるモデル同士の組み合わせで最高。これを上回るのは、同じモデルを通常の API で使った判定だけです。下記参照）。
 * **言語による差:** 日本語ではスコアが平均 0.028 下がり（Ceiling は英語 0.960 → 日本語 0.920）、Jev や Nimble の約3倍の下がり幅です。そのため、手法の順位が言語によって入れ替わります。
+
+### 通常の LLM による判定 (A Plain LLM as the Judge, Ternary) — [TERNARY.md](TERNARY.md)
+
+* **同じモデル、1語の返答:** `gpt-6-luna` を OpenAI の通常の API で推論なしに使い、判定の1語だけを返させます（[judge-ternary.py](judge-ternary.py)）。構造化出力も理由も確率も使いません。ルーブリックと入力は Decisions 版と同じで、その判定と 91.0% の問題で一致します。全判定モデルの組み合わせで最高です。
+* **Decisions より遅い:** 1問あたり出力 5 トークン、推論 0 トークンですが、約1.41秒かかり、Decisions API の約5倍です。日英計1,500問は無料枠に収まりました。
+* **incorrect が多い:** correct は 996件（66.4%）で Decisions（1,002）とほぼ同じですが、incorrect は全判定モデルで最多の 187件です。日本語での下がり幅も最大です（−0.038、Ceiling は英語 0.970 → 日本語 0.900）。
 
 ## 総括とプラクティカルな結論 (Overall Conclusions and Practical Takeaways)
 

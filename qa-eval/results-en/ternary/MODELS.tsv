@@ -1,0 +1,16 @@
+file	model	scheme
+ceiling.tsv	openai:gpt-6-luna	ternary@70c12cb1
+extract.tsv	openai:gpt-6-luna	ternary@70c12cb1
+filter2.tsv	openai:gpt-6-luna	ternary@70c12cb1
+filter3.tsv	openai:gpt-6-luna	ternary@70c12cb1
+graphrag-global.tsv	openai:gpt-6-luna	ternary@70c12cb1
+graphrag-local.tsv	openai:gpt-6-luna	ternary@70c12cb1
+hybrid10.tsv	openai:gpt-6-luna	ternary@70c12cb1
+hybrid5.tsv	openai:gpt-6-luna	ternary@70c12cb1
+hybrid8.tsv	openai:gpt-6-luna	ternary@70c12cb1
+vector-hybrid10.tsv	openai:gpt-6-luna	ternary@70c12cb1
+vector-hybrid5.tsv	openai:gpt-6-luna	ternary@70c12cb1
+vector-line10.tsv	openai:gpt-6-luna	ternary@70c12cb1
+vector-line5.tsv	openai:gpt-6-luna	ternary@70c12cb1
+vector10.tsv	openai:gpt-6-luna	ternary@70c12cb1
+vector5.tsv	openai:gpt-6-luna	ternary@70c12cb1
