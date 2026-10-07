@@ -23,6 +23,11 @@ cited chapters in both languages.
   not the corrected `.md`.
 - **Model**: `gpt-6-astra` with reasoning effort `medium`, for both steps.
   Script: [check_gold.py](check_gold.py).
+- **Review**: every claim whose verdict differed between the languages was
+  read against both texts and the Bengali original. Where the two texts say
+  the same thing, the verdict was set to the same value in both, by the
+  checker's own strict reading; the 10 verdicts changed this way carry
+  `"revised": true` and a rewritten reason.
 - **Comparison** (`make compare`, [compare.py](compare.py)): a claim is
   *ja-only missing* when the English text states it and the Japanese one does
   not. The Ternary ja − en gap over all 50 models ([../ternary/](../TERNARY.md))
@@ -42,47 +47,42 @@ half as many characters as the English but takes more input tokens.
 
 | en \ ja | stated | missing | contradicted |
 | :--- | ---: | ---: | ---: |
-| **stated** | 172 | 8 | 3 |
-| **missing** | 2 | 24 | 0 |
-| **contradicted** | 1 | 0 | 4 |
+| **stated** | 172 | 3 | 2 |
+| **missing** | 0 | 32 | 0 |
+| **contradicted** | 0 | 0 | 5 |
 
-The two texts agree on 200 of the 214 claims. 11 claims, in 8 questions, are
-stated in the English text only; 3 claims (Q31, Q32, Q39) are stated in the
-Japanese text only. 28 claims are not stated in either (see
+The two texts agree on 209 of the 214 claims. 5 claims, in 4 questions, are
+stated in the English text only, and none in the Japanese text only. 37
+claims are not stated in either (see
 [below](#gold-answers-that-the-text-does-not-support)).
 
 ### The ja-only missing claims are differences of wording
 
-| Claim | English text | Japanese text |
-| :--- | :--- | :--- |
-| Q2.1 alap in Raga Vehag | alap named | the raga is named, the alap is not |
-| Q8.1 the root is for Matangini's husband | stated | the man is not identified as her husband |
-| Q20.2 pour whey over his head | "pour whey over it" | 酸っぱい乳 (sour milk) |
-| Q22.1 tied up with Udayaditya's own cloth | "with his own cloth" | 彼の衣服で (with his, i.e. Sitaram's, clothing) |
-| Q28.2–3 disguised as a middle-aged woman | "disguised as a woman" | 老婦人 (an old woman) |
-| Q38.4, 6 Ramchandra *affectionately* sent for Vibha | stated | a request for her return, affection not stated |
-| Q40.6 the sitar is there in Raigarh | stated | the sitar exists, the place is not stated |
-| Q43.1 saved from *assassination* | stated | rescue from mortal danger, no plot named |
-| Q43.2 a rope of *bedsheets* | "large sheets" | 大きな布 (large pieces of cloth) |
+| Claim | Bengali | English text | Japanese text |
+| :--- | :--- | :--- | :--- |
+| Q2.1 an alap in Raga Vehag | *behag alap* | "an alap in the raga Vehag" | ベハーグの旋律 (the Behag melody) |
+| Q20.2 pour whey over his head | *ghol* (buttermilk) | "pour whey over it" | 酸っぱい乳 (sour milk) |
+| Q28.2–3 disguised as a middle-aged woman | *prouDha* (a woman past her youth) | "a middle-aged woman" | 老婦人 (an old woman) |
+| Q43.2 a rope of bedsheets | *chador* (a sheet or wrap) | "large sheets" | 大きな布 (large pieces of cloth) |
 
-Each is a word the Japanese translation renders differently or leaves out,
-not a missing event. Q22 is the one where the meaning differs: "his own
-cloth" is ambiguous in English, and the Japanese text reads it as Sitaram's.
+Each is a word the two translations render differently, not a missing event.
+In Q2 the raga, which is the answer, is in both texts; only the alap of the
+question's premise is dropped. In Q20 and Q28 both renderings fit the Bengali.
 
 ### Removing them leaves the gap
 
 | Questions | n | en | ja | ja − en | ja < en | ja > en | Sign test |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | All | 50 | 91.90 | 86.56 | −5.34 | 44 | 2 | 3.1 × 10⁻¹¹ |
-| Without ja-only missing | 42 | 91.79 | 86.67 | −5.12 | 40 | 5 | 7.9 × 10⁻⁸ |
-| With ja-only missing | 8 | 92.50 | 86.00 | −6.50 | 33 | 6 | 1.4 × 10⁻⁵ |
+| Without ja-only missing | 46 | 91.83 | 86.59 | −5.24 | 43 | 4 | 2.8 × 10⁻⁹ |
+| With ja-only missing | 4 | 92.75 | 86.25 | −6.50 | 26 | 5 | 1.9 × 10⁻⁴ |
 | All (single) | 25 | 98.60 | 97.44 | −1.16 | 18 | 12 | 0.36 |
-| Without ja-only missing (single) | 21 | 98.71 | 97.57 | −1.14 | 16 | 8 | 0.15 |
+| Without ja-only missing (single) | 23 | 98.48 | 97.39 | −1.09 | 16 | 12 | 0.57 |
 | All (cross) | 25 | 85.20 | 75.68 | −9.52 | 43 | 3 | 4.6 × 10⁻¹⁰ |
-| Without ja-only missing (cross) | 21 | 84.86 | 75.76 | −9.10 | 40 | 6 | 3.1 × 10⁻⁷ |
+| Without ja-only missing (cross) | 23 | 85.17 | 75.78 | −9.39 | 42 | 4 | 5.1 × 10⁻⁹ |
 
 The questions with a ja-only missing claim lose a little more in Japanese
-(−6.50), but without them the gap stays at −5.12, and at −9.10 on the cross
+(−6.50), but without them the gap stays at −5.24, and at −9.39 on the cross
 questions, significant in both. The questions with the largest gaps, Q29
 (−30), Q50 (−22), Q37 (−19), Q27 (−17) and Q36 (−15), have no ja-only
 missing claim. Details absent from the Japanese text therefore account for
@@ -91,11 +91,12 @@ answers with fewer details in Japanese, is not tested here.
 
 ## Gold answers that the text does not support
 
-Of the 28 claims stated in neither text, several are errors of the gold
+Of the 37 claims stated in neither text, several are errors of the gold
 answer itself, which neither text supports:
 
 | Question | Gold answer says | Both texts say |
 | :--- | :--- | :--- |
+| Q22 | "His own cloth." (the claim reads it as Udayaditya's) | "his own cloth" / 彼の衣服で; the Bengali *tahar kapor*, after *tahar ostro* (Sitaram's weapon), most naturally means Sitaram's |
 | Q32 | Udayaditya overpowers Sitaram | Sitaram asks to be disarmed and bound |
 | Q34 | Rukmini fails to board the boat and falls into the canal | she lunges at Udayaditya, is stopped by Sitaram, and jumps into the water |
 | Q46 | Rukmini attacks Sitaram with a curved blade | Sitaram slips out before she returns with it; she strikes the floor |
@@ -104,9 +105,11 @@ answer itself, which neither text supports:
 
 Others ask for a detail outside the question's `chapters`: Basanta Ray's
 death as an execution (Q37), Vibha's journey to Chandradwip (Q38), the escape
-boat (Q42), and Udayaditya's imprisonment (Q49, whose question presupposes
-it). The rest are motives or attributes the text implies but does not state,
-such as Bhagavat being a guard (Q31, Q49) or the "immense strength" of Q39.
+boat (Q42), the plot against Ramchandra (Q43), and Udayaditya's imprisonment
+(Q49, whose question presupposes it). The rest are motives or attributes the
+text implies but does not state, such as Bhagavat being a guard (Q31, Q49),
+Ramchandra sending for Vibha "affectionately" (Q38) or the "immense strength"
+of Q39.
 These claims do not count as ja-only missing, so they do not affect the
 comparison above. The gold answers can be corrected without regenerating any
 answer; the questions and `chapters` cannot, since some answering models are
@@ -117,6 +120,10 @@ no longer available.
 - **One run of one model**: each verdict is a single request. The checker is
   strict, marking as missing details the text implies but does not state, so
   the counts above are of literal support, not of what a reader could infer.
+  It is also inconsistent: of the 14 claims it judged differently in the two
+  languages, 9 differed although the two texts say the same thing, and were
+  revised (see Setup). Claims it judged alike in both languages were not
+  reviewed.
 - **Claims from the English gold answer**: they follow its English wording
   (whey, bedsheets), so a Japanese rendering of the same thing can count as
   missing. This biases the ja-only count upward, not downward.

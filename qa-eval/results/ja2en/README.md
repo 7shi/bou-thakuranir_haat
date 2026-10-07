@@ -180,9 +180,9 @@ every column above shares both:
   poison Mangala prepared.
 
 [../gold-check/](../gold-check/README.md) checks the first: each gold
-answer's details against the cited chapters in both languages. Only 11 of 214
-details are missing from the Japanese text alone, mostly differences of
-wording, and without their 8 questions the gap stays at −5.12 points. The
+answer's details against the cited chapters in both languages. Only 5 of 214
+details are missing from the Japanese text alone, all differences of wording,
+and without their 4 questions the gap stays at −5.24 points. The
 second is not tested directly.
 
 ## Caveats
