@@ -179,10 +179,11 @@ every column above shares both:
   decree, caused her departure, but in Japanese only that Surma took the
   poison Mangala prepared.
 
-Which of the two accounts for the gap is not yet known. Checking each gold
-answer's details against the Japanese text of its cited chapters, or
-answering in one language from the other language's text, would separate
-them.
+[../gold-check/](../gold-check/README.md) checks the first: each gold
+answer's details against the cited chapters in both languages. Only 11 of 214
+details are missing from the Japanese text alone, mostly differences of
+wording, and without their 8 questions the gap stays at −5.12 points. The
+second is not tested directly.
 
 ## Caveats
 
