@@ -49,6 +49,12 @@ probabilities, with nothing generated. The cost is therefore input tokens only:
 798,930 tokens = $0.0799 for the whole run ($0.0345 en / $0.0454 ja), about 1.6×
 Jev's.
 
+Relative to Jev, Jev : OpenAI is about 1 : 1.26 in wall time (1 : 1.30 en,
+1 : 1.21 ja) and 1 : 1.59 in cost. The per-model re-grading in `results/`
+([results/OPENAI.md](results/OPENAI.md)) gives 1 : 1.11 and 1 : 1.60 per file:
+the cost ratio holds across runs, while the time ratio varies with API
+response times.
+
 ---
 
 ## Results

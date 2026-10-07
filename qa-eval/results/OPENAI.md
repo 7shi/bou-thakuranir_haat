@@ -55,6 +55,10 @@ Nimble, 104 here), so they are compared per file (one model × one language,
   at no cost. OpenAI counts about 2/3 of Jev's input tokens, but the two use
   different tokenizers, so the counts do not measure the same thing; cost is
   the comparable figure, and OpenAI costs about 1.6× Jev per file.
+- **Ratio to Jev**: Jev : OpenAI is about 1 : 1.11 in time and 1 : 1.60 in
+  cost per file. The `results-<lang>/` re-grading ([../OPENAI.md](../OPENAI.md))
+  gives 1 : 1.26 and 1 : 1.59: the cost ratio holds across runs, while the time
+  ratio varies with API response times.
 - The Jev and Nimble figures come from runs over the first 82 files; the 22
   files added since are included only in this run, so the per-file figures
   are close but not exactly like-for-like.
