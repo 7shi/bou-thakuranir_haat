@@ -44,7 +44,10 @@ as "_").
 | `openai_gpt-5.6-luna` | ceiling | 94 (44/6/0) | 90 (40/10/0) |
 | `openai_gpt-5.6-sol` | ceiling | 93 (43/7/0) | 92 (42/8/0) |
 | `openai_gpt-5.6-terra` | ceiling | 92 (42/8/0) | 91 (41/9/0) |
+| `openai_gpt-6-astra` | ceiling | 92 (42/8/0) | 89 (39/11/0) |
 | `openai_gpt-6-luna` | ceiling | 95 (45/5/0) | 89 (39/11/0) |
+| `openai_gpt-6-sol` | ceiling | 96 (46/4/0) | 90 (40/10/0) |
+| `openai_gpt-6.1-sol` | ceiling | 95 (45/5/0) | 84 (34/16/0) |
 | `opencode_big-pickle` | ceiling | 88 (38/12/0) | 88 (38/12/0) |
 | `opencode_fledge-alpha-free` | ceiling | 94 (44/6/0) | 91 (41/9/0) |
 | `opencode_ling-3.1-flash-free` | ceiling | 95 (45/5/0) | 89 (39/11/0) |
@@ -104,7 +107,10 @@ language). A question absent from every column of a row was graded
 | `openai_gpt-5.6-luna` | ceiling | 29, 31, 40, 41, 45, 49 | — | 27, 31, 34, 35, 36, 38, 39, 43, 46, 48 | — |
 | `openai_gpt-5.6-sol` | ceiling | 29, 30, 34, 40, 41, 42, 46 | — | 27, 34, 35, 37, 38, 44, 46, 48 | — |
 | `openai_gpt-5.6-terra` | ceiling | 22, 29, 30, 31, 34, 42, 49, 50 | — | 34, 35, 36, 43, 46, 47, 48, 49, 50 | — |
+| `openai_gpt-6-astra` | ceiling | 26, 37, 39, 40, 41, 42, 47, 49 | — | 23, 31, 34, 35, 36, 38, 40, 43, 46, 47, 49 | — |
 | `openai_gpt-6-luna` | ceiling | 29, 34, 35, 38, 46 | — | 23, 31, 34, 35, 36, 38, 39, 45, 46, 48, 50 | — |
+| `openai_gpt-6-sol` | ceiling | 29, 34, 37, 46 | — | 23, 27, 29, 31, 34, 35, 36, 38, 43, 46 | — |
+| `openai_gpt-6.1-sol` | ceiling | 40, 41, 42, 46, 49 | — | 23, 26, 27, 31, 32, 35, 36, 37, 38, 39, 40, 41, 43, 46, 47, 49 | — |
 | `opencode_big-pickle` | ceiling | 3, 22, 29, 32, 34, 36, 37, 40, 42, 46, 48, 49 | — | 27, 29, 31, 32, 36, 37, 41, 42, 43, 46, 47, 48 | — |
 | `opencode_fledge-alpha-free` | ceiling | 34, 36, 37, 42, 46, 50 | — | 27, 29, 32, 33, 34, 35, 36, 43, 46 | — |
 | `opencode_ling-3.1-flash-free` | ceiling | 22, 34, 35, 40, 46 | — | 6, 27, 29, 31, 35, 36, 37, 40, 42, 43, 48 | — |

@@ -118,6 +118,9 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `ollama:qwen3.5:4b` | 72 (24/24/2) | 66 (23/20/7) |
 | `ollama:muse-glimmer` (30B) | 94 (44/6/0) | 93 (43/7/0) |
 | `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 90 (40/10/0) | 86 (36/14/0) |
+| `openai:gpt-6-astra` | 92 (42/8/0) | 89 (39/11/0) |
+| `openai:gpt-6.1-sol` | 95 (45/5/0) | 84 (34/16/0) |
+| `openai:gpt-6-sol` | 96 (46/4/0) | 90 (40/10/0) |
 | `openai:gpt-5.6-sol` | 93 (43/7/0) | 92 (42/8/0) |
 | `openai:gpt-6-luna` | 95 (45/5/0) | 89 (39/11/0) |
 | `openai:gpt-5.6-luna` | 94 (44/6/0) | 90 (40/10/0) |
@@ -156,7 +159,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
 * **No model is perfect, and the top is compressed.** The best scores are 97
   in English (`muse-spark-1.3-contributor-free`, `copilot:claude-sonnet-5` and
   the default `gemma-4-31b-it`) and 96 in Japanese
-  (`muse-spark-1.2/1.3-contributor-free` and `stealth/ox-alpha`). The 23 best
+  (`muse-spark-1.2/1.3-contributor-free` and `stealth/ox-alpha`). The 25 best
   English models lie within 93–97, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
@@ -165,7 +168,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   Japanese to 63 (`poolside/laguna-s-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 43 of the 48 models score lower in
+* **Japanese costs almost every model.** 46 of the 51 models score lower in
   Japanese; `nemotron-3-ultra`, `stealth/ox-alpha` and `kimi-k3` score 1 point
   higher,
   and `big-pickle` and `muse-spark-1.2-contributor-free` score the same in both.

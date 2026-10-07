@@ -49,8 +49,14 @@ ceiling-openai_gpt-5.6-sol-en.tsv	jev-1.13.0	choice@19579e23
 ceiling-openai_gpt-5.6-sol-ja.tsv	jev-1.13.0	choice@19579e23
 ceiling-openai_gpt-5.6-terra-en.tsv	jev-1.13.0	choice@19579e23
 ceiling-openai_gpt-5.6-terra-ja.tsv	jev-1.13.0	choice@19579e23
+ceiling-openai_gpt-6-astra-en.tsv	jev-1.13.0	choice@19579e23
+ceiling-openai_gpt-6-astra-ja.tsv	jev-1.13.0	choice@19579e23
 ceiling-openai_gpt-6-luna-en.tsv	jev-1.13.0	choice@19579e23
 ceiling-openai_gpt-6-luna-ja.tsv	jev-1.13.0	choice@19579e23
+ceiling-openai_gpt-6-sol-en.tsv	jev-1.13.0	choice@19579e23
+ceiling-openai_gpt-6-sol-ja.tsv	jev-1.13.0	choice@19579e23
+ceiling-openai_gpt-6.1-sol-en.tsv	jev-1.13.0	choice@19579e23
+ceiling-openai_gpt-6.1-sol-ja.tsv	jev-1.13.0	choice@19579e23
 ceiling-opencode_big-pickle-en.tsv	jev-1.13.0	choice@19579e23
 ceiling-opencode_big-pickle-ja.tsv	jev-1.13.0	choice@19579e23
 ceiling-opencode_fledge-alpha-free-en.tsv	jev-1.13.0	choice@19579e23
