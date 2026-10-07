@@ -22,10 +22,12 @@
 #   make judge-jev                        # opt-in: the same with Jev → jev/*.tsv
 #   make judge-nimble                     # opt-in: the same with Nimble → nimble/*.tsv
 #   make judge-openai                     # opt-in: the same with OpenAI Decisions → openai/*.tsv
+#   make judge-ternary                    # opt-in: the same with a plain LLM's verdict word → ternary/*.tsv
 #   make report                           # aggregate every judged run → report.md + MODELS.svg
 #   make report-jev                       # the same over jev/*.tsv → report-jev.md + MODELS-jev.svg
 #   make report-nimble                    # the same over nimble/*.tsv → report-nimble.md + MODELS-nimble.svg
 #   make report-openai                    # the same over openai/*.tsv → report-openai.md + MODELS-openai.svg
+#   make report-ternary                   # the same over ternary/*.tsv → report-ternary.md + MODELS-ternary.svg
 #
 #   MODEL     — llm7shi model string of the answerer (e.g. google:gemini-4-31b-it)
 #   LANG      — en | ja
@@ -51,7 +53,7 @@ NO_THINK ?=
 
 # Fixed once per `make` invocation and passed to every `judge.py` /
 # `judge-<dir>.py` call in the `judge` / `judge-jev` / `judge-nimble` /
-# `judge-openai` targets below via --started-at, so the sequential processes
+# `judge-openai` / `judge-ternary` targets below via --started-at, so the sequential processes
 # they launch show an overall-elapsed column spanning the whole run.
 START_TIME := $(shell date +%s)
 
@@ -74,7 +76,7 @@ SAFE_MODEL := $(subst /,_,$(subst :,_,$(MODEL)))
 HYBRID_ANSWER := hybrid$(K)-$(SAFE_MODEL)-$(LANG).jsonl
 CEILING_ANSWER := ceiling-$(SAFE_MODEL)-$(LANG).jsonl
 
-.PHONY: help check-args hybrid8 ceiling test judge judge-jev judge-nimble judge-openai report report-jev report-nimble report-openai
+.PHONY: help check-args hybrid8 ceiling test judge judge-jev judge-nimble judge-openai judge-ternary report report-jev report-nimble report-openai report-ternary
 .DEFAULT_GOAL := help
 
 help:
@@ -85,10 +87,12 @@ help:
 	@echo "       make judge-jev"
 	@echo "       make judge-nimble"
 	@echo "       make judge-openai"
+	@echo "       make judge-ternary"
 	@echo "       make report"
 	@echo "       make report-jev"
 	@echo "       make report-nimble"
 	@echo "       make report-openai"
+	@echo "       make report-ternary"
 
 # Shared guard for the answering targets, which all need MODEL and LANG. The
 # usage line names the goal actually invoked, so the message stays accurate for
@@ -147,15 +151,16 @@ judge:
 		(cd $(ROOT) && uv run judge.py -l $$lang --started-at $(START_TIME) results/$$f) || exit $$?; \
 	done
 
-# Opt-in: the same scan graded by a probability judge — Jev (judge-jev.py),
-# Nimble (judge-nimble.py) or OpenAI Decisions (judge-openai.py) — into
+# Opt-in: the same scan graded by a TSV judge — Jev (judge-jev.py), Nimble
+# (judge-nimble.py), OpenAI Decisions (judge-openai.py) or a plain LLM replying
+# with the verdict word (judge-ternary.py, 1/0 in place of probabilities) — into
 # <dir>/<stem>.tsv, whose header line means a complete file has one line more
 # than its answer file. Pending files are grouped by LANG and passed to one
 # judge-<dir>.py call per language, so the status line reads "<stem> (i/n)"
-# across the batch and, for the paid APIs (Jev, OpenAI), the token usage lands
-# in usage.jsonl once per language. The two calls run one after the other, as
-# both update <dir>/MODELS.tsv.
-TSV_JUDGES := jev nimble openai
+# across the batch and, for the paid APIs (Jev, OpenAI, Ternary on OpenAI), the
+# token usage lands in usage.jsonl once per language. The two calls run one
+# after the other, as both update <dir>/MODELS.tsv.
+TSV_JUDGES := jev nimble openai ternary
 $(addprefix judge-,$(TSV_JUDGES)): judge-%:
 	@for lang in en ja; do \
 		files=; \

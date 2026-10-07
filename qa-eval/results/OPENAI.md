@@ -6,7 +6,8 @@ Jev and Bespoke Labs Nimble verdicts. The scores in
 [report-openai.md](report-openai.md) and [MODELS-openai.svg](MODELS-openai.svg)
 are the OpenAI verdicts. This document records the grading run and how the
 verdicts compare across all 51 models. The same comparison for
-`results-<lang>/`: [../OPENAI.md](../OPENAI.md).
+`results-<lang>/`: [../OPENAI.md](../OPENAI.md). The same model replying with
+the verdict word through the ordinary API: [TERNARY.md](TERNARY.md).
 
 ## Grading run
 

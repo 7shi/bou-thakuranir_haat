@@ -49,7 +49,9 @@ Every request used 5 output tokens and no reasoning tokens. The input is the
 smallest of the three cloud judges (687,930 tokens), but each request takes
 about five times as long as with the Decisions API (1 : 5.0 in total wall
 time; Jev : Ternary is 1 : 6.3), so the same model is much slower when it
-generates its verdict as text.
+generates its verdict as text. The per-model re-grading in `results/`
+([results/TERNARY.md](results/TERNARY.md)) gives 1 : 4.8 and 1 : 5.3 per
+file, within the free tier as well.
 
 ---
 

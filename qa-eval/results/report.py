@@ -60,6 +60,8 @@ TSV_JUDGES = {
     "nimble": ("Nimble", "Bespoke Labs Nimble", "See [NIMBLE.md](../NIMBLE.md) for details."),
     "openai": ("OpenAI", "OpenAI Decisions (`gpt-6-luna`)",
                "See [OPENAI.md](../OPENAI.md) for details."),
+    "ternary": ("Ternary", "`gpt-6-luna` replying with the verdict word (ordinary OpenAI API)",
+                "See [TERNARY.md](../TERNARY.md) for details."),
 }
 assert set(TSV_JUDGES) == set(TSV_DIRS)
 
