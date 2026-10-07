@@ -21,9 +21,11 @@
 #   make judge                            # opt-in: grade every ungraded answer file
 #   make judge-jev                        # opt-in: the same with Jev → jev/*.tsv
 #   make judge-nimble                     # opt-in: the same with Nimble → nimble/*.tsv
+#   make judge-openai                     # opt-in: the same with OpenAI Decisions → openai/*.tsv
 #   make report                           # aggregate every judged run → report.md + MODELS.svg
 #   make report-jev                       # the same over jev/*.tsv → report-jev.md + MODELS-jev.svg
 #   make report-nimble                    # the same over nimble/*.tsv → report-nimble.md + MODELS-nimble.svg
+#   make report-openai                    # the same over openai/*.tsv → report-openai.md + MODELS-openai.svg
 #
 #   MODEL     — llm7shi model string of the answerer (e.g. google:gemini-4-31b-it)
 #   LANG      — en | ja
@@ -48,8 +50,8 @@ K := 8
 NO_THINK ?=
 
 # Fixed once per `make` invocation and passed to every `judge.py` /
-# `judge-jev.py` / `judge-nimble.py` call in the `judge` / `judge-jev` /
-# `judge-nimble` targets below via --started-at, so the sequential processes
+# `judge-<dir>.py` call in the `judge` / `judge-jev` / `judge-nimble` /
+# `judge-openai` targets below via --started-at, so the sequential processes
 # they launch show an overall-elapsed column spanning the whole run.
 START_TIME := $(shell date +%s)
 
@@ -72,7 +74,7 @@ SAFE_MODEL := $(subst /,_,$(subst :,_,$(MODEL)))
 HYBRID_ANSWER := hybrid$(K)-$(SAFE_MODEL)-$(LANG).jsonl
 CEILING_ANSWER := ceiling-$(SAFE_MODEL)-$(LANG).jsonl
 
-.PHONY: help check-args hybrid8 ceiling test judge judge-jev judge-nimble report report-jev report-nimble
+.PHONY: help check-args hybrid8 ceiling test judge judge-jev judge-nimble judge-openai report report-jev report-nimble report-openai
 .DEFAULT_GOAL := help
 
 help:
@@ -82,9 +84,11 @@ help:
 	@echo "       make judge"
 	@echo "       make judge-jev"
 	@echo "       make judge-nimble"
+	@echo "       make judge-openai"
 	@echo "       make report"
 	@echo "       make report-jev"
 	@echo "       make report-nimble"
+	@echo "       make report-openai"
 
 # Shared guard for the answering targets, which all need MODEL and LANG. The
 # usage line names the goal actually invoked, so the message stays accurate for
@@ -143,18 +147,21 @@ judge:
 		(cd $(ROOT) && uv run judge.py -l $$lang --started-at $(START_TIME) results/$$f) || exit $$?; \
 	done
 
-# Opt-in: the same scan graded by Jev (judge-jev.py) into jev/<stem>.tsv, whose
-# header line means a complete file has one line more than its answer file.
-# Pending files are grouped by LANG and passed to one judge-jev.py call per
-# language, so the status line reads "<stem> (i/n)" across the batch and the
-# token usage lands in usage.jsonl once per language. The two calls run one
-# after the other, as both update jev/MODELS.tsv.
-judge-jev:
+# Opt-in: the same scan graded by a probability judge — Jev (judge-jev.py),
+# Nimble (judge-nimble.py) or OpenAI Decisions (judge-openai.py) — into
+# <dir>/<stem>.tsv, whose header line means a complete file has one line more
+# than its answer file. Pending files are grouped by LANG and passed to one
+# judge-<dir>.py call per language, so the status line reads "<stem> (i/n)"
+# across the batch and, for the paid APIs (Jev, OpenAI), the token usage lands
+# in usage.jsonl once per language. The two calls run one after the other, as
+# both update <dir>/MODELS.tsv.
+TSV_JUDGES := jev nimble openai
+$(addprefix judge-,$(TSV_JUDGES)): judge-%:
 	@for lang in en ja; do \
 		files=; \
 		for f in *-$$lang.jsonl; do \
 			[ -e "$$f" ] || continue; \
-			t="jev/$${f%.jsonl}.tsv"; \
+			t="$*/$${f%.jsonl}.tsv"; \
 			if [ -e "$$t" ]; then \
 				n=$$(wc -l < "$$f"); jn=$$(( $$(wc -l < "$$t") - 1 )); \
 				[ "$$jn" -ge "$$n" ] && { echo "skip $$f ($$t exists, $$jn/$$n rows)"; continue; }; \
@@ -163,31 +170,8 @@ judge-jev:
 			files="$$files results/$$f"; \
 		done; \
 		[ -n "$$files" ] || continue; \
-		echo "judge-jev LANG=$$lang: $$(echo $$files | wc -w) file(s)"; \
-		(cd $(ROOT) && uv run judge-jev.py -l $$lang --started-at $(START_TIME) $$files) || exit $$?; \
-	done
-
-# Opt-in: the same scan graded by Nimble (judge-nimble.py) into nimble/<stem>.tsv,
-# whose header line means a complete file has one line more than its answer file.
-# Pending files are grouped by LANG and passed to one judge-nimble.py call per
-# language, so the status line reads "<stem> (i/n)" across the batch. The two
-# calls run one after the other, as both update nimble/MODELS.tsv.
-judge-nimble:
-	@for lang in en ja; do \
-		files=; \
-		for f in *-$$lang.jsonl; do \
-			[ -e "$$f" ] || continue; \
-			t="nimble/$${f%.jsonl}.tsv"; \
-			if [ -e "$$t" ]; then \
-				n=$$(wc -l < "$$f"); jn=$$(( $$(wc -l < "$$t") - 1 )); \
-				[ "$$jn" -ge "$$n" ] && { echo "skip $$f ($$t exists, $$jn/$$n rows)"; continue; }; \
-				echo "resume $$f ($$t incomplete, $$jn/$$n rows)"; \
-			fi; \
-			files="$$files results/$$f"; \
-		done; \
-		[ -n "$$files" ] || continue; \
-		echo "judge-nimble LANG=$$lang: $$(echo $$files | wc -w) file(s)"; \
-		(cd $(ROOT) && uv run judge-nimble.py -l $$lang --started-at $(START_TIME) $$files) || exit $$?; \
+		echo "judge-$* LANG=$$lang: $$(echo $$files | wc -w) file(s)"; \
+		(cd $(ROOT) && uv run judge-$*.py -l $$lang --started-at $(START_TIME) $$files) || exit $$?; \
 	done
 
 # Aggregate every <METHOD>-<MODEL>-<LANG>.jsonl that has a matching judge file
@@ -200,14 +184,9 @@ report:
 	cd $(ROOT) && uv run results/report.py
 	uv run generate_chart.py
 
-# Same aggregation over the Jev verdicts (jev/*.tsv from judge-jev.py) →
-# report-jev.md + MODELS-jev.svg, leaving the qwen report.md untouched.
-report-jev:
-	cd $(ROOT) && uv run results/report.py --jev
-	uv run generate_chart.py --jev
-
-# Same aggregation over the Nimble verdicts (nimble/*.tsv from judge-nimble.py) →
-# report-nimble.md + MODELS-nimble.svg, leaving the qwen report.md untouched.
-report-nimble:
-	cd $(ROOT) && uv run results/report.py --nimble
-	uv run generate_chart.py --nimble
+# Same aggregation over a probability judge's verdicts (<dir>/*.tsv from
+# judge-<dir>.py) → report-<dir>.md + MODELS-<dir>.svg, leaving the qwen
+# report.md untouched.
+$(addprefix report-,$(TSV_JUDGES)): report-%:
+	cd $(ROOT) && uv run results/report.py --$*
+	uv run generate_chart.py --$*

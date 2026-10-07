@@ -17,10 +17,15 @@ writing `nimble/*.tsv`.
   scheme `choice@19579e23` (recorded for all 82 files in `nimble/MODELS.tsv`)
 - **Scope**: 82 answer files (41 per language; 39 ceiling + 2 hybrid8) × 50 questions
   = 4,100 requests, run sequentially across English and Japanese
-- **Wall time**: 46m 24s (2,784 s in total, ~0.679 s per request)
+- **Wall time**: 46m 24s (2,784 s in total, ~34.0 s per file of 50 questions,
+  ~0.679 s per request)
 - **Cost**: **$0.00** (fully local execution via Ollama GPU inference, zero API fees)
 - **Output**: Strictly 1 token per question directly from the `/v1/systemone`
   endpoint, eliminating autoregressive text generation overhead.
+
+Since Nimble runs locally, cost and tokens are not compared with the paid
+judges; time is. Per file, Nimble takes about 3× as long as Jev (11.1 s, see
+[JEV.md](JEV.md)).
 
 `make report-nimble` aggregates the Nimble verdicts into [report-nimble.md](report-nimble.md)
 and [MODELS-nimble.svg](MODELS-nimble.svg).

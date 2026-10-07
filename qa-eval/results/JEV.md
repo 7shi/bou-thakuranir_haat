@@ -27,16 +27,17 @@ Every answer file here was then graded by one `make judge-jev` run (see
   (recorded for all 82 files in `jev/MODELS.tsv`)
 - Scope: 82 answer files (41 per language) × 50 questions = 4,100 requests,
   one `judge-jev.py` call per language
-- Wall time: 15m 7.5s (about 0.22 s per request)
-- Cost: $0.1385 in total (about $0.034 per 1,000 requests)
+- Wall time: 15m 7.5s (about 11.1 s per file of 50 questions, 0.22 s per
+  request)
+- Cost: $0.1385 in total (about $0.0017 per file, $0.034 per 1,000 requests)
 
 Token usage, from llm7shi's `usage.jsonl` (one entry per language):
 
-| Language | Requests | Input | Output | Input / request | Output / request |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| English | 2,050 | 1,411,013 | 79,950 | 688 | 39 |
-| Japanese | 2,050 | 1,887,319 | 79,950 | 921 | 39 |
-| Total | 4,100 | 3,298,332 | 159,900 | 804 | 39 |
+| Language | Files | Input | Output | Input / file | Output / file | Input / request | Output / request |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| English | 41 | 1,411,013 | 79,950 | 34,415 | 1,950 | 688 | 39 |
+| Japanese | 41 | 1,887,319 | 79,950 | 46,032 | 1,950 | 921 | 39 |
+| Total | 82 | 3,298,332 | 159,900 | 40,224 | 1,950 | 804 | 39 |
 
 Output is a fixed 39 tokens per request regardless of content. Input follows
 the length of the question, gold answer, rationale and candidate answer;
