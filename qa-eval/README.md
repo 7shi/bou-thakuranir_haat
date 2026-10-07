@@ -148,7 +148,13 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 * **Local and Free:** Bespoke Labs' [Nimble](https://ollama.com/library/nimble) (fine-tuned on Qwen 3.5 9B, Apache 2.0) runs directly inside Ollama (`ollama pull nimble`). It provides an open-weights System One decision judge with zero cloud API costs.
 * **The Strictness Sweet Spot:** Across all 1,500 questions (EN + JA), Nimble lands squarely between Qwen's leniency (1,170 correct) and Jev's strictness (954 correct) at 1,068 correct (71.2%), achieving 88.2% agreement with Qwen and 87.1% with Jev.
 * **High Efficiency:** Evaluates in a single parallel forward pass, emitting strictly 1 output token per question without autoregressive decoding overhead (~0.64 s per decision on local GPUs).
-* **Bilingual Consistency:** Unlike Jev, where Japanese scores dropped across 11 methods, Nimble maintains consistent calibration across both languages (Ceiling 0.950 EN vs. 0.960 JA; mean difference −0.007).
+* **Bilingual Consistency:** Unlike Jev, where Japanese scores dropped across 11 methods, Nimble maintains consistent calibration across both languages (Ceiling 0.950 EN vs. 0.960 JA; mean difference −0.010).
+
+### OpenAI Decisions as the Judge — [OPENAI.md](OPENAI.md)
+
+* **Same Rubric, Different API:** OpenAI's Decisions API (`gpt-6-luna`) answers the same Choice question as Jev ([judge-openai.py](judge-openai.py)), returning probabilities with zero output tokens: ~0.28 s per decision and $0.08 for all 1,500 questions (EN + JA).
+* **Between Nimble and Jev:** 1,002 correct (66.8%) sits between Nimble (1,068) and Jev (954), and its verdicts agree most with Jev (89.5%, the highest of all judge pairs).
+* **Language Sensitivity:** Japanese scores drop by 0.028 on average (Ceiling 0.960 EN → 0.920 JA), about three times Jev's or Nimble's drop, so the method ranking differs between languages.
 
 ## Overall Conclusions and Practical Takeaways
 

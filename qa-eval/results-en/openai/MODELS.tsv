@@ -1,0 +1,16 @@
+file	model	scheme
+ceiling.tsv	gpt-6-luna	choice@849ecf1c
+extract.tsv	gpt-6-luna	choice@849ecf1c
+filter2.tsv	gpt-6-luna	choice@849ecf1c
+filter3.tsv	gpt-6-luna	choice@849ecf1c
+graphrag-global.tsv	gpt-6-luna	choice@849ecf1c
+graphrag-local.tsv	gpt-6-luna	choice@849ecf1c
+hybrid10.tsv	gpt-6-luna	choice@849ecf1c
+hybrid5.tsv	gpt-6-luna	choice@849ecf1c
+hybrid8.tsv	gpt-6-luna	choice@849ecf1c
+vector-hybrid10.tsv	gpt-6-luna	choice@849ecf1c
+vector-hybrid5.tsv	gpt-6-luna	choice@849ecf1c
+vector-line10.tsv	gpt-6-luna	choice@849ecf1c
+vector-line5.tsv	gpt-6-luna	choice@849ecf1c
+vector10.tsv	gpt-6-luna	choice@849ecf1c
+vector5.tsv	gpt-6-luna	choice@849ecf1c

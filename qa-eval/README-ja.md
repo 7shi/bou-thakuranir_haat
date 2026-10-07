@@ -122,7 +122,13 @@ Segment ∪ Line (VECTOR-HYBRID), 英語 / 日本語:
 * **ローカルかつ無料:** Bespoke Labs の [Nimble](https://ollama.com/library/nimble)（Qwen 3.5 9B をファインチューニング、Apache 2.0）は Ollama 経由（`ollama pull nimble`）で直接動作し、クラウド API 費用なしで決定モデルの判定を利用できます。
 * **厳格さのスイートスポット:** 日英計1,500問の再判定において、Nimble の判定分布（1,068 correct / 273 partial）は qwen の甘さ（1,170 correct）と Jev の厳しさ（954 correct）のちょうど中間に位置し、qwen と 88.2%、Jev と 87.1% の高い一致率を示します。
 * **高スループット:** 自己回帰的なテキスト生成を行わず、フォワードパス1回で厳密に1出力トークンで決定を出すため、ローカル GPU でも1問あたり約0.64秒と高速に処理できます。
-* **日英での高い安定性:** Jev では日本語のスコアが下がりやすかったのに対し、Nimble では日英で極めて安定した較正を保っています（Ceiling は英語 0.950、日本語 0.960。全手法の平均スコア差は −0.007）。
+* **日英での高い安定性:** Jev では日本語のスコアが下がりやすかったのに対し、Nimble では日英で極めて安定した較正を保っています（Ceiling は英語 0.950、日本語 0.960。全手法の平均スコア差は −0.010）。
+
+### OpenAI Decisions による判定 (OpenAI Decisions as the Judge) — [OPENAI.md](OPENAI.md)
+
+* **同じルーブリック、別の API:** OpenAI の Decisions API (`gpt-6-luna`) に、Jev と同じ Choice の質問を投げます（[judge-openai.py](judge-openai.py)）。判定は確率で返り、出力トークンは 0 です。1問あたり約0.28秒で、日英計1,500問の費用は $0.08 です。
+* **Nimble と Jev の中間:** correct は 1,002件（66.8%）で、Nimble（1,068）と Jev（954）の間に入ります。判定は Jev と最もよく一致します（89.5%、全判定モデルの組み合わせで最高）。
+* **言語による差:** 日本語ではスコアが平均 0.028 下がり（Ceiling は英語 0.960 → 日本語 0.920）、Jev や Nimble の約3倍の下がり幅です。そのため、手法の順位が言語によって入れ替わります。
 
 ## 総括とプラクティカルな結論 (Overall Conclusions and Practical Takeaways)
 
