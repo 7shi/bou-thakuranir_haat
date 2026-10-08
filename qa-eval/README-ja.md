@@ -36,6 +36,7 @@
 - `answer_ceiling.py` — Ceiling、正解チャプターをコンテキストとして使用 → `results-<lang>/ceiling.jsonl`
 - `judge.py` — ゴールドスタンダードに対するLLMでの回答採点 → `results-<lang>/judge/<stem>.jsonl`
 - `report.py` — 精度 + 検索チャプターの比較 + ペアワイズの不一致分析 (ターミナルに表を出力)
+- `drop_verdicts.py` / `sort_verdicts.py` — 模範解答の修正後に指定した問題だけを再採点 ([GOLD-FIX.md](GOLD-FIX.md) を参照)
 
 `answer.py` は、5つのすべての回答スクリプト（vector / extract / filter / ceiling / hybrid）でインポートされる共有ヘルパー（`LANGS`, `PART_RANGES`, `load_questions`, `load_chapters`, `answer_question`）を保持しています。
 

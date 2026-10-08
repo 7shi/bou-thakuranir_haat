@@ -24,7 +24,9 @@ Records:
 
 Each record also carries the model and reasoning effort. Resume-safe: question
 IDs already in the output are skipped. A reply whose claim ids do not match
-the facts is retried.
+the facts is retried. With --qids, only those questions are run, whether done
+or not, and each new record replaces the question's old one in place (after a
+gold answer is corrected, `facts` then `check` for both languages).
 
 Token usage: each request's usage is printed, and the run total at the end.
 For metered models (openai:/gpt-, or --save-usage) the run total is appended to
@@ -101,6 +103,31 @@ def read_done(path: Path) -> set[int]:
         return {json.loads(l)["question_id"] for l in f if l.strip()}
 
 
+def write_record(path: Path, record: dict, replace: bool, out_f) -> None:
+    """Append `record`, or with `replace`, put it in place of the question's
+    old record, keeping the other records and their order."""
+    line = json.dumps(record, ensure_ascii=False)
+    if not replace:
+        out_f.write(line + "\n")
+        out_f.flush()
+        return
+    with open(path, encoding="utf-8") as f:
+        lines = [l.rstrip("\n") for l in f if l.strip()]
+    qid = record["question_id"]
+    lines = [line if json.loads(l)["question_id"] == qid else l for l in lines]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def todo(args, n: int, done: set[int]) -> set[int]:
+    """Question IDs to run: --qids if given (all of them must be done already,
+    so that each has a record to replace), otherwise those not done."""
+    if not args.qids:
+        return set(range(1, n + 1)) - done
+    if missing := set(args.qids) - done:
+        raise SystemExit(f"--qids {sorted(missing)} have no record to replace")
+    return set(args.qids)
+
+
 def load_facts() -> dict[int, list[str]]:
     with open(FACTS_FILE, encoding="utf-8") as f:
         return {r["question_id"]: r["facts"] for r in map(json.loads, filter(str.strip, f))}
@@ -119,10 +146,11 @@ def request(contents: str, schema, system_prompt: str, args, ui, usages: list):
 
 
 def run_facts(args, questions, ui, usages, prog):
-    done = read_done(FACTS_FILE)
+    run = todo(args, len(questions), read_done(FACTS_FILE))
+    finished = 0 if args.qids else len(questions) - len(run)
     with open(FACTS_FILE, "a", encoding="utf-8") as out_f:
         for qid, q in enumerate(questions, start=1):
-            if qid in done:
+            if qid not in run:
                 continue
             ui.stream.print(f"\n[Q{qid}] {q['answer']}")
             contents = f"Question:\n{q['question']}\n\nGold answer:\n{q['answer']}"
@@ -131,10 +159,9 @@ def run_facts(args, questions, ui, usages, prog):
                 ui.stream.print(f"  {i}. {fact}")
             record = {"question_id": qid, "facts": facts,
                       "model": args.model, "effort": args.effort}
-            out_f.write(json.dumps(record, ensure_ascii=False) + "\n")
-            out_f.flush()
-            done.add(qid)
-            prog.update(len(done))
+            write_record(FACTS_FILE, record, bool(args.qids), out_f)
+            finished += 1
+            prog.update(finished)
 
 
 def run_check(args, questions, ui, usages, prog):
@@ -143,10 +170,11 @@ def run_check(args, questions, ui, usages, prog):
     chapters = load_chapters(ROOT / "all" / f"{lang}-gemini.jsonl")
     out_path = HERE / f"check-{lang}.jsonl"
     system_prompt = CHECK_PROMPT.format(lang_name=LANGS[lang])
-    done = read_done(out_path)
+    run = todo(args, len(questions), read_done(out_path))
+    finished = 0 if args.qids else len(questions) - len(run)
     with open(out_path, "a", encoding="utf-8") as out_f:
         for qid, q in enumerate(questions, start=1):
-            if qid in done:
+            if qid not in run:
                 continue
             claims = facts[qid]
             context = "\n\n".join(
@@ -168,10 +196,9 @@ def run_check(args, questions, ui, usages, prog):
                 ui.stream.print(f"  {c.id}. {c.verdict}: {claims[c.id - 1]}")
             record = {"question_id": qid, "claims": [c.model_dump() for c in result.claims],
                       "model": args.model, "effort": args.effort}
-            out_f.write(json.dumps(record, ensure_ascii=False) + "\n")
-            out_f.flush()
-            done.add(qid)
-            prog.update(len(done))
+            write_record(out_path, record, bool(args.qids), out_f)
+            finished += 1
+            prog.update(finished)
 
 
 def main():
@@ -185,6 +212,8 @@ def main():
     parser.add_argument("--attempts", type=int, default=3, help="check: attempts per question")
     parser.add_argument("--save-usage", action="store_true",
                         help="record token usage to usage.jsonl regardless of the model")
+    parser.add_argument("--qids", nargs="+", type=int, default=[],
+                        help="redo these questions, replacing their records")
     args = parser.parse_args()
 
     global USAGE_PATH
@@ -201,7 +230,8 @@ def main():
     ui = StatusLine()
     usages = []
     try:
-        with ui.progress(len(questions), start=len(done), label=label) as prog:
+        total, start = (len(args.qids), 0) if args.qids else (len(questions), len(done))
+        with ui.progress(total, start=start, label=label) as prog:
             (run_facts if args.step == "facts" else run_check)(args, questions, ui, usages, prog)
     finally:
         if usages and USAGE_PATH is not None:

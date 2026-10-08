@@ -47,6 +47,7 @@ aggregate (Filter and Ceiling are opt-in):
 - `answer_ceiling.py` — Ceiling, gold chapters as context → `results-<lang>/ceiling.jsonl`
 - `judge.py` — LLM grading of answers vs. gold → `results-<lang>/judge/<stem>.jsonl`
 - `report.py` — accuracy + chapter retrieval comparison + pairwise disagreement analysis (terminal table)
+- `drop_verdicts.py` / `sort_verdicts.py` — re-grade selected questions after a gold answer fix (see [GOLD-FIX.md](GOLD-FIX.md))
 
 `answer.py` holds the shared helpers (`LANGS`, `PART_RANGES`, `load_questions`,
 `load_chapters`, `answer_question`) imported by all five answer scripts
