@@ -39,7 +39,6 @@ LANG    := en
 ROOT    := ..
 RESULTS := results-$(LANG)
 
-QUESTIONS := $(ROOT)/questions-$(LANG).jsonl
 SCENES    := $(ROOT)/all/$(LANG)-gemini.jsonl
 TSV       := $(ROOT)/all/$(LANG)-gemini.tsv
 # Set LINE=1 for line-level retrieval. It toggles the same `index` / `vector`
@@ -158,7 +157,7 @@ JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge/%.jsonl,$(wildcard
 # dedups); the [0-9] right after "vector" excludes vector-line/vector-hybrid.
 JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge/%.jsonl,$(wildcard $(RESULTS)/vector[0-9]*.jsonl))
 judge: $(JUDGE_FILES)
-sweep: $(INDEX) $(QUESTIONS)
+sweep: $(INDEX)
 	uv run sweep_vector.py -l $(LANG)
 
 # BM25/lexical retrieval gold-coverage analysis (independent of the pipeline;
@@ -168,7 +167,7 @@ sweep: $(INDEX) $(QUESTIONS)
 # dense-retrieval misses. Side-by-side with `make sweep`, answers whether
 # sparse lexical matching recovers the gold chapters dense retrieval drops —
 # the dense-vs-BM25 question that motivates the hybrid analysis. See bm25.py.
-bm25: $(SCENES) $(TSV) $(QUESTIONS)
+bm25: $(SCENES) $(TSV)
 	uv run bm25.py -l $(LANG)
 
 # Standalone dense+BM25 fusion analysis (hybrid.py — RRF/Borda/CombSUM vs. union
@@ -183,13 +182,13 @@ bm25: $(SCENES) $(TSV) $(QUESTIONS)
 # `make filter SCALE=100` generates it if missing, then runs filter.py.
 # filter2/3 TSVs are read opportunistically when present (for the crosstab
 # tables) but are not required.
-filter: filter$(SCALE)-tsv $(QUESTIONS)
+filter: filter$(SCALE)-tsv
 	uv run filter.py -l $(LANG) --scale $(SCALE)
 
 # Five-axis relevance score analysis (terminal output only, no LLM). Reads
 # filter5d.tsv and prints the sum distribution, threshold sweep, per-axis
 # breakdown, and the floor analysis. See FILTER.md.
-filter5d: $(FILTER5D_TSV) $(QUESTIONS)
+filter5d: $(FILTER5D_TSV)
 	uv run filter5d.py -l $(LANG)
 
 # Accuracy + chapter retrieval comparison table + pairwise disagreement
@@ -198,6 +197,12 @@ report: judge
 	uv run report.py -l $(LANG)
 
 # --- file targets ---
+
+# No rule depends on questions-<lang>.jsonl. Its questions and chapters are
+# frozen, so editing a gold answer must not answer anything again; and the
+# judges skip questions that already have a verdict, so a newer file would not
+# re-grade anything either. To re-grade after a gold answer fix, see
+# GOLD-FIX.md (drop_verdicts.py, then the usual judge targets).
 
 # Scene embedding indexes. Two explicit named rules (segment / line) rather than
 # one $(LINE_FLAG)-parameterized rule, because `vector-hybrid` needs BOTH indexes
@@ -214,14 +219,14 @@ index-line-$(LANG).safetensors: $(SCENES) $(TSV)
 #   make vector K=10    → results-<lang>/vector10.jsonl  (k=10)
 # answer_vector.py derives the output filename from k, so the explicit -o is
 # not needed; the pattern rule just passes -k $* (the stem, e.g. "10").
-$(RESULTS)/vector%.jsonl: $(INDEX) $(QUESTIONS)
+$(RESULTS)/vector%.jsonl: $(INDEX)
 	uv run answer_vector.py -l $(LANG) -k $*
 
 # Line-mode variant (LINE=1). Same `make vector` target, but VECTOR_FILE becomes
 # vector-line<k>.jsonl, which this rule builds with --line. Kept as its own
 # pattern only because the filename prefix differs; the user-facing target is
 # still just `vector`.
-$(RESULTS)/vector-line%.jsonl: $(INDEX) $(QUESTIONS)
+$(RESULTS)/vector-line%.jsonl: $(INDEX)
 	uv run answer_vector.py -l $(LANG) --line -k $*
 
 # Segment ∪ line dense Union answering (answer_vector.py --hybrid). Needs BOTH
@@ -230,7 +235,7 @@ $(RESULTS)/vector-line%.jsonl: $(INDEX) $(QUESTIONS)
 # precedence over `vector%` for vector-hybrid<k>.jsonl. Both languages.
 #   make vector-hybrid       → results-<lang>/vector-hybrid5.jsonl   (default k=5)
 #   make vector-hybrid K=10  → results-<lang>/vector-hybrid10.jsonl  (k=10)
-$(RESULTS)/vector-hybrid%.jsonl: index-$(LANG).safetensors index-line-$(LANG).safetensors $(QUESTIONS)
+$(RESULTS)/vector-hybrid%.jsonl: index-$(LANG).safetensors index-line-$(LANG).safetensors
 	uv run answer_vector.py -l $(LANG) --hybrid -k $*
 
 # Hybrid retrieval (dense ∪ BM25 union) answering. Mirrors the vector pattern
@@ -240,37 +245,37 @@ $(RESULTS)/vector-hybrid%.jsonl: index-$(LANG).safetensors index-line-$(LANG).sa
 # only the index. English only.
 #   make hybrid         → results-<lang>/hybrid5.jsonl   (default k=5)
 #   make hybrid K=10    → results-<lang>/hybrid10.jsonl  (k=10)
-$(RESULTS)/hybrid%.jsonl: $(INDEX) $(SCENES) $(TSV) $(QUESTIONS)
+$(RESULTS)/hybrid%.jsonl: $(INDEX) $(SCENES) $(TSV)
 	uv run answer_hybrid.py -l $(LANG) -k $*
 
 # Per-chapter extraction, Phase 1: one chapter group per part file.
-$(RESULTS)/extract-%.jsonl: $(SCENES) $(QUESTIONS)
+$(RESULTS)/extract-%.jsonl: $(SCENES)
 	uv run answer_extract.py -l $(LANG) -p $*
 
 # Per-chapter extraction, Phase 2: synthesize answers from the part files.
-$(RESULTS)/extract.jsonl: $(EXTRACT_PARTS) $(QUESTIONS)
+$(RESULTS)/extract.jsonl: $(EXTRACT_PARTS)
 	uv run answer_extract.py -l $(LANG)
 
 # Per-chapter two-level relevance filter (yes/no), Phase 1: writes a single
 # filter2.tsv (a TSV: a chapter/question_id/verdict header then one row per
 # classified pair, all chapters at once). A stricter bar than filter3 — Phase 2
 # keeps only "yes" verdicts, so uncertain chapters are dropped.
-$(FILTER2_TSV): $(SCENES) $(QUESTIONS)
+$(FILTER2_TSV): $(SCENES)
 	uv run answer_filter.py -l $(LANG) --phase1 --verdicts 2
 
 # Per-chapter two-level relevance filter, Phase 2: answer from the FULL text
 # of every chapter marked "yes".
-$(RESULTS)/filter2.jsonl: $(FILTER2_TSV) $(QUESTIONS)
+$(RESULTS)/filter2.jsonl: $(FILTER2_TSV)
 	uv run answer_filter.py -l $(LANG) --verdicts 2
 
 # Per-chapter three-level relevance filter (yes/maybe/no), Phase 1: default
 # --verdicts 3 (omitted), writes filter3.tsv. All chapters in one run.
-$(FILTER3_TSV): $(SCENES) $(QUESTIONS)
+$(FILTER3_TSV): $(SCENES)
 	uv run answer_filter.py -l $(LANG) --phase1
 
 # Per-chapter three-level relevance filter, Phase 2: answer from the FULL text
 # of every chapter whose verdict is not "no" (both "yes" and "maybe").
-$(RESULTS)/filter3.jsonl: $(FILTER3_TSV) $(QUESTIONS)
+$(RESULTS)/filter3.jsonl: $(FILTER3_TSV)
 	uv run answer_filter.py -l $(LANG)
 
 # Per-chapter eleven-level relevance filter (integer 0-10), Phase 1 ONLY. The
@@ -278,7 +283,7 @@ $(RESULTS)/filter3.jsonl: $(FILTER3_TSV) $(QUESTIONS)
 # records the raw score per (chapter, question) pair so the threshold can be
 # chosen after inspecting the distribution. Phase 2 (and the filter10.jsonl /
 # judge targets) are deferred until that decision is made.
-$(FILTER10_TSV): $(SCENES) $(QUESTIONS)
+$(FILTER10_TSV): $(SCENES)
 	uv run answer_filter.py -l $(LANG) --phase1 --verdicts 10
 
 # Per-chapter 101-level relevance filter (integer 0-100), Phase 1 ONLY. Tried
@@ -286,7 +291,7 @@ $(FILTER10_TSV): $(SCENES) $(QUESTIONS)
 # (13 of 101 values used) — filter100 is filter10 scaled x10, with a worse
 # gold-scored-0 floor. `make filter SCALE=100` prints only the occurrence
 # count; see FILTER.md. Phase 2 is not planned for this variant.
-$(FILTER100_TSV): $(SCENES) $(QUESTIONS)
+$(FILTER100_TSV): $(SCENES)
 	uv run answer_filter.py -l $(LANG) --phase1 --verdicts 100
 
 # Per-chapter five-axis relevance filter (five integers 0-10: factual, entity,
@@ -298,55 +303,55 @@ $(FILTER100_TSV): $(SCENES) $(QUESTIONS)
 # distribution from this Phase 1 run is inspected. Uses structured output (a
 # pydantic schema) via create_json_descriptions_prompt, unlike the plain-text
 # single-token replies of filter10/100.
-$(FILTER5D_TSV): $(SCENES) $(QUESTIONS)
+$(FILTER5D_TSV): $(SCENES)
 	uv run answer_filter.py -l $(LANG) --phase1 --verdicts 5d
 
 # Perfect-retrieval ceiling: the gold chapters fed verbatim as context, no
 # retrieval. No Phase 1, so just one target — the answer file. Its judge target
 # is defined below alongside the other opt-in judge rules.
-$(RESULTS)/ceiling.jsonl: $(SCENES) $(QUESTIONS)
+$(RESULTS)/ceiling.jsonl: $(SCENES)
 	uv run answer_ceiling.py -l $(LANG)
 
 # LLM grading of each answer file. One pattern rule serves both modes: the `%`
 # absorbs the whole stem, so judge/vector5.jsonl ← vector5.jsonl (segment) and
 # judge/vector-line5.jsonl ← vector-line5.jsonl (LINE=1, % = "-line5").
-$(RESULTS)/judge/vector%.jsonl: $(RESULTS)/vector%.jsonl $(QUESTIONS)
+$(RESULTS)/judge/vector%.jsonl: $(RESULTS)/vector%.jsonl
 	uv run judge.py -l $(LANG) $(RESULTS)/vector$*.jsonl
 
-$(RESULTS)/judge/extract.jsonl: $(RESULTS)/extract.jsonl $(QUESTIONS)
+$(RESULTS)/judge/extract.jsonl: $(RESULTS)/extract.jsonl
 	uv run judge.py -l $(LANG) $(RESULTS)/extract.jsonl
 
 # Opt-in: two-level filter judging. Run `make $(RESULTS)/judge/filter2.jsonl` (or `make
 # filter2`) explicitly to grade the two-level filter answers.
-$(RESULTS)/judge/filter2.jsonl: $(RESULTS)/filter2.jsonl $(QUESTIONS)
+$(RESULTS)/judge/filter2.jsonl: $(RESULTS)/filter2.jsonl
 	uv run judge.py -l $(LANG) $(RESULTS)/filter2.jsonl
 
 # Opt-in: not built by the default `judge` aggregate. Run `make $(RESULTS)/judge/filter3.jsonl`
 # (or `make filter3`) explicitly to grade the three-level filter answers.
-$(RESULTS)/judge/filter3.jsonl: $(RESULTS)/filter3.jsonl $(QUESTIONS)
+$(RESULTS)/judge/filter3.jsonl: $(RESULTS)/filter3.jsonl
 	uv run judge.py -l $(LANG) $(RESULTS)/filter3.jsonl
 
 # Opt-in: ceiling (gold-chapter context) judging. Run `make $(RESULTS)/judge/ceiling.jsonl`
 # (or `make ceiling`) explicitly to grade the ceiling answers.
-$(RESULTS)/judge/ceiling.jsonl: $(RESULTS)/ceiling.jsonl $(QUESTIONS)
+$(RESULTS)/judge/ceiling.jsonl: $(RESULTS)/ceiling.jsonl
 	uv run judge.py -l $(LANG) $(RESULTS)/ceiling.jsonl
 
 # Opt-in: hybrid (dense ∪ BM25 union) judging. Run `make hybrid-judge` (or `make
 # $(RESULTS)/judge/hybrid<k>.jsonl` explicitly) to grade the hybrid answers; `make report` then
 # shows the rows.
-$(RESULTS)/judge/hybrid5.jsonl: $(RESULTS)/hybrid5.jsonl $(QUESTIONS)
+$(RESULTS)/judge/hybrid5.jsonl: $(RESULTS)/hybrid5.jsonl
 	uv run judge.py -l $(LANG) $(RESULTS)/hybrid5.jsonl
 
-$(RESULTS)/judge/hybrid8.jsonl: $(RESULTS)/hybrid8.jsonl $(QUESTIONS)
+$(RESULTS)/judge/hybrid8.jsonl: $(RESULTS)/hybrid8.jsonl
 	uv run judge.py -l $(LANG) $(RESULTS)/hybrid8.jsonl
 
-$(RESULTS)/judge/hybrid10.jsonl: $(RESULTS)/hybrid10.jsonl $(QUESTIONS)
+$(RESULTS)/judge/hybrid10.jsonl: $(RESULTS)/hybrid10.jsonl
 	uv run judge.py -l $(LANG) $(RESULTS)/hybrid10.jsonl
 
 # GraphRAG (local / global search) judging. Works for both languages;
 # included in the default `judge` aggregate via wildcard pickup when the
 # answer files exist.
-$(RESULTS)/judge/graphrag-%.jsonl: $(RESULTS)/graphrag-%.jsonl $(QUESTIONS)
+$(RESULTS)/judge/graphrag-%.jsonl: $(RESULTS)/graphrag-%.jsonl
 	uv run judge.py -l $(LANG) $(RESULTS)/graphrag-$*.jsonl
 
 # Remove generated answers/judgements (keeps the index). The vector[0-9]* and
