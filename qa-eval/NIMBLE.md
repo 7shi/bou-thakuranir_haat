@@ -4,7 +4,7 @@ Every answer file in `results-en/` and `results-ja/` (15 methods × 50 questions
 per language = 1,500 requests in total) was re-graded with Bespoke Labs'
 **[Nimble](https://ollama.com/library/nimble)** (hosted locally via Ollama) and
 compared with the existing **`ollama:qwen3.6`** verdicts and TypeSafe's **Jev**
-(`jev-1.13.0`). For the multi-model comparison across 40 models in `results/`,
+(`jev-1.13.0`). For the multi-model comparison across 51 models in `results/`,
 see [results/NIMBLE.md](results/NIMBLE.md).
 
 Why Nimble and System One decision models: see

@@ -15,9 +15,12 @@ as "_").
 | Model | Method | English | Japanese |
 | --- | --- | --- | --- |
 | `copilot_claude-haiku-4.5` | ceiling | 97 (48/1/1) | 98 (48/2/0) |
+| `copilot_claude-sonnet-5` | ceiling | 100 (50/0/0) | 95 (46/3/1) |
 | `copilot_gpt-5.6-luna` | ceiling | 99 (49/1/0) | 98 (49/0/1) |
 | `copilot_grok-4.5` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
+| `copilot_grok-4.6` | ceiling | 100 (50/0/0) | 99 (49/1/0) |
 | `copilot_kimi-k2.7-code` | ceiling | 100 (50/0/0) | 99 (49/1/0) |
+| `copilot_kimi-k3` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
 | `copilot_mai-code-1.1-flash` | ceiling | 99 (49/1/0) | 93 (44/5/1) |
 | `google_gemini-2.5-flash` | ceiling | 93 (44/5/1) | 96 (46/4/0) |
 | `google_gemini-3-flash-preview` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
@@ -37,13 +40,20 @@ as "_").
 | `openai_gpt-5.6-luna` | ceiling | 100 (50/0/0) | 98 (48/2/0) |
 | `openai_gpt-5.6-sol` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
 | `openai_gpt-5.6-terra` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
+| `openai_gpt-6-astra` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
 | `openai_gpt-6-luna` | ceiling | 98 (48/2/0) | 99 (49/1/0) |
+| `openai_gpt-6-sol` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
+| `openai_gpt-6.1-sol` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
 | `opencode_big-pickle` | ceiling | 99 (49/1/0) | 96 (47/2/1) |
+| `opencode_fledge-alpha-free` | ceiling | 99 (49/1/0) | 99 (49/1/0) |
+| `opencode_ling-3.1-flash-free` | ceiling | 100 (50/0/0) | 99 (49/1/0) |
+| `opencode_longcat-2.5-preview-free` | ceiling | 100 (50/0/0) | 95 (46/3/1) |
 | `opencode_mimo-v2.5-free` | ceiling | 100 (50/0/0) | 95 (46/3/1) |
 | `opencode_mimo-v2.6-flash-free` | ceiling | 100 (50/0/0) | 95 (47/1/2) |
 | `opencode_muse-spark-1.2-contributor-free` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
 | `opencode_muse-spark-1.3-contributor-free` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
 | `opencode_union-alpha` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
+| `openrouter_apodex_apodex-1.1-mini_free` | ceiling | 98 (48/2/0) | 97 (48/1/1) |
 | `openrouter_cohere_north-mini-code_free` | ceiling | 90 (41/8/1) | 74 (32/10/8) |
 | `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 98 (48/2/0) | 96 (46/4/0) |
 | `openrouter_minimax_minimax-m2.7_free` | ceiling | 95 (45/5/0) | 96 (46/4/0) |
@@ -52,6 +62,7 @@ as "_").
 | `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | 99 (49/1/0) | 96 (46/4/0) |
 | `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 90 (41/8/1) | 87 (38/11/1) |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 87 (38/11/1) | 71 (29/13/8) |
+| `openrouter_poolside_laguna-xs-2.1_free` | ceiling | 91 (42/7/1) | 68 (25/18/7) |
 | `openrouter_stealth_ox-alpha` | ceiling | 100 (50/0/0) | 100 (50/0/0) |
 | `openrouter_stealth_space-bunny-alpha` | ceiling | 98 (48/2/0) | 92 (44/4/2) |
 | `google_gemma-4-31b-it` | hybrid8 | 92 (44/4/2) | 92 (43/6/1) |
@@ -67,9 +78,12 @@ language). A question absent from every column of a row was graded
 | Model | Method | en partial | en incorrect | ja partial | ja incorrect |
 | --- | --- | --- | --- | --- | --- |
 | `copilot_claude-haiku-4.5` | ceiling | 6 | 22 | 28, 50 | — |
+| `copilot_claude-sonnet-5` | ceiling | — | — | 28, 29, 42 | 16 |
 | `copilot_gpt-5.6-luna` | ceiling | 31 | — | — | 29 |
 | `copilot_grok-4.5` | ceiling | — | — | — | — |
+| `copilot_grok-4.6` | ceiling | — | — | 35 | — |
 | `copilot_kimi-k2.7-code` | ceiling | — | — | 29 | — |
+| `copilot_kimi-k3` | ceiling | — | — | — | — |
 | `copilot_mai-code-1.1-flash` | ceiling | 6 | — | 3, 28, 32, 34, 43 | 29 |
 | `google_gemini-2.5-flash` | ceiling | 28, 29, 30, 36, 41 | 17 | 29, 32, 35, 36 | — |
 | `google_gemini-3-flash-preview` | ceiling | — | — | — | — |
@@ -89,13 +103,20 @@ language). A question absent from every column of a row was graded
 | `openai_gpt-5.6-luna` | ceiling | — | — | 35, 48 | — |
 | `openai_gpt-5.6-sol` | ceiling | — | — | — | — |
 | `openai_gpt-5.6-terra` | ceiling | — | — | — | — |
+| `openai_gpt-6-astra` | ceiling | — | — | — | — |
 | `openai_gpt-6-luna` | ceiling | 22, 34 | — | 37 | — |
+| `openai_gpt-6-sol` | ceiling | — | — | — | — |
+| `openai_gpt-6.1-sol` | ceiling | — | — | — | — |
 | `opencode_big-pickle` | ceiling | 37 | — | 26, 37 | 42 |
+| `opencode_fledge-alpha-free` | ceiling | 37 | — | 46 | — |
+| `opencode_ling-3.1-flash-free` | ceiling | — | — | 6 | — |
+| `opencode_longcat-2.5-preview-free` | ceiling | — | — | 35, 39, 42 | 7 |
 | `opencode_mimo-v2.5-free` | ceiling | — | — | 20, 42, 47 | 38 |
 | `opencode_mimo-v2.6-flash-free` | ceiling | — | — | 46 | 17, 29 |
 | `opencode_muse-spark-1.2-contributor-free` | ceiling | — | — | — | — |
 | `opencode_muse-spark-1.3-contributor-free` | ceiling | — | — | — | — |
 | `opencode_union-alpha` | ceiling | — | — | — | — |
+| `openrouter_apodex_apodex-1.1-mini_free` | ceiling | 31, 37 | — | 50 | 42 |
 | `openrouter_cohere_north-mini-code_free` | ceiling | 28, 33, 36, 37, 46, 47, 49, 50 | 17 | 6, 32, 33, 35, 37, 38, 39, 47, 48, 50 | 12, 16, 22, 26, 28, 29, 36, 46 |
 | `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 33, 49 | — | 35, 37, 38, 50 | — |
 | `openrouter_minimax_minimax-m2.7_free` | ceiling | 6, 28, 31, 34, 37 | — | 29, 34, 36, 37 | — |
@@ -104,6 +125,7 @@ language). A question absent from every column of a row was graded
 | `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | 31 | — | 26, 29, 37, 43 | — |
 | `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 6, 28, 30, 31, 36, 37, 46, 49 | 34 | 6, 27, 28, 34, 35, 36, 37, 43, 45, 46, 50 | 29 |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 26, 28, 34, 37, 38, 39, 43, 44, 46, 48, 50 | 45 | 4, 27, 28, 29, 30, 32, 37, 39, 41, 43, 46, 49, 50 | 2, 8, 12, 22, 34, 35, 42, 45 |
+| `openrouter_poolside_laguna-xs-2.1_free` | ceiling | 26, 28, 33, 35, 37, 38, 47 | 30 | 6, 7, 28, 29, 30, 31, 32, 35, 36, 37, 38, 39, 43, 46, 47, 48, 49, 50 | 12, 22, 25, 26, 27, 34, 44 |
 | `openrouter_stealth_ox-alpha` | ceiling | — | — | — | — |
 | `openrouter_stealth_space-bunny-alpha` | ceiling | 6, 31 | — | 26, 28, 43, 47 | 37, 46 |
 | `google_gemma-4-31b-it` | hybrid8 | 31, 32, 48, 50 | 17, 29 | 27, 32, 36, 42, 44, 46 | 29 |

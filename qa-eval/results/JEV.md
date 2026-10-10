@@ -62,18 +62,28 @@ also separates models that tie on verdicts.
 | `opencode_muse-spark-1.2-contributor-free` | 100 | 96 | 95.2 | 100 | 96 | 93.6 |
 | `opencode_union-alpha` | 100 | 98 | 94.5 | 100 | 94 | 89.7 |
 | `openrouter_stealth_ox-alpha` | 100 | 98 | 95.6 | 100 | 94 | 91.5 |
+| `copilot_kimi-k3` | 100 | 96 | 91.9 | 100 | 94 | 90.2 |
 | `ollama_qwen3.8` | 100 | 98 | 94.4 | 97 | 92 | 88.4 |
 | `copilot_grok-4.5` | 100 | 95 | 92.0 | 100 | 94 | 91.4 |
 | `openrouter_minimax_minimax-m3_free` | 100 | 98 | 93.1 | 99 | 91 | 89.5 |
 | `ollama_muse-glimmer` | 99 | 95 | 90.5 | 99 | 93 | 89.2 |
 | `copilot_kimi-k2.7-code` | 100 | 95 | 92.9 | 99 | 92 | 89.3 |
 | `google_gemini-3-flash-preview` | 100 | 94 | 92.0 | 100 | 91 | 89.3 |
+| `opencode_ling-3.1-flash-free` | 100 | 95 | 91.9 | 99 | 90 | 88.4 |
+| `openai_gpt-6-sol` | 100 | 94 | 92.2 | 100 | 90 | 89.1 |
+| `opencode_fledge-alpha-free` | 99 | 94 | 92.1 | 99 | 90 | 89.0 |
 | `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | 99 | 93 | 90.6 | 96 | 91 | 88.7 |
+| `copilot_grok-4.6` | 100 | 93 | 90.8 | 99 | 90 | 88.3 |
 | `openai_gpt-5.6-terra` | 100 | 94 | 91.4 | 100 | 89 | 88.3 |
+| `openrouter_apodex_apodex-1.1-mini_free` | 98 | 94 | 90.8 | 97 | 89 | 86.7 |
+| `openai_gpt-6-astra` | 100 | 93 | 91.4 | 100 | 89 | 89.7 |
+| `openai_gpt-6.1-sol` | 100 | 95 | 91.4 | 100 | 87 | 88.8 |
 | `opencode_mimo-v2.5-free` | 100 | 94 | 90.6 | 95 | 88 | 85.1 |
 | `opencode_mimo-v2.6-flash-free` | 100 | 95 | 93.0 | 95 | 87 | 85.4 |
+| `copilot_claude-sonnet-5` | 100 | 97 | 92.5 | 95 | 84 | 84.4 |
 | `openai_gpt-5.6-luna` | 100 | 92 | 90.4 | 98 | 89 | 87.5 |
 | `openai_gpt-5.6-sol` | 100 | 91 | 90.3 | 100 | 90 | 89.2 |
+| `opencode_longcat-2.5-preview-free` | 100 | 94 | 91.4 | 95 | 86 | 84.4 |
 | `google_gemini-3.8-flash` | 97 | 89 | 87.9 | 97 | 90 | 87.4 |
 | `openai_gpt-6-luna` | 98 | 91 | 89.4 | 99 | 88 | 87.3 |
 | `opencode_big-pickle` | 99 | 91 | 88.7 | 96 | 87 | 85.5 |
@@ -95,31 +105,33 @@ also separates models that tie on verdicts.
 | `ollama_qwen3.5_9b` | 91 | 78 | 78.7 | 77 | 73 | 71.6 |
 | `openrouter_cohere_north-mini-code_free` | 90 | 83 | 81.8 | 74 | 67 | 67.3 |
 | `ollama_gemma4_12b-it-qat` | 83 | 76 | 75.3 | 82 | 72 | 72.2 |
+| `openrouter_poolside_laguna-xs-2.1_free` | 91 | 81 | 78.8 | 68 | 64 | 63.6 |
 | `openrouter_poolside_laguna-s-2.1_free` | 87 | 80 | 80.8 | 71 | 63 | 64.2 |
 | `ollama_qwen3.5_4b` | 79 | 72 | 69.8 | 72 | 67 | 65.5 |
 
 Sorted by the Jev score summed over both languages.
 
-- **The saturation is gone.** Under qwen, 24 of 39 models score ≥ 98 in English
-  (15 at 100) and 16 in Japanese (8 at 100). Under Jev four reach 98 in
-  English and none in Japanese, where the top is 97. The mean drop is 6.8
-  points (en) and 8.5 (ja).
+- **The saturation is gone.** Under qwen, 34 of 50 models score ≥ 98 in English
+  (23 at 100) and 23 in Japanese (12 at 100). Under Jev four reach 98 in
+  English and none in Japanese, where the top is 97. The mean drop is 6.5
+  points (en) and 8.6 (ja).
 - **The order is broadly kept.** Spearman's rank correlation between the qwen
-  and Jev scores is 0.92 (en) and 0.90 (ja); the weakest models stay at the
+  and Jev scores is 0.88 (en) and 0.87 (ja); the weakest models stay at the
   bottom. Within the top, models that qwen could not separate spread out, and
-  some move a long way — `openai_gpt-5.6-terra` and `openai_gpt-5.6-sol` score
-  100 in Japanese under qwen but 89 and 90 under Jev, while
-  `opencode_muse-spark-1.2/1.3`, also 100 under qwen, drop only to 96 and 97.
+  some move a long way — `openai_gpt-6.1-sol`, `openai_gpt-5.6-terra` and
+  `openai_gpt-5.6-sol` score 100 in Japanese under qwen but 87, 89 and 90
+  under Jev, while `opencode_muse-spark-1.2/1.3`, also 100 under qwen, drop
+  only to 96 and 97.
 
 ### Verdict transitions
 
-Over all 41 runs per language (Ceiling and Hybrid8):
+Over all 52 runs per language (Ceiling and Hybrid8):
 
 | qwen \ Jev | en correct | en partial | en incorrect | ja correct | ja partial | ja incorrect |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| correct | 1,646 | 283 | 0 | 1,505 | 353 | 0 |
-| partial | 2 | 91 | 2 | 4 | 129 | 7 |
-| incorrect | 0 | 10 | 16 | 0 | 10 | 42 |
+| correct | 2,122 | 346 | 0 | 1,917 | 453 | 0 |
+| partial | 3 | 100 | 2 | 4 | 156 | 8 |
+| incorrect | 0 | 10 | 17 | 0 | 12 | 50 |
 
 As on `results-<lang>/`, the shift is almost entirely qwen *correct* → Jev
 *partial*; Jev never turns a qwen *correct* into *incorrect*.

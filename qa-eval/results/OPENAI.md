@@ -79,33 +79,33 @@ score over the OpenAI probabilities, mean of P(correct) + 0.5 · P(partial).
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | `opencode_muse-spark-1.2-contributor-free` | 100 | 96 | 96 | **100** | 99.8 | 100 | 96 | 97 | **100** | 99.2 |
 | `openrouter_stealth_ox-alpha` | 100 | 98 | 99 | **100** | 99.6 | 100 | 94 | 93 | **98** | 97.3 |
-| `openai_gpt-6-astra` | — | 93 | 98 | **99** | 97.4 | — | 89 | 97 | **98** | 96.3 |
+| `openai_gpt-6-astra` | 100 | 93 | 98 | **99** | 97.4 | 100 | 89 | 97 | **98** | 96.3 |
 | `opencode_muse-spark-1.3-contributor-free` | 100 | 97 | 98 | **99** | 97.9 | 100 | 97 | 96 | **97** | 95.9 |
-| `copilot_kimi-k3` | — | 96 | 95 | **98** | 96.9 | — | 94 | 97 | **97** | 95.6 |
-| `openai_gpt-6.1-sol` | — | 95 | 95 | **99** | 98.3 | — | 87 | 95 | **95** | 94.1 |
+| `copilot_kimi-k3` | 100 | 96 | 95 | **98** | 96.9 | 100 | 94 | 97 | **97** | 95.6 |
+| `openai_gpt-6.1-sol` | 100 | 95 | 95 | **99** | 98.3 | 100 | 87 | 95 | **95** | 94.1 |
 | `opencode_union-alpha` | 100 | 98 | 98 | **98** | 97.2 | 100 | 94 | 95 | **96** | 93.7 |
 | `openrouter_minimax_minimax-m3_free` | 100 | 98 | 96 | **97** | 96.2 | 99 | 91 | 96 | **96** | 95.0 |
 | `copilot_kimi-k2.7-code` | 100 | 95 | 96 | **98** | 97.1 | 99 | 92 | 94 | **93** | 92.3 |
 | `ollama_qwen3.8` | 100 | 98 | 97 | **97** | 96.7 | 97 | 92 | 91 | **94** | 93.7 |
 | `ollama_muse-glimmer` | 99 | 95 | 96 | **96** | 95.2 | 99 | 93 | 95 | **94** | 92.8 |
 | `openai_gpt-5.6-sol` | 100 | 91 | 97 | **94** | 92.9 | 100 | 90 | 97 | **96** | 93.4 |
-| `opencode_ling-3.1-flash-free` | — | 95 | 96 | **97** | 96.6 | — | 90 | 93 | **93** | 92.9 |
-| `copilot_claude-sonnet-5` | — | 97 | 98 | **98** | 96.9 | — | 84 | 88 | **91** | 90.0 |
+| `opencode_ling-3.1-flash-free` | 100 | 95 | 96 | **97** | 96.6 | 99 | 90 | 93 | **93** | 92.9 |
+| `copilot_claude-sonnet-5` | 100 | 97 | 98 | **98** | 96.9 | 95 | 84 | 88 | **91** | 90.0 |
 | `opencode_mimo-v2.6-flash-free` | 100 | 95 | 97 | **98** | 97.2 | 95 | 87 | 91 | **91** | 89.4 |
 | `copilot_gpt-5.6-luna` | 99 | 87 | 94 | **96** | 93.5 | 98 | 88 | 96 | **92** | 90.9 |
-| `copilot_grok-4.6` | — | 93 | 96 | **98** | 96.3 | — | 90 | 96 | **90** | 89.5 |
-| `openai_gpt-6-sol` | — | 94 | 99 | **96** | 95.0 | — | 90 | 99 | **92** | 90.7 |
+| `copilot_grok-4.6` | 100 | 93 | 96 | **98** | 96.3 | 99 | 90 | 96 | **90** | 89.5 |
+| `openai_gpt-6-sol` | 100 | 94 | 99 | **96** | 95.0 | 100 | 90 | 99 | **92** | 90.7 |
 | `google_gemma-4-31b-it` | 99 | 93 | 96 | **97** | 95.4 | 99 | 90 | 95 | **91** | 89.7 |
 | `openai_gpt-6-luna` | 98 | 91 | 97 | **93** | 93.4 | 99 | 88 | 98 | **94** | 92.6 |
 | `copilot_grok-4.5` | 100 | 95 | 96 | **95** | 93.6 | 100 | 94 | 96 | **91** | 90.7 |
 | `google_gemini-3.8-flash` | 97 | 89 | 94 | **95** | 93.0 | 97 | 90 | 95 | **91** | 90.2 |
 | `openai_gpt-5.6-luna` | 100 | 92 | 97 | **95** | 94.4 | 98 | 89 | 96 | **91** | 91.1 |
 | `openai_gpt-5.6-terra` | 100 | 94 | 94 | **94** | 93.0 | 100 | 89 | 96 | **92** | 90.6 |
-| `opencode_fledge-alpha-free` | — | 94 | 97 | **94** | 93.1 | — | 90 | 96 | **92** | 90.6 |
-| `openrouter_apodex_apodex-1.1-mini_free` | — | 94 | 92 | **97** | 95.6 | — | 89 | 94 | **88** | 86.9 |
+| `opencode_fledge-alpha-free` | 99 | 94 | 97 | **94** | 93.1 | 99 | 90 | 96 | **92** | 90.6 |
+| `openrouter_apodex_apodex-1.1-mini_free` | 98 | 94 | 92 | **97** | 95.6 | 97 | 89 | 94 | **88** | 86.9 |
 | `google_gemini-3-flash-preview` | 100 | 94 | 97 | **95** | 93.4 | 100 | 91 | 94 | **89** | 89.6 |
 | `opencode_big-pickle` | 99 | 91 | 94 | **95** | 94.0 | 96 | 87 | 95 | **89** | 88.4 |
-| `opencode_longcat-2.5-preview-free` | — | 94 | 95 | **95** | 95.3 | — | 86 | 92 | **88** | 87.0 |
+| `opencode_longcat-2.5-preview-free` | 100 | 94 | 95 | **95** | 95.3 | 95 | 86 | 92 | **88** | 87.0 |
 | `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | 99 | 93 | 93 | **92** | 93.3 | 96 | 91 | 97 | **91** | 89.7 |
 | `google_gemini-2.5-flash` | 93 | 87 | 92 | **93** | 90.8 | 96 | 86 | 94 | **88** | 87.5 |
 | `google_gemini-3.7-flash` | 98 | 89 | 91 | **91** | 90.5 | 97 | 88 | 95 | **90** | 89.5 |
@@ -126,14 +126,13 @@ score over the OpenAI probabilities, mean of P(correct) + 0.5 · P(partial).
 | `ollama_gemma4_12b-it-qat` | 83 | 76 | 81 | **79** | 78.7 | 82 | 72 | 80 | **75** | 74.5 |
 | `openrouter_cohere_north-mini-code_free` | 90 | 83 | 91 | **84** | 83.5 | 74 | 67 | 73 | **68** | 67.8 |
 | `openrouter_poolside_laguna-s-2.1_free` | 87 | 80 | 90 | **86** | 84.4 | 71 | 63 | 69 | **65** | 65.1 |
-| `openrouter_poolside_laguna-xs-2.1_free` | — | 81 | 90 | **81** | 80.4 | — | 64 | 73 | **63** | 64.0 |
+| `openrouter_poolside_laguna-xs-2.1_free` | 91 | 81 | 90 | **81** | 80.4 | 68 | 64 | 73 | **63** | 64.0 |
 | `ollama_qwen3.5_4b` | 79 | 72 | 74 | **70** | 72.7 | 72 | 67 | 74 | **68** | 68.2 |
 
-Sorted by the OpenAI score summed over both languages. The 11 models without
-Qwen verdicts show "—".
+Sorted by the OpenAI score summed over both languages.
 
 - **Top separation, with a little saturation in English**:
-  Under Qwen, 25 of 40 models score ≥ 98 in English (15 at 100). Under Jev 4
+  Under Qwen, 35 of 51 models score ≥ 98 in English (23 at 100). Under Jev 4
   (en) / none (ja) reach 98, and under Nimble 6 (en) / 2 (ja) do. Under OpenAI
   11 models reach 98 in English and 3 in Japanese, and three scores are 100
   (`opencode_muse-spark-1.2-contributor-free` in both languages,
@@ -141,44 +140,43 @@ Qwen verdicts show "—".
   `opencode_muse-spark-1.2-contributor-free` (100 / 100) and
   `openrouter_stealth_ox-alpha` (100 / 98).
 - **Japanese penalty like Jev's (Ja − En gap)**:
-  Over the 40 models all four judges graded, the mean Japanese score is
-  **−5.10** points below English under OpenAI, beyond Jev (−4.15) and well
-  beyond Qwen (−2.38) and Nimble (−1.90). Over all 51 models it is −5.27
-  (Jev −4.69, Nimble −2.10). Some models fall sharply, e.g.
+  Over all 51 models, the mean Japanese score is **−5.27** points below
+  English under OpenAI, beyond Jev (−4.69) and well beyond Qwen (−2.57) and
+  Nimble (−2.10). Some models fall sharply, e.g.
   `copilot_claude-haiku-4.5` (93 → 83) and
   `openrouter_stealth_space-bunny-alpha` (92 → 79).
 - **Correlation**:
   Pearson correlation of the Ceiling scores summed over both languages is
-  **$r = 0.965$** with Jev (51 models), **$r = 0.938$** with Qwen (40 models)
-  and **$r = 0.937$** with Nimble (51 models). Rank agreement is lower against
-  Nimble (Spearman 0.78 en / 0.76 ja) than against Jev (0.88 en / 0.86 ja).
+  **$r = 0.965$** with Jev, **$r = 0.945$** with Qwen and **$r = 0.937$**
+  with Nimble (51 models each). Rank agreement is lower against Nimble
+  (Spearman 0.78 en / 0.76 ja) than against Jev (0.88 en / 0.86 ja) and Qwen
+  (0.83 en / 0.87 ja).
 
 ### Verdict transitions (5,200 Questions)
 
 Across all 104 judged runs in this directory (2,600 questions per language,
-Ceiling and Hybrid8 combined). Qwen covers only the 82 runs it graded (2,050
-questions per language).
+Ceiling and Hybrid8 combined).
 
 #### Qwen vs. OpenAI
 
 | Qwen \ OpenAI (en) | correct | partial | incorrect |
 | :--- | ---: | ---: | ---: |
-| **correct** | 1,733 | 196 | 0 |
-| **partial** | 7 | 88 | 0 |
-| **incorrect** | 0 | 13 | 13 |
+| **correct** | 2,234 | 234 | 0 |
+| **partial** | 9 | 96 | 0 |
+| **incorrect** | 0 | 13 | 14 |
 
-*Agreement: 1,834 / 2,050 (89.5%)*
+*Agreement: 2,344 / 2,600 (90.2%)*
 
 | Qwen \ OpenAI (ja) | correct | partial | incorrect |
 | :--- | ---: | ---: | ---: |
-| **correct** | 1,551 | 307 | 0 |
-| **partial** | 4 | 135 | 1 |
-| **incorrect** | 0 | 20 | 32 |
+| **correct** | 1,994 | 376 | 0 |
+| **partial** | 4 | 163 | 1 |
+| **incorrect** | 0 | 24 | 38 |
 
-*Agreement: 1,718 / 2,050 (83.8%)*
+*Agreement: 2,195 / 2,600 (84.4%)*
 
-As with Jev and Nimble, the shift is Qwen *correct* → OpenAI *partial* (196 in
-en, 307 in ja), larger in Japanese.
+As with Jev and Nimble, the shift is Qwen *correct* → OpenAI *partial* (234 in
+en, 376 in ja), larger in Japanese.
 
 #### Jev vs. OpenAI
 
