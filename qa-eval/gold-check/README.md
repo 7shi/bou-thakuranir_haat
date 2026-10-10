@@ -1,13 +1,15 @@
 # Are the gold answers' details in the Japanese text?
 
-[../ja2en/](../ja2en/README.md) found that the Japanese Ceiling answers score
-below the English ones because they lack details of the gold answer, but left
-open why. One candidate is the text itself: the English and Japanese texts are
-separate machine translations of the Bengali original, the gold answers were
-written from the English one, and nothing checked that the Japanese one carries
-every detail they ask for. A detail missing there is one a Japanese answer
-cannot give. This directory checks each gold answer's details against the
-cited chapters in both languages.
+The gold answers were written from the English text and translated into
+Japanese, but the English and Japanese texts are separate machine translations
+of the Bengali original, and nothing checked that each text carries every
+detail a gold answer asks for. A detail missing from a text is one an answer
+in that language cannot give, and one missing from both is an error in the
+gold answer. This directory checks each gold answer's details against the
+cited chapters in both languages. It reads only the questions and the texts,
+not any model's answers, and is rerun after a gold answer is corrected
+([GOLD-FIX.md](../GOLD-FIX.md)). How the claims missing from the Japanese text
+relate to the Japanese gap: [results/ja2en/](../results/ja2en/README.md#the-japanese-text-carries-the-gold-answers-details).
 
 ## Setup
 
@@ -28,11 +30,9 @@ cited chapters in both languages.
   the same thing, the verdict was set to the same value in both, by the
   checker's own strict reading; the one verdict changed this way (Q8.1 in
   English) carries `"revised": true` and a rewritten reason.
-- **Comparison** (`make compare`, [compare.py](compare.py)): a claim is
-  *ja-only missing* when the English text states it and the Japanese one does
-  not. The Ternary ja − en gap over all 50 models ([../ternary/](../TERNARY.md))
-  is measured on the questions with and without such a claim, with a two-sided
-  sign test over the models.
+- **Summary** (`make claims`, [claims.py](claims.py)): the verdict matrix,
+  the per-question counts and the claim lists. A claim is *ja-only missing*
+  when the English text states it and the Japanese one does not.
 
 | Step | Output | Requests | Wall time | Input | Output |
 | :--- | :--- | ---: | ---: | ---: | ---: |
@@ -71,34 +71,13 @@ In Q2 the raga, which is the answer, is in both texts; only the alap of the
 question's premise is dropped. In Q20, Q28 and Q46 both renderings fit the
 Bengali.
 
-### Removing them leaves the gap
-
-| Questions | n | en | ja | ja − en | ja < en | ja > en | Sign test |
-| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| All | 50 | 91.74 | 85.74 | −6.00 | 44 | 5 | 7.6 × 10⁻⁹ |
-| Without ja-only missing | 45 | 92.33 | 86.44 | −5.89 | 44 | 4 | 1.5 × 10⁻⁹ |
-| With ja-only missing | 5 | 86.40 | 79.40 | −7.00 | 29 | 5 | 3.9 × 10⁻⁵ |
-| All (single) | 25 | 98.68 | 97.28 | −1.40 | 17 | 9 | 0.17 |
-| Without ja-only missing (single) | 23 | 98.57 | 97.22 | −1.35 | 16 | 10 | 0.33 |
-| All (cross) | 25 | 84.80 | 74.20 | −10.60 | 44 | 5 | 7.6 × 10⁻⁹ |
-| Without ja-only missing (cross) | 22 | 85.82 | 75.18 | −10.64 | 43 | 4 | 2.8 × 10⁻⁹ |
-
-The questions with a ja-only missing claim lose a little more in Japanese
-(−7.00), but without them the gap stays at −5.89, and at −10.64 on the cross
-questions, significant in both. Of the questions with the largest gaps, Q40
-(−22), Q29, Q37 and Q50 (−20 each), Q38 (−19) and Q43 (−18), only Q43 has a
-ja-only missing claim. Details absent from the Japanese text therefore account for
-little of the gap. The other candidate named in ../ja2en/, that the same model
-answers with fewer details in Japanese, is not tested here.
-
 ## Gold answers that the text does not support
 
 One claim is stated in neither text. Q8.1 has Mangala give the dried root to
 Matangini to feed to Matangini's husband, but both texts call the man only a
 wretch who has turned to another woman, not her husband. The detail comes from
 the question, which is frozen: the gold answer itself, "A dried root.", is
-stated in both texts. This claim does not count as ja-only missing, so it does
-not affect the comparison above.
+stated in both texts. This claim does not count as ja-only missing.
 
 ## Caveats
 

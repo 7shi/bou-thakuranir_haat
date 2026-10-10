@@ -41,14 +41,13 @@ EOF
 
 ## 2. Check the new claims against the texts
 
-[results/gold-check/](results/gold-check/README.md) splits each English gold
-answer into claims and checks them against the cited chapters in both
-languages. Redo it for the edited questions only; their records are replaced
-in place:
+[gold-check/](gold-check/README.md) splits each English gold answer into
+claims and checks them against the cited chapters in both languages. Redo it
+for the edited questions only; their records are replaced in place:
 
 ```bash
-make -C results/gold-check redo QIDS="22 34"
-make -C results/gold-check compare
+make -C gold-check redo QIDS="22 34"
+make -C gold-check claims
 ```
 
 - A claim that neither text states (*missing* or *contradicted* in both) is
@@ -132,8 +131,9 @@ Regenerate the per-model reports:
 make -C results report report-ternary report-openai report-jev report-nimble
 ```
 
-`make -C results/ja2en compare` and `make -C results/gold-check compare` print
-the tables of their READMEs.
+`make -C results/ja2en compare gold-gap` prints the tables of
+[results/ja2en/README.md](results/ja2en/README.md), and `make -C gold-check
+claims` those of [gold-check/README.md](gold-check/README.md).
 
 Then update every figure that quotes the changed scores, including the
 case studies that discuss an edited question:
@@ -141,7 +141,7 @@ case studies that discuss an edited question:
 - [README.md](README.md) and [README-ja.md](README-ja.md)
 - [results-en/README.md](results-en/README.md) and [results-ja/README.md](results-ja/README.md)
 - [results/README.md](results/README.md), [results/ja2en/](results/ja2en/README.md)
-  and [results/gold-check/](results/gold-check/README.md)
+  and [gold-check/](gold-check/README.md)
 - [TERNARY.md](TERNARY.md), [OPENAI.md](OPENAI.md), [JEV.md](JEV.md),
   [NIMBLE.md](NIMBLE.md), their counterparts in `results/`,
   [FILTER.md](FILTER.md) and [MEMO.md](MEMO.md)

@@ -47,7 +47,7 @@ from llm7shi.statusline import StatusLine
 from llm7shi.usage import append_usage, find_usage_file, print_today_totals
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent.parent))
+sys.path.insert(0, str(HERE.parent))
 
 from answer import ROOT, LANGS, load_chapters, load_questions  # noqa: E402
 

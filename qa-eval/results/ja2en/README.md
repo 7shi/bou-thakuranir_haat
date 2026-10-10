@@ -183,11 +183,34 @@ every column above shares both:
   decree, caused her departure, but in Japanese only that Surma took the
   poison Mangala prepared.
 
-[../gold-check/](../gold-check/README.md) checks the first: each gold
-answer's details against the cited chapters in both languages. Only 6 of 230
-details are missing from the Japanese text alone, all differences of wording,
-and without their 5 questions the gap stays at −5.89 points. The
-second is not tested directly.
+The first is tested below; the second is not tested directly.
+
+### The Japanese text carries the gold answers' details
+
+[gold-check/](../../gold-check/README.md) splits each English gold answer into
+claims, 230 for the 50 questions, and checks them against the cited chapters
+in both languages. Only 6 claims, in 5 questions, are stated in the English
+text alone (*ja-only missing*), all differences of wording. `make gold-gap`
+([gold_gap.py](gold_gap.py)) measures the Ternary gap over all 50 models
+([../ternary/](../TERNARY.md)) on the questions with and without such a claim,
+with a two-sided sign test over the models:
+
+| Questions | n | en | ja | ja − en | ja < en | ja > en | Sign test |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| All | 50 | 91.74 | 85.74 | −6.00 | 44 | 5 | 7.6 × 10⁻⁹ |
+| Without ja-only missing | 45 | 92.33 | 86.44 | −5.89 | 44 | 4 | 1.5 × 10⁻⁹ |
+| With ja-only missing | 5 | 86.40 | 79.40 | −7.00 | 29 | 5 | 3.9 × 10⁻⁵ |
+| All (single) | 25 | 98.68 | 97.28 | −1.40 | 17 | 9 | 0.17 |
+| Without ja-only missing (single) | 23 | 98.57 | 97.22 | −1.35 | 16 | 10 | 0.33 |
+| All (cross) | 25 | 84.80 | 74.20 | −10.60 | 44 | 5 | 7.6 × 10⁻⁹ |
+| Without ja-only missing (cross) | 22 | 85.82 | 75.18 | −10.64 | 43 | 4 | 2.8 × 10⁻⁹ |
+
+The questions with a ja-only missing claim lose a little more in Japanese
+(−7.00), but without them the gap stays at −5.89, and at −10.64 on the cross
+questions, significant in both. Of the questions with the largest gaps, Q40
+(−22), Q29, Q37 and Q50 (−20 each), Q38 (−19) and Q43 (−18), only Q43 has a
+ja-only missing claim. Details absent from the Japanese text therefore account
+for little of the gap.
 
 ## Caveats
 

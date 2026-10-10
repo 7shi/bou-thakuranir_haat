@@ -10,6 +10,7 @@
 #   make judge       # grade the translations (-l en) → ternary/*.tsv
 #   make retest      # grade the English answers again → retest/*.tsv
 #   make compare     # print the comparison tables
+#   make gold-gap    # relate the gap to the gold-answer check (../../gold-check/)
 #
 # The models are the 11 outside the weakest five whose Japanese score falls
 # furthest below English under OpenAI and Jev (mean ja − en ≤ −5.5), chosen
@@ -30,11 +31,11 @@ MODELS := \
 JUDGE := ../../judge-ternary.py
 START_TIME := $(shell date +%s)
 
-.PHONY: help xling translate judge retest compare
+.PHONY: help xling translate judge retest compare gold-gap
 .DEFAULT_GOAL := help
 
 help:
-	@echo "Usage: make xling | translate | judge | retest | compare"
+	@echo "Usage: make xling | translate | judge | retest | compare | gold-gap"
 
 # --out-dir is relative to each input's directory (results/), hence ja2en/.
 xling:
@@ -53,3 +54,6 @@ retest:
 
 compare:
 	uv run compare.py
+
+gold-gap:
+	uv run gold_gap.py
