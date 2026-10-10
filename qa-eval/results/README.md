@@ -118,6 +118,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `ollama:qwen3.5:4b` | 72 (24/24/2) | 67 (24/19/7) |
 | `ollama:muse-glimmer` (30B) | 95 (45/5/0) | 93 (43/7/0) |
 | `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 91 (41/9/0) | 86 (36/14/0) |
+| `llama.cpp:Underdog-Saluki-27B-1.0-IQ2-mix` | 89 (39/11/0) | 87 (37/13/0) |
 | `openai:gpt-6-astra` | 93 (43/7/0) | 89 (39/11/0) |
 | `openai:gpt-6.1-sol` | 95 (45/5/0) | 87 (37/13/0) |
 | `openai:gpt-6-sol` | 94 (44/6/0) | 90 (40/10/0) |
@@ -167,7 +168,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   Japanese to 63 (`poolside/laguna-s-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 47 of the 51 models score lower in
+* **Japanese costs almost every model.** 48 of the 52 models score lower in
   Japanese; `copilot:gpt-5.6-luna` and `gemini-3.8-flash` score 1 point higher,
   and `muse-spark-1.2/1.3-contributor-free` score the same in both.
   The largest English-to-Japanese gaps are the 17 points of
@@ -179,6 +180,11 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   base at a 9x smaller footprint (5.9 GB). Here it scores 91/86 against
   qwen3.8's 98/92, about 93% of the base in both languages, somewhat below
   that claim.
+* **`llama.cpp:Underdog-Saluki-27B-1.0-IQ2-mix` is also based on Qwen 3.8
+  27B**, here run as an IQ2 mix quantization. It scores 89/87 against
+  qwen3.8's 98/92, about 91% of the base in English and 95% in Japanese,
+  level with `Ternary-Bonsai-2-27B-PTQ1_0` overall (2 points lower in
+  English, 1 point higher in Japanese).
 * **Three models needed `NO_THINK=1` to produce a usable ceiling run.**
   `ollama:gemma4:12b-it-qat` stays on task in English without it (the English
   row above), but in Japanese its thinking trace sometimes loses track of the

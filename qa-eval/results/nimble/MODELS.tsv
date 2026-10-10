@@ -29,6 +29,8 @@ ceiling-google_gemma-4-26b-a4b-it-en.tsv	nimble	choice@19579e23
 ceiling-google_gemma-4-26b-a4b-it-ja.tsv	nimble	choice@19579e23
 ceiling-llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0-en.tsv	nimble	choice@19579e23
 ceiling-llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0-ja.tsv	nimble	choice@19579e23
+ceiling-llama.cpp_Underdog-Saluki-27B-1.0-IQ2-mix-en.tsv	nimble	choice@19579e23
+ceiling-llama.cpp_Underdog-Saluki-27B-1.0-IQ2-mix-ja.tsv	nimble	choice@19579e23
 ceiling-ollama_gemma4_12b-it-qat-en.tsv	nimble	choice@19579e23
 ceiling-ollama_gemma4_12b-it-qat-ja.tsv	nimble	choice@19579e23
 ceiling-ollama_gemma4_26b-a4b-it-qat-en.tsv	nimble	choice@19579e23

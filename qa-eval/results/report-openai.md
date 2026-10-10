@@ -34,6 +34,7 @@ as "_").
 | `google_gemma-4-26b-a4b-it` | ceiling | 89 (40/9/1) | 85 (36/13/1) |
 | `google_gemma-4-31b-it` | ceiling | 97 (47/3/0) | 91 (41/9/0) |
 | `llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0` | ceiling | 92 (42/8/0) | 88 (38/12/0) |
+| `llama.cpp_Underdog-Saluki-27B-1.0-IQ2-mix` | ceiling | 93 (43/7/0) | 88 (38/12/0) |
 | `ollama_gemma4_12b-it-qat` | ceiling | 79 (32/15/3) | 75 (29/17/4) |
 | `ollama_gemma4_26b-a4b-it-qat` | ceiling | 86 (37/12/1) | 85 (35/15/0) |
 | `ollama_muse-glimmer` | ceiling | 96 (46/4/0) | 94 (44/6/0) |
@@ -97,6 +98,7 @@ language). A question absent from every column of a row was graded
 | `google_gemma-4-26b-a4b-it` | ceiling | 28, 29, 31, 34, 35, 37, 42, 46, 49 | 17 | 27, 32, 34, 35, 36, 37, 40, 42, 43, 44, 46, 47, 50 | 29 |
 | `google_gemma-4-31b-it` | ceiling | 34, 42, 48 | — | 27, 29, 34, 36, 38, 42, 46, 47, 49 | — |
 | `llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0` | ceiling | 26, 30, 31, 35, 38, 40, 42, 46 | — | 29, 34, 35, 36, 37, 38, 40, 43, 45, 46, 49, 50 | — |
+| `llama.cpp_Underdog-Saluki-27B-1.0-IQ2-mix` | ceiling | 6, 28, 30, 31, 33, 35, 36 | — | 27, 29, 31, 35, 36, 37, 39, 41, 42, 46, 49, 50 | — |
 | `ollama_gemma4_12b-it-qat` | ceiling | 28, 29, 30, 31, 32, 34, 35, 36, 38, 39, 40, 41, 46, 48, 49 | 17, 43, 50 | 22, 27, 28, 29, 31, 32, 35, 37, 38, 39, 40, 41, 42, 43, 46, 49, 50 | 4, 6, 34, 47 |
 | `ollama_gemma4_26b-a4b-it-qat` | ceiling | 27, 29, 31, 32, 33, 34, 35, 37, 38, 42, 44, 46 | 17 | 26, 27, 29, 34, 35, 36, 37, 38, 40, 41, 43, 44, 46, 47, 50 | — |
 | `ollama_muse-glimmer` | ceiling | 6, 32, 35, 36 | — | 34, 35, 36, 41, 42, 43 | — |
