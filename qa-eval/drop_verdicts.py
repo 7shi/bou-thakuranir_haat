@@ -12,6 +12,9 @@ results/:
   judge/<stem>.jsonl                          judge.py, one JSON record per line
   {ternary,openai,jev,nimble}/<stem>.tsv      the TSV judges, after a header line
 
+and results/ja2en/{xling,ternary,retest}/<stem>.tsv, graded by Ternary against
+the English gold answers (see results/ja2en/Makefile).
+
 MODELS.tsv is left as it is, so the re-run must use the recorded model and
 scheme. Files without any of the questions are not rewritten.
 """
@@ -21,19 +24,27 @@ import json
 from pathlib import Path
 
 QA_EVAL = Path(__file__).resolve().parent
-SETS = ["results-en", "results-ja", "results"]
+SETS = ["results-en", "results-ja", "results", "results/ja2en"]
 JUDGES = ["judge", "ternary", "openai", "jev", "nimble"]
+JA2EN_DIRS = ["xling", "ternary", "retest"]
+
+
+def judge_dirs(s: str, judge: str) -> list[str]:
+    if s == "results/ja2en":
+        return JA2EN_DIRS if judge == "ternary" else []
+    return [judge]
 
 
 def verdict_files(sets: list[str], judges: list[str]) -> list[Path]:
     files = []
     for s in sets:
         for judge in judges:
-            if judge == "judge":
-                files += sorted((QA_EVAL / s / judge).glob("*.jsonl"))
-            else:
-                files += sorted(p for p in (QA_EVAL / s / judge).glob("*.tsv")
-                                if p.name != "MODELS.tsv")
+            for d in judge_dirs(s, judge):
+                if judge == "judge":
+                    files += sorted((QA_EVAL / s / d).glob("*.jsonl"))
+                else:
+                    files += sorted(p for p in (QA_EVAL / s / d).glob("*.tsv")
+                                    if p.name != "MODELS.tsv")
     return files
 
 

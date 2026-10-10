@@ -20,21 +20,21 @@ and **Ceiling** have been run for both languages.
 
 | Method | English | Japanese | Description |
 | --- | --- | --- | --- |
-| Vector k=5 | 40/50 (0.840) | 38/50 (0.810) | Standard dense vector search (k=5) |
-| Vector k=10 | 45/50 (0.930) | 43/50 (0.900) | Standard dense vector search (k=10) |
-| Vector-line k=5 | 35/50 (0.800) | 36/50 (0.800) | Line-level dense vector search (k=5) |
-| Vector-line k=10 | 41/50 (0.890) | 41/50 (0.860) | Line-level dense vector search (k=10) |
-| V-hybrid k=5 | 40/50 (0.880) | 42/50 (0.890) | Segment ∪ Line dense union (k=5) |
-| V-hybrid k=10 | 43/50 (0.910) | 44/50 (0.910) | Segment ∪ Line dense union (k=10) |
-| Hybrid k=5 | 42/50 (0.900) | 45/50 (0.930) | Dense ∪ BM25 union (k=5) |
-| Hybrid k=8 | 45/50 (0.930) | 46/50 (0.950) | Dense ∪ BM25 union (k=8) |
-| Hybrid k=10 | 47/50 (0.960) | 45/50 (0.930) | Dense ∪ BM25 union (k=10) |
-| Extract | 40/50 (0.850) | 41/50 (0.860) | Per-chapter summarization-based extraction |
-| Filter2 | 36/50 (0.790) | 41/50 (0.850) | LLM-as-retriever (binary: yes/no) |
-| Filter3 | 46/50 (0.940) | 43/50 (0.890) | LLM-as-retriever (ternary: yes/maybe/no) |
-| Ceiling | 49/50 (0.990) | 48/50 (0.980) | Perfect-retrieval upper bound (gold chapters directly) |
-| GraphRAG local | 27/50 (0.650) | 28/50 (0.640) | Microsoft GraphRAG (local entity search) |
-| GraphRAG global | 5/50 (0.170) | 8/50 (0.240) | Microsoft GraphRAG (global community search) |
+| Vector k=5 | 38/50 (0.820) | 37/50 (0.800) | Standard dense vector search (k=5) |
+| Vector k=10 | 44/50 (0.920) | 43/50 (0.900) | Standard dense vector search (k=10) |
+| Vector-line k=5 | 33/50 (0.770) | 34/50 (0.790) | Line-level dense vector search (k=5) |
+| Vector-line k=10 | 38/50 (0.850) | 41/50 (0.860) | Line-level dense vector search (k=10) |
+| V-hybrid k=5 | 39/50 (0.870) | 42/50 (0.890) | Segment ∪ Line dense union (k=5) |
+| V-hybrid k=10 | 44/50 (0.930) | 43/50 (0.900) | Segment ∪ Line dense union (k=10) |
+| Hybrid k=5 | 40/50 (0.880) | 45/50 (0.930) | Dense ∪ BM25 union (k=5) |
+| Hybrid k=8 | 44/50 (0.920) | 43/50 (0.920) | Dense ∪ BM25 union (k=8) |
+| Hybrid k=10 | 48/50 (0.980) | 42/50 (0.910) | Dense ∪ BM25 union (k=10) |
+| Extract | 40/50 (0.860) | 41/50 (0.870) | Per-chapter summarization-based extraction |
+| Filter2 | 37/50 (0.800) | 38/50 (0.820) | LLM-as-retriever (binary: yes/no) |
+| Filter3 | 45/50 (0.930) | 41/50 (0.870) | LLM-as-retriever (ternary: yes/maybe/no) |
+| Ceiling | 49/50 (0.990) | 49/50 (0.990) | Perfect-retrieval upper bound (gold chapters directly) |
+| GraphRAG local | 24/50 (0.610) | 26/50 (0.630) | Microsoft GraphRAG (local entity search) |
+| GraphRAG global | 3/50 (0.170) | 6/50 (0.190) | Microsoft GraphRAG (global community search) |
 
 The pipeline behind these rows — build the index, answer each question, grade,
 aggregate (Filter and Ceiling are opt-in):
@@ -71,8 +71,8 @@ only variable is synthesis.
 
 > [!IMPORTANT]
 > **Practical Optimal Solution**
-> For English, **Dense ∪ BM25 Union** (`Hybrid k=10`) is the best practical solution, achieving the highest accuracy (**0.960**).
-> For Japanese, **Dense ∪ BM25 Union** (`Hybrid k=8`) is the best practical solution, achieving the highest accuracy (**0.950**).
+> For English, **Dense ∪ BM25 Union** (`Hybrid k=10`) is the best practical solution, achieving the highest accuracy (**0.980**).
+> For Japanese, **Dense ∪ BM25 Union** (`Hybrid k=5`) is the best practical solution, achieving the highest accuracy (**0.930**).
 
 ## Key Findings by Strategy
 
@@ -107,7 +107,7 @@ Dense ∪ BM25 (HYBRID), en / ja:
 * **Don't Fuse — Union:** Rank-fusion algorithms (RRF, Borda, CombSUM) suppress more hits than they recover, underperforming dense-only at k=5. Taking the set-theoretic union of independent dense and BM25 top-k sets is parameter-free, robust, and wins (+4 strict recall at both depths).
 * **Dense-Blind Recovery:** BM25 lexical matching recovers nearly all proper-noun/distinctive terms (Class A misses like the signet ring or Delhi petition) that dense embedding fails to rank.
 * **Shared Blind Spots:** Four cross-reference questions (Q31, Q32, Q38, Q42) remain unrecoverable by both retrievers, requiring query expansion or multi-query techniques instead of a better blend.
-* **Sweet Spot at Japanese k=8 vs English k=10:** For Japanese, `k=8` hits the optimal sweet spot achieving **46/50 (0.950)**, as `k=10` suffers from synthesis regressions (Q34) due to larger contexts. For English, however, the answerer manages the larger context better, allowing `Hybrid k=10` to sustain its peak accuracy of **47/50 (0.960)**, while `Hybrid k=8` scores **45/50 (0.930)**.
+* **Depth Differs by Language:** In English, accuracy rises with depth, from **40/50 (0.880)** at `k=5` through **44/50 (0.920)** at `k=8` to **48/50 (0.980)** at `k=10`. In Japanese it does not: `k=5` scores **45/50 (0.930)**, `k=8` **43/50 (0.920)** and `k=10` **42/50 (0.910)**, as the larger contexts lose cross questions to partial answers (Q34, Q37, Q47, Q50 at `k=10`) although they keep every gold chapter.
 
 ### Segment ∪ Line Dense Hybrid (`V-hybrid`) — [VECTOR-HYBRID.md](VECTOR-HYBRID.md)
 
@@ -126,15 +126,15 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 ### Case Studies & Language Comparison — [results-en/README.md](results-en/README.md) & [results-ja/README.md](results-ja/README.md)
 
 * **Retrieval is the Frontier:** Single-passage QA is essentially solved. The remaining difficulty lies entirely in cross-reference questions.
-* **Ceiling Verification:** The Ceiling run (gold chapters verbatim) scores 0.990 (en) and 0.980 (ja), proving that given the correct context, LLM comprehension is near-perfect. The three remaining losses are completeness gaps on multi-part cross questions (en Q48; ja Q29, Q36), not misreadings.
+* **Ceiling Verification:** The Ceiling run (gold chapters verbatim) scores 0.990 in both languages, proving that given the correct context, LLM comprehension is near-perfect. The two remaining losses are completeness gaps on multi-part cross questions (en Q48; ja Q36), not misreadings.
 * **Extract Failures:** Extract’s losses are predominantly Phase 1 false negatives (where the summary drops the gold chapter) rather than synthesis errors.
-* **Language Invariance:** Language makes little difference to accuracy — most methods land within 2 questions of each other across EN and JA, and the widest gap is 5 (Filter2). Retrieval misses are identical because they share the same embedding model.
+* **Language Invariance:** Language makes little difference to accuracy — most methods land within 2 questions of each other across EN and JA, and the widest gap is 6 (Hybrid k=10). Retrieval misses are identical because they share the same embedding model.
 
 ### GraphRAG — [graphrag-en/README.md](graphrag-en/README.md) & [graphrag-ja/README.md](graphrag-ja/README.md)
 
-* **Synthesis Collapse:** GraphRAG local scores 0.650 (EN) / 0.640 (JA), well below flat retrieval in both languages. Recall is high (0.860 EN / 0.880 JA) but precision collapses (0.135 EN / 0.239 JA), overloading the context and causing synthesis failure.
-* **Structural Strengths Don't Transfer:** In English it answers entity-relationship arcs with zero context passages (Q26 correct, Q28 partial) and resolves both Class A questions (signet ring, Delhi petition) through graph traversal. In Japanese no question is answered from zero context, and only one of the two Class A questions (the Delhi petition) is recovered — the signet-ring chain is missed even though the graph clearly encodes it, since it surfaces in the *other* question's own answer. See [results-ja/README.md § GraphRAG](results-ja/README.md#graphrag) for the case study.
-* **Global Search Failure:** Global community summaries are too abstract for passage-level QA in either language (0.170 EN, 0.240 JA — the weakest score in each language).
+* **Synthesis Collapse:** GraphRAG local scores 0.610 (EN) / 0.630 (JA), well below flat retrieval in both languages. Recall is high (0.860 EN / 0.880 JA) but precision collapses (0.135 EN / 0.239 JA), overloading the context and causing synthesis failure.
+* **Structural Strengths Don't Transfer:** In English it answers entity-relationship arcs with zero context passages (Q26 and Q28, both partial) and reaches both Class A questions through graph traversal (signet ring correct, Delhi petition partial). In Japanese the zero-context answers are weaker still (one partial of five), and only one of the two Class A questions (the Delhi petition) is recovered — the signet-ring chain is missed even though the graph clearly encodes it, since it surfaces in the *other* question's own answer. See [results-ja/README.md § GraphRAG](results-ja/README.md#graphrag) for the case study.
+* **Global Search Failure:** Global community summaries are too abstract for passage-level QA in either language (0.170 EN, 0.190 JA — the weakest score in each language).
 * **Extreme Cost:** Building the graph and running all 100 queries takes 13h 6m (EN) / 20h 19m (JA)—impractical compared to minutes for flat vector indexing. Japanese takes longer because the same token-based chunk size splits the (larger, denser) Japanese text into more chunks, cascading into more LLM calls throughout indexing and querying.
 
 ### Jev as the Judge — [jev/README.md](jev/README.md) & [JEV.md](JEV.md)
@@ -142,33 +142,33 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 * **qwen Is Lenient:** The `ollama:qwen3.6` judge saturates the multi-model Ceiling table at 98–100. TypeSafe's Jev (`jev-1.13.0`), asked one Choice question over the same rubric, is stricter, and its extra *partial* verdicts are missing parts of multi-part gold answers rather than style, including one "cannot answer" that qwen graded *correct*.
 * **Separates the Top:** On six Ceiling models (EN), the three that qwen scores 100 drop to 93–96 under Jev, and the gap to qwen3.6 (88) widens.
 * **Choice Over Noul:** A yes/no Noul with thresholds reproduces the Choice only at an upper threshold of about 0.8 (292/300 identical verdicts), so the Choice is kept, with no threshold to tune.
-* **Re-grading `results-<lang>/`:** Every method scores 0.02–0.11 lower under Jev, almost entirely qwen *correct* → Jev *partial* on multi-part cross questions; single questions are essentially unchanged. Ceiling falls to 0.970 (EN) / 0.920 (JA), and Hybrid and Filter3 end within one question of each other at the top. The results above keep the qwen verdicts.
+* **Re-grading `results-<lang>/`:** Every method but one scores 0.02–0.10 lower under Jev (Japanese GraphRAG global scores 0.02 higher), almost entirely qwen *correct* → Jev *partial* on multi-part cross questions; single questions are essentially unchanged. Ceiling falls to 0.930 (EN) / 0.900 (JA), and Hybrid and Filter3 end within one question of each other at the top. The results above keep the qwen verdicts.
 
 ### Nimble as a Local Judge — [NIMBLE.md](NIMBLE.md)
 
 * **Local and Free:** Bespoke Labs' [Nimble](https://ollama.com/library/nimble) (fine-tuned on Qwen 3.5 9B, Apache 2.0) runs directly inside Ollama (`ollama pull nimble`). It provides an open-weights System One decision judge with zero cloud API costs.
-* **The Strictness Sweet Spot:** Across all 1,500 questions (EN + JA), Nimble lands squarely between Qwen's leniency (1,170 correct) and Jev's strictness (954 correct) at 1,068 correct (71.2%), achieving 88.2% agreement with Qwen and 87.1% with Jev.
+* **The Strictness Sweet Spot:** Across all 1,500 questions (EN + JA), Nimble lands between Qwen's leniency (1,137 correct) and Jev's strictness (944 correct) at 1,075 correct (71.7%), achieving 89.8% agreement with Qwen and 86.4% with Jev.
 * **High Efficiency:** Evaluates in a single parallel forward pass, emitting strictly 1 output token per question without autoregressive decoding overhead (~0.64 s per decision on local GPUs).
-* **Bilingual Consistency:** Unlike Jev, where Japanese scores dropped across 11 methods, Nimble maintains consistent calibration across both languages (Ceiling 0.950 EN vs. 0.960 JA; mean difference −0.010).
+* **Bilingual Consistency:** Japanese scores average 0.010 below English (Ceiling 0.960 EN vs. 0.950 JA), about the same as Jev (−0.009) and well below the drop of the OpenAI judges.
 
 ### OpenAI Decisions as the Judge — [OPENAI.md](OPENAI.md)
 
 * **Same Rubric, Different API:** OpenAI's Decisions API (`gpt-6-luna`) answers the same Choice question as Jev ([judge-openai.py](judge-openai.py)), returning probabilities with zero output tokens: ~0.28 s per decision and $0.08 for all 1,500 questions (EN + JA).
-* **Between Nimble and Jev:** 1,002 correct (66.8%) sits between Nimble (1,068) and Jev (954), and its verdicts agree most with Jev (89.5%, the highest pair of different models; only the same model through the ordinary API agrees more, see below).
-* **Language Sensitivity:** Japanese scores drop by 0.028 on average (Ceiling 0.960 EN → 0.920 JA), about three times Jev's or Nimble's drop, so the method ranking differs between languages.
+* **Between Nimble and Jev:** 1,000 correct (66.7%) sits between Nimble (1,075) and Jev (944), and apart from the same model through the ordinary API (see below), its verdicts agree most with Jev (88.6%).
+* **Language Sensitivity:** Japanese scores drop by 0.035 on average (Ceiling 0.970 EN → 0.910 JA), three to four times Jev's or Nimble's drop, so the method ranking differs between languages.
 
 ### A Plain LLM as the Judge (Ternary) — [TERNARY.md](TERNARY.md)
 
-* **Same Model, Plain Reply:** `gpt-6-luna` through the ordinary OpenAI API, with reasoning off, replies with the verdict word only ([judge-ternary.py](judge-ternary.py)): no structured output, no reason, no probabilities. It uses the Decisions judge's rubric and input, and agrees with those verdicts on 91.0% of questions, the highest of all judge pairs.
+* **Same Model, Plain Reply:** `gpt-6-luna` through the ordinary OpenAI API, with reasoning off, replies with the verdict word only ([judge-ternary.py](judge-ternary.py)): no structured output, no reason, no probabilities. It uses the Decisions judge's rubric and input, and agrees with those verdicts on 91.1% of questions, the highest of all judge pairs.
 * **Slower Than Decisions:** 5 output tokens and no reasoning tokens per request, but ~1.41 s per decision, about five times the Decisions API; the 1,500 questions fit in the free tier.
-* **Stricter at the Bottom:** 996 correct (66.4%), about the same as Decisions (1,002), but the most *incorrect* verdicts of all judges (187), and the largest Japanese drop (−0.038; Ceiling 0.970 EN → 0.900 JA).
+* **Stricter at the Bottom:** 968 correct (64.5%), fewer than Decisions (1,000), the most *incorrect* verdicts of all judges (189), and the largest Japanese drop (−0.045; Ceiling 0.950 EN → 0.920 JA).
 
 ## Overall Conclusions and Practical Takeaways
 
 1. **Evaluation Collapses to Retrieval:** The `Ceiling` run proves that as long as the correct chapters are included in the context, the model can generate answers with high accuracy. Therefore, improving a QA system is almost entirely equivalent to improving retrieval recall.
 2. **Don't Fuse — Union:** When combining different retrievers (e.g., Dense and BM25, or Segment and Line), algorithms that blend scores into a single ranking (like RRF) often push correct answers out. Taking the set-theoretic union of their individual top-k results is the safest and most effective approach.
 3. **Convergence in Optimal Strategy by Language:**
-   * For both **English** and **Japanese**, **Dense ∪ BM25 Union** (`Hybrid`) is the best approach, achieving the highest accuracy (**0.960** at `k=10` for English, **0.950** at `k=8` for Japanese). It effectively breaks the limitations of pure dense retrieval by recovering proper-noun/distinctive terms.
+   * For both **English** and **Japanese**, **Dense ∪ BM25 Union** (`Hybrid`) is the best approach, achieving the highest accuracy (**0.980** at `k=10` for English, **0.930** at `k=5` for Japanese). It effectively breaks the limitations of pure dense retrieval by recovering proper-noun/distinctive terms.
 
 ## Pipeline (`Makefile`)
 

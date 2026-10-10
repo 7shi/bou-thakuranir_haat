@@ -16,8 +16,9 @@ why a single Choice question: [jev/README.md](jev/README.md).
 - Output: `results-<lang>/jev/<method>.tsv`, the probabilities of correct /
   partial / incorrect plus Jev's confidence.
 - Aggregation: `uv run report.py -l <lang> --jev`. Each question counts as its
-  most probable verdict, the stricter one on a tie (two ties, en Extract Q41
-  and ja Vector k=10 Q27, both 0.5/0.5 correct/partial → partial).
+  most probable verdict, the stricter one on a tie (three ties: en Extract Q41
+  and ja Vector k=10 Q27, both 0.5/0.5 correct/partial → partial, and ja
+  Filter3 Q32, 0.5/0.5 partial/incorrect → incorrect).
 - **Weighted** = (correct + 0.5·partial) / 50 as before. **E** = the mean of
   P(correct) + 0.5·P(partial), the same score taken over the probabilities
   instead of the verdicts.
@@ -56,92 +57,95 @@ the few seconds of start-up before the directory is created.
 
 | Method | en qwen | en Jev | en Δ | en E | ja qwen | ja Jev | ja Δ | ja E |
 | --- | --- | --- | ---: | ---: | --- | --- | ---: | ---: |
-| Vector k=5 | 0.840 (40/4/6) | 0.730 (29/15/6) | −0.110 | 0.744 | 0.810 (38/5/7) | 0.760 (32/12/6) | −0.050 | 0.736 |
-| Vector k=10 | 0.930 (45/3/2) | 0.850 (37/11/2) | −0.080 | 0.833 | 0.900 (43/4/3) | 0.820 (36/10/4) | −0.080 | 0.826 |
-| Vector-line k=5 | 0.800 (35/10/5) | 0.740 (29/16/5) | −0.060 | 0.742 | 0.800 (36/8/6) | 0.740 (29/16/5) | −0.060 | 0.739 |
-| Vector-line k=10 | 0.890 (41/7/2) | 0.810 (33/15/2) | −0.080 | 0.821 | 0.860 (41/4/5) | 0.780 (32/14/4) | −0.080 | 0.787 |
-| V-hybrid k=5 | 0.880 (40/8/2) | 0.850 (37/11/2) | −0.030 | 0.831 | 0.890 (42/5/3) | 0.820 (35/12/3) | −0.070 | 0.806 |
-| V-hybrid k=10 | 0.910 (43/5/2) | 0.840 (35/14/1) | −0.070 | 0.843 | 0.910 (44/3/3) | 0.830 (36/11/3) | −0.080 | 0.815 |
-| Hybrid k=5 | 0.900 (42/6/2) | 0.840 (35/14/1) | −0.060 | 0.827 | 0.930 (45/3/2) | 0.840 (35/14/1) | −0.090 | 0.832 |
-| Hybrid k=8 | 0.930 (45/3/2) | 0.870 (39/9/2) | −0.060 | 0.848 | 0.950 (46/3/1) | 0.860 (37/12/1) | −0.090 | 0.850 |
-| Hybrid k=10 | 0.960 (47/2/1) | 0.870 (38/11/1) | −0.090 | 0.870 | 0.930 (45/3/2) | 0.840 (35/14/1) | −0.090 | 0.844 |
-| Extract | 0.850 (40/5/5) | 0.780 (32/14/4) | −0.070 | 0.779 | 0.860 (41/4/5) | 0.770 (30/17/3) | −0.090 | 0.767 |
-| Filter2 | 0.790 (36/7/7) | 0.760 (32/12/6) | −0.030 | 0.735 | 0.850 (41/3/6) | 0.740 (30/14/6) | −0.110 | 0.741 |
-| Filter3 | 0.940 (46/2/2) | 0.890 (41/7/2) | −0.050 | 0.870 | 0.890 (43/3/4) | 0.860 (40/6/4) | −0.030 | 0.825 |
-| Ceiling | 0.990 (49/1/0) | 0.970 (47/3/0) | −0.020 | 0.922 | 0.980 (48/2/0) | 0.920 (42/8/0) | −0.060 | 0.882 |
-| GraphRAG local | 0.650 (27/11/12) | 0.560 (17/22/11) | −0.090 | 0.563 | 0.640 (28/8/14) | 0.550 (20/15/15) | −0.090 | 0.557 |
-| GraphRAG global | 0.170 (5/7/38) | 0.130 (1/11/38) | −0.040 | 0.129 | 0.240 (8/8/34) | 0.200 (3/14/33) | −0.040 | 0.198 |
+| Vector k=5 | 0.820 (38/6/6) | 0.720 (28/16/6) | −0.100 | 0.729 | 0.800 (37/6/7) | 0.760 (32/12/6) | −0.040 | 0.737 |
+| Vector k=10 | 0.920 (44/4/2) | 0.840 (36/12/2) | −0.080 | 0.824 | 0.900 (43/4/3) | 0.820 (37/8/5) | −0.080 | 0.818 |
+| Vector-line k=5 | 0.770 (33/11/6) | 0.750 (30/15/5) | −0.020 | 0.738 | 0.790 (34/11/5) | 0.750 (30/15/5) | −0.040 | 0.738 |
+| Vector-line k=10 | 0.850 (38/9/3) | 0.800 (32/16/2) | −0.050 | 0.797 | 0.860 (41/4/5) | 0.790 (33/13/4) | −0.070 | 0.785 |
+| V-hybrid k=5 | 0.870 (39/9/2) | 0.820 (34/14/2) | −0.050 | 0.814 | 0.890 (42/5/3) | 0.800 (34/12/4) | −0.090 | 0.806 |
+| V-hybrid k=10 | 0.930 (44/5/1) | 0.860 (37/12/1) | −0.070 | 0.850 | 0.900 (43/4/3) | 0.810 (35/11/4) | −0.090 | 0.807 |
+| Hybrid k=5 | 0.880 (40/8/2) | 0.840 (35/14/1) | −0.040 | 0.819 | 0.930 (45/3/2) | 0.840 (35/14/1) | −0.090 | 0.836 |
+| Hybrid k=8 | 0.920 (44/4/2) | 0.840 (36/12/2) | −0.080 | 0.833 | 0.920 (43/6/1) | 0.830 (34/15/1) | −0.090 | 0.840 |
+| Hybrid k=10 | 0.980 (48/2/0) | 0.900 (40/10/0) | −0.080 | 0.880 | 0.910 (42/7/1) | 0.860 (37/12/1) | −0.050 | 0.838 |
+| Extract | 0.860 (40/6/4) | 0.780 (32/14/4) | −0.080 | 0.791 | 0.870 (41/5/4) | 0.770 (30/17/3) | −0.100 | 0.767 |
+| Filter2 | 0.800 (37/6/7) | 0.770 (33/11/6) | −0.030 | 0.752 | 0.820 (38/6/6) | 0.740 (30/14/6) | −0.080 | 0.736 |
+| Filter3 | 0.930 (45/3/2) | 0.880 (40/8/2) | −0.050 | 0.866 | 0.870 (41/5/4) | 0.840 (39/6/5) | −0.030 | 0.820 |
+| Ceiling | 0.990 (49/1/0) | 0.930 (43/7/0) | −0.060 | 0.914 | 0.990 (49/1/0) | 0.900 (40/10/0) | −0.090 | 0.879 |
+| GraphRAG local | 0.610 (24/13/13) | 0.550 (17/21/12) | −0.060 | 0.553 | 0.630 (26/11/13) | 0.560 (21/14/15) | −0.070 | 0.551 |
+| GraphRAG global | 0.170 (3/11/36) | 0.130 (1/11/38) | −0.040 | 0.126 | 0.190 (6/7/37) | 0.210 (3/15/32) | +0.020 | 0.199 |
 
 Cells read `weighted (correct/partial/incorrect)`.
 
 ### Uniformly stricter, almost only correct → partial
 
-Every method scores lower under Jev, by 0.02–0.11. Verdict agreement is
-641/750 (en) and 617/750 (ja), and the disagreements run one way:
+Every method but one scores lower under Jev, by 0.02–0.10; only Japanese
+GraphRAG global scores higher, by 0.02. Verdict agreement is
+650/750 (en) and 621/750 (ja), and the disagreements run one way:
 
 | qwen \ Jev (en) | correct | partial | incorrect |
 | --- | ---: | ---: | ---: |
-| correct | 482 | 98 | 1 |
-| partial | 0 | 79 | 2 |
-| incorrect | 0 | 8 | 80 |
+| correct | 474 | 91 | 1 |
+| partial | 0 | 96 | 2 |
+| incorrect | 0 | 6 | 80 |
 
 | qwen \ Jev (ja) | correct | partial | incorrect |
 | --- | ---: | ---: | ---: |
-| correct | 471 | 118 | 0 |
-| partial | 1 | 61 | 4 |
-| incorrect | 0 | 10 | 85 |
+| correct | 466 | 105 | 0 |
+| partial | 4 | 72 | 9 |
+| incorrect | 0 | 11 | 83 |
 
 The few cases where Jev is more lenient are mostly qwen *incorrect* → Jev
-*partial* with P(partial) 0.5–0.99, plus one *partial* → *correct* (ja Hybrid
-k=8 Q44, P(correct) 0.57). The incorrect column barely moves: Jev and qwen
-agree on what is wrong and differ on what is complete.
+*partial* with P(partial) 0.51–0.99, plus four *partial* → *correct* in
+Japanese, all near the boundary (P(correct) 0.51–0.58). The incorrect column
+barely moves: Jev and qwen agree on what is wrong and differ on what is
+complete.
 
 ### The loss is in cross questions
 
 Single-passage questions score essentially the same under both judges
 (0.94–1.00 for every non-GraphRAG method). The whole drop is in cross
-questions, e.g. en Hybrid k=10 cross 0.96 → 0.78, ja Hybrid k=8 cross
-0.90 → 0.72. The questions downgraded most often across the 15 methods are
+questions, e.g. en Hybrid k=10 cross 0.96 → 0.80, ja Hybrid k=5 cross
+0.86 → 0.68. The questions downgraded most often across the 15 methods are
 multi-part cross questions whose answers omit a component of the gold answer:
-en Q46 (12 methods), Q42 (11), Q30, Q36, Q37 (8 each); ja Q46 (13), Q41 (12),
-Q47, Q48 (10 each).
+en Q46 (12 methods), Q47 (9), Q30, Q36 (8 each); ja Q41 (12), Q47, Q48, Q49
+(10 each).
 
 ### Ceiling is no longer near-perfect
 
 | | qwen | Jev | Jev non-correct |
 | --- | --- | --- | --- |
-| en | 0.990 | 0.970 | Q34, Q42, Q48 — all cross |
-| ja | 0.980 | 0.920 | Q29, Q34, Q36, Q37, Q41, Q46, Q47, Q48 — all cross |
+| en | 0.990 | 0.930 | Q26, Q34, Q39, Q42, Q46, Q47, Q48 — all cross |
+| ja | 0.990 | 0.900 | Q29, Q32, Q34, Q36, Q37, Q41, Q46, Q47, Q48, Q49 — all cross |
 
 Under qwen the Ceiling run supports "given the right chapters, comprehension is
 near-perfect". Under Jev that holds for single questions, but even with every
 gold chapter in context the answerer drops components of multi-part cross
 answers, noticeably more often in Japanese. Retrieval is still the larger
-lever (Ceiling keeps a clear lead over every retrieval method), but synthesis
+lever (Ceiling still leads every retrieval method), but synthesis
 completeness on cross questions is not negligible.
 
 ### The practical ranking tightens
 
 | | qwen best | Jev best | E best |
 | --- | --- | --- | --- |
-| en | Hybrid k=10 0.960, Filter3 0.940 | Filter3 0.890, Hybrid k=8/k=10 0.870 | Filter3 0.870 = Hybrid k=10 0.870 |
-| ja | Hybrid k=8 0.950, Hybrid k=5/k=10 0.930 | Hybrid k=8 0.860 = Filter3 0.860 | Hybrid k=8 0.850, Hybrid k=10 0.844 |
+| en | Hybrid k=10 0.980, Filter3 / V-hybrid k=10 0.930 | Hybrid k=10 0.900, Filter3 0.880 | Hybrid k=10 0.880, Filter3 0.866 |
+| ja | Hybrid k=5 0.930, Hybrid k=8 0.920 | Hybrid k=10 0.860, Hybrid k=5 = Filter3 0.840 | Hybrid k=8 0.840, Hybrid k=10 0.838 |
 
 Under Jev the top of the table is within one question (0.02) in both
-languages: Hybrid no longer leads Filter3 in English, trailing it by verdicts
-and tying it by E, and ties it in Japanese by verdicts while leading it by E
-(Filter3 0.825). Since Filter3 pays an LLM call per chapter
-per question ([FILTER.md](FILTER.md)), Dense ∪ BM25 Hybrid remains the
-practical choice; the qwen-era claim that it is the single most accurate
-method is not supported by Jev in English.
+languages: Hybrid k=10 leads Filter3 in English by one question (E 0.880 vs
+0.866), and leads Hybrid k=5 and Filter3 in Japanese by one, while by E the
+three Hybrid depths are within 0.004 of each other (Filter3 0.820). Hybrid
+stays on top in both languages, but its best depth in Japanese depends on the
+judge (k=5 under qwen, k=10 under Jev, k=8 by E). Since Filter3 pays an LLM
+call per chapter per question ([FILTER.md](FILTER.md)), Dense ∪ BM25 Hybrid
+remains the practical choice.
 
 ### The language gap widens slightly
 
-Under qwen the two languages trade places (Japanese is higher for 6 of the 15
-methods) and average out to the same score. Under Jev, Japanese is lower for 11
-of the 15 methods, by 0.01 on average (half a question) and by 0.05 at most
-(Ceiling, 0.970 vs 0.920); Vector-line k=5 and Hybrid k=5 are level, and only
-Vector k=5 and GraphRAG global are higher in Japanese. The shift is small, and whether it comes from the answerer or from
+Under qwen the two languages trade places (Japanese is higher for 8 of the 15
+methods) and average out to nearly the same score (−0.002). Under Jev, Japanese
+is lower for 10 of the 15 methods, by 0.01 on average (half a question) and by
+0.05 at most (V-hybrid k=10, 0.860 vs 0.810); Vector-line k=5 and Hybrid k=5
+are level, and Vector k=5 and both GraphRAG modes are higher in Japanese. The shift is small, and whether it comes from the answerer or from
 Jev reading Japanese answers against English instructions is not separated
 here: the Jev experiment ([jev/README.md](jev/README.md)) validated English
 only.

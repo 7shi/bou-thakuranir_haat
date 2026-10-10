@@ -95,57 +95,57 @@ roughly by performance (not a strict mechanical sort on any single column).
 
 | Model | English | Japanese |
 | --- | --- | --- |
-| `copilot:grok-4.5` | 94 (44/6/0) | 93 (43/7/0) |
+| `copilot:grok-4.5` | 95 (45/5/0) | 94 (44/6/0) |
 | `copilot:grok-4.6` | 93 (43/7/0) | 90 (40/10/0) |
-| `copilot:kimi-k3` | 94 (44/6/0) | 95 (45/5/0) |
-| `copilot:kimi-k2.7-code` | 94 (45/4/1) | 91 (41/9/0) |
-| `copilot:gpt-5.6-luna` | 91 (41/9/0) | 88 (39/10/1) |
-| `copilot:claude-sonnet-5` | 97 (47/3/0) | 86 (37/12/1) |
-| `copilot:claude-haiku-4.5` | 90 (40/10/0) | 85 (35/15/0) |
-| `copilot:mai-code-1.1-flash` | 88 (38/12/0) | 82 (33/16/1) |
+| `copilot:kimi-k3` | 96 (46/4/0) | 94 (44/6/0) |
+| `copilot:kimi-k2.7-code` | 95 (45/5/0) | 92 (42/8/0) |
+| `copilot:gpt-5.6-luna` | 87 (37/13/0) | 88 (39/10/1) |
+| `copilot:claude-sonnet-5` | 97 (47/3/0) | 84 (35/14/1) |
+| `copilot:claude-haiku-4.5` | 88 (38/12/0) | 86 (36/14/0) |
+| `copilot:mai-code-1.1-flash` | 89 (39/11/0) | 84 (35/14/1) |
 | `google:gemini-3-flash-preview` | 94 (44/6/0) | 91 (41/9/0) |
-| `google:gemini-3.8-flash` | 91 (42/7/1) | 88 (39/10/1) |
-| `google:gemini-2.5-flash` | 88 (39/10/1) | 85 (35/15/0) |
-| `google:gemini-3.7-flash` | 87 (38/11/1) | 85 (36/13/1) |
-| `google:gemini-3.5-flash-lite` | 81 (35/11/4) | 79 (33/13/4) |
-| `google:gemma-4-31b-it` | 97 (47/3/0) | 92 (42/8/0) |
-| `ollama:gemma4:26b-a4b-it-qat` | 87 (38/11/1) | 82 (32/18/0) |
-| `google:gemma-4-26b-a4b-it` | 85 (36/13/1) | 81 (32/17/1) |
-| `ollama:gemma4:12b-it-qat` | 78 (32/14/4) | 72 (27/18/5) |
-| `ollama:qwen3.8` (27B) | 96 (46/4/0) | 91 (42/7/1) |
-| `ollama:qwen3.6` (35B-A3B) | 88 (38/12/0) | 86 (36/14/0) |
-| `ollama:qwen3.5:9b` | 78 (29/20/1) | 73 (26/21/3) |
-| `ollama:qwen3.5:4b` | 72 (24/24/2) | 66 (23/20/7) |
-| `ollama:muse-glimmer` (30B) | 94 (44/6/0) | 93 (43/7/0) |
-| `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 90 (40/10/0) | 86 (36/14/0) |
-| `openai:gpt-6-astra` | 92 (42/8/0) | 89 (39/11/0) |
-| `openai:gpt-6.1-sol` | 95 (45/5/0) | 84 (34/16/0) |
-| `openai:gpt-6-sol` | 96 (46/4/0) | 90 (40/10/0) |
-| `openai:gpt-5.6-sol` | 93 (43/7/0) | 92 (42/8/0) |
-| `openai:gpt-6-luna` | 95 (45/5/0) | 89 (39/11/0) |
-| `openai:gpt-5.6-luna` | 94 (44/6/0) | 90 (40/10/0) |
-| `openai:gpt-5.6-terra` | 92 (42/8/0) | 91 (41/9/0) |
-| `opencode:muse-spark-1.3-contributor-free` | 97 (47/3/0) | 96 (46/4/0) |
+| `google:gemini-3.8-flash` | 89 (40/9/1) | 90 (41/8/1) |
+| `google:gemini-2.5-flash` | 87 (38/11/1) | 86 (36/14/0) |
+| `google:gemini-3.7-flash` | 89 (40/9/1) | 88 (39/10/1) |
+| `google:gemini-3.5-flash-lite` | 81 (35/11/4) | 77 (32/13/5) |
+| `google:gemma-4-31b-it` | 93 (43/7/0) | 90 (40/10/0) |
+| `ollama:gemma4:26b-a4b-it-qat` | 86 (37/12/1) | 81 (31/19/0) |
+| `google:gemma-4-26b-a4b-it` | 86 (37/12/1) | 84 (35/14/1) |
+| `ollama:gemma4:12b-it-qat` | 76 (30/16/4) | 72 (27/18/5) |
+| `ollama:qwen3.8` (27B) | 98 (48/2/0) | 92 (43/6/1) |
+| `ollama:qwen3.6` (35B-A3B) | 90 (40/10/0) | 86 (36/14/0) |
+| `ollama:qwen3.5:9b` | 78 (30/18/2) | 73 (26/21/3) |
+| `ollama:qwen3.5:4b` | 72 (24/24/2) | 67 (24/19/7) |
+| `ollama:muse-glimmer` (30B) | 95 (45/5/0) | 93 (43/7/0) |
+| `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 91 (41/9/0) | 86 (36/14/0) |
+| `openai:gpt-6-astra` | 93 (43/7/0) | 89 (39/11/0) |
+| `openai:gpt-6.1-sol` | 95 (45/5/0) | 87 (37/13/0) |
+| `openai:gpt-6-sol` | 94 (44/6/0) | 90 (40/10/0) |
+| `openai:gpt-5.6-sol` | 91 (41/9/0) | 90 (40/10/0) |
+| `openai:gpt-6-luna` | 91 (41/9/0) | 88 (38/12/0) |
+| `openai:gpt-5.6-luna` | 92 (42/8/0) | 89 (39/11/0) |
+| `openai:gpt-5.6-terra` | 94 (44/6/0) | 89 (39/11/0) |
+| `opencode:muse-spark-1.3-contributor-free` | 97 (47/3/0) | 97 (47/3/0) |
 | `opencode:muse-spark-1.2-contributor-free` | 96 (46/4/0) | 96 (46/4/0) |
-| `opencode:union-alpha` | 95 (45/5/0) | 93 (43/7/0) |
-| `opencode:ling-3.1-flash-free` | 95 (45/5/0) | 89 (39/11/0) |
-| `opencode:fledge-alpha-free` | 94 (44/6/0) | 91 (41/9/0) |
-| `opencode:longcat-2.5-preview-free` | 94 (44/6/0) | 87 (38/11/1) |
-| `opencode:mimo-v2.6-flash-free` | 96 (46/4/0) | 87 (39/9/2) |
-| `opencode:mimo-v2.5-free` | 93 (43/7/0) | 88 (39/10/1) |
-| `opencode:big-pickle` | 88 (38/12/0) | 88 (38/12/0) |
-| `openrouter:stealth/ox-alpha` (320B-A18B) | 95 (45/5/0) | 96 (46/4/0) |
-| `openrouter:stealth/space-bunny-alpha` | 90 (40/10/0) | 80 (30/20/0) |
-| `openrouter:apodex/apodex-1.1-mini:free` | 94 (44/6/0) | 91 (41/9/0) |
-| `openrouter:poolside/laguna-xs-2.1:free` | 79 (30/19/1) | 65 (21/23/6) |
-| `openrouter:poolside/laguna-s-2.1:free` | 78 (29/20/1) | 63 (20/23/7) |
-| `openrouter:cohere/north-mini-code:free` | 85 (36/13/1) | 67 (23/21/6) |
-| `openrouter:inclusionai/ling-3.0-flash-fin:free` | 88 (39/10/1) | 82 (33/16/1) |
-| `openrouter:minimax/minimax-m3:free` | 95 (45/5/0) | 93 (43/7/0) |
-| `openrouter:minimax/minimax-m2.7:free` | 87 (37/13/0) | 86 (36/14/0) |
-| `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 92 (42/8/0) | 93 (43/7/0) |
-| `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 87 (37/13/0) | 84 (34/16/0) |
-| `openrouter:nvidia/nemotron-3.5-lightning:free` | 84 (34/16/0) | 79 (31/17/2) |
+| `opencode:union-alpha` | 98 (48/2/0) | 94 (44/6/0) |
+| `opencode:ling-3.1-flash-free` | 95 (45/5/0) | 90 (40/10/0) |
+| `opencode:fledge-alpha-free` | 94 (44/6/0) | 90 (40/10/0) |
+| `opencode:longcat-2.5-preview-free` | 94 (44/6/0) | 86 (37/12/1) |
+| `opencode:mimo-v2.6-flash-free` | 95 (45/5/0) | 87 (39/9/2) |
+| `opencode:mimo-v2.5-free` | 94 (44/6/0) | 88 (39/10/1) |
+| `opencode:big-pickle` | 91 (41/9/0) | 87 (37/13/0) |
+| `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (48/2/0) | 94 (44/6/0) |
+| `openrouter:stealth/space-bunny-alpha` | 88 (38/12/0) | 80 (30/20/0) |
+| `openrouter:apodex/apodex-1.1-mini:free` | 94 (44/6/0) | 89 (39/11/0) |
+| `openrouter:poolside/laguna-xs-2.1:free` | 81 (32/17/1) | 64 (21/22/7) |
+| `openrouter:poolside/laguna-s-2.1:free` | 80 (30/20/0) | 63 (21/21/8) |
+| `openrouter:cohere/north-mini-code:free` | 83 (34/15/1) | 67 (24/19/7) |
+| `openrouter:inclusionai/ling-3.0-flash-fin:free` | 90 (40/10/0) | 81 (32/17/1) |
+| `openrouter:minimax/minimax-m3:free` | 98 (48/2/0) | 91 (41/9/0) |
+| `openrouter:minimax/minimax-m2.7:free` | 87 (37/13/0) | 85 (35/15/0) |
+| `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 93 (43/7/0) | 91 (41/9/0) |
+| `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 88 (38/12/0) | 85 (35/15/0) |
+| `openrouter:nvidia/nemotron-3.5-lightning:free` | 83 (33/17/0) | 78 (30/18/2) |
 
 (Weighted score `(correct + 0.5×partial) / n`, as an integer percentage rounded
 down, then correct/partial/incorrect out of 50 in parentheses. The
@@ -156,11 +156,10 @@ The `opencode:*` rows are produced by a separate pipeline that drives the
 `opencode` coding-agent CLI instead of the llm7shi-based `answer_ceiling.py`
 used for every other row — see [opencode/README.md](../opencode/README.md).)
 
-* **No model is perfect, and the top is compressed.** The best scores are 97
-  in English (`muse-spark-1.3-contributor-free`, `copilot:claude-sonnet-5` and
-  the default `gemma-4-31b-it`) and 96 in Japanese
-  (`muse-spark-1.2/1.3-contributor-free` and `stealth/ox-alpha`). The 25 best
-  English models lie within 93–97, and one
+* **No model is perfect, and the top is compressed.** The best scores are 98
+  in English (`qwen3.8`, `union-alpha`, `stealth/ox-alpha` and `minimax-m3`)
+  and 97 in Japanese (`muse-spark-1.3-contributor-free`). The 25 best
+  English models lie within 93–98, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
   grading noise. [JEV.md](JEV.md)'s expected score E is the finer tiebreaker.
@@ -168,17 +167,17 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   Japanese to 63 (`poolside/laguna-s-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 46 of the 51 models score lower in
-  Japanese; `nemotron-3-ultra`, `stealth/ox-alpha` and `kimi-k3` score 1 point
-  higher,
-  and `big-pickle` and `muse-spark-1.2-contributor-free` score the same in both.
-  The largest English-to-Japanese gaps are `cohere/north-mini-code:free`'s 18
-  points and `poolside/laguna-s-2.1:free`'s 15.
+* **Japanese costs almost every model.** 47 of the 51 models score lower in
+  Japanese; `copilot:gpt-5.6-luna` and `gemini-3.8-flash` score 1 point higher,
+  and `muse-spark-1.2/1.3-contributor-free` score the same in both.
+  The largest English-to-Japanese gaps are the 17 points of
+  `poolside/laguna-s-2.1:free` and `poolside/laguna-xs-2.1:free` and
+  `cohere/north-mini-code:free`'s 16.
 * **`llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` is a ternary ({-1, 0, +1})
   quantization of Qwen 3.8 27B, not an independent model.** Its
   publisher claims 98.2% performance retention against the full-precision
-  base at a 9x smaller footprint (5.9 GB). Here it scores 90/86 against
-  qwen3.8's 96/91, about 94% of the base in both languages, somewhat below
+  base at a 9x smaller footprint (5.9 GB). Here it scores 91/86 against
+  qwen3.8's 98/92, about 93% of the base in both languages, somewhat below
   that claim.
 * **Three models needed `NO_THINK=1` to produce a usable ceiling run.**
   `ollama:gemma4:12b-it-qat` stays on task in English without it (the English
@@ -202,26 +201,25 @@ a k=8 retrieved context instead of the gold one.
 
 | Model | Method | English | Japanese |
 | --- | --- | --- | --- |
-| `google:gemma-4-31b-it` | ceiling | 97 (47/3/0) | 92 (42/8/0) |
-| `google:gemma-4-31b-it` | hybrid8 | 87 (39/9/2) | 86 (37/12/1) |
-| `ollama:qwen3.8` | ceiling | 96 (46/4/0) | 91 (42/7/1) |
-| `ollama:qwen3.8` | hybrid8 | 94 (44/6/0) | 90 (41/8/1) |
-| `openrouter:stealth/ox-alpha` | ceiling | 95 (45/5/0) | 96 (46/4/0) |
-| `openrouter:stealth/ox-alpha` | hybrid8 | 95 (45/5/0) | 95 (45/5/0) |
+| `google:gemma-4-31b-it` | ceiling | 93 (43/7/0) | 90 (40/10/0) |
+| `google:gemma-4-31b-it` | hybrid8 | 84 (36/12/2) | 83 (34/15/1) |
+| `ollama:qwen3.8` | ceiling | 98 (48/2/0) | 92 (43/6/1) |
+| `ollama:qwen3.8` | hybrid8 | 92 (42/8/0) | 87 (39/9/2) |
+| `openrouter:stealth/ox-alpha` | ceiling | 98 (48/2/0) | 94 (44/6/0) |
+| `openrouter:stealth/ox-alpha` | hybrid8 | 95 (45/5/0) | 93 (43/7/0) |
 
-- **qwen3.8 and `stealth/ox-alpha` pay almost nothing for retrieval.** In
-  English qwen3.8 drops 0.020 (0.960 → 0.940) and `stealth/ox-alpha` not at
-  all (0.950 → 0.950), even though the hybrid8 context misses gold chapters on
-  5 of 50 questions; in Japanese both drop 0.010 (qwen3.8 0.910 → 0.900,
-  `stealth/ox-alpha` 0.960 → 0.950).
-- **Gemma pays the most in both languages.** It drops 0.100 in English
-  (0.970 → 0.870) and 0.060 in Japanese (0.920 → 0.860), falling from the top
-  of the three at ceiling in English to the bottom at hybrid8.
+- **`stealth/ox-alpha` pays the least for retrieval.** It drops 0.030 in
+  English (0.980 → 0.950), even though the hybrid8 context misses gold
+  chapters on 5 of 50 questions, and 0.010 in Japanese (0.940 → 0.930).
+- **qwen3.8 and Gemma pay more.** qwen3.8 drops 0.060 in English (0.980 →
+  0.920) and 0.050 in Japanese (0.920 → 0.870); Gemma drops 0.090 (0.930 →
+  0.840) and 0.070 (0.900 → 0.830), the bottom of the three under both
+  methods.
 - **Small differences are within the noise.** Individual verdicts flip in both
-  directions between the two methods: for qwen3.8 in Japanese, 6 questions get
-  worse at hybrid8 and 5 get better, for a net change of one point. Only
-  Gemma's drop (9 worse and 1 better in English, 7 and 1 in Japanese) is
-  clearly beyond that.
+  directions between the two methods: for `stealth/ox-alpha` in Japanese, 3
+  questions get worse at hybrid8 and 2 get better, for a net change of one
+  point. Gemma (9 worse and 2 better in English, 8 and 1 in Japanese) and
+  qwen3.8 (6 and 0 in English, 7 and 3 in Japanese) lose clearly more.
 
 ### Hybrid8: every question any model missed
 
@@ -236,15 +234,17 @@ expanded hits.
 | Lang | Q | type | Gemma 4 | qwen3.8 | ox-alpha | missing |
 | --- | --- | --- | --- | --- | --- | --- |
 | en | 17 | single | incorrect | - | - | — |
-| en | 22 | single | - | partial | partial | — |
+| en | 26 | cross | partial | partial | - | — |
 | en | 29 | cross | incorrect | - | - | — |
 | en | 30 | cross | partial | - | - | — |
 | en | **31** | cross | partial | partial | partial | **Ch22** |
 | en | **32** | cross | partial | partial | partial | **Ch15** |
+| en | 34 | cross | - | partial | - | — |
 | en | 36 | cross | partial | partial | - | — |
 | en | 37 | cross | partial | partial | - | — |
-| en | **38** | cross | - | - | - | **Ch32** |
-| en | **42** | cross | partial | - | - | **Ch23** |
+| en | **38** | cross | partial | - | - | **Ch32** |
+| en | 39 | cross | partial | - | - | — |
+| en | **42** | cross | partial | partial | partial | **Ch23** |
 | en | 46 | cross | partial | - | partial | — |
 | en | 48 | cross | partial | - | - | — |
 | en | **50** | cross | partial | partial | partial | **Ch23** |
@@ -256,32 +256,34 @@ expanded hits.
 | ja | 34 | cross | partial | - | partial | — |
 | ja | 35 | cross | partial | partial | - | — |
 | ja | 36 | cross | partial | partial | partial | — |
+| ja | 37 | cross | partial | - | - | — |
+| ja | 39 | cross | partial | - | - | — |
 | ja | 41 | cross | partial | - | - | — |
-| ja | **42** | cross | - | partial | partial | **Ch23, Ch29** |
-| ja | 43 | cross | partial | - | - | — |
-| ja | 46 | cross | partial | partial | - | — |
+| ja | **42** | cross | partial | incorrect | partial | **Ch23, Ch29** |
+| ja | 43 | cross | partial | partial | - | — |
+| ja | 46 | cross | partial | partial | partial | — |
 | ja | 47 | cross | partial | partial | - | — |
 | ja | 48 | cross | partial | - | - | — |
+| ja | 50 | cross | - | partial | partial | — |
 
-* **Cross-reference synthesis dominates the table.** Every row but two is
-  `cross`; the `single` questions are en Q17, one of Gemma's misses, and en
-  Q22, a partial for qwen3.8 and `stealth/ox-alpha`.
+* **Cross-reference synthesis dominates the table.** Every row but one is
+  `cross`; the `single` question is en Q17, one of Gemma's misses.
 * **Eight rows are shared blind spots — gold chapters absent from the k=8
   context:** en Q31, en Q32, en Q38, en Q42, ja Q32, and ja Q42 (all six
   documented in
   [HYBRID.md § Shared blind spots](../HYBRID.md#shared-blind-spots) — four for
   English at `k≤10`, two for Japanese), plus en Q50 and ja Q27 (the same
   failure mode at k=8, not among HYBRID.md's `k≤10` blind spots). Most of
-  these are graded `partial` for all three models, and none is `incorrect`.
-  The `correct` verdicts left there (en Q38 for all three, en Q42 for qwen3.8
-  and `stealth/ox-alpha`, ja Q42 for Gemma) reflect prior knowledge or a
-  lenient verdict, not reading comprehension. Restricting to the questions
+  these are graded `partial` for all three models, and only qwen3.8 on ja Q42
+  is `incorrect`. The `correct` verdicts left there (en Q38 for qwen3.8 and
+  `stealth/ox-alpha`) reflect prior knowledge or a lenient verdict, not
+  reading comprehension. Restricting to the questions
   whose gold chapters are actually present — English n=45, Japanese n=47 —
-  each model's correct/partial/incorrect becomes: Gemma 38/5/2 (en), 36/10/1
-  (ja); qwen3.8 42/3/0 (en), 41/5/1 (ja); `stealth/ox-alpha` 43/2/0 (en),
-  45/2/0 (ja). On the evidence actually supplied, `stealth/ox-alpha` scores
-  0.978 (en) and 0.979 (ja), qwen3.8 0.967 and 0.926, and Gemma trails at
-  0.900 and 0.872.
+  each model's correct/partial/incorrect becomes: Gemma 36/7/2 (en), 34/12/1
+  (ja); qwen3.8 41/4/0 (en), 39/7/1 (ja); `stealth/ox-alpha` 44/1/0 (en),
+  43/4/0 (ja). On the evidence actually supplied, `stealth/ox-alpha` scores
+  0.989 (en) and 0.957 (ja), qwen3.8 0.956 and 0.904, and Gemma trails at
+  0.878 and 0.851.
 * **Most of the remaining rows are Gemma's partials on cross questions whose
   gold chapters are present**, the same incompleteness that drives the
   ceiling scores, made more frequent by the larger context.

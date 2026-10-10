@@ -18,60 +18,60 @@ as "_").
 
 | Model | Method | English | Japanese |
 | --- | --- | --- | --- |
-| `copilot_claude-haiku-4.5` | ceiling | 90 (40/10/0) | 85 (35/15/0) |
-| `copilot_claude-sonnet-5` | ceiling | 97 (47/3/0) | 86 (37/12/1) |
-| `copilot_gpt-5.6-luna` | ceiling | 91 (41/9/0) | 88 (39/10/1) |
-| `copilot_grok-4.5` | ceiling | 94 (44/6/0) | 93 (43/7/0) |
+| `copilot_claude-haiku-4.5` | ceiling | 88 (38/12/0) | 86 (36/14/0) |
+| `copilot_claude-sonnet-5` | ceiling | 97 (47/3/0) | 84 (35/14/1) |
+| `copilot_gpt-5.6-luna` | ceiling | 87 (37/13/0) | 88 (39/10/1) |
+| `copilot_grok-4.5` | ceiling | 95 (45/5/0) | 94 (44/6/0) |
 | `copilot_grok-4.6` | ceiling | 93 (43/7/0) | 90 (40/10/0) |
-| `copilot_kimi-k2.7-code` | ceiling | 94 (45/4/1) | 91 (41/9/0) |
-| `copilot_kimi-k3` | ceiling | 94 (44/6/0) | 95 (45/5/0) |
-| `copilot_mai-code-1.1-flash` | ceiling | 88 (38/12/0) | 82 (33/16/1) |
-| `google_gemini-2.5-flash` | ceiling | 88 (39/10/1) | 85 (35/15/0) |
+| `copilot_kimi-k2.7-code` | ceiling | 95 (45/5/0) | 92 (42/8/0) |
+| `copilot_kimi-k3` | ceiling | 96 (46/4/0) | 94 (44/6/0) |
+| `copilot_mai-code-1.1-flash` | ceiling | 89 (39/11/0) | 84 (35/14/1) |
+| `google_gemini-2.5-flash` | ceiling | 87 (38/11/1) | 86 (36/14/0) |
 | `google_gemini-3-flash-preview` | ceiling | 94 (44/6/0) | 91 (41/9/0) |
-| `google_gemini-3.5-flash-lite` | ceiling | 81 (35/11/4) | 79 (33/13/4) |
-| `google_gemini-3.7-flash` | ceiling | 87 (38/11/1) | 85 (36/13/1) |
-| `google_gemini-3.8-flash` | ceiling | 91 (42/7/1) | 88 (39/10/1) |
-| `google_gemma-4-26b-a4b-it` | ceiling | 85 (36/13/1) | 81 (32/17/1) |
-| `google_gemma-4-31b-it` | ceiling | 97 (47/3/0) | 92 (42/8/0) |
-| `llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0` | ceiling | 90 (40/10/0) | 86 (36/14/0) |
-| `ollama_gemma4_12b-it-qat` | ceiling | 78 (32/14/4) | 72 (27/18/5) |
-| `ollama_gemma4_26b-a4b-it-qat` | ceiling | 87 (38/11/1) | 82 (32/18/0) |
-| `ollama_muse-glimmer` | ceiling | 94 (44/6/0) | 93 (43/7/0) |
-| `ollama_qwen3.5_4b` | ceiling | 72 (24/24/2) | 66 (23/20/7) |
-| `ollama_qwen3.5_9b` | ceiling | 78 (29/20/1) | 73 (26/21/3) |
-| `ollama_qwen3.6` | ceiling | 88 (38/12/0) | 86 (36/14/0) |
-| `ollama_qwen3.8` | ceiling | 96 (46/4/0) | 91 (42/7/1) |
-| `openai_gpt-5.6-luna` | ceiling | 94 (44/6/0) | 90 (40/10/0) |
-| `openai_gpt-5.6-sol` | ceiling | 93 (43/7/0) | 92 (42/8/0) |
-| `openai_gpt-5.6-terra` | ceiling | 92 (42/8/0) | 91 (41/9/0) |
-| `openai_gpt-6-astra` | ceiling | 92 (42/8/0) | 89 (39/11/0) |
-| `openai_gpt-6-luna` | ceiling | 95 (45/5/0) | 89 (39/11/0) |
-| `openai_gpt-6-sol` | ceiling | 96 (46/4/0) | 90 (40/10/0) |
-| `openai_gpt-6.1-sol` | ceiling | 95 (45/5/0) | 84 (34/16/0) |
-| `opencode_big-pickle` | ceiling | 88 (38/12/0) | 88 (38/12/0) |
-| `opencode_fledge-alpha-free` | ceiling | 94 (44/6/0) | 91 (41/9/0) |
-| `opencode_ling-3.1-flash-free` | ceiling | 95 (45/5/0) | 89 (39/11/0) |
-| `opencode_longcat-2.5-preview-free` | ceiling | 94 (44/6/0) | 87 (38/11/1) |
-| `opencode_mimo-v2.5-free` | ceiling | 93 (43/7/0) | 88 (39/10/1) |
-| `opencode_mimo-v2.6-flash-free` | ceiling | 96 (46/4/0) | 87 (39/9/2) |
+| `google_gemini-3.5-flash-lite` | ceiling | 81 (35/11/4) | 77 (32/13/5) |
+| `google_gemini-3.7-flash` | ceiling | 89 (40/9/1) | 88 (39/10/1) |
+| `google_gemini-3.8-flash` | ceiling | 89 (40/9/1) | 90 (41/8/1) |
+| `google_gemma-4-26b-a4b-it` | ceiling | 86 (37/12/1) | 84 (35/14/1) |
+| `google_gemma-4-31b-it` | ceiling | 93 (43/7/0) | 90 (40/10/0) |
+| `llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0` | ceiling | 91 (41/9/0) | 86 (36/14/0) |
+| `ollama_gemma4_12b-it-qat` | ceiling | 76 (30/16/4) | 72 (27/18/5) |
+| `ollama_gemma4_26b-a4b-it-qat` | ceiling | 86 (37/12/1) | 81 (31/19/0) |
+| `ollama_muse-glimmer` | ceiling | 95 (45/5/0) | 93 (43/7/0) |
+| `ollama_qwen3.5_4b` | ceiling | 72 (24/24/2) | 67 (24/19/7) |
+| `ollama_qwen3.5_9b` | ceiling | 78 (30/18/2) | 73 (26/21/3) |
+| `ollama_qwen3.6` | ceiling | 90 (40/10/0) | 86 (36/14/0) |
+| `ollama_qwen3.8` | ceiling | 98 (48/2/0) | 92 (43/6/1) |
+| `openai_gpt-5.6-luna` | ceiling | 92 (42/8/0) | 89 (39/11/0) |
+| `openai_gpt-5.6-sol` | ceiling | 91 (41/9/0) | 90 (40/10/0) |
+| `openai_gpt-5.6-terra` | ceiling | 94 (44/6/0) | 89 (39/11/0) |
+| `openai_gpt-6-astra` | ceiling | 93 (43/7/0) | 89 (39/11/0) |
+| `openai_gpt-6-luna` | ceiling | 91 (41/9/0) | 88 (38/12/0) |
+| `openai_gpt-6-sol` | ceiling | 94 (44/6/0) | 90 (40/10/0) |
+| `openai_gpt-6.1-sol` | ceiling | 95 (45/5/0) | 87 (37/13/0) |
+| `opencode_big-pickle` | ceiling | 91 (41/9/0) | 87 (37/13/0) |
+| `opencode_fledge-alpha-free` | ceiling | 94 (44/6/0) | 90 (40/10/0) |
+| `opencode_ling-3.1-flash-free` | ceiling | 95 (45/5/0) | 90 (40/10/0) |
+| `opencode_longcat-2.5-preview-free` | ceiling | 94 (44/6/0) | 86 (37/12/1) |
+| `opencode_mimo-v2.5-free` | ceiling | 94 (44/6/0) | 88 (39/10/1) |
+| `opencode_mimo-v2.6-flash-free` | ceiling | 95 (45/5/0) | 87 (39/9/2) |
 | `opencode_muse-spark-1.2-contributor-free` | ceiling | 96 (46/4/0) | 96 (46/4/0) |
-| `opencode_muse-spark-1.3-contributor-free` | ceiling | 97 (47/3/0) | 96 (46/4/0) |
-| `opencode_union-alpha` | ceiling | 95 (45/5/0) | 93 (43/7/0) |
-| `openrouter_apodex_apodex-1.1-mini_free` | ceiling | 94 (44/6/0) | 91 (41/9/0) |
-| `openrouter_cohere_north-mini-code_free` | ceiling | 85 (36/13/1) | 67 (23/21/6) |
-| `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 88 (39/10/1) | 82 (33/16/1) |
-| `openrouter_minimax_minimax-m2.7_free` | ceiling | 87 (37/13/0) | 86 (36/14/0) |
-| `openrouter_minimax_minimax-m3_free` | ceiling | 95 (45/5/0) | 93 (43/7/0) |
-| `openrouter_nvidia_nemotron-3-super-120b-a12b_free` | ceiling | 87 (37/13/0) | 84 (34/16/0) |
-| `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | 92 (42/8/0) | 93 (43/7/0) |
-| `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 84 (34/16/0) | 79 (31/17/2) |
-| `openrouter_poolside_laguna-s-2.1_free` | ceiling | 78 (29/20/1) | 63 (20/23/7) |
-| `openrouter_poolside_laguna-xs-2.1_free` | ceiling | 79 (30/19/1) | 65 (21/23/6) |
-| `openrouter_stealth_ox-alpha` | ceiling | 95 (45/5/0) | 96 (46/4/0) |
-| `openrouter_stealth_space-bunny-alpha` | ceiling | 90 (40/10/0) | 80 (30/20/0) |
-| `google_gemma-4-31b-it` | hybrid8 | 87 (39/9/2) | 86 (37/12/1) |
-| `ollama_qwen3.8` | hybrid8 | 94 (44/6/0) | 90 (41/8/1) |
-| `openrouter_stealth_ox-alpha` | hybrid8 | 95 (45/5/0) | 95 (45/5/0) |
+| `opencode_muse-spark-1.3-contributor-free` | ceiling | 97 (47/3/0) | 97 (47/3/0) |
+| `opencode_union-alpha` | ceiling | 98 (48/2/0) | 94 (44/6/0) |
+| `openrouter_apodex_apodex-1.1-mini_free` | ceiling | 94 (44/6/0) | 89 (39/11/0) |
+| `openrouter_cohere_north-mini-code_free` | ceiling | 83 (34/15/1) | 67 (24/19/7) |
+| `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 90 (40/10/0) | 81 (32/17/1) |
+| `openrouter_minimax_minimax-m2.7_free` | ceiling | 87 (37/13/0) | 85 (35/15/0) |
+| `openrouter_minimax_minimax-m3_free` | ceiling | 98 (48/2/0) | 91 (41/9/0) |
+| `openrouter_nvidia_nemotron-3-super-120b-a12b_free` | ceiling | 88 (38/12/0) | 85 (35/15/0) |
+| `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | 93 (43/7/0) | 91 (41/9/0) |
+| `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 83 (33/17/0) | 78 (30/18/2) |
+| `openrouter_poolside_laguna-s-2.1_free` | ceiling | 80 (30/20/0) | 63 (21/21/8) |
+| `openrouter_poolside_laguna-xs-2.1_free` | ceiling | 81 (32/17/1) | 64 (21/22/7) |
+| `openrouter_stealth_ox-alpha` | ceiling | 98 (48/2/0) | 94 (44/6/0) |
+| `openrouter_stealth_space-bunny-alpha` | ceiling | 88 (38/12/0) | 80 (30/20/0) |
+| `google_gemma-4-31b-it` | hybrid8 | 84 (36/12/2) | 83 (34/15/1) |
+| `ollama_qwen3.8` | hybrid8 | 92 (42/8/0) | 87 (39/9/2) |
+| `openrouter_stealth_ox-alpha` | hybrid8 | 95 (45/5/0) | 93 (43/7/0) |
 
 ## Every question any model missed
 
@@ -81,57 +81,57 @@ language). A question absent from every column of a row was graded
 
 | Model | Method | en partial | en incorrect | ja partial | ja incorrect |
 | --- | --- | --- | --- | --- | --- |
-| `copilot_claude-haiku-4.5` | ceiling | 6, 30, 32, 33, 35, 36, 38, 42, 46, 47 | — | 5, 27, 28, 29, 31, 32, 33, 34, 36, 37, 40, 46, 48, 49, 50 | — |
-| `copilot_claude-sonnet-5` | ceiling | 36, 44, 46 | — | 27, 28, 29, 31, 35, 36, 37, 38, 40, 43, 46, 47 | 16 |
-| `copilot_gpt-5.6-luna` | ceiling | 13, 27, 30, 31, 34, 42, 43, 46, 50 | — | 31, 35, 36, 37, 38, 40, 41, 46, 47, 48 | 29 |
-| `copilot_grok-4.5` | ceiling | 30, 36, 37, 40, 42, 49 | — | 28, 29, 34, 35, 36, 37, 46 | — |
-| `copilot_grok-4.6` | ceiling | 29, 34, 35, 37, 40, 46, 49 | — | 23, 29, 31, 34, 35, 36, 40, 42, 46, 49 | — |
-| `copilot_kimi-k2.7-code` | ceiling | 31, 34, 36, 37 | 22 | 29, 33, 34, 42, 43, 46, 47, 49, 50 | — |
-| `copilot_kimi-k3` | ceiling | 22, 31, 33, 35, 37, 42 | — | 31, 37, 40, 46, 48 | — |
-| `copilot_mai-code-1.1-flash` | ceiling | 6, 28, 30, 32, 34, 37, 39, 40, 42, 46, 49, 50 | — | 3, 23, 26, 27, 28, 31, 32, 33, 34, 36, 38, 43, 45, 46, 49, 50 | 29 |
-| `google_gemini-2.5-flash` | ceiling | 28, 29, 30, 35, 36, 37, 41, 42, 48, 49 | 17 | 29, 31, 32, 33, 34, 35, 36, 37, 40, 42, 46, 47, 48, 49, 50 | — |
-| `google_gemini-3-flash-preview` | ceiling | 29, 33, 37, 42, 45, 49 | — | 23, 27, 29, 33, 37, 41, 42, 43, 46 | — |
-| `google_gemini-3.5-flash-lite` | ceiling | 26, 28, 30, 34, 35, 36, 41, 46, 47, 48, 50 | 17, 37, 40, 42 | 27, 28, 29, 30, 31, 32, 34, 37, 39, 40, 43, 46, 47 | 35, 36, 42, 50 |
-| `google_gemini-3.7-flash` | ceiling | 29, 33, 34, 35, 36, 37, 40, 42, 46, 49, 50 | 17 | 27, 31, 32, 34, 35, 36, 37, 42, 45, 46, 47, 48, 49 | 29 |
-| `google_gemini-3.8-flash` | ceiling | 13, 29, 31, 35, 37, 40, 49 | 17 | 31, 32, 37, 41, 42, 46, 47, 48, 49, 50 | 29 |
-| `google_gemma-4-26b-a4b-it` | ceiling | 26, 27, 31, 32, 34, 37, 38, 41, 42, 45, 47, 49, 50 | 17 | 26, 27, 31, 32, 34, 35, 36, 37, 40, 42, 43, 44, 46, 47, 48, 49, 50 | 29 |
-| `google_gemma-4-31b-it` | ceiling | 34, 42, 48 | — | 29, 34, 36, 37, 41, 46, 47, 48 | — |
-| `llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0` | ceiling | 26, 29, 30, 31, 33, 36, 37, 42, 46, 50 | — | 29, 30, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 46, 49 | — |
-| `ollama_gemma4_12b-it-qat` | ceiling | 28, 29, 30, 31, 32, 36, 37, 38, 41, 42, 45, 47, 48, 49 | 17, 34, 43, 50 | 27, 28, 29, 31, 32, 35, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49 | 4, 6, 22, 34, 50 |
-| `ollama_gemma4_26b-a4b-it-qat` | ceiling | 26, 27, 29, 31, 33, 35, 37, 42, 47, 49, 50 | 17 | 27, 29, 31, 32, 34, 35, 36, 37, 38, 40, 41, 42, 44, 46, 47, 48, 49, 50 | — |
-| `ollama_muse-glimmer` | ceiling | 6, 17, 36, 37, 42, 49 | — | 29, 31, 32, 34, 36, 37, 42 | — |
-| `ollama_qwen3.5_4b` | ceiling | 23, 24, 26, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38, 39, 40, 41, 43, 45, 46, 47, 48, 49, 50 | 34, 42 | 20, 22, 27, 28, 29, 30, 31, 32, 33, 34, 35, 37, 38, 40, 41, 43, 44, 46, 49, 50 | 25, 26, 36, 39, 42, 45, 47 |
-| `ollama_qwen3.5_9b` | ceiling | 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 40, 41, 42, 43, 47, 48, 49, 50 | 46 | 6, 27, 29, 30, 31, 33, 34, 35, 36, 37, 38, 40, 41, 42, 43, 44, 45, 46, 47, 49, 50 | 26, 28, 32 |
-| `ollama_qwen3.6` | ceiling | 6, 29, 31, 32, 33, 34, 37, 42, 46, 47, 49, 50 | — | 27, 28, 29, 30, 31, 33, 36, 37, 40, 42, 46, 48, 49, 50 | — |
-| `ollama_qwen3.8` | ceiling | 29, 31, 36, 42 | — | 30, 34, 37, 38, 47, 48, 50 | 29 |
-| `openai_gpt-5.6-luna` | ceiling | 29, 31, 40, 41, 45, 49 | — | 27, 31, 34, 35, 36, 38, 39, 43, 46, 48 | — |
-| `openai_gpt-5.6-sol` | ceiling | 29, 30, 34, 40, 41, 42, 46 | — | 27, 34, 35, 37, 38, 44, 46, 48 | — |
-| `openai_gpt-5.6-terra` | ceiling | 22, 29, 30, 31, 34, 42, 49, 50 | — | 34, 35, 36, 43, 46, 47, 48, 49, 50 | — |
-| `openai_gpt-6-astra` | ceiling | 26, 37, 39, 40, 41, 42, 47, 49 | — | 23, 31, 34, 35, 36, 38, 40, 43, 46, 47, 49 | — |
-| `openai_gpt-6-luna` | ceiling | 29, 34, 35, 38, 46 | — | 23, 31, 34, 35, 36, 38, 39, 45, 46, 48, 50 | — |
-| `openai_gpt-6-sol` | ceiling | 29, 34, 37, 46 | — | 23, 27, 29, 31, 34, 35, 36, 38, 43, 46 | — |
-| `openai_gpt-6.1-sol` | ceiling | 40, 41, 42, 46, 49 | — | 23, 26, 27, 31, 32, 35, 36, 37, 38, 39, 40, 41, 43, 46, 47, 49 | — |
-| `opencode_big-pickle` | ceiling | 3, 22, 29, 32, 34, 36, 37, 40, 42, 46, 48, 49 | — | 27, 29, 31, 32, 36, 37, 41, 42, 43, 46, 47, 48 | — |
-| `opencode_fledge-alpha-free` | ceiling | 34, 36, 37, 42, 46, 50 | — | 27, 29, 32, 33, 34, 35, 36, 43, 46 | — |
-| `opencode_ling-3.1-flash-free` | ceiling | 22, 34, 35, 40, 46 | — | 6, 27, 29, 31, 35, 36, 37, 40, 42, 43, 48 | — |
-| `opencode_longcat-2.5-preview-free` | ceiling | 30, 32, 33, 37, 42, 46 | — | 33, 34, 35, 37, 38, 39, 42, 43, 46, 47, 50 | 7 |
-| `opencode_mimo-v2.5-free` | ceiling | 27, 29, 33, 37, 38, 42, 46 | — | 20, 29, 33, 34, 36, 37, 39, 42, 47, 50 | 38 |
-| `opencode_mimo-v2.6-flash-free` | ceiling | 3, 28, 37, 42 | — | 27, 34, 37, 39, 40, 41, 42, 43, 46 | 17, 29 |
-| `opencode_muse-spark-1.2-contributor-free` | ceiling | 22, 33, 40, 42 | — | 23, 31, 40, 42 | — |
-| `opencode_muse-spark-1.3-contributor-free` | ceiling | 29, 33, 50 | — | 34, 38, 43, 46 | — |
-| `opencode_union-alpha` | ceiling | 22, 30, 33, 34, 42 | — | 34, 37, 41, 42, 46, 48, 49 | — |
-| `openrouter_apodex_apodex-1.1-mini_free` | ceiling | 33, 34, 36, 37, 42, 46 | — | 33, 34, 35, 36, 37, 41, 43, 46, 50 | — |
-| `openrouter_cohere_north-mini-code_free` | ceiling | 23, 28, 30, 33, 35, 36, 37, 40, 43, 46, 47, 49, 50 | 17 | 26, 27, 30, 31, 32, 33, 34, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 47, 48, 49, 50 | 12, 16, 28, 29, 35, 46 |
-| `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 30, 33, 34, 35, 36, 38, 42, 43, 45, 46 | 49 | 27, 29, 30, 31, 33, 36, 37, 38, 39, 40, 41, 43, 46, 47, 49, 50 | 35 |
-| `openrouter_minimax_minimax-m2.7_free` | ceiling | 6, 28, 29, 30, 31, 33, 34, 36, 37, 40, 41, 46, 50 | — | 26, 29, 30, 32, 34, 36, 37, 40, 41, 42, 43, 46, 47, 49 | — |
-| `openrouter_minimax_minimax-m3_free` | ceiling | 22, 37, 42, 45, 47 | — | 27, 31, 34, 37, 42, 43, 50 | — |
-| `openrouter_nvidia_nemotron-3-super-120b-a12b_free` | ceiling | 6, 26, 28, 29, 30, 31, 34, 36, 37, 42, 46, 49, 50 | — | 27, 29, 30, 31, 33, 34, 35, 36, 37, 40, 42, 45, 46, 47, 48, 49 | — |
-| `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | 29, 31, 32, 33, 34, 42, 46, 49 | — | 29, 35, 36, 37, 42, 43, 46 | — |
-| `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 6, 28, 29, 30, 31, 34, 35, 36, 37, 38, 41, 42, 43, 46, 49, 50 | — | 6, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38, 40, 43, 46, 47, 48, 50 | 29, 45 |
-| `openrouter_poolside_laguna-s-2.1_free` | ceiling | 26, 27, 28, 29, 31, 32, 33, 34, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48, 50 | 45 | 4, 18, 26, 27, 28, 29, 30, 31, 32, 33, 36, 37, 38, 39, 40, 41, 43, 44, 45, 46, 47, 49, 50 | 2, 8, 12, 22, 34, 35, 42 |
-| `openrouter_poolside_laguna-xs-2.1_free` | ceiling | 26, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 42, 43, 46, 47, 48, 49 | 30 | 6, 7, 22, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38, 40, 41, 42, 43, 46, 47, 48, 49, 50 | 12, 25, 26, 34, 39, 44 |
-| `openrouter_stealth_ox-alpha` | ceiling | 22, 32, 33, 37, 42 | — | 33, 34, 35, 46 | — |
-| `openrouter_stealth_space-bunny-alpha` | ceiling | 6, 28, 30, 31, 34, 35, 37, 41, 42, 45 | — | 5, 26, 27, 28, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 49, 50 | — |
-| `google_gemma-4-31b-it` | hybrid8 | 30, 31, 32, 36, 37, 42, 46, 48, 50 | 17, 29 | 27, 30, 31, 32, 34, 35, 36, 41, 43, 46, 47, 48 | 29 |
-| `ollama_qwen3.8` | hybrid8 | 22, 31, 32, 36, 37, 50 | — | 27, 30, 32, 35, 36, 42, 46, 47 | 29 |
-| `openrouter_stealth_ox-alpha` | hybrid8 | 22, 31, 32, 46, 50 | — | 27, 32, 34, 36, 42 | — |
+| `copilot_claude-haiku-4.5` | ceiling | 6, 22, 30, 32, 33, 34, 35, 36, 37, 38, 46, 47 | — | 5, 27, 28, 29, 31, 32, 34, 36, 37, 40, 46, 48, 49, 50 | — |
+| `copilot_claude-sonnet-5` | ceiling | 36, 44, 46 | — | 27, 28, 29, 31, 32, 33, 35, 36, 37, 40, 42, 44, 46, 47 | 16 |
+| `copilot_gpt-5.6-luna` | ceiling | 13, 26, 27, 30, 31, 32, 34, 37, 40, 43, 46, 47, 50 | — | 32, 35, 36, 37, 38, 40, 41, 46, 47, 48 | 29 |
+| `copilot_grok-4.5` | ceiling | 30, 34, 36, 37, 46 | — | 28, 34, 35, 36, 37, 46 | — |
+| `copilot_grok-4.6` | ceiling | 29, 32, 34, 35, 37, 40, 46 | — | 23, 29, 31, 34, 35, 36, 42, 43, 46, 47 | — |
+| `copilot_kimi-k2.7-code` | ceiling | 32, 34, 36, 37, 46 | — | 32, 33, 34, 39, 43, 46, 47, 50 | — |
+| `copilot_kimi-k3` | ceiling | 34, 35, 37, 46 | — | 32, 34, 37, 42, 46, 48 | — |
+| `copilot_mai-code-1.1-flash` | ceiling | 6, 28, 30, 32, 34, 37, 39, 40, 42, 46, 50 | — | 3, 23, 26, 27, 28, 31, 32, 34, 36, 38, 43, 46, 49, 50 | 29 |
+| `google_gemini-2.5-flash` | ceiling | 28, 29, 30, 31, 35, 36, 37, 41, 42, 46, 48 | 17 | 26, 29, 31, 32, 33, 34, 35, 36, 37, 42, 46, 47, 48, 49 | — |
+| `google_gemini-3-flash-preview` | ceiling | 29, 31, 37, 39, 46, 47 | — | 23, 27, 29, 33, 37, 41, 42, 46, 47 | — |
+| `google_gemini-3.5-flash-lite` | ceiling | 26, 28, 30, 34, 35, 36, 41, 46, 47, 48, 50 | 17, 37, 40, 42 | 27, 28, 29, 30, 31, 32, 34, 37, 40, 43, 46, 47, 49 | 35, 36, 39, 42, 50 |
+| `google_gemini-3.7-flash` | ceiling | 29, 32, 34, 35, 36, 37, 40, 46, 50 | 17 | 27, 32, 34, 35, 36, 37, 43, 46, 47, 48 | 29 |
+| `google_gemini-3.8-flash` | ceiling | 13, 29, 31, 32, 34, 35, 37, 40, 46 | 17 | 31, 32, 37, 41, 46, 47, 48, 50 | 29 |
+| `google_gemma-4-26b-a4b-it` | ceiling | 27, 29, 31, 32, 34, 37, 39, 41, 42, 46, 47, 50 | 17 | 27, 31, 32, 34, 35, 36, 37, 40, 43, 44, 46, 47, 48, 50 | 29 |
+| `google_gemma-4-31b-it` | ceiling | 26, 34, 39, 42, 46, 47, 48 | — | 29, 32, 34, 36, 37, 41, 46, 47, 48, 49 | — |
+| `llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0` | ceiling | 26, 30, 31, 36, 37, 40, 42, 46, 50 | — | 29, 30, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 46, 49 | — |
+| `ollama_gemma4_12b-it-qat` | ceiling | 28, 29, 30, 31, 32, 36, 37, 38, 39, 40, 41, 42, 45, 47, 48, 49 | 17, 34, 43, 50 | 27, 28, 29, 31, 32, 35, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49 | 4, 6, 22, 34, 50 |
+| `ollama_gemma4_26b-a4b-it-qat` | ceiling | 26, 27, 29, 31, 32, 33, 35, 37, 39, 46, 47, 50 | 17 | 27, 29, 31, 32, 34, 35, 36, 37, 38, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50 | — |
+| `ollama_muse-glimmer` | ceiling | 6, 17, 32, 36, 37 | — | 29, 32, 34, 36, 37, 42, 47 | — |
+| `ollama_qwen3.5_4b` | ceiling | 22, 23, 24, 26, 27, 28, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 43, 45, 46, 47, 48, 49, 50 | 34, 42 | 20, 27, 28, 29, 30, 31, 32, 33, 34, 35, 37, 38, 40, 41, 43, 44, 46, 49, 50 | 25, 26, 36, 39, 42, 45, 47 |
+| `ollama_qwen3.5_9b` | ceiling | 26, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37, 39, 41, 43, 47, 48, 49, 50 | 34, 46 | 6, 27, 29, 30, 31, 33, 34, 35, 36, 37, 38, 40, 41, 42, 43, 44, 45, 46, 47, 49, 50 | 26, 28, 32 |
+| `ollama_qwen3.6` | ceiling | 6, 29, 31, 32, 33, 34, 37, 46, 47, 50 | — | 27, 28, 29, 30, 31, 33, 36, 37, 39, 40, 42, 46, 48, 50 | — |
+| `ollama_qwen3.8` | ceiling | 31, 36 | — | 30, 34, 37, 47, 48, 50 | 29 |
+| `openai_gpt-5.6-luna` | ceiling | 29, 31, 34, 40, 41, 42, 46, 47 | — | 27, 31, 34, 35, 36, 37, 38, 39, 43, 46, 48 | — |
+| `openai_gpt-5.6-sol` | ceiling | 29, 30, 32, 34, 39, 40, 41, 42, 46 | — | 27, 32, 34, 35, 37, 42, 44, 46, 47, 48 | — |
+| `openai_gpt-5.6-terra` | ceiling | 30, 32, 34, 37, 46, 50 | — | 29, 32, 34, 35, 36, 42, 43, 46, 47, 48, 50 | — |
+| `openai_gpt-6-astra` | ceiling | 32, 39, 40, 41, 42, 46, 47 | — | 23, 31, 34, 35, 36, 38, 39, 40, 43, 46, 47 | — |
+| `openai_gpt-6-luna` | ceiling | 29, 32, 34, 35, 37, 38, 39, 46, 47 | — | 23, 29, 31, 32, 34, 35, 36, 39, 44, 46, 48, 50 | — |
+| `openai_gpt-6-sol` | ceiling | 29, 32, 34, 37, 40, 46 | — | 23, 27, 31, 34, 35, 36, 38, 46, 47, 50 | — |
+| `openai_gpt-6.1-sol` | ceiling | 32, 40, 41, 42, 46 | — | 23, 27, 32, 34, 35, 36, 37, 39, 40, 41, 43, 46, 47 | — |
+| `opencode_big-pickle` | ceiling | 3, 29, 32, 34, 36, 37, 40, 46, 48 | — | 26, 27, 32, 34, 36, 37, 39, 41, 42, 43, 46, 47, 48 | — |
+| `opencode_fledge-alpha-free` | ceiling | 32, 34, 36, 37, 46, 47 | — | 27, 32, 33, 34, 35, 36, 37, 43, 46, 47 | — |
+| `opencode_ling-3.1-flash-free` | ceiling | 31, 34, 35, 40, 46 | — | 6, 27, 29, 32, 35, 36, 37, 40, 46, 48 | — |
+| `opencode_longcat-2.5-preview-free` | ceiling | 30, 32, 33, 37, 42, 46 | — | 26, 33, 34, 35, 37, 38, 39, 42, 43, 46, 47, 50 | 7 |
+| `opencode_mimo-v2.5-free` | ceiling | 27, 29, 34, 37, 46, 47 | — | 20, 29, 33, 34, 36, 37, 42, 47, 49, 50 | 38 |
+| `opencode_mimo-v2.6-flash-free` | ceiling | 3, 28, 32, 37, 46 | — | 27, 34, 37, 39, 40, 41, 43, 46, 47 | 17, 29 |
+| `opencode_muse-spark-1.2-contributor-free` | ceiling | 31, 33, 37, 40 | — | 23, 31, 34, 40 | — |
+| `opencode_muse-spark-1.3-contributor-free` | ceiling | 29, 32, 50 | — | 34, 43, 46 | — |
+| `opencode_union-alpha` | ceiling | 30, 34 | — | 34, 37, 41, 42, 46, 48 | — |
+| `openrouter_apodex_apodex-1.1-mini_free` | ceiling | 33, 34, 36, 37, 39, 46 | — | 29, 33, 34, 35, 36, 37, 41, 42, 43, 46, 50 | — |
+| `openrouter_cohere_north-mini-code_free` | ceiling | 23, 26, 28, 30, 33, 35, 36, 37, 40, 42, 43, 46, 47, 49, 50 | 17 | 26, 27, 30, 31, 32, 33, 34, 36, 37, 38, 39, 40, 41, 43, 44, 47, 48, 49, 50 | 12, 16, 22, 28, 29, 35, 46 |
+| `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 30, 32, 33, 34, 35, 36, 38, 43, 46, 49 | — | 26, 27, 30, 31, 32, 33, 36, 37, 38, 39, 40, 41, 43, 44, 46, 47, 50 | 35 |
+| `openrouter_minimax_minimax-m2.7_free` | ceiling | 6, 28, 29, 30, 31, 32, 34, 36, 37, 40, 41, 46, 49 | — | 26, 29, 30, 31, 32, 34, 36, 37, 40, 41, 42, 43, 46, 47, 49 | — |
+| `openrouter_minimax_minimax-m3_free` | ceiling | 37, 47 | — | 26, 27, 32, 34, 37, 42, 43, 46, 50 | — |
+| `openrouter_nvidia_nemotron-3-super-120b-a12b_free` | ceiling | 6, 26, 28, 29, 30, 31, 34, 36, 37, 42, 46, 49 | — | 27, 29, 30, 31, 33, 34, 35, 36, 37, 40, 46, 47, 48, 49, 50 | — |
+| `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | 29, 31, 32, 34, 42, 46, 47 | — | 26, 29, 35, 36, 37, 40, 43, 46, 47 | — |
+| `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 6, 28, 29, 30, 31, 32, 34, 35, 36, 37, 38, 41, 42, 43, 46, 49, 50 | — | 6, 26, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38, 40, 43, 46, 47, 48, 50 | 29, 45 |
+| `openrouter_poolside_laguna-s-2.1_free` | ceiling | 26, 27, 28, 29, 31, 32, 33, 34, 36, 37, 38, 39, 40, 43, 44, 45, 46, 47, 48, 50 | — | 4, 18, 26, 27, 28, 29, 30, 31, 36, 37, 38, 39, 40, 41, 43, 44, 45, 46, 47, 49, 50 | 2, 8, 12, 22, 32, 34, 35, 42 |
+| `openrouter_poolside_laguna-xs-2.1_free` | ceiling | 26, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 43, 46, 47, 48 | 30 | 6, 7, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38, 40, 41, 42, 43, 46, 47, 48, 49, 50 | 12, 22, 25, 26, 34, 39, 44 |
+| `openrouter_stealth_ox-alpha` | ceiling | 32, 37 | — | 32, 33, 34, 35, 42, 46 | — |
+| `openrouter_stealth_space-bunny-alpha` | ceiling | 6, 28, 30, 31, 32, 34, 35, 37, 41, 42, 45, 46 | — | 5, 26, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 50 | — |
+| `google_gemma-4-31b-it` | hybrid8 | 26, 30, 31, 32, 36, 37, 38, 39, 42, 46, 48, 50 | 17, 29 | 27, 30, 31, 32, 34, 35, 36, 37, 39, 41, 42, 43, 46, 47, 48 | 29 |
+| `ollama_qwen3.8` | hybrid8 | 26, 31, 32, 34, 36, 37, 42, 50 | — | 27, 30, 32, 35, 36, 43, 46, 47, 50 | 29, 42 |
+| `openrouter_stealth_ox-alpha` | hybrid8 | 31, 32, 42, 46, 50 | — | 27, 32, 34, 36, 42, 46, 50 | — |

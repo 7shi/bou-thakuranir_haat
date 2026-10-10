@@ -70,7 +70,7 @@ verdicts anyway, so the README split is done in the same pass.
 6. Update links and paths:
    - `GOLD-FIX.md`: `results/gold-check/` → `gold-check/` (three places), and
      step 2 runs `make -C gold-check claims`; step 4 regenerates B.
-   - `results/ja2en/README.md:182`: `../gold-check/` → `../../gold-check/`.
+   - `results/ja2en/README.md:186`: `../gold-check/` → `../../gold-check/`.
    - links inside the moved README (`../ja2en/` → `../results/ja2en/`,
      `../TERNARY.md` → `../results/TERNARY.md`, and so on).
    - `grep -rn "gold-check" qa-eval` for anything else.

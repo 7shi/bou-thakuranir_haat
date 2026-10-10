@@ -23,9 +23,9 @@ worth stating precisely, because it is *not* a retrieval failure:
 | ja | 47 | 48 | 0 | 20.5 → 24.8 |
 
 The union is monotone — top-8 ⊆ top-10 — so raising `k` can only add chapters,
-and recall rises with it. No question loses gold coverage. The three Japanese
-questions that regress at k=10 (Q32, Q34, Q37) all keep full gold coverage while
-doing so. The damage is done by the *non-gold* chapters that come along: pure
+and recall rises with it. No question loses gold coverage. The four Japanese
+questions that regress at k=10 (Q34, Q37, Q47, Q50) all keep full gold coverage
+while doing so. The damage is done by the *non-gold* chapters that come along: pure
 synthesis degradation from a larger context.
 
 ## How much gold coverage sits on the k=8 boundary

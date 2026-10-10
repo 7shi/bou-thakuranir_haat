@@ -72,9 +72,14 @@ QIDS="22 34"
 uv run drop_verdicts.py $QIDS
 ```
 
+`-s` takes several sets, so the question numbers go before it
+(`uv run drop_verdicts.py $QIDS -s results/ja2en`).
+
 [drop_verdicts.py](drop_verdicts.py) removes their rows from
 `results-en/`, `results-ja/` and `results/`: `judge/*.jsonl` and
-`{ternary,openai,jev,nimble}/*.tsv`. `MODELS.tsv` is left as it is.
+`{ternary,openai,jev,nimble}/*.tsv`; and from the Ternary verdicts of
+[results/ja2en/](results/ja2en/README.md): `{xling,ternary,retest}/*.tsv`.
+`MODELS.tsv` is left as it is.
 
 ### Mark the verdict files out of date
 
@@ -105,6 +110,7 @@ for j in ternary openai jev nimble; do
   done
   make -C results judge-$j || break
 done
+make -C results/ja2en xling judge retest
 uv run sort_verdicts.py
 ```
 
@@ -126,6 +132,9 @@ Regenerate the per-model reports:
 make -C results report report-ternary report-openai report-jev report-nimble
 ```
 
+`make -C results/ja2en compare` and `make -C results/gold-check compare` print
+the tables of their READMEs.
+
 Then update every figure that quotes the changed scores, including the
 case studies that discuss an edited question:
 
@@ -134,8 +143,8 @@ case studies that discuss an edited question:
 - [results/README.md](results/README.md), [results/ja2en/](results/ja2en/README.md)
   and [results/gold-check/](results/gold-check/README.md)
 - [TERNARY.md](TERNARY.md), [OPENAI.md](OPENAI.md), [JEV.md](JEV.md),
-  [NIMBLE.md](NIMBLE.md), their counterparts in `results/`, and
-  [FILTER.md](FILTER.md)
+  [NIMBLE.md](NIMBLE.md), their counterparts in `results/`,
+  [FILTER.md](FILTER.md) and [MEMO.md](MEMO.md)
 
 The documents state the corrected results only, without the earlier figures.
 The logs of finished experiments in [jev/](jev/README.md) are not re-graded.
