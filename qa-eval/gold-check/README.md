@@ -79,6 +79,45 @@ wretch who has turned to another woman, not her husband. The detail comes from
 the question, which is frozen: the gold answer itself, "A dried root.", is
 stated in both texts. This claim does not count as ja-only missing.
 
+## Effect of the gold-answer fix on the scores
+
+The fix of 19 gold answers (b144d29) and the re-grade (e0857d5) moved the
+per-model Ceiling scores in `results/report*.md` very little. The table
+compares each report before the fix (b144d29) with the one updated for it
+(32ee5ca), over the runs present in both. The 11 qwen runs added later
+(f85b9a5) were only graded after the fix and are left out. A score is the
+weighted %, so one question moving between correct and partial changes it by
+1 point.
+
+| Judge | Lang | Runs | Mean (before → after) | Mean change | Mean \|change\| | Range | Unchanged | Spearman | en − ja (before → after) |
+| :--- | :--- | ---: | :--- | ---: | ---: | :--- | ---: | ---: | :--- |
+| qwen | en | 40 | 96.3 → 96.4 | +0.12 | 0.97 | −3 to +4 | 15 | 0.843 | 2.45 → 2.38 |
+| qwen | ja | 40 | 93.8 → 94.0 | +0.20 | 0.85 | −2 to +4 | 15 | 0.939 | |
+| Jev | en | 51 | 90.3 → 90.4 | +0.12 | 1.37 | −4 to +3 | 14 | 0.907 | 4.45 → 4.69 |
+| Jev | ja | 51 | 85.9 → 85.7 | −0.12 | 1.02 | −2 to +3 | 16 | 0.965 | |
+| Nimble | en | 51 | 92.9 → 93.6 | +0.69 | 1.20 | −4 to +4 | 15 | 0.884 | 1.37 → 2.10 |
+| Nimble | ja | 51 | 91.5 → 91.5 | −0.04 | 0.86 | −3 to +3 | 21 | 0.892 | |
+| OpenAI | en | 51 | 92.7 → 92.8 | +0.06 | 0.92 | −2 to +3 | 20 | 0.950 | 4.47 → 5.27 |
+| OpenAI | ja | 51 | 88.3 → 87.5 | −0.75 | 1.41 | −4 to +3 | 11 | 0.959 | |
+| Ternary | en | 51 | 92.0 → 91.8 | −0.20 | 1.18 | −4 to +3 | 12 | 0.924 | 5.37 → 5.94 |
+| Ternary | ja | 51 | 86.6 → 85.9 | −0.76 | 1.43 | −4 to +3 | 9 | 0.954 | |
+
+- **The level is unchanged**: no judge's mean moves by more than 0.8 points,
+  and a run moves by about 1 point on average, as many runs gaining as
+  losing.
+- **The ranking mostly holds**: Spearman's ρ is 0.9 or above for Jev, OpenAI
+  and Ternary. It is lower for qwen in English (0.84) and for Nimble
+  (0.88–0.89), whose top runs are bunched at 93–100, where a 1–2 point move
+  swaps places.
+- **Japanese slightly stricter under OpenAI and Ternary**: their Japanese mean
+  drops by about 0.75 points, widening the en − ja gap by 0.6–0.8 points. The
+  Nimble gap widens by a similar amount from an English gain instead.
+- **Hybrid8** (3 runs per judge, not in the table) moves by at most 3 points
+  and is too few runs to read a direction from.
+
+A fix of details alone is therefore not worth a re-grade; see
+[LESSONS.md](../LESSONS.md#after-answering-fix-only-real-errors).
+
 ## Caveats
 
 - **One run of one model**: each verdict is a single request. The checker is

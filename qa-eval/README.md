@@ -163,6 +163,12 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 * **Slower Than Decisions:** 5 output tokens and no reasoning tokens per request, but ~1.41 s per decision, about five times the Decisions API; the 1,500 questions fit in the free tier.
 * **Stricter at the Bottom:** 968 correct (64.5%), fewer than Decisions (1,000), the most *incorrect* verdicts of all judges (189), and the largest Japanese drop (−0.045; Ceiling 0.950 EN → 0.920 JA).
 
+### Gold Answers — [gold-check/README.md](gold-check/README.md) & [LESSONS.md](LESSONS.md)
+
+* **Checked Against Both Texts:** Each gold answer is split into claims (230 for the 50 questions) and checked against the cited chapters in English and Japanese. The Japanese text lacks no event a gold answer asks for; the six claims it misses are words the two translations render differently.
+* **Details Barely Move the Scores:** Fixing the details of 19 gold answers and re-grading them with all five judges moved no judge's per-model Ceiling mean by more than 0.8 points, and the ranking mostly held. A fix of details alone is not worth the re-grade.
+* **Check Before Answering:** For a new evaluation, [LESSONS.md](LESSONS.md) lays out the whole flow of building the question set, with the check placed before the questions are frozen, when fixing is still free.
+
 ## Overall Conclusions and Practical Takeaways
 
 1. **Evaluation Collapses to Retrieval:** The `Ceiling` run proves that as long as the correct chapters are included in the context, the model can generate answers with high accuracy. Therefore, improving a QA system is almost entirely equivalent to improving retrieval recall.
