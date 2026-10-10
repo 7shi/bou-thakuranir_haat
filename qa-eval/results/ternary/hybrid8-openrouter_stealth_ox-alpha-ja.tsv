@@ -27,10 +27,10 @@ qid	correct	partial	incorrect	confidence
 26	1	0	0	
 27	0	1	0	
 28	1	0	0	
-29	0	1	0	
+29	1	0	0	
 30	1	0	0	
 31	1	0	0	
-32	0	0	1	
+32	0	1	0	
 33	1	0	0	
 34	0	1	0	
 35	1	0	0	
@@ -40,7 +40,7 @@ qid	correct	partial	incorrect	confidence
 39	1	0	0	
 40	1	0	0	
 41	1	0	0	
-42	1	0	0	
+42	0	1	0	
 43	1	0	0	
 44	1	0	0	
 45	1	0	0	
