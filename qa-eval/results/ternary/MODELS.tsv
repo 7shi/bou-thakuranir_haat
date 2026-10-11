@@ -101,6 +101,8 @@ ceiling-openrouter_stealth_ox-alpha-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_stealth_ox-alpha-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_stealth_space-bunny-alpha-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_stealth_space-bunny-alpha-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-strata_Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-strata_Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
 hybrid8-ollama_qwen3.8-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
 hybrid8-ollama_qwen3.8-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
 hybrid8-openrouter_stealth_ox-alpha-en.tsv	openai:gpt-6-luna	ternary@70c12cb1

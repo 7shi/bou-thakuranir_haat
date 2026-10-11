@@ -70,6 +70,7 @@ as "_").
 | `openrouter_poolside_laguna-xs-2.1_free` | ceiling | 81 (32/17/1) | 64 (21/22/7) |
 | `openrouter_stealth_ox-alpha` | ceiling | 98 (48/2/0) | 94 (44/6/0) |
 | `openrouter_stealth_space-bunny-alpha` | ceiling | 88 (38/12/0) | 80 (30/20/0) |
+| `strata_Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S` | ceiling | 95 (45/5/0) | 93 (43/7/0) |
 | `google_gemma-4-31b-it` | hybrid8 | 84 (36/12/2) | 83 (34/15/1) |
 | `ollama_qwen3.8` | hybrid8 | 92 (42/8/0) | 87 (39/9/2) |
 | `openrouter_stealth_ox-alpha` | hybrid8 | 95 (45/5/0) | 93 (43/7/0) |
@@ -134,6 +135,7 @@ language). A question absent from every column of a row was graded
 | `openrouter_poolside_laguna-xs-2.1_free` | ceiling | 26, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 43, 46, 47, 48 | 30 | 6, 7, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38, 40, 41, 42, 43, 46, 47, 48, 49, 50 | 12, 22, 25, 26, 34, 39, 44 |
 | `openrouter_stealth_ox-alpha` | ceiling | 32, 37 | — | 32, 33, 34, 35, 42, 46 | — |
 | `openrouter_stealth_space-bunny-alpha` | ceiling | 6, 28, 30, 31, 32, 34, 35, 37, 41, 42, 45, 46 | — | 5, 26, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 50 | — |
+| `strata_Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S` | ceiling | 6, 35, 36, 37, 46 | — | 27, 34, 42, 43, 46, 47, 48 | — |
 | `google_gemma-4-31b-it` | hybrid8 | 26, 30, 31, 32, 36, 37, 38, 39, 42, 46, 48, 50 | 17, 29 | 27, 30, 31, 32, 34, 35, 36, 37, 39, 41, 42, 43, 46, 47, 48 | 29 |
 | `ollama_qwen3.8` | hybrid8 | 26, 31, 32, 34, 36, 37, 42, 50 | — | 27, 30, 32, 35, 36, 43, 46, 47, 50 | 29, 42 |
 | `openrouter_stealth_ox-alpha` | hybrid8 | 31, 32, 42, 46, 50 | — | 27, 32, 34, 36, 42, 46, 50 | — |

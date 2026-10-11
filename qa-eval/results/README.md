@@ -119,6 +119,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `ollama:muse-glimmer` (30B) | 95 (45/5/0) | 93 (43/7/0) |
 | `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 91 (41/9/0) | 86 (36/14/0) |
 | `llama.cpp:Underdog-Saluki-27B-1.0-IQ2-mix` | 89 (39/11/0) | 87 (37/13/0) |
+| `strata:Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S` | 95 (45/5/0) | 93 (43/7/0) |
 | `openai:gpt-6-astra` | 93 (43/7/0) | 89 (39/11/0) |
 | `openai:gpt-6.1-sol` | 95 (45/5/0) | 87 (37/13/0) |
 | `openai:gpt-6-sol` | 94 (44/6/0) | 90 (40/10/0) |
@@ -159,7 +160,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
 
 * **No model is perfect, and the top is compressed.** The best scores are 98
   in English (`qwen3.8`, `union-alpha`, `stealth/ox-alpha` and `minimax-m3`)
-  and 97 in Japanese (`muse-spark-1.3-contributor-free`). The 25 best
+  and 97 in Japanese (`muse-spark-1.3-contributor-free`). The 26 best
   English models lie within 93–98, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
@@ -168,7 +169,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   Japanese to 63 (`poolside/laguna-s-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 48 of the 52 models score lower in
+* **Japanese costs almost every model.** 49 of the 53 models score lower in
   Japanese; `copilot:gpt-5.6-luna` and `gemini-3.8-flash` score 1 point higher,
   and `muse-spark-1.2/1.3-contributor-free` score the same in both.
   The largest English-to-Japanese gaps are the 17 points of
@@ -185,6 +186,12 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   qwen3.8's 98/92, about 91% of the base in English and 95% in Japanese,
   level with `Ternary-Bonsai-2-27B-PTQ1_0` overall (2 points lower in
   English, 1 point higher in Japanese).
+* **`strata:Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S` is a separate, larger model,
+  not a quantization of the 27B**: Qwen 3.8 Flash Next 125B-A6B (MoE, 51B of
+  it n-gram embeddings), GSQ-RCO quantized to IQ3_S and run with Strata. It
+  scores 95/93 against qwen3.8's 98/92, 3 points lower in English and 1 point
+  higher in Japanese, and well above the two quantized 27B models in both
+  languages. Its scores are the same as `ollama:muse-glimmer`'s.
 * **Three models needed `NO_THINK=1` to produce a usable ceiling run.**
   `ollama:gemma4:12b-it-qat` stays on task in English without it (the English
   row above), but in Japanese its thinking trace sometimes loses track of the
