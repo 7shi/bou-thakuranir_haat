@@ -142,6 +142,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `openrouter:poolside/laguna-xs-2.1:free` | 81 (32/17/1) | 64 (21/22/7) |
 | `openrouter:poolside/laguna-s-2.1:free` | 80 (30/20/0) | 63 (21/21/8) |
 | `openrouter:cohere/north-mini-code:free` | 83 (34/15/1) | 67 (24/19/7) |
+| `openrouter:deepseek/deepseek-v4.1-flash` | 95 (45/5/0) | 86 (37/12/1) |
 | `openrouter:inclusionai/ling-3.0-flash-fin:free` | 90 (40/10/0) | 81 (32/17/1) |
 | `openrouter:minimax/minimax-m3:free` | 98 (48/2/0) | 91 (41/9/0) |
 | `openrouter:minimax/minimax-m2.7:free` | 87 (37/13/0) | 85 (35/15/0) |
@@ -160,7 +161,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
 
 * **No model is perfect, and the top is compressed.** The best scores are 98
   in English (`qwen3.8`, `union-alpha`, `stealth/ox-alpha` and `minimax-m3`)
-  and 97 in Japanese (`muse-spark-1.3-contributor-free`). The 26 best
+  and 97 in Japanese (`muse-spark-1.3-contributor-free`). The 27 best
   English models lie within 93–98, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
@@ -169,7 +170,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   Japanese to 63 (`poolside/laguna-s-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 49 of the 53 models score lower in
+* **Japanese costs almost every model.** 50 of the 54 models score lower in
   Japanese; `copilot:gpt-5.6-luna` and `gemini-3.8-flash` score 1 point higher,
   and `muse-spark-1.2/1.3-contributor-free` score the same in both.
   The largest English-to-Japanese gaps are the 17 points of

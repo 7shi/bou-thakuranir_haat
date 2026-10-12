@@ -81,6 +81,8 @@ ceiling-openrouter_apodex_apodex-1.1-mini_free-en.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-openrouter_apodex_apodex-1.1-mini_free-ja.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-openrouter_cohere_north-mini-code_free-en.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-openrouter_cohere_north-mini-code_free-ja.tsv	gpt-6-luna	choice@849ecf1c
+ceiling-openrouter_deepseek_deepseek-v4.1-flash-en.tsv	gpt-6-luna	choice@849ecf1c
+ceiling-openrouter_deepseek_deepseek-v4.1-flash-ja.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-openrouter_inclusionai_ling-3.0-flash-fin_free-en.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-openrouter_inclusionai_ling-3.0-flash-fin_free-ja.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-openrouter_minimax_minimax-m2.7_free-en.tsv	gpt-6-luna	choice@849ecf1c
