@@ -132,6 +132,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `opencode:union-alpha` | 98 (48/2/0) | 94 (44/6/0) |
 | `opencode:ling-3.1-flash-free` | 95 (45/5/0) | 90 (40/10/0) |
 | `opencode:fledge-alpha-free` | 94 (44/6/0) | 90 (40/10/0) |
+| `opencode:step-5-preview-free` | 93 (43/7/0) | 89 (40/9/1) |
 | `opencode:longcat-2.5-preview-free` | 94 (44/6/0) | 86 (37/12/1) |
 | `opencode:mimo-v2.6-flash-free` | 95 (45/5/0) | 87 (39/9/2) |
 | `opencode:mimo-v2.5-free` | 94 (44/6/0) | 88 (39/10/1) |
@@ -161,7 +162,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
 
 * **No model is perfect, and the top is compressed.** The best scores are 98
   in English (`qwen3.8`, `union-alpha`, `stealth/ox-alpha` and `minimax-m3`)
-  and 97 in Japanese (`muse-spark-1.3-contributor-free`). The 27 best
+  and 97 in Japanese (`muse-spark-1.3-contributor-free`). The 28 best
   English models lie within 93–98, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
@@ -170,7 +171,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   Japanese to 63 (`poolside/laguna-s-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 50 of the 54 models score lower in
+* **Japanese costs almost every model.** 51 of the 55 models score lower in
   Japanese; `copilot:gpt-5.6-luna` and `gemini-3.8-flash` score 1 point higher,
   and `muse-spark-1.2/1.3-contributor-free` score the same in both.
   The largest English-to-Japanese gaps are the 17 points of
