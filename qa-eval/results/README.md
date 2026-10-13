@@ -127,6 +127,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `openai:gpt-6-luna` | 91 (41/9/0) | 88 (38/12/0) |
 | `openai:gpt-5.6-luna` | 92 (42/8/0) | 89 (39/11/0) |
 | `openai:gpt-5.6-terra` | 94 (44/6/0) | 89 (39/11/0) |
+| `opencode:glm-5.3` | 99 (49/1/0) | 96 (46/4/0) |
 | `opencode:muse-spark-1.3-contributor-free` | 97 (47/3/0) | 97 (47/3/0) |
 | `opencode:muse-spark-1.2-contributor-free` | 96 (46/4/0) | 96 (46/4/0) |
 | `opencode:union-alpha` | 98 (48/2/0) | 94 (44/6/0) |
@@ -160,10 +161,11 @@ The `opencode:*` rows are produced by a separate pipeline that drives the
 `opencode` coding-agent CLI instead of the llm7shi-based `answer_ceiling.py`
 used for every other row — see [opencode/README.md](../opencode/README.md).)
 
-* **No model is perfect, and the top is compressed.** The best scores are 98
-  in English (`qwen3.8`, `union-alpha`, `stealth/ox-alpha` and `minimax-m3`)
-  and 97 in Japanese (`muse-spark-1.3-contributor-free`). The 28 best
-  English models lie within 93–98, and one
+* **No model is perfect, and the top is compressed.** The best scores are 99
+  in English (`glm-5.3`, followed by `qwen3.8`, `union-alpha`,
+  `stealth/ox-alpha` and `minimax-m3` at 98) and 97 in Japanese
+  (`muse-spark-1.3-contributor-free`). The 29 best
+  English models lie within 93–99, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
   grading noise. [JEV.md](JEV.md)'s expected score E is the finer tiebreaker.
@@ -171,7 +173,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   Japanese to 63 (`poolside/laguna-s-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 51 of the 55 models score lower in
+* **Japanese costs almost every model.** 52 of the 56 models score lower in
   Japanese; `copilot:gpt-5.6-luna` and `gemini-3.8-flash` score 1 point higher,
   and `muse-spark-1.2/1.3-contributor-free` score the same in both.
   The largest English-to-Japanese gaps are the 17 points of

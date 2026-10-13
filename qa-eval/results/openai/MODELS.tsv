@@ -63,6 +63,8 @@ ceiling-opencode_big-pickle-en.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-opencode_big-pickle-ja.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-opencode_fledge-alpha-free-en.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-opencode_fledge-alpha-free-ja.tsv	gpt-6-luna	choice@849ecf1c
+ceiling-opencode_glm-5.3-en.tsv	gpt-6-luna	choice@849ecf1c
+ceiling-opencode_glm-5.3-ja.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-opencode_ling-3.1-flash-free-en.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-opencode_ling-3.1-flash-free-ja.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-opencode_longcat-2.5-preview-free-en.tsv	gpt-6-luna	choice@849ecf1c
