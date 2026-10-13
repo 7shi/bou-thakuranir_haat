@@ -10,6 +10,10 @@ question's gold chapter file(s), and tees the output to
 tmp/<model-name>-<lang>/<NN>.txt (NN = 1-origin question number, zero-padded;
 the model directory drops any "<provider>/" prefix from --model and carries a
 "-<lang>" suffix so different languages don't collide in the same directory).
+The model string handed to build_jsonl.py likewise replaces whatever provider
+prefix --model carries with "opencode/", so the results file is always
+ceiling-opencode_<model-name>-<lang>.jsonl regardless of the provider (e.g.
+zai-coding-plan/glm-5.3 -> ceiling-opencode_glm-5.3-<lang>.jsonl).
 
 With --copilot, it runs the `copilot` CLI instead:
 `copilot --model <model> --add-dir <lang> -s -p "@<lang>/<NN>.txt ... <question>"`
@@ -109,7 +113,7 @@ def main():
     questions = load_questions(input_path)
     total = len(questions)
     model_dir = args.model.split("/", 1)[-1]
-    build_jsonl_model = args.model
+    build_jsonl_model = f"opencode/{model_dir}"
     if args.copilot:
         model_dir = f"copilot_{model_dir}"
         build_jsonl_model = model_dir
