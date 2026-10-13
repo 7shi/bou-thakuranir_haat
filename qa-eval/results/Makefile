@@ -28,6 +28,7 @@
 #   make report-nimble                    # the same over nimble/*.tsv → report-nimble.md + MODELS-nimble.svg
 #   make report-openai                    # the same over openai/*.tsv → report-openai.md + MODELS-openai.svg
 #   make report-ternary                   # the same over ternary/*.tsv → report-ternary.md + MODELS-ternary.svg
+#   make report-all                       # report + every report-<dir> above
 #
 #   MODEL     — llm7shi model string of the answerer (e.g. google:gemini-4-31b-it)
 #   LANG      — en | ja
@@ -76,7 +77,7 @@ SAFE_MODEL := $(subst /,_,$(subst :,_,$(MODEL)))
 HYBRID_ANSWER := hybrid$(K)-$(SAFE_MODEL)-$(LANG).jsonl
 CEILING_ANSWER := ceiling-$(SAFE_MODEL)-$(LANG).jsonl
 
-.PHONY: help check-args hybrid8 ceiling test judge judge-jev judge-nimble judge-openai judge-ternary report report-jev report-nimble report-openai report-ternary
+.PHONY: help check-args hybrid8 ceiling test judge judge-jev judge-nimble judge-openai judge-ternary report report-jev report-nimble report-openai report-ternary report-all
 .DEFAULT_GOAL := help
 
 help:
@@ -93,6 +94,7 @@ help:
 	@echo "       make report-nimble"
 	@echo "       make report-openai"
 	@echo "       make report-ternary"
+	@echo "       make report-all"
 
 # Shared guard for the answering targets, which all need MODEL and LANG. The
 # usage line names the goal actually invoked, so the message stays accurate for
@@ -195,3 +197,7 @@ report:
 $(addprefix report-,$(TSV_JUDGES)): report-%:
 	cd $(ROOT) && uv run results/report.py --$*
 	uv run generate_chart.py --$*
+
+# Every report above in one go: the qwen report.md plus one report-<dir> per
+# TSV judge.
+report-all: report $(addprefix report-,$(TSV_JUDGES))
