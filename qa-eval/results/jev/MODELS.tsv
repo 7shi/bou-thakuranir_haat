@@ -25,6 +25,8 @@ ceiling-google_gemini-3.7-flash-en.tsv	jev-1.13.0	choice@19579e23
 ceiling-google_gemini-3.7-flash-ja.tsv	jev-1.13.0	choice@19579e23
 ceiling-google_gemini-3.8-flash-en.tsv	jev-1.13.0	choice@19579e23
 ceiling-google_gemini-3.8-flash-ja.tsv	jev-1.13.0	choice@19579e23
+ceiling-google_gemini-4-argon-en.tsv	jev-1.13.0	choice@19579e23
+ceiling-google_gemini-4-argon-ja.tsv	jev-1.13.0	choice@19579e23
 ceiling-google_gemma-4-26b-a4b-it-en.tsv	jev-1.13.0	choice@19579e23
 ceiling-google_gemma-4-26b-a4b-it-ja.tsv	jev-1.13.0	choice@19579e23
 ceiling-llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0-en.tsv	jev-1.13.0	choice@19579e23

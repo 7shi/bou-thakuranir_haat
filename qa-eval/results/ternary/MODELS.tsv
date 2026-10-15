@@ -25,6 +25,8 @@ ceiling-google_gemini-3.7-flash-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-google_gemini-3.7-flash-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-google_gemini-3.8-flash-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-google_gemini-3.8-flash-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-google_gemini-4-argon-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-google_gemini-4-argon-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-google_gemma-4-26b-a4b-it-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-google_gemma-4-26b-a4b-it-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0-en.tsv	openai:gpt-6-luna	ternary@70c12cb1

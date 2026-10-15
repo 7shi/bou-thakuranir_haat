@@ -25,6 +25,8 @@ ceiling-google_gemini-3.7-flash-en.tsv	nimble	choice@19579e23
 ceiling-google_gemini-3.7-flash-ja.tsv	nimble	choice@19579e23
 ceiling-google_gemini-3.8-flash-en.tsv	nimble	choice@19579e23
 ceiling-google_gemini-3.8-flash-ja.tsv	nimble	choice@19579e23
+ceiling-google_gemini-4-argon-en.tsv	nimble	choice@19579e23
+ceiling-google_gemini-4-argon-ja.tsv	nimble	choice@19579e23
 ceiling-google_gemma-4-26b-a4b-it-en.tsv	nimble	choice@19579e23
 ceiling-google_gemma-4-26b-a4b-it-ja.tsv	nimble	choice@19579e23
 ceiling-llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0-en.tsv	nimble	choice@19579e23
