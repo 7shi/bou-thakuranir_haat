@@ -110,8 +110,8 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `google:gemini-3.7-flash` | 89 (40/9/1) | 88 (39/10/1) |
 | `google:gemini-3.5-flash-lite` | 81 (35/11/4) | 77 (32/13/5) |
 | `google:gemma-4-31b-it` | 93 (43/7/0) | 90 (40/10/0) |
-| `ollama:gemma4:26b-a4b-it-qat` | 86 (37/12/1) | 81 (31/19/0) |
 | `google:gemma-4-26b-a4b-it` | 86 (37/12/1) | 84 (35/14/1) |
+| `ollama:gemma4:26b-a4b-it-qat` | 86 (37/12/1) | 81 (31/19/0) |
 | `ollama:gemma4:12b-it-qat` | 76 (30/16/4) | 72 (27/18/5) |
 | `ollama:qwen3.8` (27B) | 98 (48/2/0) | 92 (43/6/1) |
 | `ollama:qwen3.6` (35B-A3B) | 90 (40/10/0) | 86 (36/14/0) |
