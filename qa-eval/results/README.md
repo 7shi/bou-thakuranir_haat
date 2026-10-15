@@ -95,8 +95,8 @@ roughly by performance (not a strict mechanical sort on any single column).
 
 | Model | English | Japanese |
 | --- | --- | --- |
-| `copilot:grok-4.5` | 95 (45/5/0) | 94 (44/6/0) |
 | `copilot:grok-4.6` | 93 (43/7/0) | 90 (40/10/0) |
+| `copilot:grok-4.5` | 95 (45/5/0) | 94 (44/6/0) |
 | `copilot:kimi-k3` | 96 (46/4/0) | 94 (44/6/0) |
 | `copilot:kimi-k2.7-code` | 95 (45/5/0) | 92 (42/8/0) |
 | `copilot:gpt-5.6-luna` | 87 (37/13/0) | 88 (39/10/1) |
@@ -104,20 +104,20 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `copilot:claude-haiku-4.5` | 88 (38/12/0) | 86 (36/14/0) |
 | `copilot:mai-code-1.1-flash` | 89 (39/11/0) | 84 (35/14/1) |
 | `google:gemini-4-argon` | 96 (46/4/0) | 92 (42/8/0) |
-| `google:gemini-3-flash-preview` | 94 (44/6/0) | 91 (41/9/0) |
 | `google:gemini-3.8-flash` | 89 (40/9/1) | 90 (41/8/1) |
-| `google:gemini-2.5-flash` | 87 (38/11/1) | 86 (36/14/0) |
 | `google:gemini-3.7-flash` | 89 (40/9/1) | 88 (39/10/1) |
+| `google:gemini-3-flash-preview` | 94 (44/6/0) | 91 (41/9/0) |
+| `google:gemini-2.5-flash` | 87 (38/11/1) | 86 (36/14/0) |
 | `google:gemini-3.5-flash-lite` | 81 (35/11/4) | 77 (32/13/5) |
 | `google:gemma-4-31b-it` | 93 (43/7/0) | 90 (40/10/0) |
 | `google:gemma-4-26b-a4b-it` | 86 (37/12/1) | 84 (35/14/1) |
 | `ollama:gemma4:26b-a4b-it-qat` | 86 (37/12/1) | 81 (31/19/0) |
 | `ollama:gemma4:12b-it-qat` | 76 (30/16/4) | 72 (27/18/5) |
+| `ollama:muse-glimmer` (30B) | 95 (45/5/0) | 93 (43/7/0) |
 | `ollama:qwen3.8` (27B) | 98 (48/2/0) | 92 (43/6/1) |
 | `ollama:qwen3.6` (35B-A3B) | 90 (40/10/0) | 86 (36/14/0) |
 | `ollama:qwen3.5:9b` | 78 (30/18/2) | 73 (26/21/3) |
 | `ollama:qwen3.5:4b` | 72 (24/24/2) | 67 (24/19/7) |
-| `ollama:muse-glimmer` (30B) | 95 (45/5/0) | 93 (43/7/0) |
 | `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 91 (41/9/0) | 86 (36/14/0) |
 | `llama.cpp:Underdog-Saluki-27B-1.0-IQ2-mix` | 89 (39/11/0) | 87 (37/13/0) |
 | `strata:Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S` | 95 (45/5/0) | 93 (43/7/0) |
