@@ -139,6 +139,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `opencode:mimo-v2.6-flash-free` | 95 (45/5/0) | 87 (39/9/2) |
 | `opencode:mimo-v2.5-free` | 94 (44/6/0) | 88 (39/10/1) |
 | `opencode:big-pickle` | 91 (41/9/0) | 87 (37/13/0) |
+| `opencode:cat-jam-free` | 69 (25/19/6) | 67 (25/17/8) |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (48/2/0) | 94 (44/6/0) |
 | `openrouter:stealth/space-bunny-alpha` | 88 (38/12/0) | 80 (30/20/0) |
 | `openrouter:apodex/apodex-1.1-mini:free` | 94 (44/6/0) | 89 (39/11/0) |
@@ -170,11 +171,11 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
   grading noise. [JEV.md](JEV.md)'s expected score E is the finer tiebreaker.
-* **The floor sits far below.** English goes down to 72 (`qwen3.5:4b`) and
+* **The floor sits far below.** English goes down to 69 (`cat-jam-free`) and
   Japanese to 63 (`poolside/laguna-s-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 53 of the 57 models score lower in
+* **Japanese costs almost every model.** 54 of the 58 models score lower in
   Japanese; `copilot:gpt-5.6-luna` and `gemini-3.8-flash` score 1 point higher,
   and `muse-spark-1.2/1.3-contributor-free` score the same in both.
   The largest English-to-Japanese gaps are the 17 points of

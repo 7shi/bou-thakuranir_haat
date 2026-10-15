@@ -51,6 +51,7 @@ as "_").
 | `openai_gpt-6-sol` | ceiling | 96 (46/4/0) | 90 (40/10/0) |
 | `openai_gpt-6.1-sol` | ceiling | 97 (47/3/0) | 93 (43/7/0) |
 | `opencode_big-pickle` | ceiling | 93 (43/7/0) | 88 (38/12/0) |
+| `opencode_cat-jam-free` | ceiling | 64 (25/14/11) | 64 (25/14/11) |
 | `opencode_fledge-alpha-free` | ceiling | 95 (45/5/0) | 89 (39/11/0) |
 | `opencode_glm-5.3` | ceiling | 99 (49/1/0) | 96 (46/4/0) |
 | `opencode_ling-3.1-flash-free` | ceiling | 97 (47/3/0) | 95 (45/5/0) |
@@ -120,6 +121,7 @@ language). A question absent from every column of a row was graded
 | `openai_gpt-6-sol` | ceiling | 34, 35, 46, 47 | — | 34, 35, 37, 38, 39, 40, 43, 44, 46, 50 | — |
 | `openai_gpt-6.1-sol` | ceiling | 32, 41, 46 | — | 32, 35, 38, 40, 41, 46, 47 | — |
 | `opencode_big-pickle` | ceiling | 29, 32, 34, 36, 40, 46, 48 | — | 26, 27, 32, 36, 37, 38, 40, 42, 43, 46, 47, 48 | — |
+| `opencode_cat-jam-free` | ceiling | 26, 27, 28, 31, 32, 33, 37, 40, 43, 44, 45, 47, 49, 50 | 29, 30, 34, 35, 36, 38, 39, 41, 42, 46, 48 | 26, 27, 28, 33, 36, 38, 40, 41, 43, 44, 45, 46, 49, 50 | 29, 30, 31, 32, 34, 35, 37, 39, 42, 47, 48 |
 | `opencode_fledge-alpha-free` | ceiling | 34, 36, 37, 46, 47 | — | 27, 30, 32, 33, 35, 37, 38, 39, 43, 46, 47 | — |
 | `opencode_glm-5.3` | ceiling | 33 | — | 33, 42, 46, 49 | — |
 | `opencode_ling-3.1-flash-free` | ceiling | 34, 35, 46 | — | 6, 26, 32, 40, 46 | — |
