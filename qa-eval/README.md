@@ -143,6 +143,7 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 * **Separates the Top:** On six Ceiling models (EN), the three that qwen scores 100 drop to 93–96 under Jev, and the gap to qwen3.6 (88) widens.
 * **Choice Over Noul:** A yes/no Noul with thresholds reproduces the Choice only at an upper threshold of about 0.8 (292/300 identical verdicts), so the Choice is kept, with no threshold to tune.
 * **Re-grading `results-<lang>/`:** Every method but one scores 0.02–0.10 lower under Jev (Japanese GraphRAG global scores 0.02 higher), almost entirely qwen *correct* → Jev *partial* on multi-part cross questions; single questions are essentially unchanged. Ceiling falls to 0.930 (EN) / 0.900 (JA), and Hybrid and Filter3 end within one question of each other at the top. The results above keep the qwen verdicts.
+* **`jev-1.14.0` ([JEV-1.14.md](JEV-1.14.md)):** Now the default. It agrees with 1.13.0 on 95–97% of the verdicts, flipping *correct* ↔ *partial* in both directions (more lenient in English, slightly stricter in Japanese), so every method moves by at most 0.03 and the conclusions above stand. The 1.13.0 verdicts are kept in `jev-1.13.0/`.
 
 ### Nimble as a Local Judge — [NIMBLE.md](NIMBLE.md)
 
