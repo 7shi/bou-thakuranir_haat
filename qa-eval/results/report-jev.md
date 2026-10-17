@@ -76,6 +76,8 @@ as "_").
 | `openrouter_poolside_laguna-xs-2.1_free` | ceiling | 79 (30/19/1) | 64 (21/22/7) |
 | `openrouter_stealth_ox-alpha` | ceiling | 98 (48/2/0) | 96 (46/4/0) |
 | `openrouter_stealth_space-bunny-alpha` | ceiling | 88 (38/12/0) | 80 (30/20/0) |
+| `sarashina_sarashina3-mini` | ceiling | 76 (26/24/0) | 70 (25/20/5) |
+| `sarashina_sarashina3-nano` | ceiling | 64 (19/26/5) | 68 (22/24/4) |
 | `strata_Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S` | ceiling | 96 (46/4/0) | 95 (45/5/0) |
 | `google_gemma-4-31b-it` | hybrid8 | 87 (39/9/2) | 81 (32/17/1) |
 | `ollama_qwen3.8` | hybrid8 | 92 (42/8/0) | 87 (39/9/2) |
@@ -147,6 +149,8 @@ language). A question absent from every column of a row was graded
 | `openrouter_poolside_laguna-xs-2.1_free` | ceiling | 26, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 43, 44, 46, 47, 48 | 30 | 6, 7, 22, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38, 40, 41, 42, 43, 46, 47, 48, 49, 50 | 12, 25, 26, 27, 34, 39, 44 |
 | `openrouter_stealth_ox-alpha` | ceiling | 32, 37 | — | 32, 34, 35, 42 | — |
 | `openrouter_stealth_space-bunny-alpha` | ceiling | 6, 28, 30, 31, 32, 34, 35, 37, 41, 42, 45, 46 | — | 5, 26, 27, 28, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 46, 47, 50 | — |
+| `sarashina_sarashina3-mini` | ceiling | 22, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 45, 46, 47, 48, 50 | — | 7, 26, 27, 31, 33, 34, 35, 36, 37, 38, 39, 40, 43, 44, 45, 46, 47, 48, 49, 50 | 2, 22, 28, 29, 42 |
+| `sarashina_sarashina3-nano` | ceiling | 4, 6, 23, 26, 27, 28, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50 | 12, 21, 22, 33, 34 | 4, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 43, 44, 46, 47, 48, 49, 50 | 12, 14, 22, 42 |
 | `strata_Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S` | ceiling | 6, 36, 46, 50 | — | 31, 34, 42, 46, 48 | — |
 | `google_gemma-4-31b-it` | hybrid8 | 26, 31, 32, 36, 37, 42, 46, 48, 50 | 17, 29 | 27, 30, 31, 32, 34, 35, 36, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49 | 29 |
 | `ollama_qwen3.8` | hybrid8 | 26, 31, 32, 34, 36, 37, 42, 50 | — | 27, 30, 32, 35, 36, 37, 46, 47, 50 | 29, 42 |

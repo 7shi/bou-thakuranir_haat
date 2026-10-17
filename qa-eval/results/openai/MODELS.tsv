@@ -113,6 +113,10 @@ ceiling-openrouter_stealth_ox-alpha-en.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-openrouter_stealth_ox-alpha-ja.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-openrouter_stealth_space-bunny-alpha-en.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-openrouter_stealth_space-bunny-alpha-ja.tsv	gpt-6-luna	choice@849ecf1c
+ceiling-sarashina_sarashina3-mini-en.tsv	gpt-6-luna	choice@849ecf1c
+ceiling-sarashina_sarashina3-mini-ja.tsv	gpt-6-luna	choice@849ecf1c
+ceiling-sarashina_sarashina3-nano-en.tsv	gpt-6-luna	choice@849ecf1c
+ceiling-sarashina_sarashina3-nano-ja.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-strata_Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-en.tsv	gpt-6-luna	choice@849ecf1c
 ceiling-strata_Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-ja.tsv	gpt-6-luna	choice@849ecf1c
 hybrid8-ollama_qwen3.8-en.tsv	gpt-6-luna	choice@849ecf1c

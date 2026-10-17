@@ -156,6 +156,8 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 94 (44/6/0) | 91 (41/9/0) |
 | `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 86 (36/14/0) | 85 (35/15/0) |
 | `openrouter:nvidia/nemotron-3.5-lightning:free` | 85 (35/15/0) | 77 (29/19/2) |
+| `sarashina:sarashina3-mini` | 76 (26/24/0) | 70 (25/20/5) |
+| `sarashina:sarashina3-nano` | 64 (19/26/5) | 68 (22/24/4) |
 
 (Weighted score `(correct + 0.5×partial) / n`, as an integer percentage rounded
 down, then correct/partial/incorrect out of 50 in parentheses. The
@@ -174,13 +176,14 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
   grading noise. [JEV.md](JEV.md)'s expected score E is the finer tiebreaker.
-* **The floor sits far below.** English goes down to 66 (`cat-jam-free`) and
+* **The floor sits far below.** English goes down to 64 (`sarashina3-nano`) and
   Japanese to 64 (`qwen3.5:4b`, `cat-jam-free` and both
   `poolside/laguna-*-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 58 of the 59 models score lower in
-  Japanese; only `gemini-3.8-flash` scores 1 point higher.
+* **Japanese costs almost every model.** 59 of the 61 models score lower in
+  Japanese; only `sarashina3-nano` (4 points) and `gemini-3.8-flash` (1 point)
+  score higher.
   The largest English-to-Japanese gaps are the 18 points of
   `cohere/north-mini-code:free`, then `poolside/laguna-s-2.1:free`'s 16 and
   `poolside/laguna-xs-2.1:free`'s 15.
