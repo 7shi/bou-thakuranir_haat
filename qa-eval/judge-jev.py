@@ -22,12 +22,13 @@ Resume-safe: skips qids already present in the output file.
 
 What produced a file is recorded once per file, not per row, in jev/MODELS.tsv:
 
-  file<TAB>model<TAB>scheme      e.g. vector5.tsv  jev-1.13.0  choice@1a2b3c4d
+  file<TAB>model<TAB>scheme      e.g. vector5.tsv  jev-1.14.0  choice@1a2b3c4d
 
 `model` is the Jev version that answered; `scheme` is SCHEME_ID, a hash of
 everything sent besides the per-question text (see scheme_id()). A file whose
 recorded model or scheme differs from the current one stops the run, so a
-resumed file never mixes versions or wordings.
+resumed file never mixes versions or wordings. Verdicts of an earlier default
+version are kept frozen in jev-<version>/ beside jev/ (e.g. jev-1.13.0/).
 
 Token usage: each question's usage is printed, and per-file and run totals are
 printed at the end. Jev is a paid API, so the run total is always appended to
@@ -50,7 +51,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # A version, not the `jev-latest` alias, so a model release cannot silently
 # make later runs incomparable with the ones already on disk.
-DEFAULT_MODEL = "jev-1.13.0"
+DEFAULT_MODEL = "jev-1.14.0"
 
 VERDICTS = ["correct", "partial", "incorrect"]
 

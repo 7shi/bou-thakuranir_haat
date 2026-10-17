@@ -6,7 +6,8 @@ comparison table to the terminal (methods as rows). Two independent axes:
 
 1. Answer accuracy (from results-<lang>/judge/<method>.jsonl, or with --jev /
    --nimble / --openai / --ternary from
-   results-<lang>/<jev|nimble|openai|ternary>/<method>.tsv,
+   results-<lang>/<jev|nimble|openai|ternary>/<method>.tsv, or with
+   --tsv-dir from any such directory (e.g. the archived jev-1.13.0),
    taking each question's most probable
    verdict, the stricter one on a tie): raw correct / partial /
    incorrect counts plus a weighted score = (correct + 0.5*partial) / total.
@@ -407,6 +408,9 @@ def main():
         group.add_argument(f"--{name}", dest="tsv_dir", action="store_const", const=name,
                            help=f"read judge-{name}.py verdicts ({name}/<stem>.tsv, most "
                                 f"probable verdict) instead of judge/<stem>.jsonl")
+    group.add_argument("--tsv-dir", dest="tsv_dir", metavar="DIR",
+                       help="the same from another TSV judge directory, e.g. jev-1.13.0 "
+                            "(an earlier Jev version's verdicts)")
     args = parser.parse_args()
 
     args.input = args.input or str(ROOT / f"questions-{args.lang}.jsonl")

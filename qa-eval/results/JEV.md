@@ -21,10 +21,11 @@ the Choice was adopted as the judge.
 ## Grading run
 
 Every answer file here was then graded by one `make judge-jev` run (see
-[Makefile](Makefile)), writing `jev/*.tsv`.
+[Makefile](Makefile)), writing `jev/*.tsv` (now kept in `jev-1.13.0/`, with the
+last [report-jev.md](jev-1.13.0/report-jev.md) and MODELS-jev.svg it produced).
 
 - Judge: [judge-jev.py](../judge-jev.py), `jev-1.13.0`, scheme `choice@19579e23`
-  (recorded for all 82 files in `jev/MODELS.tsv`)
+  (recorded for all 82 files in `jev-1.13.0/MODELS.tsv`)
 - Scope: 82 answer files (41 per language) × 50 questions = 4,100 requests,
   one `judge-jev.py` call per language
 - Wall time: 15m 7.5s (about 11.1 s per file of 50 questions, 0.22 s per

@@ -10,12 +10,12 @@ why a single Choice question: [jev/README.md](jev/README.md).
 ## Setup
 
 - Judge: [judge-jev.py](judge-jev.py), `jev-1.13.0`, scheme `choice@19579e23`
-  (both recorded per file in `results-<lang>/jev/MODELS.tsv`). Same inputs as
+  (both recorded per file in `results-<lang>/jev-1.13.0/MODELS.tsv`). Same inputs as
   `judge.py` — question, gold answer, rationale, candidate answer; no source
   text.
-- Output: `results-<lang>/jev/<method>.tsv`, the probabilities of correct /
+- Output: `results-<lang>/jev-1.13.0/<method>.tsv`, the probabilities of correct /
   partial / incorrect plus Jev's confidence.
-- Aggregation: `uv run report.py -l <lang> --jev`. Each question counts as its
+- Aggregation: `uv run report.py -l <lang> --tsv-dir jev-1.13.0`. Each question counts as its
   most probable verdict, the stricter one on a tie (three ties: en Extract Q41
   and ja Vector k=10 Q27, both 0.5/0.5 correct/partial → partial, and ja
   Filter3 Q32, 0.5/0.5 partial/incorrect → incorrect).
@@ -41,7 +41,7 @@ The Q7 and Q28 rows were graded in a second run: 30 requests per language
 (15 files × 2 questions), 21,717 input / 1,170 output tokens for English and
 27,559 / 1,170 for Japanese, about $0.002 at the same rate.
 
-Wall time, estimated from the creation time of `results-<lang>/jev/` (made just
+Wall time, estimated from the creation time of `results-<lang>/jev/` (now `jev-1.13.0/`, made just
 before the first request) to the last write in it (the final row of
 `vector5.tsv`, matching the `usage.jsonl` timestamp):
 
