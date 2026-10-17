@@ -8,6 +8,8 @@ differ only in the model. The 1.13.0 verdicts are kept frozen in
 and the last `results/report-jev.md` they produced is kept as
 [results/jev-1.13.0/report-jev.md](results/jev-1.13.0/report-jev.md).
 `uv run report.py -l <lang> --tsv-dir jev-1.13.0` aggregates the archive.
+The procedure and the reasons for this layout are in
+[jev/MIGRATION.md](jev/MIGRATION.md).
 
 ## Run
 

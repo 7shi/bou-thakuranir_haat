@@ -165,6 +165,8 @@ the Noul and `--debug`.
   this directory, in a subdirectory named after the input's directory.
   Requires `TYPESAFE_API_KEY`.
 - [analyze.py](analyze.py) — prints the tables above from the logs.
+- [MIGRATION.md](MIGRATION.md) — how the production judge moves to a new Jev
+  version while keeping the old verdicts.
 - [results-en/](results-en/), [results/](results/) — `--debug` logs.
 
 Reproduce (from `qa-eval/`):
