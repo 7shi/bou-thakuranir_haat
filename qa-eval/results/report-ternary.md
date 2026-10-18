@@ -75,6 +75,7 @@ as "_").
 | `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 86 (36/14/0) | 76 (29/18/3) |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 84 (34/16/0) | 59 (19/21/10) |
 | `openrouter_poolside_laguna-xs-2.1_free` | ceiling | 79 (31/17/2) | 59 (21/17/12) |
+| `openrouter_reflection_beam-1.0-501b-a23b` | ceiling | 96 (46/4/0) | 88 (39/10/1) |
 | `openrouter_stealth_ox-alpha` | ceiling | 100 (50/0/0) | 97 (47/3/0) |
 | `openrouter_stealth_space-bunny-alpha` | ceiling | 90 (40/10/0) | 78 (28/22/0) |
 | `sarashina_sarashina3-mini` | ceiling | 80 (30/20/0) | 67 (23/21/6) |
@@ -149,6 +150,7 @@ language). A question absent from every column of a row was graded
 | `openrouter_nvidia_nemotron-3.5-lightning_free` | ceiling | 6, 28, 29, 30, 31, 34, 35, 36, 37, 39, 42, 44, 46, 49 | — | 6, 18, 26, 27, 32, 33, 34, 35, 36, 37, 38, 40, 43, 46, 47, 48, 49, 50 | 28, 29, 45 |
 | `openrouter_poolside_laguna-s-2.1_free` | ceiling | 26, 28, 31, 33, 34, 35, 36, 37, 38, 43, 44, 45, 46, 47, 48, 50 | — | 18, 26, 27, 28, 29, 30, 31, 33, 36, 37, 38, 39, 40, 41, 43, 44, 46, 47, 48, 49, 50 | 2, 4, 8, 12, 22, 32, 34, 35, 42, 45 |
 | `openrouter_poolside_laguna-xs-2.1_free` | ceiling | 26, 27, 28, 29, 31, 32, 33, 35, 36, 37, 40, 41, 43, 44, 46, 47, 48 | 30, 38 | 6, 28, 29, 30, 31, 32, 33, 36, 37, 38, 40, 41, 42, 47, 48, 49, 50 | 7, 12, 22, 25, 26, 27, 34, 35, 39, 43, 44, 46 |
+| `openrouter_reflection_beam-1.0-501b-a23b` | ceiling | 31, 34, 36, 39 | — | 27, 30, 31, 35, 36, 40, 42, 46, 47, 48 | 29 |
 | `openrouter_stealth_ox-alpha` | ceiling | — | — | 32, 34, 40 | — |
 | `openrouter_stealth_space-bunny-alpha` | ceiling | 6, 26, 28, 31, 34, 35, 42, 44, 45, 49 | — | 5, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 50 | — |
 | `sarashina_sarashina3-mini` | ceiling | 22, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 38, 40, 43, 46, 47, 48, 49, 50 | — | 18, 22, 26, 27, 31, 32, 33, 34, 35, 36, 37, 40, 41, 43, 44, 45, 46, 47, 48, 49, 50 | 2, 7, 28, 29, 38, 42 |

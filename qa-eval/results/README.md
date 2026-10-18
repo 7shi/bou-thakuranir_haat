@@ -157,6 +157,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 94 (44/6/0) | 91 (41/9/0) |
 | `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 86 (36/14/0) | 85 (35/15/0) |
 | `openrouter:nvidia/nemotron-3.5-lightning:free` | 85 (35/15/0) | 77 (29/19/2) |
+| `openrouter:reflection/beam-1.0-501b-a23b` | 96 (46/4/0) | 89 (40/9/1) |
 | `sarashina:sarashina3-mini` | 76 (26/24/0) | 70 (25/20/5) |
 | `sarashina:sarashina3-nano` | 64 (19/26/5) | 68 (22/24/4) |
 
@@ -172,7 +173,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
 * **No model is perfect, and the top is compressed.** The best scores are 99
   in English (`muse-spark-1.3-contributor-free`, followed by `glm-5.3`,
   `muse-spark-1.2-contributor-free` and `stealth/ox-alpha` at 98) and 97 in
-  Japanese (`muse-spark-1.3/1.2-contributor-free`). The 32 best
+  Japanese (`muse-spark-1.3/1.2-contributor-free`). The 33 best
   English models lie within 93–99, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
@@ -182,7 +183,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   `poolside/laguna-*-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 60 of the 62 models score lower in
+* **Japanese costs almost every model.** 61 of the 63 models score lower in
   Japanese; only `sarashina3-nano` (4 points) and `gemini-3.8-flash` (1 point)
   score higher.
   The largest English-to-Japanese gaps are the 18 points of

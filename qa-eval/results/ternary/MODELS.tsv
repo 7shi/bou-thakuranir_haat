@@ -111,6 +111,8 @@ ceiling-openrouter_poolside_laguna-s-2.1_free-en.tsv	openai:gpt-6-luna	ternary@7
 ceiling-openrouter_poolside_laguna-s-2.1_free-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_poolside_laguna-xs-2.1_free-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_poolside_laguna-xs-2.1_free-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-openrouter_reflection_beam-1.0-501b-a23b-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-openrouter_reflection_beam-1.0-501b-a23b-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_stealth_ox-alpha-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_stealth_ox-alpha-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_stealth_space-bunny-alpha-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
