@@ -1,0 +1,16 @@
+file	model	scheme
+ceiling.tsv	clef-flash	choice@19579e23
+extract.tsv	clef-flash	choice@19579e23
+filter2.tsv	clef-flash	choice@19579e23
+filter3.tsv	clef-flash	choice@19579e23
+graphrag-global.tsv	clef-flash	choice@19579e23
+graphrag-local.tsv	clef-flash	choice@19579e23
+hybrid10.tsv	clef-flash	choice@19579e23
+hybrid5.tsv	clef-flash	choice@19579e23
+hybrid8.tsv	clef-flash	choice@19579e23
+vector-hybrid10.tsv	clef-flash	choice@19579e23
+vector-hybrid5.tsv	clef-flash	choice@19579e23
+vector-line10.tsv	clef-flash	choice@19579e23
+vector-line5.tsv	clef-flash	choice@19579e23
+vector10.tsv	clef-flash	choice@19579e23
+vector5.tsv	clef-flash	choice@19579e23
