@@ -10,7 +10,7 @@ Verdict files, next to each answer file in results-en/, results-ja/ and
 results/:
 
   judge/<stem>.jsonl                          judge.py, one JSON record per line
-  {ternary,openai,jev,nimble,clef-flash}/<stem>.tsv   the TSV judges, after a header line
+  {ternary,openai,jev,nimble,clef-flash,clef}/<stem>.tsv   the TSV judges, after a header line
 
 and results/ja2en/{xling,ternary,retest}/<stem>.tsv, graded by Ternary against
 the English gold answers (see results/ja2en/Makefile).
@@ -25,7 +25,7 @@ from pathlib import Path
 
 QA_EVAL = Path(__file__).resolve().parent
 SETS = ["results-en", "results-ja", "results", "results/ja2en"]
-JUDGES = ["judge", "ternary", "openai", "jev", "nimble", "clef-flash"]
+JUDGES = ["judge", "ternary", "openai", "jev", "nimble", "clef-flash", "clef"]
 JA2EN_DIRS = ["xling", "ternary", "retest"]
 
 

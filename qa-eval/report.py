@@ -5,8 +5,8 @@ Pure mechanical aggregation of existing files — no LLM calls. Prints one
 comparison table to the terminal (methods as rows). Two independent axes:
 
 1. Answer accuracy (from results-<lang>/judge/<method>.jsonl, or with --jev /
-   --nimble / --clef-flash / --openai / --ternary from
-   results-<lang>/<jev|nimble|clef-flash|openai|ternary>/<method>.tsv, or with
+   --nimble / --clef-flash / --clef / --openai / --ternary from
+   results-<lang>/<jev|nimble|clef-flash|clef|openai|ternary>/<method>.tsv, or with
    --tsv-dir from any such directory (e.g. the archived jev-1.13.0),
    taking each question's most probable
    verdict, the stricter one on a tie): raw correct / partial /
@@ -60,15 +60,16 @@ ROOT = Path(__file__).resolve().parent.parent
 QA_EVAL = Path(__file__).resolve().parent
 # Verdicts live in a subdirectory of the results dir, one file per answer file
 # with the same stem: judge/<stem>.jsonl from judge.py (qwen), or with --jev /
-# --nimble / --clef-flash / --openai / --ternary <dir>/<stem>.tsv from judge-<dir>.py.
+# --nimble / --clef-flash / --clef / --openai / --ternary <dir>/<stem>.tsv from judge-<dir>.py.
 # judge-ternary.py writes 1/0 in place of probabilities, so it reads the same way.
 JUDGE_DIR = "judge"
 JEV_DIR = "jev"
 NIMBLE_DIR = "nimble"
 CLEF_FLASH_DIR = "clef-flash"
+CLEF_DIR = "clef"
 OPENAI_DIR = "openai"
 TERNARY_DIR = "ternary"
-TSV_DIRS = (JEV_DIR, NIMBLE_DIR, CLEF_FLASH_DIR, OPENAI_DIR, TERNARY_DIR)
+TSV_DIRS = (JEV_DIR, NIMBLE_DIR, CLEF_FLASH_DIR, CLEF_DIR, OPENAI_DIR, TERNARY_DIR)
 
 # Verdict ordering for display (best first) and ranking (higher = better). The
 # agreement matrix is indexed [rank_a][rank_b]; "strictly better" is rank_a >

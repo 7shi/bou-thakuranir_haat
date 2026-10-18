@@ -60,6 +60,7 @@ TSV_JUDGES = {
     "nimble": ("Nimble", "Bespoke Labs Nimble", "See [NIMBLE.md](../NIMBLE.md) for details."),
     "clef-flash": ("Clef Flash", "Cloudflare Clef Flash",
                    "See [CLEF-FLASH.md](../CLEF-FLASH.md) for details."),
+    "clef": ("Clef", "Cloudflare Clef", "See [CLEF.md](../CLEF.md) for details."),
     "openai": ("OpenAI", "OpenAI Decisions (`gpt-6-luna`)",
                "See [OPENAI.md](../OPENAI.md) for details."),
     "ternary": ("Ternary", "`gpt-6-luna` replying with the verdict word (ordinary OpenAI API)",

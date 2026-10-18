@@ -1,8 +1,8 @@
 """Grade candidate answers against the gold standard with a System One model on Ollama.
 
-The shared implementation behind judge-nimble.py (Bespoke Labs' Nimble) and
-judge-clef-flash.py (Cloudflare's Clef Flash), each of which only calls
-main(model). The model, served by Ollama's /v1/systemone, answers one Choice
+The shared implementation behind judge-nimble.py (Bespoke Labs' Nimble),
+judge-clef-flash.py (Cloudflare's Clef Flash) and judge-clef.py (Cloudflare's
+Clef), each of which only calls main(model). The model, served by Ollama's /v1/systemone, answers one Choice
 question over correct / partial / incorrect, the same question as judge-jev.py,
 and returns a probability for each; there is no generated reason.
 
