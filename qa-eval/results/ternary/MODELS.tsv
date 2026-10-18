@@ -91,6 +91,8 @@ ceiling-openrouter_apodex_apodex-1.1-mini_free-en.tsv	openai:gpt-6-luna	ternary@
 ceiling-openrouter_apodex_apodex-1.1-mini_free-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_cohere_north-mini-code_free-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_cohere_north-mini-code_free-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-openrouter_deepseek_deepseek-v4.1-flash-1017-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
+ceiling-openrouter_deepseek_deepseek-v4.1-flash-1017-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_deepseek_deepseek-v4.1-flash-en.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_deepseek_deepseek-v4.1-flash-ja.tsv	openai:gpt-6-luna	ternary@70c12cb1
 ceiling-openrouter_inclusionai_ling-3.0-flash-fin_free-en.tsv	openai:gpt-6-luna	ternary@70c12cb1

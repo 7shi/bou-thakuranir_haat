@@ -66,6 +66,7 @@ as "_").
 | `openrouter_apodex_apodex-1.1-mini_free` | ceiling | 92 (42/8/0) | 88 (38/12/0) |
 | `openrouter_cohere_north-mini-code_free` | ceiling | 83 (34/15/1) | 65 (22/21/7) |
 | `openrouter_deepseek_deepseek-v4.1-flash` | ceiling | 94 (44/6/0) | 87 (38/11/1) |
+| `openrouter_deepseek_deepseek-v4.1-flash-1017` | ceiling | 93 (44/5/1) | 89 (39/11/0) |
 | `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 89 (39/11/0) | 82 (32/18/0) |
 | `openrouter_minimax_minimax-m2.7_free` | ceiling | 87 (37/13/0) | 82 (32/18/0) |
 | `openrouter_minimax_minimax-m3_free` | ceiling | 96 (46/4/0) | 91 (41/9/0) |
@@ -139,6 +140,7 @@ language). A question absent from every column of a row was graded
 | `openrouter_apodex_apodex-1.1-mini_free` | ceiling | 27, 28, 33, 34, 36, 37, 39, 46 | — | 29, 30, 33, 34, 35, 36, 37, 41, 42, 43, 46, 50 | — |
 | `openrouter_cohere_north-mini-code_free` | ceiling | 23, 26, 28, 30, 33, 35, 36, 37, 40, 42, 43, 46, 47, 49, 50 | 17 | 6, 26, 27, 30, 31, 32, 33, 34, 36, 37, 38, 39, 40, 41, 42, 43, 44, 47, 48, 49, 50 | 12, 16, 22, 28, 29, 35, 46 |
 | `openrouter_deepseek_deepseek-v4.1-flash` | ceiling | 6, 31, 32, 36, 37, 40 | — | 31, 32, 34, 35, 37, 40, 42, 46, 47, 48, 50 | 29 |
+| `openrouter_deepseek_deepseek-v4.1-flash-1017` | ceiling | 6, 29, 34, 36, 37 | 17 | 23, 26, 27, 29, 30, 34, 36, 37, 46, 47, 48 | — |
 | `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 30, 31, 32, 33, 34, 35, 36, 38, 46, 49, 50 | — | 26, 27, 30, 31, 32, 33, 35, 36, 37, 38, 39, 40, 41, 44, 46, 47, 49, 50 | — |
 | `openrouter_minimax_minimax-m2.7_free` | ceiling | 6, 28, 29, 30, 31, 32, 34, 37, 41, 46, 48, 49, 50 | — | 26, 28, 29, 30, 31, 32, 34, 36, 37, 39, 40, 41, 42, 43, 44, 46, 47, 49 | — |
 | `openrouter_minimax_minimax-m3_free` | ceiling | 28, 37, 47, 48 | — | 26, 27, 31, 32, 34, 37, 42, 46, 50 | — |
