@@ -8,8 +8,7 @@ compared with the existing **`ollama:qwen3.6`** verdicts and TypeSafe's **Jev**
 see [results/NIMBLE.md](results/NIMBLE.md).
 
 Why Nimble and System One decision models: see
-[systemone_overview.md](~/.gemini/antigravity-cli/brain/849cad52-8525-48f2-b302-77d6403bb0f2/systemone_overview.md),
-[jev/README.md](jev/README.md), and the official model page at
+[jev/README.md](jev/README.md) and the official model page at
 [ollama.com/library/nimble](https://ollama.com/library/nimble).
 
 ## Setup
