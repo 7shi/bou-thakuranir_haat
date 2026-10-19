@@ -12,9 +12,10 @@ coverage@k and the per-question metrics read on identical axes across all
 retrievers. Neither script calls an LLM or writes an output file — both are
 pure terminal-table ranking analyses over the 82-scene English corpus.
 
-Ceiling = 0.990 means surfacing the gold chapters suffices, so retrieval
-quality is judged on a single axis — **does the method surface the gold
-chapters?** — without running Phase 2 QA (per [FILTER.md](FILTER.md) § Verdict).
+Ceiling = 0.960 (no incorrect answer) means surfacing the gold chapters is
+what the answer mostly depends on, so retrieval quality is judged on a single
+axis — **does the method surface the gold chapters?** — without running Phase 2
+QA (per [FILTER.md](FILTER.md) § Verdict).
 The success metric is **strict recall** (gold ⊆ top-k) unless noted otherwise.
 
 ## Coverage at a glance
@@ -68,9 +69,8 @@ union of their top-k chapters — which is parameter-free and robust.**
 - **The Union oracle is the robust winner.** Taking the union of dense top-k
   and BM25 top-k chapter sets — no ranking fusion at all — scores **40/50 at
   k=5** and **46/50 at k=10**, beating dense (36/42) and every fusion method.
-  It is parameter-free, so it cannot overfit, and since Ceiling = 0.990 shows
-  over-inclusion is harmless, the only cost is the larger context (~24
-  expanded scenes vs ~17 for dense alone at k=10).
+  It is parameter-free, so it cannot overfit, and its cost is the larger
+  context (~24 expanded scenes vs ~17 for dense alone at k=10).
 
 - **Four questions are unrecoverable by either retriever.** Q31 (Ch22), Q32
   (Ch15), Q38 (Ch32), Q42 (Ch23) each have a gold chapter that ranks 12–38 in
@@ -239,9 +239,12 @@ context sizes are directly comparable to what the real Vector pipeline feeds:
 | BM25 k=10 | 16.5 | 8.2 |
 | **Union k=10** | **23.6** | **11.1** |
 
-The Union feeds ~24 expanded scenes — about **1.4×** dense's ~17. Since
-Ceiling = 0.990 shows over-inclusion is harmless, this +40% context cost buys
-+4 strict-recall questions (46 vs 42) and is the only robust win in the table.
+The Union feeds ~24 expanded scenes — about **1.4×** dense's ~17. This +40%
+context cost buys +4 strict-recall questions (46 vs 42) and is the only robust
+win in the table. In the answers it costs little: Hybrid k=10 beats Vector
+k=10 on six questions and loses two, both by synthesis with every gold chapter
+in context (see
+[results-en/README.md § Hybrid](results-en/README.md#hybrid-dense--bm25-union)).
 The union's scene count (24) is well under 2× a single retriever's (17) because
 the two retrievers' top-10 lists overlap substantially — the same scene often
 ranks in both.
@@ -283,7 +286,7 @@ and cannot do on this corpus:
    independently and taking the set-theoretic union of their top-k chapters
    scores 40/50 (k=5) and 46/50 (k=10) — beating dense by +4 at both depths,
    with no tunable parameters (so no overfitting risk), at a +40% context cost
-   that Ceiling = 0.990 proves is harmless to accuracy.
+   that lifts answer accuracy from 0.840 (Vector k=10) to 0.890 (Hybrid k=10).
 3. **Four questions are beyond both retrievers.** Q31, Q32, Q38, Q42 each have
    a gold chapter ranked 12–38 by both retrievers — the shared blind spot that
    no dense+BM25 hybrid can open. These are the same indirectly-relevant

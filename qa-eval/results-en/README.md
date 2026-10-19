@@ -24,39 +24,42 @@ of every chapter not marked `no`. **Ceiling** closes the study
 fed verbatim as context, stripping out retrieval entirely to expose the
 synthesis-only upper bound.
 
-Run: answers `google:gemma-4-31b-it`, judge `ollama:qwen3.6`, 50 questions
+Run: answers `google:gemma-4-31b-it`, judge Jev (`jev-1.14.0`, verdicts in
+`jev/`, each question counted as its most probable verdict), 50 questions
 (`questions-en.jsonl`, 25 single-passage + 25 cross-reference). Vector k=5 →
 `vector5.jsonl`; Vector k=10 → `vector10.jsonl`; Vector-line k=5/k=10 →
 `vector-line5.jsonl` / `vector-line10.jsonl`; V-hybrid k=5/k=10 →
 `vector-hybrid5.jsonl` / `vector-hybrid10.jsonl`; Hybrid k=5 → `hybrid5.jsonl`;
 Hybrid k=10 → `hybrid10.jsonl`; Filter2 → `filter2.jsonl`; Filter3 →
-`filter3.jsonl`; Ceiling → `ceiling.jsonl`.
+`filter3.jsonl`; Ceiling → `ceiling.jsonl`. Jev returns probabilities, not
+reasons; where a verdict below is called a near tie, its two top
+probabilities are within about 0.1 of each other.
 
-## Headline (`report.py`)
+## Headline (`report.py --jev`)
 
 ```
 scope    method             n correct partial incorrect  weighted ch.recall  ch.prec
 ------------------------------------------------------------------------------------
-all      Vector k=5        50      38       6         6     0.820     0.720    0.337
-all      Vector k=10       50      44       4         2     0.920     0.840    0.205
-all      Vector-line k=5   50      33      11         6     0.770     0.660    0.401
-all      Vector-line k=10  50      38       9         3     0.850     0.780    0.274
-all      V-hybrid k=5      50      39       9         2     0.870     0.760    0.297
-all      V-hybrid k=10     50      44       5         1     0.930     0.900    0.182
-all      Hybrid k=5        50      40       8         2     0.880     0.800    0.251
-all      Hybrid k=8        50      44       4         2     0.920     0.900    0.179
-all      Hybrid k=10       50      48       2         0     0.980     0.920    0.154
-all      Extract           50      40       6         4     0.860     0.740    0.843
-all      Filter2           50      37       6         7     0.800     0.600    0.808
-all      Filter3           50      45       3         2     0.930     0.880    0.775
-all      Ceiling           50      49       1         0     0.990     1.000    1.000
-all      GraphRAG local    50      24      13        13     0.610     0.860    0.135
-all      GraphRAG global   50       3      11        36     0.170     0.220    0.029
+all      Vector k=5        50      28      17         5     0.730     0.720    0.337
+all      Vector k=10       50      36      12         2     0.840     0.840    0.205
+all      Vector-line k=5   50      30      14         6     0.740     0.660    0.401
+all      Vector-line k=10  50      33      15         2     0.810     0.780    0.274
+all      V-hybrid k=5      50      34      14         2     0.820     0.760    0.297
+all      V-hybrid k=10     50      36      13         1     0.850     0.900    0.182
+all      Hybrid k=5        50      35      14         1     0.840     0.800    0.251
+all      Hybrid k=8        50      39       9         2     0.870     0.900    0.179
+all      Hybrid k=10       50      39      11         0     0.890     0.920    0.154
+all      Extract           50      35      11         4     0.810     0.740    0.843
+all      Filter2           50      34      10         6     0.780     0.600    0.808
+all      Filter3           50      41       7         2     0.890     0.880    0.775
+all      Ceiling           50      46       4         0     0.960     1.000    1.000
+all      GraphRAG local    50      19      19        12     0.570     0.860    0.135
+all      GraphRAG global   50       1      11        38     0.130     0.220    0.029
 
 single   Vector k=5        25      24       0         1     0.960     1.000    0.263
-single   Vector k=10       25      25       0         0     1.000     1.000    0.136
+single   Vector k=10       25      24       1         0     0.980     1.000    0.136
 single   Vector-line k=5   25      25       0         0     1.000     1.000    0.392
-single   Vector-line k=10  25      24       0         1     0.960     1.000    0.244
+single   Vector-line k=10  25      24       1         0     0.980     1.000    0.244
 single   V-hybrid k=5      25      25       0         0     1.000     1.000    0.226
 single   V-hybrid k=10     25      25       0         0     1.000     1.000    0.119
 single   Hybrid k=5        25      24       0         1     0.960     1.000    0.178
@@ -67,65 +70,65 @@ single   Filter2           25      25       0         0     1.000     1.000    1
 single   Filter3           25      25       0         0     1.000     1.000    0.940
 single   Ceiling           25      25       0         0     1.000     1.000    1.000
 single   GraphRAG local    25      15       1         9     0.620     0.880    0.201
-single   GraphRAG global   25       2       1        22     0.100     0.080    0.005
+single   GraphRAG global   25       1       1        23     0.060     0.080    0.005
 
-cross    Vector k=5        25      14       6         5     0.680     0.440    0.411
-cross    Vector k=10       25      19       4         2     0.840     0.680    0.274
-cross    Vector-line k=5   25       8      11         6     0.540     0.320    0.409
-cross    Vector-line k=10  25      14       9         2     0.740     0.560    0.305
-cross    V-hybrid k=5      25      14       9         2     0.740     0.520    0.369
-cross    V-hybrid k=10     25      19       5         1     0.860     0.800    0.245
-cross    Hybrid k=5        25      16       8         1     0.800     0.600    0.325
-cross    Hybrid k=8        25      20       4         1     0.880     0.800    0.242
-cross    Hybrid k=10       25      23       2         0     0.960     0.840    0.211
-cross    Extract           25      15       6         4     0.720     0.480    0.686
-cross    Filter2           25      12       6         7     0.600     0.200    0.617
-cross    Filter3           25      20       3         2     0.860     0.760    0.611
-cross    Ceiling           25      24       1         0     0.980     1.000    1.000
-cross    GraphRAG local    25       9      12         4     0.600     0.840    0.069
-cross    GraphRAG global   25       1      10        14     0.240     0.360    0.053
+cross    Vector k=5        25       4      17         4     0.500     0.440    0.411
+cross    Vector k=10       25      12      11         2     0.700     0.680    0.274
+cross    Vector-line k=5   25       5      14         6     0.480     0.320    0.409
+cross    Vector-line k=10  25       9      14         2     0.640     0.560    0.305
+cross    V-hybrid k=5      25       9      14         2     0.640     0.520    0.369
+cross    V-hybrid k=10     25      11      13         1     0.700     0.800    0.245
+cross    Hybrid k=5        25      11      14         0     0.720     0.600    0.325
+cross    Hybrid k=8        25      15       9         1     0.780     0.800    0.242
+cross    Hybrid k=10       25      14      11         0     0.780     0.840    0.211
+cross    Extract           25      10      11         4     0.620     0.480    0.686
+cross    Filter2           25       9      10         6     0.560     0.200    0.617
+cross    Filter3           25      16       7         2     0.780     0.760    0.611
+cross    Ceiling           25      21       4         0     0.920     1.000    1.000
+cross    GraphRAG local    25       4      18         3     0.520     0.840    0.069
+cross    GraphRAG global   25       0      10        15     0.200     0.360    0.053
 ```
 
 The sweep's prediction holds: deepening retrieval lifts the cross-reference
-score from 0.680 to 0.840 (incorrect 5→2), and single-passage saturates to
-1.00. Chapter recall rises (cross 0.44→0.68) at the cost of precision
-(0.41→0.27) — more context, looser filtering — yet **accuracy rises**, so the
-extra context helps more than it distracts. Vector k=10 overtakes Extract on
-accuracy (0.92 vs 0.86) while Extract still leads sharply on chapter precision
-(0.84).
+score from 0.500 to 0.700 (correct 4→12, incorrect 4→2), while single-passage
+stays near saturation (0.960→0.980). Chapter recall rises (cross 0.44→0.68) at
+the cost of precision (0.41→0.27) — more context, looser filtering — yet
+**accuracy rises**, so the extra context helps more than it distracts. Vector
+k=10 overtakes Extract on accuracy (0.84 vs 0.81) while Extract still leads
+sharply on chapter precision (0.84).
 
-**Hybrid** (dense ∪ BM25 union) becomes the top retrieval method: Hybrid k=10
-at 0.980 overtakes Filter3 (0.930) by fully recovering two of the three
-lexically-distinctive cross-reference chapters that dense-only search cannot
-rank (Q43, Q49 — the Class A cases from
-[§ Both wrong](#both-wrong-what-k10-cannot-fix)) and partially recovering the
+**Hybrid** (dense ∪ BM25 union) is the top retrieval method together with
+Filter3: Hybrid k=10 at 0.890 ties Filter3 (0.890) and is the only method other
+than Ceiling with no incorrect answer. Against Vector k=10 it fully recovers two
+of the three lexically-distinctive cross-reference chapters that dense-only
+search cannot rank (Q43, Q49 — the Class A cases from
+[§ Both wrong](#both-wrong-what-k10-cannot-fix)) and partially recovers the
 third (Q31 — Ch21 enters the union context but Ch22 still does not, so the
-answer lands `partial`). The cross-reference score rises from 0.840 to 0.960
-(incorrect 2→0). Hybrid k=8 (0.920) recovers Q43 and Q49 fully, partially
-recovers Q31, and lifts cross to 0.880, sitting between k=5 (0.880) and k=10
-(0.980). Single-passage saturates to 1.00 only at k=10: k=5 and k=8 both land
-at 24/25, missing Q17, a single-passage question every Vector depth answers.
+answer lands `partial`). The cross-reference score rises from 0.700 to 0.780
+(incorrect 2→0). Hybrid k=8 (0.870) recovers Q43 and Q49 as well and matches
+k=10 on cross-reference (0.780); it trails only on single-passage. Single-passage
+saturates to 1.00 only at k=10: k=5 and k=8 both land at 24/25, answering Q17
+"the entire night" for the gold "Five days".
 
 The **Filter** rows use the LLM as retriever rather than dense embeddings:
-Filter3 posts 0.930, Filter2 0.800. The `maybe`-verdict mechanism, cost/gold-floor
-analysis, and verdict that finds no retrieval advantage over Vector k=10 are in
-[FILTER.md](../FILTER.md).
+Filter3 posts 0.890, Filter2 0.780. The `maybe`-verdict mechanism and the
+cost/gold-floor analysis are in [FILTER.md](../FILTER.md).
 
 ## Extract vs Vector k=10: where each method loses
 
-The Headline's four-question margin is the whole story of "k=10 beats Extract,"
-so [`report.py`](../README.md#reportpy)
-breaks it open into its per-question causes — and it lands squarely on Extract's
+The Headline's 0.03 margin is the net of two larger counts, so
+[`report.py`](../README.md#reportpy)
+breaks it open into its per-question causes — and most of it lands on Extract's
 two-stage filter. The disagreement pass prints three pairwise matrices (Vector k=5×Vector k=10,
 Vector k=5×Extract, Vector k=10×Extract); the decisive one is the last:
 
 ```
 Agreement matrix (rows = Vector k=10, cols = Extract):
                   Extract:correct  Extract:partial  Extract:incorrect | Vector k=10 total
-Vector k=10:correct                37               4                  3  | 44
-Vector k=10:partial                 1               2                  1  |  4
-Vector k=10:incorrect               2               0                  0  |  2
-Extract total                      40               6                  4  | 50
+Vector k=10:correct                29               5                  2  | 36
+Vector k=10:partial                 5               5                  2  | 12
+Vector k=10:incorrect               1               1                  0  |  2
+Extract total                      35              11                  4  | 50
 ```
 
 For each off-diagonal question the disagreement pass asks whether the loser
@@ -136,63 +139,65 @@ actually held every gold chapter in context, then classes the loss:
   unrecoverably); for Vector a **retrieval miss** (the chapter ranked outside top-k).
 - **synthesis** — the loser held every gold chapter yet still mis-synthesized.
 
-The split is lopsided:
+The split:
 
 | direction | n | missed context | synthesis |
 | --- | --- | --- | --- |
-| Vector k=10 beats Extract | 8 | **5** (Phase 1 FN) | 3 |
-| Extract beats Vector k=10 | 3 | 3 (retrieval miss) | 0 |
+| Vector k=10 beats Extract | 9 | **7** (Phase 1 FN) | 2 |
+| Extract beats Vector k=10 | 7 | 4 (retrieval miss) | 3 |
 
-**Five of Extract's eight losses are Phase 1 false negatives** (Q26, Q28, Q34,
-Q40, Q42) — the gold chapter a stage-1 `None` dropped, so stage 2
-never saw it. The filter, not the synthesis, is where the gap lives. Three are
+**Seven of Extract's nine losses are Phase 1 false negatives** (Q26, Q28, Q34,
+Q37, Q39, Q40, Q42) — the gold chapter a stage-1 `None` dropped, so stage 2
+never saw it. The filter, not the synthesis, is where Extract loses. Three are
 total wipeouts: Q42 (`expanded` empty — all of Ch22/23/29 dropped), Q34 (only
 Ch2 kept, all of Ch30/31/33 dropped), and Q26 (used Ch15/30, disjoint from gold
-Ch11/29). The remaining three losses (Q30, Q33, Q46) are genuine synthesis slips
-where Extract held every gold chapter — the same half-answers the
-[k=5 study](#k5-baseline-in-brief) flagged.
+Ch11/29). The remaining two losses (Q33, Q35) are synthesis slips where Extract
+held every gold chapter.
 
-**Every one of Extract's wins is a retrieval miss Vector cannot fix.** Q31, Q43,
+**Extract's wins are mostly retrieval misses Vector cannot fix.** Q31, Q43,
 Q49 are the [Class A](#both-wrong-what-k10-cannot-fix) chapters dense embedding
 ranks outside the top-10 at both depths — Extract's per-chapter reading finds
-them, Vector k=10 never does. Extract never beats Vector k=10 on synthesis.
+them, Vector k=10 never does. The fourth, Q38, is counted as missed context
+because Vector k=10 lacks Ch32, but Extract lacks it too; both answer from
+Ch26/28, and only Vector k=10 leaves out what the letter actually said. The
+three synthesis wins (Q17, Q27, Q36) are questions where Vector k=10 holds
+every gold chapter and lands `partial`; Q17 is a near tie on "It took five days
+to prepare the medicine" (see [§ The two regressions](#the-two-regressions-q17-and-q38)).
 
-So the two architectures fail on **orthogonal axes**, and that is the read on
-the 0.92 vs 0.86 margin: Extract's losses are self-inflicted by its own Phase 1
-filter (cheaply fixable — keep more context, weaken the `None` bar, or quote
-verbatim instead of summarize-or-discard), whereas Vector's losses are structural
-dense-retrieval blindness (the BM25/lexical hybrid in [HYBRID.md](../HYBRID.md)).
-Fixing Phase 1 alone lifts Extract toward a 40+5 = 45 ceiling — re-overtaking
-k=10 — while its thorough-reading edge on the vector-unreachable three stays
-intact. The lever for Extract is in its own stage 1; the lever for Vector is
-hybrid retrieval.
+So the two architectures fail mostly on **orthogonal axes**, and that is the
+read on the 0.84 vs 0.81 margin: Extract's losses are self-inflicted by its own
+Phase 1 filter (cheaply fixable — keep more context, weaken the `None` bar, or
+quote verbatim instead of summarize-or-discard), whereas Vector's are mostly
+structural dense-retrieval blindness (the BM25/lexical hybrid in
+[HYBRID.md](../HYBRID.md)). The lever for Extract is in its own stage 1 — Filter3
+is that lever ([§ Filter](#filter-llm-as-retriever)) — and the lever for Vector
+is hybrid retrieval.
 
 ## k=5 baseline, in brief
 
 (This condenses the earlier Vector-vs-Extract disagreement study; the per-question
-detail is redeployed in the k=10 analysis below.) Vector k=5 (0.820) and Extract
-(0.860) land within 0.040 of each other but split on **which** cross questions
-each solves. The single/cross split dominates everything: they score 24/25 and
-25/25 on single-passage but only 14/25 and 15/25 on cross.
+detail is redeployed in the k=10 analysis below.) Vector k=5 (0.730) and Extract
+(0.810) both near-saturate single-passage (24/25 and 25/25 correct) and split
+on cross-reference, where they get only 4/25 and 10/25 correct.
 
-**Agreement matrix (k=5 Vector × Extract)** — now reproduced verbatim by the
+**Agreement matrix (k=5 Vector × Extract)** — reproduced verbatim by the
 `Vector k=5 × Extract` block of `report.py`'s disagreement pass:
 
 | | Ext correct | Ext partial | Ext incorrect | Vector total |
 | --- | --- | --- | --- | --- |
-| **Vector correct** | 32 | 5 | 1 | 38 |
-| **Vector partial** | 3 | 1 | 2 | 6 |
-| **Vector incorrect** | 5 | 0 | 1 | 6 |
+| **Vector correct** | 26 | 2 | 0 | 28 |
+| **Vector partial** | 6 | 8 | 3 | 17 |
+| **Vector incorrect** | 3 | 1 | 1 | 5 |
 
 Two failure modes account for almost every off-diagonal loss:
 
-- **Vector k=5's losses are mostly top-5 retrieval misses** — a gold chapter ranks
-  just outside `k=5` (the +0.00–0.07 gaps `sweep_vector.py` flagged). Two exceptions
-  (Q21, Q29) are *answering* slips where the gold chapter was already in context.
+- **Vector k=5's losses are mostly top-5 retrieval misses** — 8 of its 10 losses
+  to Extract lack a gold chapter that ranks just outside `k=5` (the +0.00–0.07
+  gaps `sweep_vector.py` flagged). The two exceptions (Q21, Q29) are
+  *answering* slips where the gold chapter was already in context.
 - **Extract's losses are Phase 1 false negatives** — a wrong `None` on a gold
-  chapter drops it unrecoverably (Q26, Q34, Q42 dropped gold chapters entirely).
-  A secondary loss is Phase 2 synthesis (Q30, Q33, Q46 held every gold chapter
-  yet only half-answered).
+  chapter drops it unrecoverably (Q26, Q34, Q42 dropped gold chapters entirely,
+  Q39 dropped Ch10). Its one synthesis loss is Q33.
 
 **The gold is sound.** On Q29 (the covert poisoning behind the surface exile
 decree), both Extract and Vector k=10 independently reconstruct the covert chain
@@ -202,63 +207,79 @@ gold problem.
 
 ## What changes at k=10
 
-Thirteen questions are not-correct in at least one of k=5 / k=10. Their movement
-(`k=10 retrieval` = gold chapters newly pulled into context vs. k=5):
+Twenty-four questions are not-correct in at least one of k=5 / k=10, all but
+two of them cross-reference. Twelve of them move between the depths (`k=10
+retrieval` = gold chapters newly pulled into context vs. k=5):
 
 | Q | type | gold | k=5 | k=10 | k=10 retrieval | class |
 | --- | --- | --- | --- | --- | --- | --- |
 | 21 | single | 5 | incorrect | **correct** | — (Ch5 already in k=5) | answering fix |
-| 27 | cross | 2,4,33 | partial | **correct** | +Ch33 | retrieval fix |
+| 26 | cross | 11,29 | partial | **correct** | — (both already in k=5) | answering fix |
 | 28 | cross | 9,37 | incorrect | **correct** | +Ch9, +Ch37 | retrieval fix |
 | 29 | cross | 16,17 | incorrect | **correct** | — (both already in k=5) | answering fix |
-| 36 | cross | 1,17,21 | incorrect | **correct** | +Ch17 | retrieval fix |
-| 42 | cross | 22,23,29 | partial | **correct** | +Ch29 (Ch23 still out) | retrieval fix |
+| 35 | cross | 8,19 | partial | **correct** | — (both already in k=5) | answering fix |
+| 37 | cross | 1,34 | partial | **correct** | — (both already in k=5) | answering fix |
+| 40 | cross | 13,27 | partial | **correct** | — (both already in k=5) | answering fix |
+| 41 | cross | 5,20 | partial | **correct** | +Ch5 | retrieval fix |
 | 45 | cross | 18,25 | partial | **correct** | +Ch18 | retrieval fix |
-| 50 | cross | 8,18,23 | correct | **partial** | +Ch23 | **regression** |
-| 31 | cross | 21,22,23 | incorrect | incorrect | +Ch23, but Ch21/22 still out | both wrong |
-| 32 | cross | 11,15,16 | partial | partial | Ch15 still out | both wrong |
-| 34 | cross | 30,31,33 | partial | partial | Ch31 still out | both wrong |
-| 43 | cross | 11,37 | partial | partial | Ch37 still out | both wrong |
-| 49 | cross | 2,22 | incorrect | incorrect | Ch22 still out | both wrong |
+| 48 | cross | 11,19 | partial | **correct** | — (Ch11 out at both) | answering fix |
+| 17 | single | 17 | correct | **partial** | — | **regression** |
+| 38 | cross | 26,28,32 | correct | **partial** | — (Ch32 out at both) | **regression** |
 
-### The seven fixes
+The other twelve stay not-correct at both depths
+([§ Both wrong](#both-wrong-what-k10-cannot-fix)).
+
+### The ten fixes
 
 Two flavors, matching the k=5 failure-mode split:
 
-- **Retrieval fixes (Q27, Q28, Q36, Q42, Q45).** A gold chapter that ranked just
-  outside k=5 enters the top-10 — exactly the "gap +0.00–0.07" cases
-  `sweep_vector.py` predicted: Ch33 (Q27), Ch9+Ch37 (Q28), Ch17 (Q36),
-  Ch29 (Q42), Ch18 (Q45).
-- **Answering fixes (Q21, Q29).** The gold chapter was *already* in k=5's
-  context; k=10's broader supporting context let the answerer synthesize the
-  right answer. Q21 (Ch5 present at both depths — k=5 cited the wrong incident,
-  k=10 named both offenses); Q29 (Ch16+17 present at both — k=5 stopped at the
-  surface exile decree, k=10 gave the covert poisoning). These are precisely the
-  two k=5 losses `sweep_vector.py` could *not* have explained by retrieval alone.
+- **Retrieval fixes (Q28, Q41, Q45).** A gold chapter that ranked just outside
+  k=5 enters the top-10 — exactly the "gap +0.00–0.07" cases `sweep_vector.py`
+  predicted: Ch9+Ch37 (Q28), Ch5 (Q41), Ch18 (Q45). Three more chapters the
+  sweep predicted also enter at k=10 — Ch33 (Q27), Ch17 (Q36), Ch29 (Q42) — but
+  those answers stay `partial`.
+- **Answering fixes (Q21, Q26, Q29, Q35, Q37, Q40, Q48).** The gold chapters
+  were *already* in k=5's context (or, for Q48, Ch11 is missing at both depths);
+  k=10's broader supporting context let the answerer complete the answer. Q21
+  (Ch5 present at both depths — k=5 cited the wrong incident, k=10 named both
+  offenses); Q29 (Ch16+17 present at both — k=5 stopped at the surface exile
+  decree, k=10 gave the covert poisoning); Q48 (k=10 adds the court half of the
+  answer from Ch19, see [§ Q48](#q48-the-two-part-question)). The other four
+  are multi-part answers that k=5 left incomplete. `sweep_vector.py` could not
+  have explained any of these by retrieval alone.
 
-### The one regression: Q50
+### The two regressions: Q17 and Q38
 
-Q50 (gold 8,18,23) goes correct→partial, and it is the judge's boundary rather
-than the context that moved. Both depths describe Surma restyling Vibha's hair
-and Vibha later waiting with it unbraided, and both omit the third step,
-Rammohan pointing to her unkempt hair as proof of her neglect (Ch23, which only
-k=10 retrieves). The judge notes that omission at both depths, but grades k=5
-`correct` and k=10 `partial`. The net trade is overwhelmingly positive — seven
-fixes for one regression.
+Both are the judge's boundary rather than a change in what the answer knows.
+
+- **Q17** (single, gold "Five days"): k=5 answers "Five days" and is `correct`;
+  k=10 answers "It took five days to prepare the medicine" and lands `partial`
+  on a near tie (0.45 correct, 0.48 partial).
+- **Q38** (gold 26,28,32): neither depth holds Ch32, and both describe
+  Nayanchand handing the letter to the Mahishi and Basanta Ray advising her to
+  announce that Ramchandra wants Vibha sent to Chandradwip. k=5 also says what
+  the letter actually said (that Ramchandra had renounced Vibha); k=10 leaves
+  that out and lands `partial` on a near tie (0.47 / 0.52).
+
+The net trade is overwhelmingly positive — ten fixes for two regressions.
 
 ## Both wrong: what k=10 cannot fix
 
-Five questions stay not-correct at both depths (Q31, Q32, Q34, Q43, Q49) — all
-cross-reference. The decisive cross-check is what **Extract**, reading every
-chapter independently, makes of them:
+Twelve questions stay not-correct at both depths, all cross-reference. Six of
+them (Q27, Q30, Q36, Q46, Q47, Q50) already hold every gold chapter at k=10 and
+are `partial` on completeness, not retrieval; Ceiling gets four of them correct,
+and Q46 and Q47 are `partial` even for Ceiling. The other six lack a gold chapter
+at k=10. The decisive cross-check is what **Extract** and **Filter3**, reading
+every chapter independently, make of them:
 
-| Q | gold | load-bearing chapter vector search misses | Vector k=5 | Vector k=10 | Hybrid k=8 | Hybrid k=10 | Extract |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 31 | 21,22,23 | Ch21,22 — the ring gift and the seal-forgery | incorrect | incorrect | partial | partial | **correct** |
-| 43 | 11,37 | Ch37 — the Chandradwip palanquin extraction | partial | partial | **correct** | **correct** | **correct** |
-| 49 | 2,22 | Ch22 — the forged petition to the Emperor of Delhi | incorrect | incorrect | **correct** | **correct** | **correct** |
-| 32 | 11,15,16 | Ch15 — the secret stipend to the dismissed guards | partial | partial | partial | partial | partial |
-| 34 | 30,31,33 | Ch31 — Rukmini's accusation in Pratapaditya's court | partial | partial | **correct** | **correct** | incorrect |
+| Q | gold | load-bearing chapter vector search misses | Vector k=5 | Vector k=10 | Hybrid k=8 | Hybrid k=10 | Extract | Filter3 | Ceiling |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 31 | 21,22,23 | Ch21,22 — the ring gift and the seal-forgery | incorrect | incorrect | partial | partial | partial | **correct** | **correct** |
+| 43 | 11,37 | Ch37 — the Chandradwip palanquin extraction | partial | partial | **correct** | **correct** | **correct** | **correct** | **correct** |
+| 49 | 2,22 | Ch22 — the forged petition to the Emperor of Delhi | incorrect | incorrect | **correct** | **correct** | **correct** | **correct** | **correct** |
+| 32 | 11,15,16 | Ch15 — the secret stipend to the dismissed guards | partial | partial | partial | partial | partial | partial | **correct** |
+| 34 | 30,31,33 | Ch31 — Rukmini's accusation in Pratapaditya's court | partial | partial | **correct** | **correct** | incorrect | incorrect | partial |
+| 42 | 22,23,29 | Ch23 | partial | partial | partial | partial | incorrect | incorrect | **correct** |
 
 This splits the residual frontier cleanly into two classes.
 
@@ -266,13 +287,16 @@ This splits the residual frontier cleanly into two classes.
 
 In three questions the answer turns on a single chapter that dense embedding
 ranks outside the top-10 at *both* depths, so no k≤10 surfaces it; the answerer
-honestly abstains (Q31, Q49) or gives half the answer (Q43). But **Extract,
-reading those chapters in full, gets all three correct** — reconstructing the
-ring→seal→forged-petition chain (Q31, Ch21–22), the Chandradwip palanquin
-rescue (Q43, Ch37), and the Delhi-petition forgery (Q49, Ch22).
+honestly abstains (Q31, Q49) or gives half the answer (Q43). But **the
+per-chapter readers find them**: Filter3 gets all three correct —
+reconstructing the ring→seal→forged-petition chain (Q31, Ch21–22), the
+Chandradwip palanquin rescue (Q43, Ch37), and the Delhi-petition forgery (Q49,
+Ch22) — and Extract gets Q43 and Q49 correct and Q31 `partial`, holding Ch21–22
+but saying Rukmini obtained the ring "by manipulating his guilt and grief"
+rather than that Udayaditya gave it to her.
 
-That convergent result is decisive: these are not gold problems (an independent
-thorough reader confirms the gold) and not a depth problem (deeper k still
+That convergent result is decisive: these are not gold problems (independent
+thorough readers confirm the gold) and not a depth problem (deeper k still
 misses them). It is a **dense-retrieval problem** — the failing chapters are
 lexically distinctive ("signet ring", "Emperor of Delhi", "palanquin") but
 semantically generic, so cosine cannot separate them from topically-similar
@@ -294,98 +318,110 @@ describe the ring changing hands but not the petition's specific content, which
 the (corrected) gold answer now grades on — hence `partial`, not `correct`. See
 [§ Hybrid](#hybrid-dense--bm25-union) for the per-question breakdown.
 
-### Class B — the failures shared with Extract (Q32, Q34)
+### Class B — the failures shared with the per-chapter readers (Q32, Q34, Q42)
 
-The remaining two questions are not-correct for **all three methods**, so deeper
-Vector retrieval cannot be the lever:
+The remaining three questions are not-correct for Vector, Extract and Filter3
+alike, so deeper Vector retrieval cannot be the lever:
 
 - **Q32** (gold 11,15,16) — the gold's load-bearing middle step is the *secret
   monthly stipend* Udayaditya and Surma pay the dismissed guards, which
   Pratapaditya discovers. Ch15 never ranks in the top-10 for either Vector depth,
   and Extract's per-chapter extraction misses the stipend too, attributing the
-  exile to vague "psychological tactics." All three land on partial. The causal
-  detail is genuinely subtle and lives in a chapter none of the methods weighs
-  heavily.
+  exile to vague "psychological tactics." Every retrieval method lands on
+  partial. The causal detail is genuinely subtle and lives in a chapter none of
+  the methods weighs heavily.
 - **Q34** (gold 30,31,33) — the link is Ch31, where Rukmini tells Pratapaditya's
   court that Basanta Ray helped the escape. Both Vector depths hold Ch30 and
   Ch33 but not Ch31, and fill the gap with another cause (Rukmini alerting
   soldiers in Raigarh at k=5, a pre-existing order at k=10), landing partial;
-  Extract's Phase 1 drops all three gold chapters and answers incorrectly.
+  Extract's and Filter3's Phase 1 drop all three gold chapters and answer
+  incorrectly.
+- **Q42** (gold 22,23,29) — Ch23 stays out of every Vector and Hybrid context.
+  The answers describe the rescue under cover of the fire and the staged death;
+  all but Vector k=10 leave out the forged petition, the damage being undone,
+  and all land partial. Extract and Filter3 drop all three gold chapters.
 
-Q32 is the true residual: no `k` or hybrid fixes it. Q34 is not — BM25 ranks
-Ch31 into the union, and Hybrid k=8 and k=10 answer it correctly. Ceiling
-([§ below](#ceiling-the-perfect-retrieval-upper-bound)) shows both limits are
-retrieval-side after all: with the gold chapters verbatim in context the
-answerer gets Q32 and Q34 correct.
+Q32 is the true residual: no `k` or hybrid fixes it, and Ceiling
+([§ below](#ceiling-the-perfect-retrieval-upper-bound)), which feeds Ch15
+verbatim, gets it correct. Q42 behaves the same way: only Ceiling, holding
+Ch23, is correct. Q34 is not — BM25 ranks Ch31 into the union, and Hybrid k=8
+and k=10 answer it correctly, while Ceiling, with all three chapters in
+context, lands `partial`: it has Rukmini go to Raigarh with Pratapaditya's men
+and find Udayaditya there, instead of revealing Basanta Ray's part in the
+escape.
 
 ## Hybrid (dense ∪ BM25 union)
 
 The union approach from [HYBRID.md](../HYBRID.md) converts the strict-recall
-retrieval gain into answer accuracy. At k=10, it achieves the top retrieval
-accuracy of **0.980** (with k=8 at **0.920**), mostly recovering the Class A
-chapters that dense-only search cannot reach — fully for Q43/Q49, partially for
-Q31 (Ch22 stays out of reach).
+retrieval gain into answer accuracy. At k=10, it ties Filter3 for the top
+retrieval accuracy of **0.890** (with k=8 at **0.870**), mostly recovering the
+Class A chapters that dense-only search cannot reach — fully for Q43/Q49,
+partially for Q31 (Ch22 stays out of reach).
 
 ### Hybrid k=5 vs Vector k=10
 
-Hybrid k=5 (0.880) sits below Vector k=10 (0.920) overall, but the two
-methods win on **orthogonal questions**:
+Hybrid k=5 (0.840) ties Vector k=10 (0.840) overall, and the two methods win on
+**orthogonal questions**:
 
 | direction | n | questions | class |
 | --- | --- | --- | --- |
-| Hybrid k=5 beats Vector k=10 | 4 | Q31 (Ch21, Class A), Q34 (Ch31), Q49 (Ch22, Class A), Q50 (synthesis) | 3 missed-context, 1 synthesis |
-| Vector k=10 beats Hybrid k=5 | 7 | Q17 (synthesis), Q27 (Ch33), Q28 (Ch9), Q37 (synthesis), Q42 (Ch29), Q46 (synthesis), Q48 (neither holds Ch11) | 4 missed-context, 3 synthesis |
+| Hybrid k=5 beats Vector k=10 | 5 | Q30 (synthesis), Q31 (Ch21, Class A), Q38 (neither holds Ch32), Q47 (synthesis), Q49 (Ch22, Class A) | 3 missed-context, 2 synthesis |
+| Vector k=10 beats Hybrid k=5 | 6 | Q17 (synthesis), Q26 (synthesis), Q28 (Ch9), Q37 (synthesis), Q40 (synthesis), Q48 (neither holds Ch11) | 2 missed-context, 4 synthesis |
 
-Three of the four Hybrid k=5 wins are retrieval fixes — BM25's lexical signal
+Two of the five Hybrid k=5 wins are retrieval fixes — BM25's lexical signal
 surfaces chapters that dense embedding ranks outside the top-10. Q31 and Q49 are
 Class A: Ch21 (the ring gift; Ch22 stays out) and Ch22 (forged Delhi
-petition), both lexically distinctive but semantically generic. The fourth, Q50,
-is the judge boundary of [§ The one regression](#the-one-regression-q50): every
-Vector and Hybrid answer omits Rammohan's remark, and the judge passes some of
-them. Vector k=10's wins are mostly the reverse, chapters dense k=10 reaches
-but the k=5 union does not (Q27, Q28, Q42), plus Q48, where neither holds Ch11
-and only Vector k=10 supplies the court half from Ch19, and three synthesis
-losses, one of them the single-passage Q17, where the wider union context
-confuses the answerer on a single-chapter question. On cross-reference, Hybrid k=5 (0.800) trails Vector
-k=10 (0.840).
+petition), both lexically distinctive but semantically generic. The other three
+are completeness: Q38 is the near tie of
+[§ The two regressions](#the-two-regressions-q17-and-q38), and on Q30 and Q47
+Vector k=10 holds every gold chapter and lands `partial`. Vector k=10's wins are
+mostly synthesis, one of them the single-passage Q17, where Hybrid k=5 answers
+"the entire night"; the rest are Q28, where dense k=10 reaches Ch9 but the k=5
+union does not, and Q48, where neither holds Ch11 and only Vector k=10 supplies
+the court half from Ch19. On cross-reference, Hybrid k=5 (0.720) edges Vector
+k=10 (0.700).
 
 ### Hybrid k=10 recovers most of the Class A frontier
 
 At k=10 the union closes most of the Class A gap. Hybrid k=10 beats Vector k=10
-on five questions, four of them missed-context:
+on six questions, five of them counted as missed context:
 
 | Q | gold | dropped by Vector k=10 | why BM25 recovers it |
 | --- | --- | --- | --- |
 | Q31 | 21,22,23 | Ch21, Ch22 | only Ch21 recovers; Ch22 stays outside top-10 at any k≤10 for this question (see [HYBRID.md § Shared blind spots](../HYBRID.md#shared-blind-spots)) — partial credit only |
 | Q34 | 30,31,33 | Ch31 | Ch31 enters the BM25 top-k |
+| Q38 | 26,28,32 | Ch32 | it does not: Hybrid k=10 lacks Ch32 too, and the win is completeness |
 | Q43 | 11,37 | Ch37 | "Chandradwip palanquin" — proper-noun-heavy |
 | Q49 | 2,22 | Ch22 | "Emperor of Delhi", "forged petition" |
 
-The fifth is Q50 again (Vector k=10 `partial`, Hybrid k=10 `correct` on the
-same omission). Vector k=10 beats Hybrid k=10 on **no** question: the ~1.4×
-larger union context that HYBRID.md warned could confuse synthesis costs nothing
-here.
+The sixth is Q17 (the near tie on "five days"). Vector k=10 beats Hybrid k=10
+on two questions, Q26 and Q37, both synthesis with every gold chapter in both
+contexts: the ~1.4× larger union context that HYBRID.md warned could confuse
+synthesis costs two questions here.
 
 ### Hybrid k=8: Performance and Trade-offs
 
-Expanding the retrieval depth to `k=8` yields **44/50 (0.920)**, sitting between `k=5` (**0.880**) and `k=10` (**0.980**).
+Expanding the retrieval depth to `k=8` yields **39/50 (0.870)**, sitting between `k=5` (**0.840**) and `k=10` (**0.890**).
 
-- **Gains over k=5:** Deepening the search to `k=8` recovers the missing gold chapters for **Q27** (Ch33), **Q28** (Ch9), **Q42** (Ch29) and **Q43** (Ch37), and answers **Q37** and **Q46** fully from the same chapters, upgrading all six to correct. It loses **Q29** (a synthesis regression, correct at `k=5` to incorrect) and **Q50** (the judge boundary above), netting +4 correct answers.
-- **Comparison to k=10:** Unlike Japanese, where `k=10` (`0.910`) falls below `k=8` (`0.920`) and `k=5` (`0.930`), English improves all the way. `k=10` beats `k=8` on four questions and loses none: it recovers the regression on **Q29**, improves **Q17** to correct, completes **Q48**, and is graded correct on **Q50**. Only Q50 involves a new gold chapter (Ch23), and the `k=10` answer does not use it. Overall `k=10` nets +4 correct answers (**48/50** vs. **44/50**), so the English answerer handles the larger context at `k=10` (~25 scenes) without loss.
+- **Gains over k=5:** Deepening the search to `k=8` recovers the missing gold chapters for **Q27** (Ch33), **Q28** (Ch9) and **Q43** (Ch37), and answers **Q34** and **Q40** fully from the same chapters, upgrading all five to correct. It loses **Q29** (a synthesis regression, correct at `k=5` to incorrect), netting +4 correct answers.
+- **Comparison to k=10:** `k=8` and `k=10` both get 39 correct and tie on cross-reference (0.780); they trade three questions each, all with the same gold chapters in context. `k=10` fixes the two `k=8` incorrect answers (**Q17**, "the entire night", and **Q29**) and completes **Q48**; `k=8` is graded correct on **Q27**, **Q30** and **Q47**, where `k=10` lands `partial`. The difference in score is therefore `k=8`'s two incorrect answers. Japanese peaks at `k=10` (`0.860`) too, but there `k=8` (`0.810`) falls below `k=5` (`0.850`), whereas English improves at every step.
 
-### The two-question residual
+### The residual to Ceiling
 
-Ceiling beats Hybrid k=10 on two questions, both missed context:
+Ceiling beats Hybrid k=10 on nine questions, three of them missed context —
+the shared blind spots no retrieval blend fixes:
 
 - **Q31** — Ch22 (where the petition is actually forged) is
   outside both retrievers' top-k at k=10; Ch21 alone lets Hybrid k=10 describe
   the ring changing hands but not the petition's content, landing `partial`.
 - **Q32** — Ch15 (the secret stipend detail) is outside both
   retrievers' top-k at k=10 and remains a Class B unreachable.
+- **Q42** — Ch23 is outside the union too.
 
-These two pin Hybrid k=10's residual: the two shared blind spots (Q31 Ch22,
-Q32 Ch15) no retrieval blend fixes. Hybrid k=10 in turn beats Ceiling on Q48
-([§ Q48](#q48-the-two-part-question)).
+The other six (Q26, Q27, Q30, Q36, Q37, Q50) are synthesis: Hybrid k=10 holds
+every gold chapter, inside a union context several times the size of Ceiling's,
+and leaves part of a multi-part answer out. Hybrid k=10 in turn beats Ceiling on
+Q34 (above) and Q48 ([§ Q48](#q48-the-two-part-question)).
 
 ## Vector-line (line-level retrieval)
 
@@ -398,25 +434,26 @@ expansion and answering. The question is whether a finer unit — matching the o
 sentence that answers the question, rather than diluting it across a whole scene
 — retrieves better.
 
-It does not, on balance. The headline is **0.770 (k=5) / 0.850 (k=10)**, below
-segment Vector's 0.820 / 0.920 at both depths. The line unit does what
-finer granularity should — it lifts **chapter precision** (k=5 0.337→0.401, k=10
-0.205→0.274, the highest of any dense method) and **saturates single-passage to
-1.000 at k=5**, beating segment k=5's 0.960. But it lowers **chapter
-recall** (k=5 0.720→0.660, k=10 0.840→0.780), and almost the entire deficit is
-cross-reference: cross drops to 0.540 (k=5) and 0.740 (k=10).
+It does not, on balance. The headline is **0.740 (k=5) / 0.810 (k=10)**: level
+with segment Vector's 0.730 at k=5 and below its 0.840 at k=10. The line unit
+does what finer granularity should — it lifts **chapter precision** (k=5
+0.337→0.401, k=10 0.205→0.274, the highest of any dense method) and
+**saturates single-passage to 1.000 at k=5**, beating segment k=5's 0.960. But
+it lowers **chapter recall** (k=5 0.720→0.660, k=10 0.840→0.780), and the
+cross-reference score falls with it: 0.480 (k=5) and 0.640 (k=10), against
+segment Vector's 0.500 and 0.700.
 
 ### Why cross-reference suffers
 
-Most Vector-line losses against segment Vector are **missed-context** retrieval
-misses, 9 of 10 at k=5 and 5 of 8 at k=10:
+Every loss of Vector-line k=5 to segment Vector k=5 is a **missed-context**
+retrieval miss:
 
 | direction | n | missed-context | synthesis |
 | --- | --- | --- | --- |
-| Vector k=5 beats Vector-line k=5 | 10 | 9 | 1 |
-| Vector-line k=5 beats Vector k=5 | 5 | 3 | 2 |
-| Vector k=10 beats Vector-line k=10 | 8 | 5 | 3 |
-| Vector-line k=10 beats Vector k=10 | 3 | 2 | 1 |
+| Vector k=5 beats Vector-line k=5 | 6 | 6 | 0 |
+| Vector-line k=5 beats Vector k=5 | 6 | 4 | 2 |
+| Vector k=10 beats Vector-line k=10 | 7 | 3 | 4 |
+| Vector-line k=10 beats Vector k=10 | 4 | 3 | 1 |
 
 The mechanism is the flip side of the precision gain. When a gold chapter's
 relevance is carried by **one distinctive line**, the line unit surfaces it
@@ -424,31 +461,33 @@ cleanly; but when the relevant content is **diffuse across a scene**, no single
 line accumulates enough similarity to crack the top-k, whereas the scene-level
 average still ranks. Cross-reference questions lean on the diffuse case, so they
 lose the most (e.g. Q26 Ch11/29 and Q40 Ch13/27, both dropped by
-Vector-line k=5 but held by segment k=5).
+Vector-line k=5 but held by segment k=5, and both `incorrect` there).
 
 ### The misses are orthogonal
 
 Crucially, Vector-line is not strictly worse retrieval — it has its **own** wins
-that segment search drops. At k=10 it recovers **Q34 (Ch31)**, a chapter
-segment search misses at both depths, here surfaced because one lexically sharp
-line ranks where the averaged scene did not, and it lifts the
-[Class A](#both-wrong-what-k10-cannot-fix) Q49 from incorrect to partial even
+that segment search drops. At k=10 it recovers **Q34 (Ch31)** and **Q38
+(Ch32)**, chapters segment search misses at both depths, here surfaced because
+one lexically sharp line ranks where the averaged scene did not, and it lifts
+the [Class A](#both-wrong-what-k10-cannot-fix) Q49 from incorrect to partial even
 without Ch22. At k=5 it likewise lifts Q49 to partial, fixes Q21/Q29 by
-synthesis and Q45 by retrieval, and lifts Q28 from incorrect to partial by
-retrieving both of its chapters. So line and
+synthesis and Q45 by retrieval, lifts Q28 from incorrect to partial by
+retrieving both of its chapters, and completes Q48 without Ch11. So line and
 segment granularity fail on **orthogonal chapters** — the same dense-vs-lexical
-tension [Hybrid](#hybrid-dense--bm25-union) exploits, in miniature — but the line
-unit drops more cross chapters than it recovers, so the net is negative and
-segment-level retrieval stays the stronger dense baseline.
+tension [Hybrid](#hybrid-dense--bm25-union) exploits, in miniature. At k=5 the
+wins and losses balance (6–6); at k=10 the line unit loses more than it
+recovers (4–7), so segment-level retrieval stays the stronger dense baseline.
 
 ### Depth still helps
 
-Like segment Vector, deepening k=5→k=10 is almost purely a retrieval gain:
-Vector-line k=10 beats k=5 on 8 questions, **7 of them missed-context** (the
-eighth, Q28, already has both gold chapters at k=5 but answers only partially),
-against two synthesis regressions (Q22, Q48). The k=5 unit is simply too tight for cross-reference —
-the same lesson [`sweep_vector.py`](../README.md#sweep_vectorpy) drew for the
-segment index, only sharper here because the line unit retrieves less per hit.
+Like segment Vector, deepening k=5→k=10 is mostly a retrieval gain:
+Vector-line k=10 beats k=5 on 7 questions, **5 of them missed-context** (the
+other two, Q28 and Q35, already have both gold chapters at k=5 but answer only
+partially), against three regressions: Q22 and Q48 by synthesis, and Q36, a
+near tie where both depths lack Ch17/21. The k=5 unit is simply too tight for
+cross-reference — the same lesson [`sweep_vector.py`](../README.md#sweep_vectorpy)
+drew for the segment index, only sharper here because the line unit retrieves
+less per hit.
 
 ## V-hybrid (segment ∪ line dense union)
 
@@ -460,11 +499,11 @@ strict-recall gain from [VECTOR-HYBRID.md](../VECTOR-HYBRID.md) (en +2 @ k=5, +3
 dense + BM25, so it needs no score-scale reconciliation and works in both
 languages.
 
-It scores **0.870 (k=5) / 0.930 (k=10)** — above plain Vector k=5 (0.820) and
-Vector-line (0.770 / 0.850), level with segment Vector k=10 (0.920) at k=10, and
-below the dense∪BM25 Hybrid (0.880 / 0.980). The most striking column is
-`incorrect`: V-hybrid k=5 has just **2** (vs Vector k=5's 6, Vector-line k=5's
-6), with 9 partials. The
+It scores **0.820 (k=5) / 0.850 (k=10)** — above plain Vector k=5 (0.730) and
+Vector-line (0.740 / 0.810), level with segment Vector k=10 (0.840) at k=10, and
+below the dense∪BM25 Hybrid (0.840 / 0.890). The most striking column is
+`incorrect`: V-hybrid k=5 has just **2** (vs Vector k=5's 5, Vector-line k=5's
+6), with 14 partials. The
 union surfaces so many gold chapters that almost nothing is fully missed — chapter
 recall on cross-reference reaches **0.800 at k=10** (vs Vector k=10's 0.680) —
 but the recovered chapters convert to *partial* more often than *correct*: the
@@ -475,16 +514,17 @@ right chapter is present, yet the wider context dilutes synthesis.
 The disagreement pass pins why V-hybrid lands level with Vector k=10 and below
 Hybrid:
 
-- **vs segment Vector k=10 (wins 2–1).** V-hybrid k=10 beats Vector k=10 on two
-  questions, Q49 (lifted to partial although neither holds Ch22) and Q50 (the
-  judge boundary of [§ The one regression](#the-one-regression-q50)), and loses
-  one, Q48, by **synthesis**, where the ~1.4× larger union context leaves the
-  answer incomplete with the same chapters. The retrieval gain is real, but it
-  barely shows in answer accuracy, as [VECTOR-HYBRID.md](../VECTOR-HYBRID.md)
+- **vs segment Vector k=10 (wins 4–3).** V-hybrid k=10 beats Vector k=10 on
+  four questions: Q49 (lifted to partial although neither holds Ch22), Q17 (the
+  near tie on "five days"), and Q27 and Q47 by synthesis. It loses three, Q26,
+  Q37 and Q48, all by **synthesis**, where the ~1.4× larger union context leaves
+  the answer incomplete with the same chapters. The retrieval gain is real, but
+  it barely shows in answer accuracy, as [VECTOR-HYBRID.md](../VECTOR-HYBRID.md)
   warned: synthesis pays for the extra context.
-- **vs dense∪BM25 Hybrid k=10 (loses 5–0).** Hybrid strictly dominates: it wins
-  five questions (three missed-context, two synthesis), V-hybrid wins none. The
-  three missed-context losses are the [Class A](#both-wrong-what-k10-cannot-fix)
+- **vs dense∪BM25 Hybrid k=10 (loses 6–2).** Hybrid wins six questions (three
+  missed-context, three synthesis); V-hybrid wins two, Q27 and Q47, by
+  synthesis. The three missed-context losses are the
+  [Class A](#both-wrong-what-k10-cannot-fix)
   chapters — Q31 Ch21/22, Q43 Ch37, Q49 Ch22 — that dense embedding cannot rank at *any*
   granularity because they are lexically distinctive but semantically generic.
   Unioning two dense granularities cannot reach them; only BM25's lexical signal
@@ -496,9 +536,9 @@ lowest incorrect rate of any Vector variant, yet it barely improves on segment
 Vector k=10 (synthesis cost) and sits below the lexical Hybrid (dense-blind
 Class A chapters). The matched-budget reading makes this sharper: V-hybrid k=5
 pools `seg5 ∪ line5`, a ~k=10 segment context, so its real baseline is Vector
-k=10 (0.920) — which it trails, losing five questions and winning none. **Japanese confirms the pattern rather than reversing
-it:** there V-hybrid k=5 falls just below plain Vector k=10 (0.890 vs 0.900), never beating
-it — the segment∪line union has no BM25-equivalent lever for the dense-blind
+k=10 (0.840) — which it trails, losing three questions and winning one. **Japanese confirms the pattern rather than reversing
+it:** there V-hybrid k=5 falls below plain Vector k=10 (0.800 vs 0.830) — the
+segment∪line union has no BM25-equivalent lever for the dense-blind
 chapters, so it buys no accuracy over the simpler single-index retriever (see
 [results-ja/README.md](../results-ja/README.md#v-hybrid-segment--line-dense-union)).
 
@@ -508,54 +548,58 @@ The per-chapter Filter strategy — reading every chapter and keeping those the
 LLM does not mark irrelevant, then answering from their full text — is analyzed
 in full in [FILTER.md](../FILTER.md). The short version relevant to this case
 study: Filter3 (`yes`/`maybe`/`no`, keep all but `no`) answers the three
-vector-unreachable Class A questions (Q31, Q43, Q49) correctly, the same wins
-per-chapter Extract gets, confirming those are a dense-retrieval problem rather
-than a gold one. Its residual losses are mostly confident-wrong-`no` wipeouts
-(Q34, Q42, and the Class B Q32), the same chapters Extract also drops, plus
-two partials on Q47 and Q50. The `maybe`
+vector-unreachable Class A questions (Q31, Q43, Q49) correctly, confirming
+those are a dense-retrieval problem rather than a gold one. Its two incorrect
+answers are confident-wrong-`no` wipeouts (Q34, Q42), and the Class B Q32 is a
+third, landing partial; all three are chapters Extract also drops. The `maybe`
 verdict is the lever — the strict two-level Filter2 (keep only `yes`) falls to
-0.800, below Extract — but the gold-floor and cost analysis in FILTER.md finds
-no retrieval advantage over Vector k=10. The Ceiling comparison below uses Filter3
-as the best-scoring retrieval method.
+0.780, below Extract (0.810) — and with it Filter3 ties Hybrid k=10 at 0.890.
+The Ceiling comparison below includes both.
 
 ## Ceiling: the perfect-retrieval upper bound
 
 Ceiling strips out retrieval entirely: the gold `chapters` are fed verbatim as
 context, so chapter recall and precision are both **1.000 by construction** —
 the context *is* the gold set. Every Ceiling loss is therefore a pure
-**synthesis** loss, and its score (0.990) is the upper bound every retrieval
-strategy chases. The question it answers is not *"which chapters should the
-answerer see?"* but *"given the right chapters, how well does the model read
-and synthesize?"*
+**synthesis** loss, and its score (0.960: 46 correct, 4 partial, no incorrect)
+is the upper bound every retrieval strategy chases. The question it answers is
+not *"which chapters should the answerer see?"* but *"given the right chapters,
+how well does the model read and synthesize?"*
 
 ### Ceiling's margin over every method
 
-Ceiling's margin over each method is the pure cost of that method's retrieval,
-and the gradient tracks retrieval quality exactly:
+Ceiling's margin over each method is the cost of that method's retrieval plus
+the synthesis it loses in its own context:
 
 | method | method score | Ceiling beats it on | missed-context | synthesis | beats Ceiling on |
 | --- | --- | --- | --- | --- | --- |
-| Filter2 | 0.800 | 12 | 12 | 0 | 0 |
-| Vector k=5 | 0.820 | 12 | 10 | 2 | 1 |
-| Extract | 0.860 | 10 | 7 | 3 | 1 |
-| Hybrid k=5 | 0.880 | 9 | 6 | 3 | 0 |
-| Vector k=10 | 0.920 | 6 | 5 | 1 | 1 |
-| Filter3 | 0.930 | 5 | 4 | 1 | 1 |
-| Hybrid k=10 | 0.980 | 2 | 2 | 0 | 1 |
+| Vector k=5 | 0.730 | 18 | 11 | 7 | 0 |
+| Filter2 | 0.780 | 14 | 14 | 0 | 1 |
+| Extract | 0.810 | 13 | 10 | 3 | 1 |
+| Hybrid k=5 | 0.840 | 12 | 7 | 5 | 1 |
+| Vector k=10 | 0.840 | 11 | 6 | 5 | 1 |
+| Hybrid k=8 | 0.870 | 9 | 4 | 5 | 2 |
+| Filter3 | 0.890 | 7 | 4 | 3 | 1 |
+| Hybrid k=10 | 0.890 | 9 | 3 | 6 | 2 |
 
-The count never grows as accuracy rises: the better the retrieval, the
-fewer questions separate it from the ceiling. **Hybrid k=10 — the top-scoring
-retrieval method — sits just two questions below Ceiling**; Filter3 sits five.
+The missed-context column falls as retrieval improves (14 or 11 at the bottom,
+3 for Hybrid k=10), but the synthesis column does not: the dense and hybrid
+methods keep losing five to seven questions to Ceiling with every gold chapter
+in context. **The top two methods tie at 0.890 by different routes**: Filter3
+loses fewer questions to Ceiling (seven), Hybrid k=10 loses fewer of them to
+retrieval (three) and beats Ceiling twice.
 
-Where the last column is non-zero it is always the same question: Q48, where
-Ceiling lands `partial`. It is a completeness gap on a two-part answer, not a
-retrieval effect, and only part of it is a real gap — Vector k=5, Extract and
-Filter3 omit the same half Ceiling omits and are scored `correct` regardless.
-See [§ Q48](#q48-the-two-part-question) below.
+Where the last column is non-zero it is always one of three Ceiling partials:
+Q47 (Filter2, Hybrid k=5, Hybrid k=8, Filter3), Q48 (Extract, Vector k=10,
+Hybrid k=10) and Q34 (Hybrid k=8, Hybrid k=10). Q34 is a real error in Ceiling's
+answer (see [§ Class B](#class-b--the-failures-shared-with-the-per-chapter-readers-q32-q34-q42));
+Q48 is a real completeness gap against some methods
+([§ Q48](#q48-the-two-part-question)); Q47 is a near tie. Ceiling's fourth
+partial, Q46, is `partial` for every method.
 
-### The five-question gap to Filter3
+### The seven-question gap to Filter3
 
-Filter3 is the closest per-chapter method gets to Ceiling. Its five losses pin
+Filter3 is the closest per-chapter method gets to Ceiling. Its seven losses pin
 down what classifier-based retrieval still cannot fix:
 
 - **Q32, Q34, Q42 (missed-context)** — the confident-wrong-`no` wipeouts
@@ -563,27 +607,25 @@ down what classifier-based retrieval still cannot fix:
   Every gold chapter was marked `no`, so Phase 2 saw nothing. These are the
   same questions Extract drops too (two different classifiers, each reading
   the full chapter, independently decide they are irrelevant), and Ceiling
-  recovers all three — confirming the gold chapters *do* contain the answer.
-  No threshold trick fixes them: the model never hesitated (`no`, not
-  `maybe`), so the `maybe` rescue cannot reach.
+  gets Q32 and Q42 correct and Q34 partial — confirming the gold chapters *do*
+  contain the answer. No threshold trick fixes them: the model never hesitated
+  (`no`, not `maybe`), so the `maybe` rescue cannot reach.
 - **Q50 (missed-context)** — Ch23 was marked `no`, and with it Rammohan
   pointing to Vibha's unkempt hair; the answer stops at the unbraided hair.
-- **Q47 (synthesis)** — Filter3 held both gold chapters (29, 31) and, like
-  Ceiling, describes the fire, the burnt cell and the bones, skull and sword
-  without the melted sword being brought before Pratapaditya. The judge marks
-  that omission `partial` for Filter3 and passes it for Ceiling, so this loss
-  is the judge's boundary, not a difference in reading.
+- **Q29, Q36, Q37 (synthesis)** — Filter3 held every gold chapter and left part
+  of the answer out.
 
-So of Filter3's five losses, four are classifier confidence (fixable only by a
-better `no` bar) and one is judge noise. None is a dense-retrieval
-blindness case — Filter3's per-chapter reading already solved Q31, Q43, Q49, and
-so does Hybrid k=10.
+Filter3 in turn beats Ceiling on Q47. Both describe the fire, the burnt cell and
+the bones, skull and sword without the melted sword being brought before
+Pratapaditya, and both verdicts are near ties (Filter3 0.51 correct, Ceiling
+0.52 partial), so that question is the judge's boundary, not a difference in
+reading. None of Filter3's losses is a dense-retrieval blindness case —
+Filter3's per-chapter reading already solved Q31, Q43, Q49.
 
 ### Q48: the two-part question
 
-Ceiling's lone loss — Q48 (gold 11,19), **partial** — is the one question where
-several retrieval methods land `correct` and Ceiling does not. The gold has two
-halves: Ramchandra's
+Q48 (gold 11,19) is the one Ceiling partial that separates the methods cleanly.
+The gold has two halves: Ramchandra's
 private reading of the midnight rescue (he owes nothing for it; Udayaditya acted
 for his sister's sake) and what he does with it in his own court, where he joins
 the minister and Ramai Bhand in mocking Udayaditya for being Pratapaditya's son.
@@ -599,27 +641,28 @@ rationalizations has not reached the scene the question names.
 
 Both halves sit in the same chapter, so every method that retrieves Ch19 holds
 the same evidence Ceiling does, and the split is answer completeness, not a
-difference in context. It is not a clean split either. Six methods land
-`correct`, but only three of them — Vector k=10, Vector-line k=5 and
-Hybrid k=10 — actually supply the court half. Vector k=5, Extract and Filter3
-stop exactly where Ceiling stops, and the judge passes them anyway, granting
-`correct` while noting in its own reason that the answer "omits the ... detail
-about laughing and joking in court". So Ceiling's deficit on Q48 is real
-against three methods and judge-boundary noise against the other three.
+difference in context. Jev draws the line where the question does. Vector k=10,
+Vector-line k=5 and Hybrid k=10 supply the court half and are `correct` with
+0.82–0.86; Ceiling, Vector k=5 and Filter3 stop at the private
+rationalizations and are `partial`. The one exception is Extract, which also
+stops there and is `correct` on a near tie (0.51 / 0.49). So Ceiling's deficit
+on Q48 is real against three methods and judge-boundary noise against one.
 
 ### What Ceiling confirms
 
 - **The single-passage axis is solved.** Single-passage saturates to 1.000
-  under Ceiling, Filter3, Extract, Vector k=10 and Hybrid k=10, and every
-  method except GraphRAG reaches at least 24/25. The few single-passage losses
-  (Q17, Q21, Q22) are synthesis slips with the gold chapter in context. The
-  entire frontier is cross-reference.
-- **The accuracy gap between methods traces almost entirely to retrieval.**
+  under Ceiling, Filter3, Extract and Hybrid k=10 (and Vector-line k=5,
+  V-hybrid, Filter2), and every method except GraphRAG reaches at least 24/25.
+  The few single-passage losses (Q17, Q21, Q22) are synthesis slips with the
+  gold chapter in context. The entire frontier is cross-reference.
+- **The gap between methods is retrieval at the bottom and synthesis at the
+  top.** Ceiling's margin over Filter2 is entirely missed context, and over
+  Vector k=5 and Extract mostly so; over Hybrid k=10 six of nine are synthesis.
   Ceiling's context is identical in shape to Filter3's Phase 2 (full chapter
   text, same prompt, same model); the only difference is *which* chapters —
-  Ceiling's are perfect, Filter3's are classifier-selected. So Ceiling's 0.990
-  vs Filter3's 0.930 measures what Filter3's four `no` losses cost, plus one
-  question of judge noise (Q47).
+  Ceiling's are perfect, Filter3's are classifier-selected. So Ceiling's 0.960
+  vs Filter3's 0.890 measures what Filter3's four `no` losses cost, plus three
+  synthesis slips, less the Q47 near tie.
 - **Q32's gold answer is confirmed.** Q32 (the secret stipend to dismissed
   guards) was partial for every method including Filter3, with Extract and
   Filter both dropping Ch15. Ceiling — which feeds Ch15 verbatim — gets it
@@ -635,17 +678,17 @@ graph over the corpus and answers queries through two distinct search modes —
 modes run on `ollama:gemma4:31b-it-qat` with the same corpus; details in
 [graphrag-en/README.md](../graphrag-en/README.md).
 
-### GraphRAG local (0.610)
+### GraphRAG local (0.570)
 
-Local search posts 24/50 (0.610) — below Filter2 (0.800) and far below Hybrid
-k=10 (0.980). The chapter-retrieval numbers tell the story: **recall 0.860,
+Local search posts 19/50 (0.570) — below Filter2 (0.780) and far below Hybrid
+k=10 (0.890). The chapter-retrieval numbers tell the story: **recall 0.860,
 precision 0.135** (the lowest of any non-global method). Entity-graph expansion
 tends to pull in nearly all 37 chapters as expanded context, so gold chapters
 are almost always present — but the answerer is forced to synthesize from an
 overloaded context with minimal signal-to-noise.
 
-The failure mode is therefore **synthesis-dominated**. Of GraphRAG local's 25
-losses to Ceiling, **18 are synthesis** (the gold chapter is present but the
+The failure mode is therefore **synthesis-dominated**. Of GraphRAG local's 27
+losses to Ceiling, **20 are synthesis** (the gold chapter is present but the
 answer is wrong or vague) and only 7 are missed context. This is the inverse of
 Vector k=5 (where most losses are retrieval misses) and is structurally similar
 to the "lost in the middle" effect: the right content is there, but buried under
@@ -656,13 +699,13 @@ The synthesis collapse is sharpest on **single-passage questions** (15/25,
 0.620) — the category every retrieval method with adequate recall saturates to
 ≥24/25. GraphRAG local drops 9 of those 25 to incorrect (and 1 to partial),
 producing the worst single-passage score of any non-global method. On
-cross-reference it lands at 9/25 (0.600), below Vector k=5 (0.680) — the
-chapter-graph's entity links provide no structural advantage when the
-bottleneck is synthesis over a noisy context.
+cross-reference it lands at 4/25 correct (0.520, mostly partials), level with
+Vector k=5 (0.500) — the chapter-graph's entity links provide no structural
+advantage when the bottleneck is synthesis over a noisy context.
 
-GraphRAG local **beats Hybrid k=10 on a single question** (Q31, where the
-union context still lacks Ch22). Hybrid k=10 wins 26 questions against it (19
-synthesis, 7 missed context).
+GraphRAG local **beats Hybrid k=10 on three questions** (Q27, Q30, and Q31,
+where the union context still lacks Ch22). Hybrid k=10 wins 25 questions against
+it (19 synthesis, 6 missed context).
 
 ### What GraphRAG local gets right
 
@@ -712,27 +755,28 @@ or physical actions at a particular scene — microdetails that entity extractio
 abstracts away. This is exactly the mismatch described above: the graph encodes
 relationships, not passages.
 
-### GraphRAG global (0.170)
+### GraphRAG global (0.130)
 
 Global search is essentially non-functional for passage-level QA. It scores
-3/50 (0.170) — the lowest of any method by a wide margin — and the mechanism is
-clear from the chapter-retrieval numbers: **recall 0.220, precision 0.029**.
-Community summaries operate at the wrong granularity: they abstract away the
-specific chapter details the questions turn on. Of the 47 questions where
-Ceiling beats GraphRAG global, **38 are missed context** — the relevant textual
-evidence is simply absent from the retrieved context, not merely mis-synthesized.
+1/50 correct (0.130) — the lowest of any method by a wide margin — and the
+mechanism is clear from the chapter-retrieval numbers: **recall 0.220,
+precision 0.029**. Community summaries operate at the wrong granularity: they
+abstract away the specific chapter details the questions turn on. Of the 47
+questions where Ceiling beats GraphRAG global, **38 are missed context** — the
+relevant textual evidence is simply absent from the retrieved context, not
+merely mis-synthesized.
 
-Single-passage (2/25, 0.100) is almost a complete failure: community-level
+Single-passage (1/25, 0.060) is almost a complete failure: community-level
 summaries cannot anchor a question to the specific scene where an event occurs.
-Cross-reference (1/25 correct, 0.240) fares slightly better on the weighted
+Cross-reference (0/25 correct, 0.200) fares slightly better on the weighted
 score because a handful of prominent cross-cutting themes appear in the
 community summaries, earning 10 partials, but the score is still far below
-every other method including Filter2 (0.600).
+every other method including Filter2 (0.560).
 
 ### Summary
 
 Neither GraphRAG mode reaches the level of the simplest pipeline method (Vector
-k=5, 0.820). The local mode's high recall does not translate to accuracy because
+k=5, 0.730). The local mode's high recall does not translate to accuracy because
 synthesis degrades over an overloaded context; the global mode's community
 abstractions miss the passage-level details entirely. For a chapter-structured
 novel QA task with specific factual questions, the flat embedding pipeline —
@@ -742,80 +786,77 @@ index).
 
 ## Takeaways
 
-- **k=10 delivers the sweep's promise on cross-reference** (0.680→0.840),
-  single saturates to 1.00, and Vector k=10 overtakes Extract on accuracy
-  (0.92 vs 0.86). The win is broad — seven questions fixed — at the cost of one
-  regression (Q50, a judge boundary) and lower chapter precision. (The Filter
-  rows — Filter3 at 0.93, Filter2 at 0.80 — are analyzed in
-  [FILTER.md](../FILTER.md).)
-- **The 0.92 vs 0.86 margin is Extract's Phase 1 filter, not its synthesis —
-  and Filter3 confirms the fix.** `report.py`'s disagreement pass shows 5 of
-  Extract's 8 losses to k=10 are Phase 1 false negatives (a gold chapter
-  dropped by a wrong `None`); only 3 are synthesis slips. The k=10 study
-  predicted the lever was to *weaken Extract's `None` bar* (ceiling 40+5 = 45
-  correct, re-overtaking k=10); Filter3 is that lever made real — keeping
-  every chapter not marked `no` recovers 3 of those 5 Phase 1 false negatives
-  (plus all 3 synthesis slips) and lands at 45 correct / 0.930 weighted, level
-  with the 45 ceiling even though Q34 and Q42 stay false negatives for Filter3
-  too.
-- **Two of the k=5 losses were not retrieval problems.** Two of the seven fixes
-  (Q21, Q29) had the gold chapter in context all along; k=10's extra context
-  just yielded a better answer. Retrieval depth is not the only lever — answer
+- **k=10 delivers the sweep's promise on cross-reference** (0.500→0.700),
+  single stays near saturation, and Vector k=10 overtakes Extract on accuracy
+  (0.84 vs 0.81). The win is broad — ten questions fixed — at the cost of two
+  regressions (Q17, Q38, both near ties on nearly the same answer) and lower
+  chapter precision. (The Filter rows — Filter3 at 0.89, Filter2 at 0.78 — are
+  analyzed in [FILTER.md](../FILTER.md).)
+- **Extract's deficit is its Phase 1 filter, not its synthesis — and Filter3
+  confirms the fix.** `report.py`'s disagreement pass shows 7 of Extract's 9
+  losses to k=10 are Phase 1 false negatives (a gold chapter dropped by a wrong
+  `None`); only 2 are synthesis slips. Filter3 is the lever made real — keeping
+  every chapter not marked `no` turns four of those seven (Q26, Q28, Q39, Q40)
+  and both synthesis slips (Q33, Q35) correct, and lands at 41 correct / 0.890
+  weighted against Extract's 35 / 0.810, even though Q34 and Q42 stay false
+  negatives for Filter3 too.
+- **Most k=5 losses were not retrieval problems.** Seven of the ten fixes (Q21,
+  Q26, Q29, Q35, Q37, Q40, Q48) had the gold chapters in context all along, or
+  lacked the same chapter at both depths; k=10's extra context just yielded a
+  more complete answer. Retrieval depth is not the only lever — answer
   synthesis improves with context too.
 - **The dense-retrieval blindness frontier is closeable without per-chapter cost.**
-  Of the five both-wrong questions, three (Q31, Q43, Q49) are Class A: Extract
-  and Filter3, reading the full chapter text, get all three correct, and
-  **Hybrid k=10** gets Q43 and Q49 correct and Q31 partial. The chapter-question
-  link is vector-unreachable at k≤10 but lexically distinctive; BM25 surfaces
-  these chapters at k=10 (all but Q31's Ch22), making the union approach nearly
-  as effective as per-chapter reading for the Class A frontier at a fraction of
-  the cost.
-- **Hybrid k=10 (0.980) is the top retrieval method** and the closest to Ceiling
-  among all methods. It translates the +4 retrieval recall from HYBRID.md into
-  +4 correct answers over Vector k=10, losing no question to it, and leaves two
-  shared blind spots (Q31, Ch22; Q32, Ch15). Single-passage saturates to 1.00
-  only at k=10 (k=5 and k=8 miss Q17), and on cross-reference Hybrid k=10
-  (0.960) still trails the cross Ceiling (0.980) by the Q31/Q32 blind spots.
+  Three of the questions both Vector depths miss (Q31, Q43, Q49) are Class A:
+  Filter3, reading the full chapter text, gets all three correct, Extract two,
+  and **Hybrid k=10** gets Q43 and Q49 correct and Q31 partial. The
+  chapter-question link is vector-unreachable at k≤10 but lexically distinctive;
+  BM25 surfaces these chapters at k=10 (all but Q31's Ch22), making the union
+  approach nearly as effective as per-chapter reading for the Class A frontier
+  at a fraction of the cost.
+- **Hybrid k=10 (0.890) ties Filter3 as the top retrieval method** and is the
+  only method besides Ceiling with no incorrect answer. It wins six questions
+  against Vector k=10 and loses two, both synthesis, and leaves three shared
+  blind spots (Q31, Ch22; Q32, Ch15; Q42, Ch23). Single-passage saturates to
+  1.00 only at k=10 (k=5 and k=8 miss Q17), and on cross-reference Hybrid k=10
+  (0.780) trails the cross Ceiling (0.920) by those blind spots and six
+  synthesis partials.
 - **The `maybe` verdict is what makes the per-chapter filter work**, and its
   residual is a *confident* wrong `no` (Q32, Q34, Q42) that no threshold trick
-  reaches — but the gold-floor and cost analysis still finds no retrieval
-  advantage over Hybrid k=10. The full mechanism and verdict are in
+  reaches. The full mechanism and the cost comparison are in
   [FILTER.md](../FILTER.md).
 - **One question is hard for every retrieval method** (Q32): all methods land
   partial (Hybrid k=10 included — Ch15 is outside the union's top-k at k=10).
   Ceiling disambiguates it: with Ch15 fed verbatim the answerer gets it
   *correct*, so the gold is sound and the other methods' failures are
   retrieval/extraction.
-- **Ceiling isolates the synthesis ceiling at 0.990.** With retrieval stripped
-  out (gold chapters verbatim), the answerer reads 49 of 50 correctly —
-  including Q32, which every retrieval method gets partial — and its single
-  `partial` is Q48, a completeness gap on a two-part answer that two of the
-  seven methods below actually fill (three more are scored `correct` on the
-  same omission — see [§ Q48](#q48-the-two-part-question)). Ceiling's margin
-  over each method
-  (12/12/10/9/6/5/2 for
-  Filter2/Vector k=5/Extract/Hybrid k=5/Vector k=10/Filter3/Hybrid k=10) never
-  grows with retrieval quality, tracing almost the entire accuracy gap to
-  retrieval. Hybrid k=10 is within two questions — the two shared blind spots —
-  and neither is a classifier or depth problem. The
-  retrieval frontier is effectively closed; what remains is two chapters no blend
-  of dense + BM25 can rank (Q31, Ch22; Q32, Ch15).
+- **Ceiling isolates the synthesis ceiling at 0.960.** With retrieval stripped
+  out (gold chapters verbatim), the answerer reads 46 of 50 correctly —
+  including Q32, which every retrieval method gets partial — and has no
+  incorrect answer. Its four partials are all cross-reference: Q34 (a wrong
+  causal link with every chapter in context), Q48 (a completeness gap on a
+  two-part answer that three methods fill), and Q46 and Q47 (near ties).
+  Ceiling's margin over each method
+  (18/14/13/12/11/9/7/9 for
+  Vector k=5/Filter2/Extract/Hybrid k=5/Vector k=10/Hybrid k=8/Filter3/Hybrid k=10)
+  shrinks as retrieval improves, but at the top it is mostly synthesis: Hybrid
+  k=10 is within three missed-context questions of Ceiling — the three shared
+  blind spots — and loses six more with every gold chapter in context.
 - **The gold holds up.** Across every disagreement the failures trace to a
   method or to the judge's boundary — never to the gold — and Ceiling confirms
   the ones the other methods most often miss: Q31/Q43/Q49 (the
   vector-unreachable trio, all correct under Ceiling), Q32 (the secret-stipend
   question, correct under Ceiling despite being partial for every retrieval
-  method) and Q34 (correct under Ceiling, which holds Ch31).
+  method) and Q42 (correct under Ceiling, which holds Ch23).
 - **GraphRAG does not match the pipeline on this task overall, but reveals what
-  graph structure can and cannot do.** Local search (0.610) falls below Filter2:
+  graph structure can and cannot do.** Local search (0.570) falls below Filter2:
   entity-graph expansion overloads context (recall 0.860, precision 0.135) and
-  18 of 25 losses to Ceiling are synthesis failures, not missed context. Yet it
+  20 of 27 losses to Ceiling are synthesis failures, not missed context. Yet it
   has a coherent strength — questions about *character relationship arcs and
   narrative causality* (e.g. Q26/Q28, answered with 0 chapters from pure graph
   traversal, both partial; Q31/Q49, the Class A cases that
   dense+BM25 also recovers via lexical matching, here reached via entity
   chains, Q31 correct and Q49 partial). It fails on microdetail questions
   requiring specific text. Global
-  search (0.170) is non-functional: community summaries are the wrong
+  search (0.130) is non-functional: community summaries are the wrong
   granularity (38 of 47 losses to Ceiling are missed context). Global never
-  beats Hybrid k=10; local beats it only on Q31.
+  beats Hybrid k=10; local beats it on three questions (Q27, Q30, Q31).

@@ -17,13 +17,14 @@ score = `(correct + 0.5·partial) / 50` (from [README](README.md#results)).
 
 | method | strict recall | partial recall | avg kept | gold floor | Phase 2 score |
 |---|---:|---:|---:|---:|---:|
-| Filter2 (keep `yes`) | 0.60 | 0.73 | 1.3 | 33/86 | 0.800 |
-| Filter3 (keep ≠ `no`) | 0.88 | 0.92 | 2.3 | 12/86 | 0.930 |
+| Filter2 (keep `yes`) | 0.60 | 0.73 | 1.3 | 33/86 | 0.780 |
+| Filter3 (keep ≠ `no`) | 0.88 | 0.92 | 2.3 | 12/86 | 0.890 |
 | Filter10 ≥3 (F1 peak) | 0.76 | 0.86 | 1.7 | 7/86 | — |
 | Filter100 (any threshold) | — | — | — | 11/86 | — |
 | Filter5d sum ≥5 | **1.00** | **1.00** | 14.3 | **0/86** | — |
-| *Vector k=10 (reference)* | — | 0.84 | — | — | 0.920 |
-| *Ceiling (reference)* | 1.00 | 1.00 | — | 0 | 0.990 |
+| *Vector k=10 (reference)* | — | 0.84 | — | — | 0.840 |
+| *Hybrid k=10 (reference)* | — | 0.92 | — | — | 0.890 |
+| *Ceiling (reference)* | 1.00 | 1.00 | — | 0 | 0.960 |
 
 Gold floor = gold chapters unrecoverable at any keep threshold (scored 0 under
 the numeric variants, or marked `no` under the verdict variants). Filter5d
@@ -36,12 +37,15 @@ floor-vs-excess trade-off that is the method's hard limit (see
 **The LLM-as-retriever has no practical advantage over Vector RAG.**
 
 - **Ceiling redefines the evaluation axis.** The Ceiling run (gold chapters fed
-  verbatim as context) scores **0.990** — so once the gold chapters reach the
-  answerer, the answer follows, and over-inclusion does not hurt accuracy (only
-  Phase 2 token cost). That means a retrieval method can be judged on a single
-  question — *does it surface the gold chapters?* — without running Phase 2 at
-  all. The metric that matters is the **gold floor**: gold chapters that are
-  unrecoverable at any keep threshold. Floor is the ceiling on a method's recall.
+  verbatim as context) scores **0.960** with no incorrect answer — so once the
+  gold chapters reach the answerer, the answer mostly follows. That means a
+  retrieval method can be compared on a single question — *does it surface the
+  gold chapters?* — without running Phase 2 at all. The metric that matters is
+  the **gold floor**: gold chapters that are unrecoverable at any keep
+  threshold. Floor is the ceiling on a method's recall. Over-inclusion is not
+  free (it costs Phase 2 tokens and some synthesis, see
+  [results-en/README.md § The residual to Ceiling](results-en/README.md#the-residual-to-ceiling)),
+  but it does not make a gold chapter unreachable.
 - **The floor-vs-excess trade-off is the method's hard limit.** A per-chapter
   filter can drive the floor to zero only by keeping almost everything. Filter5d
   achieves **floor 0/86** but at **~14 chapters kept per question** (excess 629
@@ -54,9 +58,9 @@ floor-vs-excess trade-off that is the method's hard limit (see
   (37 chapters × 50 questions) against k=10's single embedding + cosine pass —
   **hundreds of times the cost for an equivalent result.**
 
-So while Filter3 posts the highest *Phase 2* QA score in the table (0.930,
-slightly above Vector k=10's 0.920), that margin does not justify the cost, and the
-gold-floor view shows no retrieval advantage. The residual the filter cannot
+So while Filter3 posts the highest *Phase 2* QA score of the filter variants
+(0.890, above Vector k=10's 0.840), Hybrid k=10 reaches the same 0.890 with one
+embedding pass and BM25, and the gold-floor view shows no retrieval advantage. The residual the filter cannot
 reach (the confident-wrong-`no` floor) needs a different *mechanism* — the
 BM25/lexical hybrid in [HYBRID.md](HYBRID.md) — not a better LLM prompt.
 
@@ -83,7 +87,7 @@ was marked `no`. Of the 86 gold chapters, 42 were `yes`, 32 were `maybe`, and 12
 were `no` — so keeping only `yes` gives chapter recall 0.49, while keeping
 `yes`+`maybe` gives 0.86. The V=2 run confirms the contrast from the other side:
 forced into a binary call, the model marks 33 of 86 gold chapters `no` and only
-53 earn `yes` (recall 0.62), dropping Filter2 to 0.800 — below Extract.
+53 earn `yes` (recall 0.62), dropping Filter2 to 0.780 — below Extract (0.810).
 
 ---
 
@@ -324,9 +328,10 @@ which is exactly the limit named in the [Verdict](#verdict).
 
 The Filter experiment establishes a clean boundary on the LLM-as-retriever idea:
 
-1. **Evaluation collapses to the gold floor.** Ceiling (0.990) proves that gold
-   inclusion suffices and over-inclusion is harmless, so a retrieval method needs
-   only to surface the gold chapters — no Phase 2 QA run is required to rank it.
+1. **Evaluation collapses to the gold floor.** Ceiling (0.960, no incorrect
+   answer) shows that gold inclusion is what the answer mostly depends on, so a
+   retrieval method needs only to surface the gold chapters — no Phase 2 QA run
+   is required to rank it.
 2. **The floor-vs-excess trade-off is a hard limit, not a tuning problem.**
    Filter5d reaches floor 0/86 but only by keeping ~14 chapters/question; the
    single-axis variants keep ~2 but leave a 7–11 gold floor. No prompt or scale
@@ -335,8 +340,9 @@ The Filter experiment establishes a clean boundary on the LLM-as-retriever idea:
    cost.** Filter10 (the cost-efficient single-axis variant, since one Phase 1
    run covers every threshold) lands at floor 7/86 and recall comparable to Vector
    k=10's 0.840 — but at 1,850 LLM calls versus one embedding pass. The highest
-   Phase 2 score in the table (Filter3, 0.930) beats Vector k=10 (0.920) by one
-   question, which does not justify that cost.
+   Phase 2 score of the filter variants (Filter3, 0.890) beats Vector k=10
+   (0.840) but only ties Hybrid k=10 (0.890), which costs one embedding pass
+   plus BM25.
 
 The residual the filter cannot reach — the confident-wrong-`no` floor on
 indirectly-relevant chapters — is the same dense-retrieval blindness, and the
