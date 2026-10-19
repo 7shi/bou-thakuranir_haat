@@ -27,11 +27,15 @@ Filenames encode the method, model and language so multiple experiments coexist
 
 - `<METHOD>-<MODEL>-<LANG>.jsonl` — answers, e.g.
   `hybrid8-google_gemini-4-31b-it-ja.jsonl`
-- `judge/<METHOD>-<MODEL>-<LANG>.jsonl` — verdicts (`judge.py`, opt-in)
 - `jev/<METHOD>-<MODEL>-<LANG>.tsv` — Jev probabilities (`judge-jev.py`,
-  opt-in; see [JEV.md](../JEV.md)), with `jev/MODELS.tsv` recording the Jev
+  opt-in; see [models/JEV.md](../models/JEV.md)), with `jev/MODELS.tsv` recording the Jev
   version and scheme per file; the run's cost and time are in
-  [JEV.md](JEV.md)
+  [jev/README.md](jev/README.md)
+- `judge/`, `nimble/`, `clef-flash/`, `clef/`, `openai/`, `ternary/` — the
+  frozen judges (qwen's `judge.py` and the others compared in
+  [models/README.md](../models/README.md)). Each keeps its verdicts, its last
+  report and chart, and a README.md on its grading run; none is run on new
+  answer files.
 
 The method leads so runs group by method, and the language trails so it can be
 read straight off the filename — the model is the only field that may itself
@@ -39,14 +43,14 @@ contain "`-`".
 
 The scores in this README are **Jev** (`jev-1.14.0`) verdicts, each question
 counting as its most probable verdict, aggregated by `report.py --jev` into
-[report-jev.md](report-jev.md). The `jev-1.13.0` verdicts are kept frozen in
+[report.md](report.md). The `jev-1.13.0` verdicts are kept frozen in
 `jev-1.13.0/`, with their last [report-jev.md](jev-1.13.0/report-jev.md);
-how the two versions compare is in [JEV-1.14.md](../JEV-1.14.md). The `ollama:qwen3.6` verdicts, the judge of the
-main table in [README.md](../README.md), stay in `judge/` and are aggregated
-into [report.md](report.md). How this directory switched from qwen to Jev —
+how the two versions compare is in [models/JEV-1.14.md](../models/JEV-1.14.md). The `ollama:qwen3.6` verdicts, the judge of the
+main table in [README.md](../README.md), stay frozen in `judge/` with their last
+[report.md](judge/report.md). How this directory switched from qwen to Jev —
 the introduction experiment, the grading run, and a per-model comparison of
 the two judges with the expected score E computed from the Jev probabilities
-— is recorded in [JEV.md](JEV.md).
+— is recorded in [jev/README.md](jev/README.md).
 
 ## Usage
 
@@ -57,10 +61,8 @@ line):
 make hybrid8 MODEL=... LANG={en,ja}   # answer 50 questions → hybrid8-<MODEL>-<LANG>.jsonl
 make ceiling MODEL=... LANG={en,ja}   # answer 50 questions → ceiling-<MODEL>-<LANG>.jsonl
 make test    MODEL=... LANG={en,ja}   # answer question 1 only, both methods, no file output
-make judge                            # opt-in: grade every ungraded answer file
-make judge-jev                        # opt-in: the same with Jev → jev/*.tsv
-make report                           # aggregate every judged run → report.md
-make report-jev                       # aggregate jev/*.tsv → report-jev.md
+make judge                            # opt-in: grade every ungraded answer file with Jev → jev/*.tsv
+make report                           # aggregate jev/*.tsv → report.md + MODELS.svg
 ```
 
 - `MODEL` — llm7shi model string of the answerer (e.g.
@@ -74,9 +76,8 @@ for checking a model/backend combination (e.g. the ROCm issue below) without
 polluting the directory with a throwaway file to clean up afterward.
 
 `make judge` needs neither: it scans this directory for answer files that have
-no `judge/` counterpart yet and reads the language off each filename.
-`make judge-jev` does the same against `jev/`, passing the pending files to one
-`judge-jev.py` call per language.
+no complete `jev/` counterpart yet, reads the language off each filename, and
+passes the pending files to one `judge-jev.py` call per language.
 
 Example:
 
@@ -165,7 +166,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 down, then correct/partial/incorrect out of 50 in parentheses. The
 `gemma-4-31b-it` row is the canonical `results-<lang>/ceiling.jsonl` run,
 graded in `results-<lang>/jev/ceiling.tsv`; the other rows live in this
-directory and are aggregated in [report-jev.md](report-jev.md).
+directory and are aggregated in [report.md](report.md).
 The `opencode:*` rows are produced by a separate pipeline that drives the
 `opencode` coding-agent CLI instead of the llm7shi-based `answer_ceiling.py`
 used for every other row — see [opencode/README.md](../opencode/README.md).)
@@ -177,7 +178,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   English models lie within 93–99, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
-  grading noise. [JEV.md](JEV.md)'s expected score E is the finer tiebreaker.
+  grading noise. [jev/README.md](jev/README.md)'s expected score E is the finer tiebreaker.
 * **The floor sits far below.** English goes down to 64 (`sarashina3-nano`) and
   Japanese to 64 (`qwen3.5:4b`, `cat-jam-free` and both
   `poolside/laguna-*-2.1:free`), even with the gold chapters
@@ -376,7 +377,6 @@ question.
   reads only `results-<lang>/hybrid<k>.jsonl`), so these runs never leak into
   the main table. `make report` here is the independent aggregation: it reuses
   the parent's `accuracy` / `retrieval` helpers but simply tallies every
-  `judge/*.jsonl` present in this directory and writes `report.md`;
-  `make report-jev` does the same over `jev/*.tsv` and writes `report-jev.md`.
-- `report.md` and `report-jev.md` are generated — re-run `make report` and
-  `make report-jev` after judging a new model rather than editing them by hand.
+  `jev/*.tsv` present in this directory and writes `report.md`.
+- `report.md` and `MODELS.svg` are generated — re-run `make report`
+  after judging a new model rather than editing them by hand.

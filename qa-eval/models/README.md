@@ -1,19 +1,26 @@
-# Choosing the Judge Model
+# Judge Models
 
-qa-eval has been graded by seven judges. This document compares them side by
-side, sets out what kind of grading this evaluation wants, and records the
-decision on which judge to use. The per-judge details are in the linked
-documents.
+qa-eval has been graded by seven judges. **Jev (`jev-1.14.0`) is the default
+judge**; the other six are frozen. Their verdicts and documents are kept as
+they are for comparison, and they are not run on new answer files.
 
-| Judge | Model | Hosting | Document |
-| :--- | :--- | :--- | :--- |
-| Qwen | `ollama:qwen3.6`, reason then verdict ([judge.py](judge.py)) | Local (Ollama) | [README.md](README.md) |
-| Jev | TypeSafe `jev-1.14.0` ([judge-jev.py](judge-jev.py)) | Cloud (TypeSafe) | [JEV.md](JEV.md), [JEV-1.14.md](JEV-1.14.md) |
-| Nimble | Bespoke Labs `nimble` (Qwen 3.5 9B) | Local (Ollama) | [NIMBLE.md](NIMBLE.md) |
-| Clef Flash | Cloudflare `clef-flash` (Qwen 3.5 9B) | Local (Ollama) | [CLEF-FLASH.md](CLEF-FLASH.md) |
-| Clef | Cloudflare `clef` (Qwen 3.8 27B) | Local (Ollama) | [CLEF.md](CLEF.md) |
-| OpenAI | `gpt-6-luna` via the Decisions API ([judge-openai.py](judge-openai.py)) | Cloud (OpenAI) | [OPENAI.md](OPENAI.md) |
-| Ternary | `gpt-6-luna` replying with the verdict word ([judge-ternary.py](judge-ternary.py)) | Cloud (OpenAI) | [TERNARY.md](TERNARY.md) |
+This directory collects the documents on each judge. This README compares the
+judges side by side, sets out what kind of grading this evaluation wants, and
+records why Jev was chosen.
+
+| Judge | Model | Hosting | Status | `results-<lang>/` | `results/` |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Jev | TypeSafe `jev-1.14.0` ([judge-jev.py](../judge-jev.py)) | Cloud (TypeSafe) | **Default** | [JEV.md](JEV.md), [JEV-1.14.md](JEV-1.14.md) | [results/jev/README.md](../results/jev/README.md), [results/report.md](../results/report.md) |
+| Qwen | `ollama:qwen3.6`, reason then verdict ([judge.py](../judge.py)) | Local (Ollama) | Frozen | [QWEN.md](QWEN.md) | [results/judge/report.md](../results/judge/report.md) |
+| Nimble | Bespoke Labs `nimble` (Qwen 3.5 9B) | Local (Ollama) | Frozen | [NIMBLE.md](NIMBLE.md) | [results/nimble/](../results/nimble/README.md) |
+| Clef Flash | Cloudflare `clef-flash` (Qwen 3.5 9B) | Local (Ollama) | Frozen | [CLEF-FLASH.md](CLEF-FLASH.md) | [results/clef-flash/](../results/clef-flash/README.md) |
+| Clef | Cloudflare `clef` (Qwen 3.8 27B) | Local (Ollama) | Frozen | [CLEF.md](CLEF.md) | [results/clef/](../results/clef/README.md) |
+| OpenAI | `gpt-6-luna` via the Decisions API ([judge-openai.py](../judge-openai.py)) | Cloud (OpenAI) | Frozen | [OPENAI.md](OPENAI.md) | [results/openai/](../results/openai/README.md) |
+| Ternary | `gpt-6-luna` replying with the verdict word ([judge-ternary.py](../judge-ternary.py)) | Cloud (OpenAI) | Frozen | [TERNARY.md](TERNARY.md) | [results/ternary/](../results/ternary/README.md) |
+
+Why Jev and System One decision models: [jev/README.md](../jev/README.md).
+The `jev-1.13.0` verdicts that `jev-1.14.0` replaced are archived in
+`jev-1.13.0/` ([JEV-1.14.md](JEV-1.14.md)).
 
 All but Qwen return probabilities over `correct` / `partial` / `incorrect`;
 each question counts as its most probable verdict, the stricter one on a tie.
@@ -146,17 +153,21 @@ For the 1,500 questions of `results-<lang>/`:
 *The Jev row is the `jev-1.14.0` run ([JEV-1.14.md](JEV-1.14.md)): 2m 28s
 (en) + 2m 14s (ja), with 1,217,978 input tokens at $0.042 per million.*
 
-## Conclusion
+## Decision
 
-For now, grading continues with **Jev (`jev-1.14.0`)**. It is consistent with
-the two other cloud judges, handles refusals and errors reliably, separates the
-top models, and is fast and cheap. Its strictness on secondary details is
-known: it is stricter than the rubric's "essential facts" calls for, so its
-scores are best read as a conservative ranking rather than an absolute
-measure.
+**Jev (`jev-1.14.0`) is the default judge.** It is consistent with the two
+other cloud judges, handles refusals and errors reliably, separates the top
+models, and is the fastest of the seven at $0.05 for 1,500 questions. Its strictness
+on secondary details is known: it is stricter than the rubric's "essential
+facts" calls for, so its scores are best read as a conservative ranking rather
+than an absolute measure.
 
-Among the local judges, Nimble is the closest to the grading wanted here and
-the candidate if a local judge is needed; Clef is reliable on errors but too
-strict, and Clef Flash is not usable because it grades refusals and errors
-*correct*. Their verdicts are kept in `nimble/`, `clef/` and `clef-flash/` for
-comparison.
+None of the local judges gives a reason to leave Jev. Nimble is the closest to
+the grading wanted here, and the candidate if a local judge is ever needed;
+Clef is reliable on errors but too strict, and Clef Flash is not usable because
+it grades refusals and errors *correct*. The cloud alternatives, OpenAI and
+Ternary, agree closely with Jev and add nothing it lacks.
+
+The other six judges are therefore frozen. Their verdicts stay in `judge/`,
+`nimble/`, `clef-flash/`, `clef/`, `openai/` and `ternary/` beside each answer
+directory, and the documents in this directory describe them as of the freeze.

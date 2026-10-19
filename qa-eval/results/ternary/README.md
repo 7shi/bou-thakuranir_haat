@@ -1,20 +1,26 @@
 # Plain-LLM (Ternary) grading of the per-model runs
 
-The per-model runs in this directory were graded by `gpt-6-luna` through the
+The per-model runs in `results/` were graded by `gpt-6-luna` through the
 **ordinary OpenAI API**, replying with the verdict word only, and compared
 with the existing `ollama:qwen3.6`, TypeSafe Jev, Bespoke Labs Nimble and
 OpenAI Decisions verdicts. The scores in [report-ternary.md](report-ternary.md)
 and [MODELS-ternary.svg](MODELS-ternary.svg) are the Ternary verdicts. This
 document records the grading run and how the verdicts compare across all 51
 models. The same comparison for `results-<lang>/`:
-[../TERNARY.md](../TERNARY.md).
+[models/TERNARY.md](../../models/TERNARY.md).
+
+**Frozen.** Jev is the default judge, and Ternary is no longer run
+([models/README.md](../../models/README.md)). The verdicts (`*.tsv`), the last
+report and the chart are kept in this directory for comparison, and
+`make judge-ternary` / `make report-ternary` have been removed from the
+[Makefile](../Makefile).
 
 ## Grading run
 
-Every answer file here was graded by one `make judge-ternary` run (see
-[Makefile](Makefile)), writing `ternary/*.tsv`.
+Every answer file in `results/` was graded by one `make judge-ternary` run,
+writing `ternary/*.tsv`.
 
-- **Judge**: [judge-ternary.py](../judge-ternary.py), `openai:gpt-6-luna` via
+- **Judge**: [judge-ternary.py](../../judge-ternary.py), `openai:gpt-6-luna` via
   llm7shi (Responses API) with reasoning off, scheme `ternary@70c12cb1`
   (recorded for all 104 files in `ternary/MODELS.tsv`). The rubric and input
   are those of the Decisions judge; the reply is one word, matched against the
@@ -45,9 +51,9 @@ language, 50 questions):
 
 | Judge | Files | Time / file | Input / file (en / ja) | Output / file | Cost / file |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| Jev ([JEV.md](JEV.md)) | 82 | 11.1 s | 34,415 / 46,032 | 1,950 | $0.0017 |
-| Nimble ([NIMBLE.md](NIMBLE.md)) | 82 | 34.0 s | — | — | — (local) |
-| OpenAI ([OPENAI.md](OPENAI.md)) | 104 | 12.3 s | 22,957 / 31,167 | 0 | $0.0027 |
+| Jev ([jev/README.md](../jev/README.md)) | 82 | 11.1 s | 34,415 / 46,032 | 1,950 | $0.0017 |
+| Nimble ([nimble/README.md](../nimble/README.md)) | 82 | 34.0 s | — | — | — (local) |
+| OpenAI ([openai/README.md](../openai/README.md)) | 104 | 12.3 s | 22,957 / 31,167 | 0 | $0.0027 |
 | **Ternary** | **104** | **58.6 s** | **19,257 / 27,467** | **250** | **$0 (free tier)** |
 
 - **Time**: Ternary is the slowest of the four, about 1.7× Nimble and nearly
@@ -57,10 +63,10 @@ language, 50 questions):
   per request, the verdict word.
 - **Ratio**: OpenAI : Ternary is about 1 : 4.8 in time per file, and
   Jev : Ternary about 1 : 5.3. The `results-<lang>/` re-grading
-  ([../TERNARY.md](../TERNARY.md)) gives 1 : 5.0 and 1 : 6.3 in total wall
+  ([models/TERNARY.md](../../models/TERNARY.md)) gives 1 : 5.0 and 1 : 6.3 in total wall
   time; the ratios vary with API response times.
 
-`make report-ternary` aggregates the Ternary verdicts into
+`make report-ternary` aggregated the Ternary verdicts into
 [report-ternary.md](report-ternary.md) and
 [MODELS-ternary.svg](MODELS-ternary.svg).
 
@@ -152,7 +158,7 @@ sum).
   of the gap, and translating them into English recovers nothing more: most of
   it lies in the Japanese answers, which lack details of the gold answer, not
   in the Japanese gold answers or in grading Japanese
-  ([ja2en/](ja2en/README.md)).
+  ([ja2en/](../ja2en/README.md)).
 - **Correlation**:
   Pearson correlation of the Ceiling scores summed over both languages is
   **$r = 0.985$** with OpenAI, **$r = 0.980$** with Jev, **$r = 0.957$** with

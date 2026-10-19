@@ -6,7 +6,7 @@ per language = 1,500 requests in total) was re-graded with Cloudflare's
 Ollama) and compared with the existing **`ollama:qwen3.6`**, TypeSafe **Jev**
 (`jev-1.14.0`) and Bespoke Labs **Nimble** verdicts. For the multi-model
 comparison across 63 models in `results/`, see
-[results/CLEF-FLASH.md](results/CLEF-FLASH.md).
+[results/clef-flash/README.md](../results/clef-flash/README.md).
 
 Clef Flash is the second System One model on Ollama after Nimble, and the two
 are fine-tuned from the same base (Qwen 3.5 9B), so the main comparison is with
@@ -18,9 +18,9 @@ Nimble ([NIMBLE.md](NIMBLE.md)).
   a 9B multimodal decision model from Cloudflare fine-tuned from Qwen 3.5 9B
   (Apache 2.0), served by Ollama 0.35.1+ through the `/v1/systemone` endpoint
   like Nimble. Only text is used here.
-- **Judge**: [judge-clef-flash.py](judge-clef-flash.py), a wrapper around
-  [ollama_systemone.py](ollama_systemone.py) shared with
-  [judge-nimble.py](judge-nimble.py); only the model differs. The scheme is
+- **Judge**: [judge-clef-flash.py](../judge-clef-flash.py), a wrapper around
+  [ollama_systemone.py](../ollama_systemone.py) shared with
+  [judge-nimble.py](../judge-nimble.py); only the model differs. The scheme is
   `choice@19579e23` (the same rubric and scheme ID as Jev and Nimble, recorded
   in `results-<lang>/clef-flash/MODELS.tsv`).
 - **Inputs**: Same contract as `judge.py`, `judge-jev.py` and `judge-nimble.py`:
@@ -188,7 +188,7 @@ answers are refusals and each still carries some probability of *correct*.
 ## Conclusion
 
 Clef Flash runs the same way as Nimble (local, free, ~0.6 s per decision) and
-is a drop-in judge through the shared [ollama_systemone.py](ollama_systemone.py),
+is a drop-in judge through the shared [ollama_systemone.py](../ollama_systemone.py),
 but its verdicts are the most lenient of the four judges compared here:
 
 1. **Lenient on omissions**: multi-part answers that Nimble and Jev mark

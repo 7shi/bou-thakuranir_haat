@@ -1,23 +1,29 @@
 # Clef grading of the per-model runs
 
-The per-model runs in this directory were graded with Cloudflare's
+The per-model runs in `results/` were graded with Cloudflare's
 **[Clef](https://ollama.com/library/clef)** (hosted locally via Ollama) and
 compared with the existing `ollama:qwen3.6`, TypeSafe Jev, Bespoke Labs Nimble
 and Cloudflare Clef Flash verdicts. The scores in
 [report-clef.md](report-clef.md) and [MODELS-clef.svg](MODELS-clef.svg) are the
 Clef verdicts. This document records the grading run and how the verdicts
 compare across all 63 models. The same comparison for `results-<lang>/`:
-[../CLEF.md](../CLEF.md).
+[models/CLEF.md](../../models/CLEF.md).
+
+**Frozen.** Jev is the default judge, and Clef is no longer run
+([models/README.md](../../models/README.md)). The verdicts (`*.tsv`), the last
+report and the chart are kept in this directory for comparison, and
+`make judge-clef` / `make report-clef` have been removed from the
+[Makefile](../Makefile).
 
 ## Grading run
 
-Every answer file here was graded by one `make judge-clef` run (see
-[Makefile](Makefile)), writing `clef/*.tsv`.
+Every answer file in `results/` was graded by one `make judge-clef` run,
+writing `clef/*.tsv`.
 
-- **Judge**: [judge-clef.py](../judge-clef.py), model `clef` via Ollama's
+- **Judge**: [judge-clef.py](../../judge-clef.py), model `clef` via Ollama's
   `/v1/systemone`, scheme `choice@19579e23` (recorded for all 128 files in
   `clef/MODELS.tsv`); the implementation is
-  [ollama_systemone.py](../ollama_systemone.py), shared with Nimble and Clef
+  [ollama_systemone.py](../../ollama_systemone.py), shared with Nimble and Clef
   Flash
 - **Scope**: 128 answer files (64 per language; 62 ceiling + 2 hybrid8) × 50
   questions = 6,400 requests, one `judge-clef.py` call per language
@@ -34,10 +40,10 @@ Token usage, as reported by Ollama:
 | Total | 128 | 3,333,106 | 0 | 26,040 | 521 |
 
 The input is the same as Clef Flash's, token for token
-([CLEF-FLASH.md](CLEF-FLASH.md)), but Clef takes about 92.4 s per file against
-Clef Flash's 30.0 s, about three times as long.
+([clef-flash/README.md](../clef-flash/README.md)), but Clef takes about 92.4 s
+per file against Clef Flash's 30.0 s, about three times as long.
 
-`make report-clef` aggregates the Clef verdicts into
+`make report-clef` aggregated the Clef verdicts into
 [report-clef.md](report-clef.md) and [MODELS-clef.svg](MODELS-clef.svg).
 
 ## Comparison with Qwen, Jev, Nimble and Clef Flash

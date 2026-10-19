@@ -6,25 +6,25 @@
 
 ## 結果 (Results)
 
-各言語で50問の質問を用意し、Geminiで生成した全文ベースの正解（ゴールドスタンダード）を基準に `ollama:qwen3.6` を用いて判定しました。以下の表は、50問中の正答数と、括弧内に加重スコア `(正答数 + 0.5 × 部分正答) / 50` を示しています。**Vector** (`k=5`/`k=10`)、**Vector-line**、**V-hybrid**、**Filter2**、**Filter3**、**Hybrid** (Dense ∪ BM25)、および **Ceiling** は両言語で実行されています。
+各言語で50問の質問を用意し、Geminiで生成した全文ベースの正解（ゴールドスタンダード）を基準に TypeSafe の **Jev**（`jev-1.14.0`。選んだ理由は [models/README.md](models/README.md)）を用いて判定しました。各問題は最も確率の高い判定で数えます。以下の表は、50問中の正答数と、括弧内に加重スコア `(正答数 + 0.5 × 部分正答) / 50` を示しています。**Vector** (`k=5`/`k=10`)、**Vector-line**、**V-hybrid**、**Filter2**、**Filter3**、**Hybrid** (Dense ∪ BM25)、および **Ceiling** は両言語で実行されています。より甘い元の判定 `ollama:qwen3.6` での同じ表は [models/QWEN.md](models/QWEN.md) にあります。
 
 | 手法 (Method) | 英語 (English) | 日本語 (Japanese) | 概要 (Description) |
 | --- | --- | --- | --- |
-| Vector k=5 | 38/50 (0.820) | 37/50 (0.800) | 標準的な密ベクトル検索 (k=5) |
-| Vector k=10 | 44/50 (0.920) | 43/50 (0.900) | 標準的な密ベクトル検索 (k=10) |
-| Vector-line k=5 | 33/50 (0.770) | 34/50 (0.790) | 行レベルの密ベクトル検索 (k=5) |
-| Vector-line k=10 | 38/50 (0.850) | 41/50 (0.860) | 行レベルの密ベクトル検索 (k=10) |
-| V-hybrid k=5 | 39/50 (0.870) | 42/50 (0.890) | Segment ∪ Line 密ベクトル集合和 (k=5) |
-| V-hybrid k=10 | 44/50 (0.930) | 43/50 (0.900) | Segment ∪ Line 密ベクトル集合和 (k=10) |
-| Hybrid k=5 | 40/50 (0.880) | 45/50 (0.930) | Dense ∪ BM25 集合和 (k=5) |
-| Hybrid k=8 | 44/50 (0.920) | 43/50 (0.920) | Dense ∪ BM25 集合和 (k=8) |
-| Hybrid k=10 | 48/50 (0.980) | 42/50 (0.910) | Dense ∪ BM25 集合和 (k=10) |
-| Extract | 40/50 (0.860) | 41/50 (0.870) | チャプターごとの要約ベース判定 |
-| Filter2 | 37/50 (0.800) | 38/50 (0.820) | LLM-as-retriever (二値判定: yes/no) |
-| Filter3 | 45/50 (0.930) | 41/50 (0.870) | LLM-as-retriever (三値判定: yes/maybe/no) |
-| Ceiling | 49/50 (0.990) | 49/50 (0.990) | 完璧な検索の上限値 (正解チャプターを直接入力) |
-| GraphRAG local | 24/50 (0.610) | 26/50 (0.630) | Microsoft GraphRAG (ローカルエンティティ検索) |
-| GraphRAG global | 3/50 (0.170) | 6/50 (0.190) | Microsoft GraphRAG (グローバルコミュニティ検索) |
+| Vector k=5 | 28/50 (0.730) | 31/50 (0.750) | 標準的な密ベクトル検索 (k=5) |
+| Vector k=10 | 36/50 (0.840) | 36/50 (0.830) | 標準的な密ベクトル検索 (k=10) |
+| Vector-line k=5 | 30/50 (0.740) | 28/50 (0.730) | 行レベルの密ベクトル検索 (k=5) |
+| Vector-line k=10 | 33/50 (0.810) | 33/50 (0.790) | 行レベルの密ベクトル検索 (k=10) |
+| V-hybrid k=5 | 34/50 (0.820) | 34/50 (0.800) | Segment ∪ Line 密ベクトル集合和 (k=5) |
+| V-hybrid k=10 | 36/50 (0.850) | 35/50 (0.810) | Segment ∪ Line 密ベクトル集合和 (k=10) |
+| Hybrid k=5 | 35/50 (0.840) | 36/50 (0.850) | Dense ∪ BM25 集合和 (k=5) |
+| Hybrid k=8 | 39/50 (0.870) | 32/50 (0.810) | Dense ∪ BM25 集合和 (k=8) |
+| Hybrid k=10 | 39/50 (0.890) | 37/50 (0.860) | Dense ∪ BM25 集合和 (k=10) |
+| Extract | 35/50 (0.810) | 31/50 (0.770) | チャプターごとの要約ベース判定 |
+| Filter2 | 34/50 (0.780) | 30/50 (0.740) | LLM-as-retriever (二値判定: yes/no) |
+| Filter3 | 41/50 (0.890) | 37/50 (0.830) | LLM-as-retriever (三値判定: yes/maybe/no) |
+| Ceiling | 46/50 (0.960) | 38/50 (0.880) | 完璧な検索の上限値 (正解チャプターを直接入力) |
+| GraphRAG local | 19/50 (0.570) | 20/50 (0.550) | Microsoft GraphRAG (ローカルエンティティ検索) |
+| GraphRAG global | 1/50 (0.130) | 3/50 (0.220) | Microsoft GraphRAG (グローバルコミュニティ検索) |
 
 これらの結果を出力するパイプライン（インデックス構築、各質問への回答、採点、集計）は以下の通りです（Filter と Ceiling はオプトインです）：
 
@@ -34,9 +34,9 @@
 - `answer_filter.py` — Filter2 / Filter3 (リトリーバーとしてのLLM; [FILTER.md](FILTER.md) 参照) → `results-<lang>/filter{2,3}.jsonl`
 - `answer_hybrid.py` — Hybrid k=5/10 (Dense ∪ BM25; [HYBRID.md](HYBRID.md) 参照) → `results-<lang>/hybrid<k>.jsonl`
 - `answer_ceiling.py` — Ceiling、正解チャプターをコンテキストとして使用 → `results-<lang>/ceiling.jsonl`
-- `judge.py` — ゴールドスタンダードに対するLLMでの回答採点 → `results-<lang>/judge/<stem>.jsonl`
-- `report.py` — 精度 + 検索チャプターの比較 + ペアワイズの不一致分析 (ターミナルに表を出力)
-- `drop_verdicts.py` / `sort_verdicts.py` — 模範解答の修正後に指定した問題だけを再採点 ([GOLD-FIX.md](GOLD-FIX.md) を参照)
+- `judge-jev.py` — ゴールドスタンダードに対する Jev での回答採点 → `results-<lang>/jev/<stem>.tsv`（凍結した qwen の判定 `judge.py` は `judge/<stem>.jsonl` に出力していました）
+- `report.py` — 精度 + 検索チャプターの比較 + ペアワイズの不一致分析 (ターミナルに表を出力。`make report` は `--jev` を付けて実行)
+- `drop_verdicts.py` / `sort_verdicts.py` — 模範解答の修正後に指定した問題だけを Jev で再採点 ([GOLD-FIX.md](GOLD-FIX.md) を参照)
 
 `answer.py` は、5つのすべての回答スクリプト（vector / extract / filter / ceiling / hybrid）でインポートされる共有ヘルパー（`LANGS`, `PART_RANGES`, `load_questions`, `load_chapters`, `answer_question`）を保持しています。
 
@@ -46,7 +46,7 @@
 
 > [!IMPORTANT]
 > **実用的な最適解**
-> 英語においては `Hybrid k=10` が最高精度 **0.980** を、日本語においては `Hybrid k=5` が最高精度 **0.930** を達成しており、いずれも **Dense ∪ BM25 (Union)** の組み合わせが実用上の最適解です。
+> 両言語とも `Hybrid k=10` が最高精度（英語 **0.890**、日本語 **0.860**）を達成しており、**Dense ∪ BM25 (Union)** の組み合わせが実用上の最適解です。英語ではコストのはるかに大きい Filter3 と同点です。
 
 ## 戦略別の主な発見 (Key Findings by Strategy)
 
@@ -81,7 +81,7 @@ Dense ∪ BM25 (HYBRID)、英語 / 日本語の比較:
 * **融合（Fuse）は悪手 — 集合和（Union）が最善:** RRF、Borda、CombSUM といったランキング融合アルゴリズムは、拾えたはずの正解を押し出してしまい、k=5 では Dense 単体よりも精度が低下します。独立して取得した Dense と BM25 の top-k を単純な集合和（Union）として組み合わせるアプローチは、パラメータの調整が不要で堅牢であり、最も高い精度（両方の深度で +4 の厳密再現率）を達成しました。
 * **Denseの死角のカバー:** BM25 のようなレキシカル一致は、密ベクトル（Dense）検索では順位付けがうまくいかない、固有名詞や特徴的な用語（印章指輪やデリーの皇帝といった Class A の取りこぼし）をほぼすべてカバーします。
 * **共通の死角:** 4つのクロスリファレンス問題（Q31、Q32、Q38、Q42）は、どちらの検索手法でもカバーできず残ってしまいます。これらを解決するには、融合手法の改善ではなく、クエリ拡張やマルチクエリといった全く別のアプローチが必要です。
-* **深さの効き方は言語で異なる:** 英語では k を深くするほど精度が上がり、`k=5` の **40/50 (0.880)** から `k=8` の **44/50 (0.920)**、`k=10` の **48/50 (0.980)** に達します。日本語ではそうならず、`k=5` が **45/50 (0.930)**、`k=8` が **43/50 (0.920)**、`k=10` が **42/50 (0.910)** です。正解チャプターはすべて残っているのに、コンテキストが大きくなると cross 質問が部分正解に落ちます（`k=10` の Q34・Q37・Q47・Q50）。
+* **深いほど良い:** 英語では k を深くするほど精度が上がり、`k=5` の **35/50 (0.840)** から `k=8` の **39/50 (0.870)**、`k=10` の **39/50 (0.890)** に達します。日本語でも `k=10` が最高で（**37/50、0.860**）、`k=5`（**36/50、0.850**）を上回りますが、`k=8` は **32/50 (0.810)** に落ちます。
 
 ### Segment ∪ Line Dense Hybrid (`V-hybrid`) — [VECTOR-HYBRID.md](VECTOR-HYBRID.md)
 
@@ -100,61 +100,65 @@ Segment ∪ Line (VECTOR-HYBRID), 英語 / 日本語:
 ### Case Studies & Language Comparison — [results-en/README.md](results-en/README.md) & [results-ja/README.md](results-ja/README.md)
 
 * **課題はリトリーバル（検索）にあり:** シングルパッセージの質問はほぼ完璧に解けます。残された難題は完全にクロスリファレンスの質問（複数チャプターにまたがるもの）に集中しています。
-* **Ceiling の実証:** Ceiling ラン（正解チャプターをそのまま渡す）では両言語とも 0.990 のスコアを達成し、適切なコンテキストさえ与えられれば LLM の読解力はほぼ完璧であることが証明されました。残る2件（英語 Q48、日本語 Q36）はいずれも複数要素を並べる cross 質問で要素を取りこぼした網羅性の不足であり、読み違いではありません。
+* **Ceiling の実証:** Ceiling ラン（正解チャプターをそのまま渡す）のスコアは英語 0.960 / 日本語 0.880 で、*incorrect* は1件もありません。失点はすべて、複数要素を問う cross 質問の *partial*（英語4件、日本語12件）で、ほとんどは読み違いではなく網羅性の不足です（例外は英語の Q34 で、因果関係を取り違えています）。適切なコンテキストさえ与えられれば、モデルは正しく読めています。
 * **Extract の失敗原因:** Extract 手法での失点は、回答生成時の失敗ではなく、そのほとんどが Phase 1 の偽陰性（False negative: 要約が正解チャプターを切り捨ててしまうこと）によるものです。
-* **言語による差異は小さい:** 使用する言語が精度に与える影響はわずかで、ほとんどの手法で英語と日本語の総計スコアの差は2問以内に収まり、最大でも6問（Hybrid k=10）です。同じ埋め込みモデルを使用しているため、検索で取りこぼす箇所も同一です。
+* **日本語がやや低い:** 15手法中12手法で日本語が英語を下回り、平均の差は 0.021 です。GraphRAG global を除くと最大の差は Ceiling（0.960 対 0.880）で、日本語の回答は複数要素の正解の一部をより多く取りこぼします。同じ埋め込みモデルを使用しているため、検索で取りこぼす箇所も同一です。
 
 ### GraphRAG — [graphrag-en/README.md](graphrag-en/README.md) & [graphrag-ja/README.md](graphrag-ja/README.md)
 
-* **回答生成の崩壊:** GraphRAG の `local` 検索は英語 0.610 / 日本語 0.630 と、両言語で単純なベクトル検索を下回りました。再現率（Recall）は高い（英語 0.860 / 日本語 0.880）ものの、適合率（Precision）が崩壊しており（英語 0.135 / 日本語 0.239）、コンテキストにノイズが溢れて回答生成の失敗（synthesis failure）を引き起こしました。
+* **回答生成の崩壊:** GraphRAG の `local` 検索は英語 0.570 / 日本語 0.550 と、両言語で単純なベクトル検索を下回りました。再現率（Recall）は高い（英語 0.860 / 日本語 0.880）ものの、適合率（Precision）が崩壊しており（英語 0.135 / 日本語 0.239）、コンテキストにノイズが溢れて回答生成の失敗（synthesis failure）を引き起こしました。
 * **構造的強みは言語間で再現しない:** 英語ではエンティティの関係性を示す質問（Q26/Q28）に対してパッセージのコンテキストがゼロでも回答でき（Q26・Q28 とも部分正解）、Class A の2問ともグラフ探索で到達できました（印章指輪は正解、デリー皇帝の嘆願書は部分正解）。しかし日本語では、コンテキストがゼロの回答はさらに弱く（5問中、部分正解が1問だけ）、Class A も2問中1問（デリー皇帝の嘆願書）しか回収できませんでした。印章指輪のチェーンはグラフ上に明確に存在するにもかかわらず（別の質問の回答文中に現れている）見逃されています。詳細は [results-ja/README.md § GraphRAG](results-ja/README.md#graphrag) を参照してください。
-* **Global検索の失敗:** `global` でのコミュニティサマリー検索は抽象度が高すぎるため、どちらの言語でもパッセージレベルの詳細を問うQAには全く機能しません（英語 0.170、日本語 0.190。いずれも各言語で最低スコア）。
+* **Global検索の失敗:** `global` でのコミュニティサマリー検索は抽象度が高すぎるため、どちらの言語でもパッセージレベルの詳細を問うQAには全く機能しません（英語 0.130、日本語 0.220。いずれも各言語で最低スコア）。
 * **極端なコスト:** グラフの構築と100件全クエリの実行に、英語で13時間6分、日本語で20時間19分を要し、数分で済む単純なベクトルインデックス化と比較して実用性に乏しいです。日本語の方が時間がかかるのは、同じトークン数ベースのチャンクサイズでも、より大きく密度の高い日本語テキストがより多くのチャンクに分割され、インデックス化とクエリ全体でLLM呼び出し回数が増えるためです。
 
-### Jev による判定 (Jev as the Judge) — [jev/README.md](jev/README.md) & [JEV.md](JEV.md)
+### Jev による判定 (Jev as the Judge) — [jev/README.md](jev/README.md) & [models/JEV.md](models/JEV.md)
 
 * **qwen の判定は甘い:** `ollama:qwen3.6` による判定では、複数モデルの Ceiling 比較で 98〜100 に張り付いています。TypeSafe の Jev (`jev-1.13.0`) に同じルーブリックで Choice を1問聞くと判定は厳しくなり、増えた *partial* の中身は文体ではなく、複数要素の正解の一部を取りこぼしたものです。qwen が *correct* とした「回答できない」という回答も1件含まれます。
 * **上位を分離できる:** Ceiling の6モデル（英語）で、qwen が 100 とした3モデルは Jev では 93〜96 に下がり、qwen3.6（88）との差も広がります。
 * **Noul ではなく Choice:** Yes/No の Noul に閾値を置く方式は、上側の閾値を約 0.8 にしたときに Choice をほぼ再現します（300問中292問で同じ判定）。そのため、閾値の調整が不要な Choice を採用しています。
-* **`results-<lang>/` の再判定:** Jev では1つを除く全手法のスコアが 0.02〜0.10 下がり（日本語の GraphRAG global だけは 0.02 上がります）、その差はほぼすべて、複数要素を問う cross 質問で qwen の *correct* が Jev の *partial* になったものです。single 質問はほぼ変わりません。Ceiling は 0.930（英語）/ 0.900（日本語）に下がり、上位の Hybrid と Filter3 の差は1問以内に縮まります。上記の結果は qwen の判定のままです。
-* **`jev-1.14.0`（[JEV-1.14.md](JEV-1.14.md)）:** 現在のデフォルトです。1.13.0 との判定一致率は 95〜97% で、*correct* と *partial* の入れ替わりが両方向に起きます（英語ではやや甘く、日本語ではやや厳しくなります）。どの手法も変化は 0.03 以内で、上記の結論は変わりません。1.13.0 の判定は `jev-1.13.0/` に残しています。
+* **`results-<lang>/` の再判定:** `jev-1.13.0` では1つを除く全手法のスコアが qwen より 0.02〜0.10 下がり（日本語の GraphRAG global だけは 0.02 上がります）、その差はほぼすべて、複数要素を問う cross 質問で qwen の *correct* が Jev の *partial* になったものです。single 質問はほぼ変わりません。Ceiling は 0.930（英語）/ 0.900（日本語）に下がり、上位の Hybrid と Filter3 の差は1問以内に縮まります。
+* **`jev-1.14.0`（[models/JEV-1.14.md](models/JEV-1.14.md)）:** 現在のデフォルトです。1.13.0 との判定一致率は 95〜97% で、*correct* と *partial* の入れ替わりが両方向に起きます（英語ではやや甘く、日本語ではやや厳しくなります）。どの手法も変化は 0.03 以内で、上記の結論は変わりません。1.13.0 の判定は `jev-1.13.0/` に残しています。
 
-### Nimble によるローカル判定 (Nimble as a Local Judge) — [NIMBLE.md](NIMBLE.md)
+### 元の判定 qwen (Qwen as the Original Judge) — [models/QWEN.md](models/QWEN.md)
+
+* **凍結:** Jev の前は `ollama:qwen3.6`（[judge.py](judge.py)。理由を書いてから判定する）がすべての結果を判定していました。判定結果は `judge/` に残し、上の表の qwen 版は [models/QWEN.md](models/QWEN.md) にあります。
+* **甘すぎて差が付かない:** Ceiling は両言語とも 0.990、英語の Hybrid k=10 は 0.980 で、`results/` の63の回答モデルのうち13モデルが日英とも Ceiling 100% になります。
+### Nimble によるローカル判定 (Nimble as a Local Judge) — [models/NIMBLE.md](models/NIMBLE.md)
 
 * **ローカルかつ無料:** Bespoke Labs の [Nimble](https://ollama.com/library/nimble)（Qwen 3.5 9B をファインチューニング、Apache 2.0）は Ollama 経由（`ollama pull nimble`）で直接動作し、クラウド API 費用なしで決定モデルの判定を利用できます。
 * **厳格さのスイートスポット:** 日英計1,500問の再判定において、Nimble の判定分布（1,075 correct / 261 partial）は qwen の甘さ（1,137 correct）と Jev の厳しさ（944 correct）の間に位置し、qwen と 89.8%、Jev と 86.4% の高い一致率を示します。
 * **高スループット:** 自己回帰的なテキスト生成を行わず、フォワードパス1回で厳密に1出力トークンで決定を出すため、ローカル GPU でも1問あたり約0.64秒と高速に処理できます。
 * **日英での高い安定性:** 日本語のスコアは英語より平均 0.010 低いだけで（Ceiling は英語 0.960、日本語 0.950）、Jev（−0.009）とほぼ同じです。OpenAI の判定モデルの下がり幅よりずっと小さくなっています。
 
-### Clef Flash によるローカル判定 (Clef Flash as a Local Judge) — [CLEF-FLASH.md](CLEF-FLASH.md)
+### Clef Flash によるローカル判定 (Clef Flash as a Local Judge) — [models/CLEF-FLASH.md](models/CLEF-FLASH.md)
 
 * **Nimble と同じ構成:** Cloudflare の [Clef Flash](https://ollama.com/library/clef-flash) は Nimble と同じ Qwen 3.5 9B をファインチューニングしたモデルで、Ollama の同じ System One エンドポイントで動きます。そのため [judge-clef-flash.py](judge-clef-flash.py) と [judge-nimble.py](judge-nimble.py) の違いはモデルだけです（実装は [ollama_systemone.py](ollama_systemone.py)）。速度もほぼ同じで（1問あたり約0.60秒）、出力トークンは 0 です。
 * **最も甘い判定:** 日英計1,500問のうち correct は 1,216件（81.1%）で、qwen（1,137）より多くなります。手法×言語の30セル中28セルで qwen 以上のスコアになり、その主な原因は、Nimble が *partial* とする複数要素の回答を *correct* とすることです（その逆の21件に対して145件）。
 * **回答拒否を incorrect にしないことがある:** ルーブリックで明示しているにもかかわらず、GraphRAG global の定型の「回答できません」60件のうち10件を *correct* と判定します。Jev と Nimble は60件すべてを *incorrect* としています。日本語の GraphRAG global は 0.450 まで上がります（Nimble は 0.210）。ローカルの判定モデルとしては Nimble のほうが適しています。
 
-### Clef によるローカル判定 (Clef as a Local Judge) — [CLEF.md](CLEF.md)
+### Clef によるローカル判定 (Clef as a Local Judge) — [models/CLEF.md](models/CLEF.md)
 
 * **Clef Flash の大型版:** Cloudflare の [Clef](https://ollama.com/library/clef) は Qwen 3.8 27B をファインチューニングした27Bのモデルで、[judge-clef.py](judge-clef.py) から同じ [ollama_systemone.py](ollama_systemone.py) で動かします。入力トークン数は Clef Flash と同じですが、時間は約3倍かかります（1問あたり約1.84秒）。
 * **最も厳しい判定:** 日英計1,500問のうち correct は 914件（60.9%）、partial は 423件（28.2%）で、correct は5つの判定の中で最少です（Jev は 947件）。手法×言語の30セル中29セルで qwen より低いスコアになり、その主な原因は、模範解答の副次的な要素が抜けた回答を *partial* とすることです。ルーブリックが求めているのは本質的な事実だけなので、これは減点のし過ぎです。判定は Jev と最もよく一致します（87.1%）。
 * **回答拒否の問題は解消:** GraphRAG global の定型の「回答できません」60件はすべて *incorrect* となり、Clef Flash が見逃した事実の誤りも *incorrect* とします。ただし速度が3倍遅く、本質的な事実を押さえた回答にも満点を出さないことが多いため、ローカルの判定モデルの標準は引き続き Nimble とします。
 
-### OpenAI Decisions による判定 (OpenAI Decisions as the Judge) — [OPENAI.md](OPENAI.md)
+### OpenAI Decisions による判定 (OpenAI Decisions as the Judge) — [models/OPENAI.md](models/OPENAI.md)
 
 * **同じルーブリック、別の API:** OpenAI の Decisions API (`gpt-6-luna`) に、Jev と同じ Choice の質問を投げます（[judge-openai.py](judge-openai.py)）。判定は確率で返り、出力トークンは 0 です。1問あたり約0.28秒で、日英計1,500問の費用は $0.08 です。
 * **Nimble と Jev の中間:** correct は 1,000件（66.7%）で、Nimble（1,075）と Jev（944）の間に入ります。同じモデルを通常の API で使った判定（下記参照）を除くと、判定は Jev と最もよく一致します（88.6%）。
 * **言語による差:** 日本語ではスコアが平均 0.035 下がり（Ceiling は英語 0.970 → 日本語 0.910）、Jev や Nimble の3〜4倍の下がり幅です。そのため、手法の順位が言語によって入れ替わります。
 
-### 通常の LLM による判定 (A Plain LLM as the Judge, Ternary) — [TERNARY.md](TERNARY.md)
+### 通常の LLM による判定 (A Plain LLM as the Judge, Ternary) — [models/TERNARY.md](models/TERNARY.md)
 
 * **同じモデル、1語の返答:** `gpt-6-luna` を OpenAI の通常の API で推論なしに使い、判定の1語だけを返させます（[judge-ternary.py](judge-ternary.py)）。構造化出力も理由も確率も使いません。ルーブリックと入力は Decisions 版と同じで、その判定と 91.1% の問題で一致します。全判定モデルの組み合わせで最高です。
 * **Decisions より遅い:** 1問あたり出力 5 トークン、推論 0 トークンですが、約1.41秒かかり、Decisions API の約5倍です。日英計1,500問は無料枠に収まりました。
 * **incorrect が多い:** correct は 968件（64.5%）で Decisions（1,000）より少なく、incorrect は全判定モデルで最多の 189件です。日本語での下がり幅も最大です（−0.045、Ceiling は英語 0.950 → 日本語 0.920）。
 
-### 判定モデルの選択 (Choosing the Judge) — [MODELS.md](MODELS.md)
+### 判定モデルの選択 (Choosing the Judge) — [models/README.md](models/README.md)
 
 * **ルーブリックが求めること:** *correct* の条件は本質的な事実を押さえることで、模範解答の全要素の列挙は求めていません。そのため、十分な品質の回答には満点を出し、誤りや回答拒否には出さず、そのうえでモデル間に差が付く判定が望ましいと考えます。
 * **7つの判定の比較:** Jev・OpenAI・Ternary は厳しい側でよく一致します（モデル別 Ceiling スコアの相関 0.96〜0.97）。ローカルの判定では Nimble が最も釣り合いが取れています。qwen は頭打ちになり（日英とも100点が13モデル）、Clef は副次的な要素に厳しすぎ、Clef Flash は誤りや回答拒否を *correct* にします。
-* **結論:** 当面は `jev-1.14.0` で判定を続け、そのスコアは保守的な順位として読みます。ローカルの判定が必要になった場合の候補は Nimble です。
+* **結論:** `jev-1.14.0` をデフォルトの判定とし、そのスコアは保守的な順位として読みます。ローカルの判定に移る理由がないため（移るなら候補は Nimble）、他の6つの判定は凍結します。それらの判定結果と文書は [models/](models/README.md) にまとめて比較用に残し、新しい回答ファイルには実行しません。
 
 ### 模範解答 (Gold Answers) — [gold-check/README.md](gold-check/README.md) & [LESSONS.md](LESSONS.md)
 
@@ -167,7 +171,7 @@ Segment ∪ Line (VECTOR-HYBRID), 英語 / 日本語:
 1. **評価軸はリトリーバルに集約される:** `Ceiling` の結果が示す通り、回答生成用のコンテキスト内に「正解のチャプター」が過不足なく含まれてさえいれば、モデルは高い精度で回答を生成できます。したがって、QAシステムの改善はリトリーバル（検索）の再現率向上にほぼ完全に等しいと言えます。
 2. **融合（Fuse）ではなく集合和（Union）を:** 異なるリトリーバー（DenseとBM25、あるいはSegmentとLineなど）の結果を統合する際、スコアをブレンドして単一のランキングを作る手法（RRFなど）は、かえって正解を押し出してしまう結果になります。個別に取得した top-k の単純な「集合和」をとることが、最も安全かつ最大の効果を得られるアプローチです。
 3. **最適戦略の言語間での一致:**
-   * 両言語ともに、**Dense ∪ BM25 Union** (`Hybrid`) が最善のアプローチです（英語: **0.980** (k=10), 日本語: **0.930** (k=5)）。単一の密ベクトル検索の限界を効果的に打破し、固有名詞や特徴的な用語を回収することで Ceiling に最も近づきました。
+   * 両言語ともに、**Dense ∪ BM25 Union** (`Hybrid k=10`) が最善のアプローチです（英語: **0.890**（Filter3 と同点）、日本語: **0.860**）。単一の密ベクトル検索の限界を効果的に打破し、固有名詞や特徴的な用語を回収することで Ceiling に最も近づきました。
 
 ## パイプライン (`Makefile`)
 

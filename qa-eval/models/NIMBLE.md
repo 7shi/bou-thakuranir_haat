@@ -5,10 +5,10 @@ per language = 1,500 requests in total) was re-graded with Bespoke Labs'
 **[Nimble](https://ollama.com/library/nimble)** (hosted locally via Ollama) and
 compared with the existing **`ollama:qwen3.6`** verdicts and TypeSafe's **Jev**
 (`jev-1.13.0`). For the multi-model comparison across 51 models in `results/`,
-see [results/NIMBLE.md](results/NIMBLE.md).
+see [results/nimble/README.md](../results/nimble/README.md).
 
 Why Nimble and System One decision models: see
-[jev/README.md](jev/README.md) and the official model page at
+[jev/README.md](../jev/README.md) and the official model page at
 [ollama.com/library/nimble](https://ollama.com/library/nimble).
 
 ## Setup
@@ -17,7 +17,7 @@ Why Nimble and System One decision models: see
   a 9B open-weights decision model from Bespoke Labs fine-tuned from Qwen 3.5 9B
   (Apache 2.0, 256K context window). Supported in Ollama 0.35+ via the
   `/v1/systemone` endpoint (following TypeSafe's Jev API).
-- **Judge**: [judge-nimble.py](judge-nimble.py), model `nimble` via Ollama,
+- **Judge**: [judge-nimble.py](../judge-nimble.py), model `nimble` via Ollama,
   scheme `choice@19579e23` (identical rubric and scheme ID as Jev, recorded
   in `results-<lang>/nimble/MODELS.tsv`).
 - **Inputs**: Same contract as `judge.py` and `judge-jev.py` — question, gold
@@ -53,7 +53,7 @@ a separate reasoning generation step. Unlike Jev, it runs on local hardware at
 Because Nimble produces its verdict in a single pass without token-by-token text
 generation, its output is strictly 1 token per question, eliminating decoding
 overhead and KV-cache expansion. (A larger 4,100-request evaluation across 40
-models was similarly completed in 46m 24s; see [results/NIMBLE.md](results/NIMBLE.md)).
+models was similarly completed in 46m 24s; see [results/nimble/README.md](../results/nimble/README.md)).
 
 ---
 

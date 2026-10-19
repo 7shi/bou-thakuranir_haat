@@ -18,21 +18,13 @@
 #   make hybrid8 MODEL=... LANG={en,ja}   # answer 50 questions -> hybrid8-<MODEL>-<LANG>.jsonl
 #   make ceiling MODEL=... LANG={en,ja}   # answer 50 questions -> ceiling-<MODEL>-<LANG>.jsonl
 #   make test    MODEL=... LANG={en,ja}   # answer question 1 only, both methods, no file output
-#   make judge                            # opt-in: grade every ungraded answer file
-#   make judge-jev                        # opt-in: the same with Jev → jev/*.tsv
-#   make judge-nimble                     # opt-in: the same with Nimble → nimble/*.tsv
-#   make judge-clef-flash                 # opt-in: the same with Clef Flash → clef-flash/*.tsv
-#   make judge-clef                       # opt-in: the same with Clef → clef/*.tsv
-#   make judge-openai                     # opt-in: the same with OpenAI Decisions → openai/*.tsv
-#   make judge-ternary                    # opt-in: the same with a plain LLM's verdict word → ternary/*.tsv
-#   make report                           # aggregate every judged run → report.md + MODELS.svg
-#   make report-jev                       # the same over jev/*.tsv → report-jev.md + MODELS-jev.svg
-#   make report-nimble                    # the same over nimble/*.tsv → report-nimble.md + MODELS-nimble.svg
-#   make report-clef-flash                # the same over clef-flash/*.tsv → report-clef-flash.md + MODELS-clef-flash.svg
-#   make report-clef                      # the same over clef/*.tsv → report-clef.md + MODELS-clef.svg
-#   make report-openai                    # the same over openai/*.tsv → report-openai.md + MODELS-openai.svg
-#   make report-ternary                   # the same over ternary/*.tsv → report-ternary.md + MODELS-ternary.svg
-#   make report-all                       # report + every report-<dir> above
+#   make judge                            # opt-in: grade every ungraded answer file with Jev → jev/*.tsv
+#   make report                           # aggregate jev/*.tsv → report.md + MODELS.svg
+#
+# Jev is the only judge run here. The other judges (qwen in judge/, nimble/,
+# clef-flash/, clef/, openai/, ternary/) are frozen: their verdicts, last report
+# and chart stay in their directories, and they have no targets
+# (see ../models/README.md).
 #
 #   MODEL     — llm7shi model string of the answerer (e.g. google:gemini-4-31b-it)
 #   LANG      — en | ja
@@ -56,10 +48,9 @@ K := 8
 # terminate.
 NO_THINK ?=
 
-# Fixed once per `make` invocation and passed to every `judge.py` /
-# `judge-<dir>.py` call in the `judge` / `judge-jev` / `judge-nimble` /
-# `judge-clef-flash` / `judge-clef` / `judge-openai` / `judge-ternary` targets below via --started-at, so the sequential processes
-# they launch show an overall-elapsed column spanning the whole run.
+# Fixed once per `make` invocation and passed to every `judge-jev.py` call in
+# the `judge` target below via --started-at, so the sequential processes it
+# launches show an overall-elapsed column spanning the whole run.
 START_TIME := $(shell date +%s)
 
 ROOT := ..
@@ -81,7 +72,7 @@ SAFE_MODEL := $(subst /,_,$(subst :,_,$(MODEL)))
 HYBRID_ANSWER := hybrid$(K)-$(SAFE_MODEL)-$(LANG).jsonl
 CEILING_ANSWER := ceiling-$(SAFE_MODEL)-$(LANG).jsonl
 
-.PHONY: help check-args hybrid8 ceiling test judge judge-jev judge-nimble judge-clef-flash judge-clef judge-openai judge-ternary report report-jev report-nimble report-clef-flash report-clef report-openai report-ternary report-all
+.PHONY: help check-args hybrid8 ceiling test judge report
 .DEFAULT_GOAL := help
 
 help:
@@ -89,20 +80,7 @@ help:
 	@echo "       make ceiling MODEL=... LANG={en,ja} [NO_THINK=1]"
 	@echo "       make test MODEL=... LANG={en,ja}"
 	@echo "       make judge"
-	@echo "       make judge-jev"
-	@echo "       make judge-nimble"
-	@echo "       make judge-clef-flash"
-	@echo "       make judge-clef"
-	@echo "       make judge-openai"
-	@echo "       make judge-ternary"
 	@echo "       make report"
-	@echo "       make report-jev"
-	@echo "       make report-nimble"
-	@echo "       make report-clef-flash"
-	@echo "       make report-clef"
-	@echo "       make report-openai"
-	@echo "       make report-ternary"
-	@echo "       make report-all"
 
 # Shared guard for the answering targets, which all need MODEL and LANG. The
 # usage line names the goal actually invoked, so the message stays accurate for
@@ -141,42 +119,21 @@ test: check-args
 	cd $(ROOT) && uv run answer_hybrid.py -l $(LANG) -m $(MODEL) \
 		--retrieval $(REFERENCE) -i <(head -n 1 ../questions-$(LANG).jsonl) -o /dev/null
 
-# Opt-in: LLM grading (same default judge as the main pipeline). Scans every
-# answer file here (*.jsonl), skips the ones that already have a
-# judge/<same name> with as many lines as the answer file (a shorter judge
-# file means a prior run was interrupted, so it's redone), and takes LANG from
-# the filename's trailing field (<METHOD>-<MODEL>-<LANG>.jsonl) — no MODEL/LANG
-# needed. Output lands in judge/ via judge.py's default naming.
-judge:
-	@for f in *.jsonl; do \
-		[ -e "$$f" ] || continue; \
-		if [ -e "judge/$$f" ]; then \
-			n=$$(wc -l < "$$f"); jn=$$(wc -l < "judge/$$f"); \
-			[ "$$jn" -ge "$$n" ] && { echo "skip $$f (judge/$$f exists, $$jn/$$n lines)"; continue; }; \
-			echo "resume $$f (judge/$$f incomplete, $$jn/$$n lines)"; \
-		fi; \
-		lang=$${f%.jsonl}; lang=$${lang##*-}; \
-		case "$$lang" in en|ja) ;; *) echo "skip $$f (cannot infer LANG)"; continue;; esac; \
-		echo "judge $$f (LANG=$$lang)"; \
-		(cd $(ROOT) && uv run judge.py -l $$lang --started-at $(START_TIME) results/$$f) || exit $$?; \
-	done
-
-# Opt-in: the same scan graded by a TSV judge — Jev (judge-jev.py), Nimble
-# (judge-nimble.py), Clef Flash (judge-clef-flash.py), Clef (judge-clef.py), OpenAI Decisions (judge-openai.py) or a plain LLM replying
-# with the verdict word (judge-ternary.py, 1/0 in place of probabilities) — into
-# <dir>/<stem>.tsv, whose header line means a complete file has one line more
-# than its answer file. Pending files are grouped by LANG and passed to one
-# judge-<dir>.py call per language, so the status line reads "<stem> (i/n)"
-# across the batch and, for the paid APIs (Jev, OpenAI, Ternary on OpenAI), the
+# Opt-in: Jev grading. Scans every answer file here (*-<LANG>.jsonl), skips the
+# ones that already have a jev/<stem>.tsv with as many rows as the answer file
+# (its header line means a complete file has one line more; a shorter one means
+# a prior run was interrupted, so it's resumed). LANG comes from the filename's
+# trailing field (<METHOD>-<MODEL>-<LANG>.jsonl) — no MODEL/LANG needed.
+# Pending files are grouped by LANG and passed to one judge-jev.py call per
+# language, so the status line reads "<stem> (i/n)" across the batch and the
 # token usage lands in usage.jsonl once per language. The two calls run one
-# after the other, as both update <dir>/MODELS.tsv.
-TSV_JUDGES := jev nimble clef-flash clef openai ternary
-$(addprefix judge-,$(TSV_JUDGES)): judge-%:
+# after the other, as both update jev/MODELS.tsv.
+judge:
 	@for lang in en ja; do \
 		files=; \
 		for f in *-$$lang.jsonl; do \
 			[ -e "$$f" ] || continue; \
-			t="$*/$${f%.jsonl}.tsv"; \
+			t="jev/$${f%.jsonl}.tsv"; \
 			if [ -e "$$t" ]; then \
 				n=$$(wc -l < "$$f"); jn=$$(( $$(wc -l < "$$t") - 1 )); \
 				[ "$$jn" -ge "$$n" ] && { echo "skip $$f ($$t exists, $$jn/$$n rows)"; continue; }; \
@@ -185,27 +142,16 @@ $(addprefix judge-,$(TSV_JUDGES)): judge-%:
 			files="$$files results/$$f"; \
 		done; \
 		[ -n "$$files" ] || continue; \
-		echo "judge-$* LANG=$$lang: $$(echo $$files | wc -w) file(s)"; \
-		(cd $(ROOT) && uv run judge-$*.py -l $$lang --started-at $(START_TIME) $$files) || exit $$?; \
+		echo "judge LANG=$$lang: $$(echo $$files | wc -w) file(s)"; \
+		(cd $(ROOT) && uv run judge-jev.py -l $$lang --started-at $(START_TIME) $$files) || exit $$?; \
 	done
 
-# Aggregate every <METHOD>-<MODEL>-<LANG>.jsonl that has a matching judge file
-# into report.md (and print the same table to the terminal), then regenerate
-# MODELS.svg from the same rows (via report.collect_rows), so the chart never
-# drifts from report.md. Mechanical, no LLM and no MODEL/LANG needed — this
-# directory's own report, independent of the parent report.py, which scans
-# only results-<lang>/ and ignores these runs.
+# Aggregate every <METHOD>-<MODEL>-<LANG>.jsonl that has a matching jev/*.tsv
+# into report.md (and print the same table to the terminal), then
+# regenerate MODELS.svg from the same rows (via report.collect_rows), so the
+# chart never drifts from the report. Mechanical, no LLM and no MODEL/LANG
+# needed — this directory's own report, independent of the parent report.py,
+# which scans only results-<lang>/ and ignores these runs.
 report:
-	cd $(ROOT) && uv run results/report.py
-	uv run generate_chart.py
-
-# Same aggregation over a probability judge's verdicts (<dir>/*.tsv from
-# judge-<dir>.py) → report-<dir>.md + MODELS-<dir>.svg, leaving the qwen
-# report.md untouched.
-$(addprefix report-,$(TSV_JUDGES)): report-%:
-	cd $(ROOT) && uv run results/report.py --$*
-	uv run generate_chart.py --$*
-
-# Every report above in one go: the qwen report.md plus one report-<dir> per
-# TSV judge.
-report-all: report $(addprefix report-,$(TSV_JUDGES))
+	cd $(ROOT) && uv run results/report.py --jev
+	uv run generate_chart.py --jev

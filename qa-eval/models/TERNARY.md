@@ -12,8 +12,8 @@ with the existing **`ollama:qwen3.6`** verdicts, TypeSafe's **Jev**
 
 - **Model**: `openai:gpt-6-luna` via llm7shi (Responses API), with reasoning
   off (`include_thoughts=False`, which sends `reasoning.effort="none"`).
-- **Judge**: [judge-ternary.py](judge-ternary.py), the plain-LLM counterpart of
-  [judge-openai.py](judge-openai.py) with the same rubric: the same instruction
+- **Judge**: [judge-ternary.py](../judge-ternary.py), the plain-LLM counterpart of
+  [judge-openai.py](../judge-openai.py) with the same rubric: the same instruction
   and criterion wording and the same indented-JSON input, placed in a system
   prompt that ends with "Reply with exactly one word: correct, partial,
   incorrect." There is no structured output, no reason and no probability; the
@@ -50,7 +50,7 @@ smallest of the three cloud judges (687,930 tokens), but each request takes
 about five times as long as with the Decisions API (1 : 5.0 in total wall
 time; Jev : Ternary is 1 : 6.3), so the same model is much slower when it
 generates its verdict as text. The per-model re-grading in `results/`
-([results/TERNARY.md](results/TERNARY.md)) gives 1 : 4.8 and 1 : 5.3 per
+([results/ternary/README.md](../results/ternary/README.md)) gives 1 : 4.8 and 1 : 5.3 per
 file, within the free tier as well.
 
 ---

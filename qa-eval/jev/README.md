@@ -9,7 +9,7 @@ derived from [judge-jev.py](judge-jev.py).
 ## Motivation
 
 The qwen judge is lenient. In the multi-model Ceiling comparison
-([results/report.md](../results/report.md)) many answerer models score 98–100
+([results/judge/report.md](../results/judge/report.md)) many answerer models score 98–100
 in both languages, so the top of the table no longer separates models. A
 somewhat stricter judge is preferable, as long as the strictness is justified
 by the gold answers rather than by style.
@@ -132,7 +132,7 @@ Per request, with the Choice and the Noul together:
 
 Input is dominated by the candidate answer (graphrag-local averages 1,041);
 output is fixed at 56 regardless of content. The Choice alone takes 39 output
-tokens ([../JEV.md](../JEV.md#cost)), so the Noul accounts for 17.
+tokens ([../models/JEV.md](../models/JEV.md#cost)), so the Noul accounts for 17.
 
 The experiment ran as five `judge-jev.py --debug` calls, each logged once in
 llm7shi's `usage.jsonl`. The last two grade Q7 and Q28, whose rows the first

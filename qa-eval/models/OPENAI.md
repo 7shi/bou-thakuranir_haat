@@ -10,8 +10,8 @@ per language = 1,500 requests in total) was re-graded with OpenAI's
 
 - **Model**: `gpt-6-luna` via `POST /decisions` (OpenAI Python SDK 3.26.0+), a
   model dedicated to classification, scoring and probability judgements.
-- **Judge**: [judge-openai.py](judge-openai.py), a port of
-  [judge-jev.py](judge-jev.py) with the same rubric: one Choice question over
+- **Judge**: [judge-openai.py](../judge-openai.py), a port of
+  [judge-jev.py](../judge-jev.py) with the same rubric: one Choice question over
   `correct` / `partial` / `incorrect`, with the same instruction and criterion
   wording. Two differences follow from the API:
   - The input is a string, so the state Jev receives as an object is sent as
@@ -51,7 +51,7 @@ Jev's.
 
 Relative to Jev, Jev : OpenAI is about 1 : 1.26 in wall time (1 : 1.30 en,
 1 : 1.21 ja) and 1 : 1.59 in cost. The per-model re-grading in `results/`
-([results/OPENAI.md](results/OPENAI.md)) gives 1 : 1.11 and 1 : 1.60 per file:
+([results/openai/README.md](../results/openai/README.md)) gives 1 : 1.11 and 1 : 1.60 per file:
 the cost ratio holds across runs, while the time ratio varies with API
 response times.
 

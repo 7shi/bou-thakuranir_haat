@@ -1,15 +1,15 @@
 # Jev 1.14.0
 
 `jev-1.14.0` replaced `jev-1.13.0` as the default model of
-[judge-jev.py](judge-jev.py). Every answer file already graded by 1.13.0 was
+[judge-jev.py](../judge-jev.py). Every answer file already graded by 1.13.0 was
 graded again with the same scheme (`choice@19579e23`), so the two versions
 differ only in the model. The 1.13.0 verdicts are kept frozen in
 `jev-1.13.0/` beside each `jev/` (`results-en/`, `results-ja/`, `results/`),
-and the last `results/report-jev.md` they produced is kept as
-[results/jev-1.13.0/report-jev.md](results/jev-1.13.0/report-jev.md).
+and the last `results/` report they produced is kept as
+[results/jev-1.13.0/report-jev.md](../results/jev-1.13.0/report-jev.md).
 `uv run report.py -l <lang> --tsv-dir jev-1.13.0` aggregates the archive.
 The procedure and the reasons for this layout are in
-[jev/MIGRATION.md](jev/MIGRATION.md).
+[jev/MIGRATION.md](../jev/MIGRATION.md).
 
 ## Run
 
@@ -79,8 +79,8 @@ slightly: Ceiling 0.960 vs 0.880.
 ## Answerer models (`results/`)
 
 Per-model scores move by −4 to +5 points, within the one-or-two-question noise
-noted in [results/README.md](results/README.md#ceiling-comparing-answerer-models),
+noted in [results/README.md](../results/README.md#ceiling-comparing-answerer-models),
 and the mean change is about zero (+0.25 points in English, +0.05 in
-Japanese). The current table is in [results/README.md](results/README.md); the
-per-model diff is that of `report-jev.md` against
-[results/jev-1.13.0/report-jev.md](results/jev-1.13.0/report-jev.md).
+Japanese). The current table is in [results/README.md](../results/README.md); the
+per-model diff is that of [results/report.md](../results/report.md) against
+[results/jev-1.13.0/report-jev.md](../results/jev-1.13.0/report-jev.md).

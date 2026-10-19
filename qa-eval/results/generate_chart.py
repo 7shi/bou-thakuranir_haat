@@ -1,10 +1,11 @@
 """Generate a bar chart comparing per-model ceiling scores (English vs. Japanese).
 
 Reads scores through `report.collect_rows` (the same discovery/aggregation
-code `make report` uses), so this chart and report.md can never disagree.
-Run via `make report` (see Makefile), which regenerates both; `--jev`,
-`--nimble` or `--openai` (via `make report-<dir>`) charts that judge's verdicts
-into MODELS-<dir>.svg/png instead.
+code `make report` uses), so this chart and the report can never disagree.
+`--jev` (run by `make report`, see Makefile, which regenerates both) charts the
+Jev verdicts into MODELS.svg/png; without a flag it charts the frozen qwen
+verdicts into judge/MODELS.svg/png, and with a frozen judge's flag into
+<dir>/MODELS-<dir>.svg/png.
 """
 # /// script
 # dependencies = ["matplotlib"]
@@ -15,7 +16,7 @@ from pathlib import Path
 import matplotlib
 import matplotlib.pyplot as plt
 
-from report import LANGS, TSV_DIRS, TSV_JUDGES, collect_rows
+from report import LANGS, TSV_DIRS, TSV_JUDGES, collect_rows, output_path
 
 # Fix the SVG element id salt so regenerating the chart doesn't churn
 # unrelated ids in the diff.
@@ -49,11 +50,11 @@ def main() -> None:
     for name in TSV_DIRS:
         group.add_argument(f"--{name}", dest="tsv_dir", action="store_const", const=name,
                            help=f"chart the {TSV_JUDGES[name][0]} verdicts ({name}/*.tsv) "
-                                f"into MODELS-{name}.svg/png")
+                                f"into {output_path('MODELS', name)}.svg/png")
     args = parser.parse_args()
-    suffix = f"-{args.tsv_dir}" if args.tsv_dir else ""
-    output = HERE / f"MODELS{suffix}.svg"
-    output_png = HERE / f"MODELS{suffix}.png"
+    stem = output_path("MODELS", args.tsv_dir)
+    output = HERE / f"{stem}.svg"
+    output_png = HERE / f"{stem}.png"
 
     rows = load_ceiling_scores(args.tsv_dir)
     if not rows:

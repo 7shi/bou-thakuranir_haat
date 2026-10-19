@@ -10,7 +10,7 @@ version strings such as `jev-1.13.0`. The first migration, `jev-1.13.0` →
 
 - **The output directory is fixed.** `judge-jev.py` writes
   `<results dir>/jev/<stem>.tsv`, and `report.py --jev`, `results/report.py
-  --jev`, `results/Makefile` (`judge-jev`, `report-jev`), `drop_verdicts.py`
+  --jev`, `results/Makefile` (`judge`, `report`), `drop_verdicts.py`
   and `sort_verdicts.py` all read `jev/`.
 - **A version is pinned, and mixing is refused.** `DEFAULT_MODEL` is a version,
   not the `jev-latest` alias, and `jev/MODELS.tsv` records the model and scheme
@@ -31,7 +31,7 @@ Two layouts were considered:
   needs the same repointing again.
 - **B (adopted).** `git mv jev jev-<old>`, then grade the new version into a
   fresh `jev/`. One move per migration, and nothing that reads `jev/` changes:
-  `make judge-jev`, `make report-jev`, `report-jev.md`, `MODELS-jev.svg` keep
+  `make judge`, `make report`, `results/report.md`, `results/MODELS.svg` keep
   their names and simply follow the new version.
 
 The directory name carries the full version string (`jev-1.13.0`, not
@@ -57,10 +57,11 @@ and are not migrated either.
 
 ### The last generated report is archived with the verdicts
 
-`results/report-jev.md` and `results/MODELS-jev.{svg,png}` are regenerated from
+`results/report.md` and `results/MODELS.{svg,png}` are regenerated from
 `jev/`, so the old version's final copies would be lost. They are copied (not
 moved, so `results/` stays consistent until the regeneration) into
-`results/jev-<old>/`. The copy of `report-jev.md` gets its relative links
+`results/jev-<old>/` as `report-jev.md` and `MODELS-jev.{svg,png}`, the names
+the `jev-1.13.0` archive uses. The copy of the report gets its relative links
 adjusted one level deeper and one line saying it is the archived `<old>`
 version. PNGs stay untracked through the `results/*/MODELS*.png` rule in
 `qa-eval/.gitignore`.
@@ -73,11 +74,11 @@ from the archive at any time with `report.py --tsv-dir`.
 `results/README.md` (the Ceiling and Hybrid8 tables and every number derived
 from them) is rewritten to the `<new>` state, without old values or
 "changed from" notes. The comparison between versions goes to its own
-document, `qa-eval/JEV-<new short>.md` (e.g. [JEV-1.14.md](../JEV-1.14.md)).
-Documents that describe a past run under `<old>` (e.g.
-[JEV.md](../JEV.md), [results/JEV.md](../results/JEV.md), the
-[NIMBLE.md](../NIMBLE.md) / [OPENAI.md](../OPENAI.md) /
-[TERNARY.md](../TERNARY.md) comparisons that name the version) stay as they
+document, `qa-eval/models/JEV-<new short>.md` (e.g.
+[JEV-1.14.md](../models/JEV-1.14.md)). Documents that describe a past run
+under `<old>` (e.g. [JEV.md](../models/JEV.md),
+[results/jev/README.md](../results/jev/README.md), the [NIMBLE.md](../models/NIMBLE.md) /
+[OPENAI.md](../models/OPENAI.md) / [TERNARY.md](../models/TERNARY.md) comparisons that name the version) stay as they
 are, with paths into `jev/` corrected to `jev-<old>/`.
 
 ## Procedure
@@ -89,7 +90,9 @@ Run from `qa-eval/` unless noted. Commit after steps 3, 5 and 7.
 2. **Archive.**
    ```
    for d in results-en results-ja results; do git mv $d/jev $d/jev-<old>; done
-   cp -p results/report-jev.md results/MODELS-jev.svg results/MODELS-jev.png results/jev-<old>/
+   cp -p results/report.md results/jev-<old>/report-jev.md
+   cp -p results/MODELS.svg results/jev-<old>/MODELS-jev.svg
+   cp -p results/MODELS.png results/jev-<old>/MODELS-jev.png
    ```
    Fix the relative links in `results/jev-<old>/report-jev.md` and add the
    archive note.
@@ -100,15 +103,18 @@ Run from `qa-eval/` unless noted. Commit after steps 3, 5 and 7.
    ```
    uv run report.py -l en --tsv-dir jev-<old>
    ```
-4. **Grade `results-<lang>/`.** The root Makefile has no Jev target; pass the
-   answer files that have a `judge/` counterpart, one call per language:
+4. **Grade `results-<lang>/`.** The root Makefile's `judge` builds only the
+   default methods (Ceiling, Filter2 and Filter3 are opt-in), so pass the
+   answer files that have a `jev-<old>/` counterpart, one call per language:
    ```
-   uv run judge-jev.py -l en $(ls results-en/judge/*.jsonl | sed 's|/judge/|/|')
-   uv run judge-jev.py -l ja $(ls results-ja/judge/*.jsonl | sed 's|/judge/|/|')
+   for l in en ja; do
+     uv run judge-jev.py -l $l $(ls results-$l/jev-<old>/*.tsv | grep -v MODELS.tsv |
+       sed 's|/jev-<old>/|/|; s|\.tsv$|.jsonl|')
+   done
    ```
 5. **Grade `results/` and regenerate its report.**
    ```
-   make -C results judge-jev report-jev
+   make -C results judge report
    ```
    This is one `judge-jev.py` call per language, so it prints and logs two
    usage totals; both count toward the cost.
@@ -118,7 +124,7 @@ Run from `qa-eval/` unless noted. Commit after steps 3, 5 and 7.
    - Recompute the cost from llm7shi's `usage.jsonl` (all `<new>` entries of
      the run) and check it against the bill.
 7. **Document.**
-   - Rewrite `results/README.md` from the new `report-jev.md`. The Hybrid8
+   - Rewrite `results/README.md` from the new `results/report.md`. The Hybrid8
      tables (per-question verdicts, flips between ceiling and hybrid8, counts
      restricted to questions whose gold chapters were retrieved) are not in
      the report and must be recomputed from the TSVs; first check that the
@@ -143,6 +149,6 @@ Run from `qa-eval/` unless noted. Commit after steps 3, 5 and 7.
   results/README.md before anything was re-graded.
 - Agreement with 1.13.0 was 95–97%, almost entirely *correct* ↔ *partial*
   flips in both directions; every method moved by at most 0.03. Details in
-  [JEV-1.14.md](../JEV-1.14.md).
+  [JEV-1.14.md](../models/JEV-1.14.md).
 - Added for this migration: `report.py --tsv-dir`, the
   `results/*/MODELS*.png` ignore rule, `results/jev-1.13.0/report-jev.md`.

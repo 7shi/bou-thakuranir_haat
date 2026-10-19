@@ -3,13 +3,13 @@
 Every answer file in `results-en/` and `results-ja/` (15 methods × 50 questions
 per language) was re-graded with TypeSafe's Jev and compared with the existing
 `ollama:qwen3.6` verdicts. The qwen results and the analyses built on them
-([README.md](README.md) and the linked documents) are left as they are; this
+([README.md](../README.md) and the linked documents) are left as they are; this
 document records how the picture shifts under the stricter judge. Why Jev and
-why a single Choice question: [jev/README.md](jev/README.md).
+why a single Choice question: [jev/README.md](../jev/README.md).
 
 ## Setup
 
-- Judge: [judge-jev.py](judge-jev.py), `jev-1.13.0`, scheme `choice@19579e23`
+- Judge: [judge-jev.py](../judge-jev.py), `jev-1.13.0`, scheme `choice@19579e23`
   (both recorded per file in `results-<lang>/jev-1.13.0/MODELS.tsv`). Same inputs as
   `judge.py` — question, gold answer, rationale, candidate answer; no source
   text.
@@ -35,7 +35,7 @@ requests each); token counts from llm7shi's `usage.jsonl`:
 | Total | 1,500 | 1,192,433 | 58,500 | 795 | 39 |
 
 Billed $0.0501 in total, about $0.033 per 1,000 requests, in line with the
-per-model runs in [results/JEV.md](results/JEV.md).
+per-model runs in [results/jev/README.md](../results/jev/README.md).
 
 The Q7 and Q28 rows were graded in a second run: 30 requests per language
 (15 files × 2 questions), 21,717 input / 1,170 output tokens for English and
@@ -136,7 +136,7 @@ languages: Hybrid k=10 leads Filter3 in English by one question (E 0.880 vs
 three Hybrid depths are within 0.004 of each other (Filter3 0.820). Hybrid
 stays on top in both languages, but its best depth in Japanese depends on the
 judge (k=5 under qwen, k=10 under Jev, k=8 by E). Since Filter3 pays an LLM
-call per chapter per question ([FILTER.md](FILTER.md)), Dense ∪ BM25 Hybrid
+call per chapter per question ([FILTER.md](../FILTER.md)), Dense ∪ BM25 Hybrid
 remains the practical choice.
 
 ### The language gap widens slightly
@@ -147,7 +147,7 @@ is lower for 10 of the 15 methods, by 0.01 on average (half a question) and by
 0.05 at most (V-hybrid k=10, 0.860 vs 0.810); Vector-line k=5 and Hybrid k=5
 are level, and Vector k=5 and both GraphRAG modes are higher in Japanese. The shift is small, and whether it comes from the answerer or from
 Jev reading Japanese answers against English instructions is not separated
-here: the Jev experiment ([jev/README.md](jev/README.md)) validated English
+here: the Jev experiment ([jev/README.md](../jev/README.md)) validated English
 only.
 
 ## Caveat: extra facts beyond the gold answer

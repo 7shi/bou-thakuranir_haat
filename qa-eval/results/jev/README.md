@@ -1,16 +1,18 @@
 # Jev grading of the per-model runs
 
-The per-model runs in this directory are graded with TypeSafe's Jev instead of
-the `ollama:qwen3.6` judge, and the scores in [README.md](README.md) are the
-Jev verdicts. This document records how the switch was made: the experiment
-that chose Jev, the grading run, and how the verdicts compare with qwen's. The
-same switch for `results-<lang>/`: [../JEV.md](../JEV.md).
+The per-model runs in `results/` are graded with TypeSafe's Jev, the default
+judge, instead of the `ollama:qwen3.6` judge, and the scores in
+[README.md](../README.md) are the Jev verdicts. This document records how the
+switch was made: the experiment that chose Jev, the grading run, and how the
+verdicts compare with qwen's. The same switch for `results-<lang>/`:
+[models/JEV.md](../../models/JEV.md); the move from `jev-1.13.0` to
+`jev-1.14.0`: [models/JEV-1.14.md](../../models/JEV-1.14.md).
 
 ## Introduction experiment
 
 The switch started from this directory. Under qwen the multi-model Ceiling
 table had saturated: many models scored 98–100 in both languages, so the top
-no longer separated models. [../jev/README.md](../jev/README.md) tried Jev on
+no longer separated models. [jev/README.md](../../jev/README.md) tried Jev on
 the English Ceiling answers of six models from here, from saturated to
 mid-table, plus four retrieval runs from `results-en/`. A single Choice
 question over `judge.py`'s rubric moved the three models qwen scored 100 off
@@ -20,11 +22,12 @@ the Choice was adopted as the judge.
 
 ## Grading run
 
-Every answer file here was then graded by one `make judge-jev` run (see
-[Makefile](Makefile)), writing `jev/*.tsv` (now kept in `jev-1.13.0/`, with the
-last [report-jev.md](jev-1.13.0/report-jev.md) and MODELS-jev.svg it produced).
+Every answer file in `results/` was then graded by one `make judge-jev` run
+(now `make judge`, see [Makefile](../Makefile)), writing `jev/*.tsv` (now kept
+in `jev-1.13.0/`, with the last [report-jev.md](../jev-1.13.0/report-jev.md) and
+MODELS-jev.svg it produced).
 
-- Judge: [judge-jev.py](../judge-jev.py), `jev-1.13.0`, scheme `choice@19579e23`
+- Judge: [judge-jev.py](../../judge-jev.py), `jev-1.13.0`, scheme `choice@19579e23`
   (recorded for all 82 files in `jev-1.13.0/MODELS.tsv`)
 - Scope: 82 answer files (41 per language) × 50 questions = 4,100 requests,
   one `judge-jev.py` call per language
@@ -44,9 +47,10 @@ Output is a fixed 39 tokens per request regardless of content. Input follows
 the length of the question, gold answer, rationale and candidate answer;
 Japanese needs about 1.34× the tokens of English for the same material.
 
-`make report-jev` aggregates the Jev verdicts into [report-jev.md](report-jev.md)
-and [MODELS-jev.svg](MODELS-jev.svg); the qwen verdicts stay in `judge/` and
-[report.md](report.md) / [MODELS.svg](MODELS.svg).
+`make report` aggregates the Jev verdicts into
+[report.md](../report.md) and [MODELS.svg](../MODELS.svg); the
+frozen qwen verdicts stay in `judge/` with their last
+[report.md](../judge/report.md) / [MODELS.svg](../judge/MODELS.svg).
 
 ## Comparison with qwen
 
@@ -143,7 +147,7 @@ Under qwen the Hybrid k=8 context costs `ollama_qwen3.8` and
 `openrouter_stealth_ox-alpha` at most 2 points over the gold chapters in
 either language. Under Jev that holds only for `stealth_ox-alpha` (3 points in
 English, 1 in Japanese); qwen3.8 loses 6 and 5, and Gemma 9 and 7
-([README.md § Hybrid8 vs. ceiling](README.md#hybrid8-vs-ceiling-what-retrieval-costs)).
+([README.md § Hybrid8 vs. ceiling](../README.md#hybrid8-vs-ceiling-what-retrieval-costs)).
 
 The grading of questions whose gold chapters are absent from the k=8 context
 also differs. qwen split answers that name what they can and leave the rest

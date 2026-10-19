@@ -1,56 +1,39 @@
 #!/usr/bin/env python3
-"""Remove the verdicts of selected questions so that the judges grade them again.
+"""Remove the Jev verdicts of selected questions so that Jev grades them again.
 
-The judges are resume-safe by question ID: they skip a question that already
+judge-jev.py is resume-safe by question ID: it skips a question that already
 has a verdict. After a gold answer is corrected, removing its verdicts and
-re-running the usual judge commands grades only those questions, appended at
-the end of each file; sort_verdicts.py then puts the rows back in qid order.
+re-running the usual Jev commands grades only those questions, appended at the
+end of each file; sort_verdicts.py then puts the rows back in qid order.
 
-Verdict files, next to each answer file in results-en/, results-ja/ and
-results/:
+Verdict files: jev/<stem>.tsv next to each answer file in results-en/,
+results-ja/ and results/, after a header line.
 
-  judge/<stem>.jsonl                          judge.py, one JSON record per line
-  {ternary,openai,jev,nimble,clef-flash,clef}/<stem>.tsv   the TSV judges, after a header line
-
-and results/ja2en/{xling,ternary,retest}/<stem>.tsv, graded by Ternary against
-the English gold answers (see results/ja2en/Makefile).
+Only jev/ is touched. The frozen judges (judge/ for qwen, nimble/, clef-flash/,
+clef/, openai/, ternary/, results/ja2en/, and every jev-<old>/) keep their
+verdicts as graded; see models/README.md.
 
 MODELS.tsv is left as it is, so the re-run must use the recorded model and
 scheme. Files without any of the questions are not rewritten.
 """
 
 import argparse
-import json
 from pathlib import Path
 
 QA_EVAL = Path(__file__).resolve().parent
-SETS = ["results-en", "results-ja", "results", "results/ja2en"]
-JUDGES = ["judge", "ternary", "openai", "jev", "nimble", "clef-flash", "clef"]
-JA2EN_DIRS = ["xling", "ternary", "retest"]
+SETS = ["results-en", "results-ja", "results"]
+JEV_DIR = "jev"
 
 
-def judge_dirs(s: str, judge: str) -> list[str]:
-    if s == "results/ja2en":
-        return JA2EN_DIRS if judge == "ternary" else []
-    return [judge]
-
-
-def verdict_files(sets: list[str], judges: list[str]) -> list[Path]:
+def verdict_files(sets: list[str]) -> list[Path]:
     files = []
     for s in sets:
-        for judge in judges:
-            for d in judge_dirs(s, judge):
-                if judge == "judge":
-                    files += sorted((QA_EVAL / s / d).glob("*.jsonl"))
-                else:
-                    files += sorted(p for p in (QA_EVAL / s / d).glob("*.tsv")
-                                    if p.name != "MODELS.tsv")
+        files += sorted(p for p in (QA_EVAL / s / JEV_DIR).glob("*.tsv")
+                        if p.name != "MODELS.tsv")
     return files
 
 
-def row_qid(line: str, path: Path) -> int:
-    if path.suffix == ".jsonl":
-        return json.loads(line)["question_id"]
+def row_qid(line: str) -> int:
     return int(line.split("\t", 1)[0])
 
 
@@ -59,17 +42,15 @@ def main():
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("qids", nargs="+", type=int, help="question IDs to re-grade")
     parser.add_argument("-s", "--sets", nargs="+", default=SETS, choices=SETS)
-    parser.add_argument("-j", "--judges", nargs="+", default=JUDGES, choices=JUDGES)
     args = parser.parse_args()
 
     qids = set(args.qids)
     changed = rows = 0
-    for path in verdict_files(args.sets, args.judges):
+    for path in verdict_files(args.sets):
         with open(path, encoding="utf-8") as f:
             lines = [l.rstrip("\n") for l in f if l.strip()]
-        head = lines[:1] if path.suffix == ".tsv" else []
-        body = lines[len(head):]
-        kept = [l for l in body if row_qid(l, path) not in qids]
+        head, body = lines[:1], lines[1:]
+        kept = [l for l in body if row_qid(l) not in qids]
         if len(kept) == len(body):
             continue
         path.write_text("\n".join(head + kept) + "\n", encoding="utf-8")

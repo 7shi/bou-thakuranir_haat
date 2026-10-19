@@ -1,19 +1,25 @@
 # Nimble grading of the per-model runs
 
-The per-model runs in this directory were graded with Bespoke Labs'
+The per-model runs in `results/` were graded with Bespoke Labs'
 **[Nimble](https://ollama.com/library/nimble)** (hosted locally via Ollama) and
 compared with the existing `ollama:qwen3.6` and TypeSafe `Jev` verdicts. The
 scores in [report-nimble.md](report-nimble.md) and
 [MODELS-nimble.svg](MODELS-nimble.svg) are the Nimble verdicts. This document
 records the grading run and how the verdicts compare across all 51 models. The
-same comparison for `results-<lang>/`: [../NIMBLE.md](../NIMBLE.md).
+same comparison for `results-<lang>/`: [models/NIMBLE.md](../../models/NIMBLE.md).
+
+**Frozen.** Jev is the default judge, and Nimble is no longer run
+([models/README.md](../../models/README.md)). The verdicts (`*.tsv`), the last
+report and the chart are kept in this directory for comparison, and
+`make judge-nimble` / `make report-nimble` have been removed from the
+[Makefile](../Makefile).
 
 ## Grading run
 
-Every answer file here was graded by `make judge-nimble` (see [Makefile](Makefile)),
-writing `nimble/*.tsv`.
+Every answer file in `results/` was graded by `make judge-nimble`, writing
+`nimble/*.tsv`.
 
-- **Judge**: [judge-nimble.py](../judge-nimble.py), model `nimble` via Ollama 0.35+,
+- **Judge**: [judge-nimble.py](../../judge-nimble.py), model `nimble` via Ollama 0.35+,
   scheme `choice@19579e23` (recorded for all 82 files in `nimble/MODELS.tsv`)
 - **Scope**: 82 answer files (41 per language; 39 ceiling + 2 hybrid8) × 50 questions
   = 4,100 requests, run sequentially across English and Japanese
@@ -25,10 +31,10 @@ writing `nimble/*.tsv`.
 
 Since Nimble runs locally, cost and tokens are not compared with the paid
 judges; time is. Per file, Nimble takes about 3× as long as Jev (11.1 s, see
-[JEV.md](JEV.md)).
+[jev/README.md](../jev/README.md)).
 
-`make report-nimble` aggregates the Nimble verdicts into [report-nimble.md](report-nimble.md)
-and [MODELS-nimble.svg](MODELS-nimble.svg).
+`make report-nimble` aggregated the Nimble verdicts into
+[report-nimble.md](report-nimble.md) and [MODELS-nimble.svg](MODELS-nimble.svg).
 
 ## Comparison with Qwen and Jev
 

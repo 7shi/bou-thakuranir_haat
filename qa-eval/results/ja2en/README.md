@@ -1,6 +1,6 @@
 # Where the Japanese gap comes from
 
-Under Ternary ([../TERNARY.md](../TERNARY.md)), as under OpenAI and Jev, the
+Under Ternary ([../ternary/README.md](../ternary/README.md)), as under OpenAI and Jev, the
 same model's Japanese Ceiling answers score several points below its English
 ones. This directory tests where that gap lies, using the Japanese answers of
 11 models graded three ways:
@@ -192,7 +192,7 @@ claims, 230 for the 50 questions, and checks them against the cited chapters
 in both languages. Only 6 claims, in 5 questions, are stated in the English
 text alone (*ja-only missing*), all differences of wording. `make gold-gap`
 ([gold_gap.py](gold_gap.py)) measures the Ternary gap over all 50 models
-([../ternary/](../TERNARY.md)) on the questions with and without such a claim,
+([../ternary/](../ternary/README.md)) on the questions with and without such a claim,
 with a two-sided sign test over the models:
 
 | Questions | n | en | ja | ja − en | ja < en | ja > en | Sign test |

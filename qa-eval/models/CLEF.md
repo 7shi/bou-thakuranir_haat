@@ -6,7 +6,7 @@ per language = 1,500 requests in total) was re-graded with Cloudflare's
 compared with the existing **`ollama:qwen3.6`**, TypeSafe **Jev**
 (`jev-1.14.0`), Bespoke Labs **Nimble** and Cloudflare **Clef Flash** verdicts.
 For the multi-model comparison across 63 models in `results/`, see
-[results/CLEF.md](results/CLEF.md).
+[results/clef/README.md](../results/clef/README.md).
 
 Clef is the larger sibling of Clef Flash ([CLEF-FLASH.md](CLEF-FLASH.md)), so
 the main question is whether the larger model fixes Clef Flash's leniency and
@@ -18,10 +18,10 @@ its handling of refusals.
   decision model from Cloudflare fine-tuned from Qwen 3.8 27B (Apache 2.0),
   served by Ollama 0.35.1+ through the `/v1/systemone` endpoint like Nimble and
   Clef Flash. Only text is used here.
-- **Judge**: [judge-clef.py](judge-clef.py), a wrapper around
-  [ollama_systemone.py](ollama_systemone.py) shared with
-  [judge-nimble.py](judge-nimble.py) and
-  [judge-clef-flash.py](judge-clef-flash.py); only the model differs. The
+- **Judge**: [judge-clef.py](../judge-clef.py), a wrapper around
+  [ollama_systemone.py](../ollama_systemone.py) shared with
+  [judge-nimble.py](../judge-nimble.py) and
+  [judge-clef-flash.py](../judge-clef-flash.py); only the model differs. The
   scheme is `choice@19579e23` (the same rubric and scheme ID as Jev, Nimble and
   Clef Flash, recorded in `results-<lang>/clef/MODELS.tsv`).
 - **Inputs**: Same contract as `judge.py` and the other TSV judges: question,
@@ -213,7 +213,7 @@ languages (0.154 vs. 0.140 en, 0.228 vs. 0.220 ja) and Japanese Hybrid k=8
 ## Conclusion
 
 Clef runs the same way as Nimble and Clef Flash (local and free) through the
-shared [ollama_systemone.py](ollama_systemone.py), at about 1.8 s per decision.
+shared [ollama_systemone.py](../ollama_systemone.py), at about 1.8 s per decision.
 Compared with Clef Flash:
 
 1. **Refusals are fixed**: every fixed refusal sentence is *incorrect*, and
@@ -231,7 +231,7 @@ get full marks, and Clef often withholds them. It is also three times slower
 than Nimble, and across models its scores correlate with Qwen,
 Nimble and Clef Flash ($r$ = 0.81–0.85) less than any two of the other four
 judges do with each other (0.86–0.96; see
-[results/CLEF.md](results/CLEF.md)). For this evaluation, Nimble remains the
+[results/clef/README.md](../results/clef/README.md)). For this evaluation, Nimble remains the
 default local judge: it grades no refusal *correct*, and it is less strict
 than Clef on answers that cover the essential facts. Clef's verdicts are kept
 in `clef/` for comparison.

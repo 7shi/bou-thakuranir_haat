@@ -1,7 +1,7 @@
 # Fixing a Gold Answer
 
-How to correct a gold answer in `questions-{en,ja}.jsonl` and bring every
-verdict and report in line with it, without answering any question again.
+How to correct a gold answer in `questions-{en,ja}.jsonl` and bring the Jev
+verdicts and reports in line with it, without answering any question again.
 Commands after step 1 run in `qa-eval/`.
 
 ## What may change
@@ -62,89 +62,84 @@ make -C gold-check claims
 
 ## 3. Re-grade the edited questions
 
-The judges skip a question that already has a verdict. Removing the verdicts
-of the edited questions and re-running the usual judge commands grades only
-those questions.
+Only Jev, the default judge, is re-graded. The frozen judges keep the verdicts
+they gave against the earlier gold answer: qwen in `judge/`, `nimble/`,
+`clef-flash/`, `clef/`, `openai/` and `ternary/`, the Ternary runs of
+[results/ja2en/](results/ja2en/README.md), and every archived `jev-<old>/`
+(see [models/README.md](models/README.md)).
+
+`judge-jev.py` skips a question that already has a verdict. Removing the Jev
+verdicts of the edited questions and re-running Jev grades only those
+questions.
 
 ```bash
 QIDS="22 34"
 uv run drop_verdicts.py $QIDS
 ```
 
-`-s` takes several sets, so the question numbers go before it
-(`uv run drop_verdicts.py $QIDS -s results/ja2en`).
+[drop_verdicts.py](drop_verdicts.py) removes their rows from `jev/*.tsv` in
+`results-en/`, `results-ja/` and `results/`, and touches nothing else.
+`MODELS.tsv` is left as it is. `-s` limits it to some of the three sets, so
+the question numbers go before it (`uv run drop_verdicts.py $QIDS -s results`).
 
-[drop_verdicts.py](drop_verdicts.py) removes their rows from
-`results-en/`, `results-ja/` and `results/`: `judge/*.jsonl` and
-`{ternary,openai,jev,nimble}/*.tsv`; and from the Ternary verdicts of
-[results/ja2en/](results/ja2en/README.md): `{xling,ternary,retest}/*.tsv`.
-`MODELS.tsv` is left as it is.
+No rule in the [Makefile](Makefile) depends on `questions-<lang>.jsonl`, and
+the answer files are not rewritten, so the edit does not make anything answer
+again.
 
-### Mark the verdict files out of date
+### Run Jev
 
-No rule in the [Makefile](Makefile) depends on `questions-<lang>.jsonl`, so
-the edit does not make anything answer again. But `drop_verdicts.py` has just
-rewritten the verdict files, which are now newer than the answer files, so
-`make` would take them as up to date. Touch the answer files:
-
-```bash
-touch results-{en,ja}/extract.jsonl results-{en,ja}/[cfghv]*.jsonl
-make -n LANG=en judge ceiling filter2 filter3 | grep answer_   # must print nothing
-make -n LANG=ja judge ceiling filter2 filter3 | grep answer_   # must print nothing
-```
-
-The per-model runs in `results/` are graded by `make -C results judge*`, which
+The root Makefile builds `jev/<stem>.tsv` from its answer file by timestamp,
+and `drop_verdicts.py` has just rewritten the verdict files, so `make` takes
+them as up to date. `results-<lang>/` is therefore graded by passing the
+answer files of the existing Jev verdicts, one call per language. The
+per-model runs in `results/` are graded by `make -C results judge`, which
 resumes any verdict file with fewer rows than its answer file and does not
 look at timestamps.
 
-### Run the judges
-
 ```bash
-make LANG=en judge ceiling filter2 filter3
-make LANG=ja judge ceiling filter2 filter3
-make -C results judge
-for j in ternary openai jev nimble; do
-  for l in en ja; do
-    uv run judge-$j.py -l $l results-$l/extract.jsonl results-$l/[cfghv]*.jsonl || break 2
-  done
-  make -C results judge-$j || break
+for l in en ja; do
+  uv run judge-jev.py -l $l $(ls results-$l/jev/*.tsv | grep -v MODELS.tsv |
+    sed 's|/jev/|/|; s|\.tsv$|.jsonl|') || break
 done
-make -C results/ja2en xling judge retest
+make -C results judge
 uv run sort_verdicts.py
 ```
 
-The judges append the re-graded rows at the end of each file.
+`judge-jev.py` appends the re-graded rows at the end of each file.
 [sort_verdicts.py](sort_verdicts.py) puts them back in question order and
 stops without writing if a question was graded twice.
 
 ### Verify
 
-- Every verdict file has one row per answered question, in question order.
-- `git diff` touches only the rows of the edited questions.
+- Every `jev/*.tsv` has one row per answered question, in question order.
+- `git diff` touches only the rows of the edited questions, and only in `jev/`.
 - `MODELS.tsv` files are unchanged.
 
 ## 4. Update the reports and documents
 
-Regenerate the per-model reports:
+Regenerate the per-model report:
 
 ```bash
-make -C results report report-ternary report-openai report-jev report-nimble
+make -C results report
 ```
 
-`make -C results/ja2en compare gold-gap` prints the tables of
-[results/ja2en/README.md](results/ja2en/README.md), and `make -C gold-check
-claims` those of [gold-check/README.md](gold-check/README.md).
+`make -C gold-check claims` prints the tables of
+[gold-check/README.md](gold-check/README.md).
 
-Then update every figure that quotes the changed scores, including the
+Then update every figure that quotes the changed Jev scores, including the
 case studies that discuss an edited question:
 
-- [README.md](README.md) and [README-ja.md](README-ja.md)
-- [results-en/README.md](results-en/README.md) and [results-ja/README.md](results-ja/README.md)
-- [results/README.md](results/README.md), [results/ja2en/](results/ja2en/README.md)
-  and [gold-check/](gold-check/README.md)
-- [TERNARY.md](TERNARY.md), [OPENAI.md](OPENAI.md), [JEV.md](JEV.md),
-  [NIMBLE.md](NIMBLE.md), their counterparts in `results/`,
-  [FILTER.md](FILTER.md) and [MEMO.md](MEMO.md)
+- the Results tables and findings of [README.md](README.md) and [README-ja.md](README-ja.md)
+- the case studies [results-en/README.md](results-en/README.md) and
+  [results-ja/README.md](results-ja/README.md), and the scores quoted in
+  [FILTER.md](FILTER.md) and [HYBRID.md](HYBRID.md)
+- [results/README.md](results/README.md), rewritten from
+  [results/report.md](results/report.md)
+- [models/README.md](models/README.md) and [models/JEV-1.14.md](models/JEV-1.14.md)
+- [gold-check/README.md](gold-check/README.md)
+
+The documents of the frozen judges, and the scores they quote, describe those
+judges as graded and are not updated.
 
 The documents state the corrected results only, without the earlier figures.
 The logs of finished experiments in [jev/](jev/README.md) are not re-graded.

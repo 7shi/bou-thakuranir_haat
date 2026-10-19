@@ -108,7 +108,7 @@ vector: $(VECTOR_FILE)
 hybrid: $(HYBRID_FILE)
 # `make hybrid-judge` runs answering at k=5, k=8, and k=10 then judges them, so
 # they appear in `make report` after a single command.
-hybrid-judge: $(RESULTS)/judge/hybrid5.jsonl $(RESULTS)/judge/hybrid8.jsonl $(RESULTS)/judge/hybrid10.jsonl
+hybrid-judge: $(RESULTS)/jev/hybrid5.tsv $(RESULTS)/jev/hybrid8.tsv $(RESULTS)/jev/hybrid10.tsv
 # Segment ∪ line dense Union answering (answer_vector.py --hybrid). Mirrors
 # `make vector`: the pattern rule derives the filename from k. Both languages.
 # Not part of the default pipeline; plain `make judge` grades any present
@@ -116,22 +116,22 @@ hybrid-judge: $(RESULTS)/judge/hybrid5.jsonl $(RESULTS)/judge/hybrid8.jsonl $(RE
 vector-hybrid: $(RESULTS)/vector-hybrid$(K).jsonl
 # `make vector-hybrid-judge` answers k=5 and k=10 then judges both, so
 # V-hybrid k=5 / V-hybrid k=10 appear in `make report` after a single command.
-vector-hybrid-judge: $(RESULTS)/judge/vector-hybrid5.jsonl $(RESULTS)/judge/vector-hybrid10.jsonl
+vector-hybrid-judge: $(RESULTS)/jev/vector-hybrid5.tsv $(RESULTS)/jev/vector-hybrid10.tsv
 extract-parts: $(EXTRACT_PARTS)
 extract: $(RESULTS)/extract.jsonl
 filter2-tsv: $(FILTER2_TSV)
 # `make filter2` runs the whole opt-in pipeline (Phase 1 + Phase 2 + judge) so
-# that Filter2 appears in `make report` after a single command. judge/filter2.jsonl
+# that Filter2 appears in `make report` after a single command. jev/filter2.tsv
 # depends on filter2.jsonl which depends on the verdict TSV (filter2.tsv).
-filter2: $(RESULTS)/judge/filter2.jsonl
+filter2: $(RESULTS)/jev/filter2.tsv
 filter3-tsv: $(FILTER3_TSV)
 # `make filter3` mirrors `make filter2` for the three-level (yes/maybe/no)
 # default variant: Phase 1 + Phase 2 + judge, surfacing Filter3 in `make report`.
-filter3: $(RESULTS)/judge/filter3.jsonl
+filter3: $(RESULTS)/jev/filter3.tsv
 filter10-tsv: $(FILTER10_TSV)
 filter100-tsv: $(FILTER100_TSV)
 filter5d-tsv: $(FILTER5D_TSV)
-ceiling: $(RESULTS)/judge/ceiling.jsonl
+ceiling: $(RESULTS)/jev/ceiling.tsv
 # `judge` aggregates the judged answer files for the default pipeline. Hybrid
 # (dense ∪ BM25 union) is supported for both languages. `make` thus builds Hybrid
 # rows into `make report` for both en and ja. `make hybrid-judge` remains a
@@ -139,23 +139,22 @@ ceiling: $(RESULTS)/judge/ceiling.jsonl
 # The canonical aggregate is the segment vector5 baseline plus extract (and
 # Hybrid). It is LINE-independent: `make judge` always grades
 # vector5, regardless of LINE.
-JUDGE_FILES := $(RESULTS)/judge/vector5.jsonl $(RESULTS)/judge/extract.jsonl $(RESULTS)/judge/hybrid5.jsonl $(RESULTS)/judge/hybrid8.jsonl $(RESULTS)/judge/hybrid10.jsonl
-# GraphRAG wildcard pickup (graphrag-*.jsonl → judge/graphrag-*.jsonl). Works
+JUDGE_FILES := $(RESULTS)/jev/vector5.tsv $(RESULTS)/jev/extract.tsv $(RESULTS)/jev/hybrid5.tsv $(RESULTS)/jev/hybrid8.tsv $(RESULTS)/jev/hybrid10.tsv
+# GraphRAG wildcard pickup (graphrag-*.jsonl → jev/graphrag-*.tsv). Works
 # for both languages; plain `make judge` grades any present without forcing creation.
-JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge/%.jsonl,$(wildcard $(RESULTS)/graphrag-*.jsonl))
+JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/jev/%.tsv,$(wildcard $(RESULTS)/graphrag-*.jsonl))
 # Also grade any line-mode answers already produced by `make vector LINE=1`
-# (vector-line<k>.jsonl → judge/vector-line<k>.jsonl, via the judge/vector%
-# pattern rule). wildcard only matches files already present, so plain
-# `make judge` picks them up without needing LINE=1.
-JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge/%.jsonl,$(wildcard $(RESULTS)/vector-line*.jsonl))
+# (vector-line<k>.jsonl → jev/vector-line<k>.tsv). wildcard only matches files
+# already present, so plain `make judge` picks them up without needing LINE=1.
+JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/jev/%.tsv,$(wildcard $(RESULTS)/vector-line*.jsonl))
 # Same wildcard pickup for the segment ∪ line Union (vector-hybrid<k>.jsonl →
-# judge/vector-hybrid<k>.jsonl, via the judge/vector% pattern rule). Works for
-# both languages; plain `make judge` grades any present without forcing creation.
-JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge/%.jsonl,$(wildcard $(RESULTS)/vector-hybrid*.jsonl))
+# jev/vector-hybrid<k>.tsv). Works for both languages; plain `make judge`
+# grades any present without forcing creation.
+JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/jev/%.tsv,$(wildcard $(RESULTS)/vector-hybrid*.jsonl))
 # Same depth-agnostic pickup for plain segment Vector at non-default depths
 # (vector10.jsonl etc.). vector5 duplicates the hardcoded entry above (make
 # dedups); the [0-9] right after "vector" excludes vector-line/vector-hybrid.
-JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/judge/%.jsonl,$(wildcard $(RESULTS)/vector[0-9]*.jsonl))
+JUDGE_FILES += $(patsubst $(RESULTS)/%.jsonl,$(RESULTS)/jev/%.tsv,$(wildcard $(RESULTS)/vector[0-9]*.jsonl))
 judge: $(JUDGE_FILES)
 sweep: $(INDEX)
 	uv run sweep_vector.py -l $(LANG)
@@ -194,7 +193,7 @@ filter5d: $(FILTER5D_TSV)
 # Accuracy + chapter retrieval comparison table + pairwise disagreement
 # analysis (terminal output only). Needs >= 2 judged methods for the pass.
 report: judge
-	uv run report.py -l $(LANG)
+	uv run report.py -l $(LANG) --jev
 
 # --- file targets ---
 
@@ -312,51 +311,18 @@ $(FILTER5D_TSV): $(SCENES)
 $(RESULTS)/ceiling.jsonl: $(SCENES)
 	uv run answer_ceiling.py -l $(LANG)
 
-# LLM grading of each answer file. One pattern rule serves both modes: the `%`
-# absorbs the whole stem, so judge/vector5.jsonl ← vector5.jsonl (segment) and
-# judge/vector-line5.jsonl ← vector-line5.jsonl (LINE=1, % = "-line5").
-$(RESULTS)/judge/vector%.jsonl: $(RESULTS)/vector%.jsonl
-	uv run judge.py -l $(LANG) $(RESULTS)/vector$*.jsonl
-
-$(RESULTS)/judge/extract.jsonl: $(RESULTS)/extract.jsonl
-	uv run judge.py -l $(LANG) $(RESULTS)/extract.jsonl
-
-# Opt-in: two-level filter judging. Run `make $(RESULTS)/judge/filter2.jsonl` (or `make
-# filter2`) explicitly to grade the two-level filter answers.
-$(RESULTS)/judge/filter2.jsonl: $(RESULTS)/filter2.jsonl
-	uv run judge.py -l $(LANG) $(RESULTS)/filter2.jsonl
-
-# Opt-in: not built by the default `judge` aggregate. Run `make $(RESULTS)/judge/filter3.jsonl`
-# (or `make filter3`) explicitly to grade the three-level filter answers.
-$(RESULTS)/judge/filter3.jsonl: $(RESULTS)/filter3.jsonl
-	uv run judge.py -l $(LANG) $(RESULTS)/filter3.jsonl
-
-# Opt-in: ceiling (gold-chapter context) judging. Run `make $(RESULTS)/judge/ceiling.jsonl`
-# (or `make ceiling`) explicitly to grade the ceiling answers.
-$(RESULTS)/judge/ceiling.jsonl: $(RESULTS)/ceiling.jsonl
-	uv run judge.py -l $(LANG) $(RESULTS)/ceiling.jsonl
-
-# Opt-in: hybrid (dense ∪ BM25 union) judging. Run `make hybrid-judge` (or `make
-# $(RESULTS)/judge/hybrid<k>.jsonl` explicitly) to grade the hybrid answers; `make report` then
-# shows the rows.
-$(RESULTS)/judge/hybrid5.jsonl: $(RESULTS)/hybrid5.jsonl
-	uv run judge.py -l $(LANG) $(RESULTS)/hybrid5.jsonl
-
-$(RESULTS)/judge/hybrid8.jsonl: $(RESULTS)/hybrid8.jsonl
-	uv run judge.py -l $(LANG) $(RESULTS)/hybrid8.jsonl
-
-$(RESULTS)/judge/hybrid10.jsonl: $(RESULTS)/hybrid10.jsonl
-	uv run judge.py -l $(LANG) $(RESULTS)/hybrid10.jsonl
-
-# GraphRAG (local / global search) judging. Works for both languages;
-# included in the default `judge` aggregate via wildcard pickup when the
-# answer files exist.
-$(RESULTS)/judge/graphrag-%.jsonl: $(RESULTS)/graphrag-%.jsonl
-	uv run judge.py -l $(LANG) $(RESULTS)/graphrag-$*.jsonl
+# Jev grading of each answer file: jev/<stem>.tsv ← <stem>.jsonl for every
+# answer file (vector5, vector-line5 under LINE=1, extract, filter2/3, ceiling,
+# hybrid<k>, graphrag-*). The aggregate `judge` and the opt-in aliases above
+# name which ones are built. judge-jev.py is resume-safe and records the Jev
+# version per file in jev/MODELS.tsv. The frozen qwen verdicts in judge/ are
+# not built by any rule (see models/QWEN.md).
+$(RESULTS)/jev/%.tsv: $(RESULTS)/%.jsonl
+	uv run judge-jev.py -l $(LANG) $<
 
 # Remove generated answers/judgements (keeps the index). The vector[0-9]* and
-# judge/vector[0-9]* globs catch the k-variant files (vector10.jsonl, etc.); the
-# hybrid[0-9]* / judge/hybrid[0-9]* globs do the same for hybrid10.jsonl, etc.
+# jev/vector[0-9]* globs catch the k-variant files (vector10.jsonl, etc.); the
+# hybrid[0-9]* / jev/hybrid[0-9]* globs do the same for hybrid10.jsonl, etc.
 # rm -f silently ignores them when no match exists.
 clean:
 	rm -f $(RESULTS)/vector[0-9]*.jsonl \
@@ -368,10 +334,10 @@ clean:
 	      $(RESULTS)/ceiling.jsonl \
 	      $(EXTRACT_PARTS) \
 	      $(FILTER2_TSV) $(FILTER3_TSV) $(FILTER10_TSV) $(FILTER100_TSV) $(FILTER5D_TSV) \
-	      $(RESULTS)/judge/vector[0-9]*.jsonl \
-	      $(RESULTS)/judge/vector-line[0-9]*.jsonl \
-	      $(RESULTS)/judge/vector-hybrid[0-9]*.jsonl \
-	      $(RESULTS)/judge/hybrid[0-9]*.jsonl \
-	      $(RESULTS)/judge/extract.jsonl \
-	      $(RESULTS)/judge/filter2.jsonl $(RESULTS)/judge/filter3.jsonl \
-	      $(RESULTS)/judge/ceiling.jsonl
+	      $(RESULTS)/jev/vector[0-9]*.tsv \
+	      $(RESULTS)/jev/vector-line[0-9]*.tsv \
+	      $(RESULTS)/jev/vector-hybrid[0-9]*.tsv \
+	      $(RESULTS)/jev/hybrid[0-9]*.tsv \
+	      $(RESULTS)/jev/extract.tsv \
+	      $(RESULTS)/jev/filter2.tsv $(RESULTS)/jev/filter3.tsv \
+	      $(RESULTS)/jev/ceiling.tsv

@@ -117,4 +117,4 @@ directory|description
 
 **Per-model answerer comparison** ([qa-eval/results/README.md](qa-eval/results/README.md)): ceiling score (gold chapters as context, byte-identical across models) per model, English vs. Japanese, graded by Jev.
 
-![Per-model answerer comparison](qa-eval/results/MODELS-jev.svg)
+![Per-model answerer comparison](qa-eval/results/MODELS.svg)

@@ -1,20 +1,27 @@
 # OpenAI Decisions grading of the per-model runs
 
-The per-model runs in this directory were graded with OpenAI's **Decisions
+The per-model runs in `results/` were graded with OpenAI's **Decisions
 API** (`gpt-6-luna`) and compared with the existing `ollama:qwen3.6`, TypeSafe
 Jev and Bespoke Labs Nimble verdicts. The scores in
 [report-openai.md](report-openai.md) and [MODELS-openai.svg](MODELS-openai.svg)
 are the OpenAI verdicts. This document records the grading run and how the
 verdicts compare across all 51 models. The same comparison for
-`results-<lang>/`: [../OPENAI.md](../OPENAI.md). The same model replying with
-the verdict word through the ordinary API: [TERNARY.md](TERNARY.md).
+`results-<lang>/`: [models/OPENAI.md](../../models/OPENAI.md). The same model
+replying with the verdict word through the ordinary API:
+[ternary/README.md](../ternary/README.md).
+
+**Frozen.** Jev is the default judge, and OpenAI is no longer run
+([models/README.md](../../models/README.md)). The verdicts (`*.tsv`), the last
+report and the chart are kept in this directory for comparison, and
+`make judge-openai` / `make report-openai` have been removed from the
+[Makefile](../Makefile).
 
 ## Grading run
 
-Every answer file here was graded by one `make judge-openai` run (see
-[Makefile](Makefile)), writing `openai/*.tsv`.
+Every answer file in `results/` was graded by one `make judge-openai` run,
+writing `openai/*.tsv`.
 
-- **Judge**: [judge-openai.py](../judge-openai.py), `gpt-6-luna` via
+- **Judge**: [judge-openai.py](../../judge-openai.py), `gpt-6-luna` via
   `POST /decisions`, scheme `choice@849ecf1c` (recorded for all 104 files in
   `openai/MODELS.tsv`). The rubric is Jev's; the scheme differs only because
   the API takes the state as a JSON string and a single instruction string.
@@ -46,8 +53,8 @@ Nimble, 104 here), so they are compared per file (one model × one language,
 
 | Judge | Files | Time / file | Input / file (en / ja) | Output / file | Cost / file |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| Jev ([JEV.md](JEV.md)) | 82 | 11.1 s | 34,415 / 46,032 | 1,950 | $0.0017 |
-| Nimble ([NIMBLE.md](NIMBLE.md)) | 82 | 34.0 s | — | — | — (local) |
+| Jev ([jev/README.md](../jev/README.md)) | 82 | 11.1 s | 34,415 / 46,032 | 1,950 | $0.0017 |
+| Nimble ([nimble/README.md](../nimble/README.md)) | 82 | 34.0 s | — | — | — (local) |
 | **OpenAI** | **104** | **12.3 s** | **22,957 / 31,167** | **0** | **$0.0027** |
 
 - **Time** compares all three: OpenAI is about as fast as Jev, and Nimble takes
@@ -57,14 +64,14 @@ Nimble, 104 here), so they are compared per file (one model × one language,
   different tokenizers, so the counts do not measure the same thing; cost is
   the comparable figure, and OpenAI costs about 1.6× Jev per file.
 - **Ratio to Jev**: Jev : OpenAI is about 1 : 1.11 in time and 1 : 1.60 in
-  cost per file. The `results-<lang>/` re-grading ([../OPENAI.md](../OPENAI.md))
+  cost per file. The `results-<lang>/` re-grading ([models/OPENAI.md](../../models/OPENAI.md))
   gives 1 : 1.26 and 1 : 1.59: the cost ratio holds across runs, while the time
   ratio varies with API response times.
 - The Jev and Nimble figures come from runs over the first 82 files; the 22
   files added since are included only in this run, so the per-file figures
   are close but not exactly like-for-like.
 
-`make report-openai` aggregates the OpenAI verdicts into
+`make report-openai` aggregated the OpenAI verdicts into
 [report-openai.md](report-openai.md) and [MODELS-openai.svg](MODELS-openai.svg).
 
 ## Comparison with Qwen, Jev and Nimble
