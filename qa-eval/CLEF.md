@@ -159,6 +159,13 @@ Ceiling Q30 (ja), it explains Ramchandra's remarriage and its consequence, but
 not that Biva had refused to leave her grieving brother. Clef keeps some doubt
 on these verdicts (mean P(correct) 0.27), but *partial* is the most probable.
 
+This is stricter than the rubric. *Correct* asks only that the answer
+"captures the essential facts of the gold answer", and *partial* is for one
+that "misses or distorts key facts"; the rubric does not ask the answer to
+list every element of the gold answer. An answer that leaves out only a
+secondary detail meets the rubric's *correct*, so Clef's *partial* here is
+over-penalization, not a missed key fact.
+
 ### 4. Refusals and Factual Errors
 
 Clef treats a refusal as *incorrect*, as the rubric requires. All 60 GraphRAG
@@ -211,16 +218,20 @@ Compared with Clef Flash:
 
 1. **Refusals are fixed**: every fixed refusal sentence is *incorrect*, and
    factual errors that Clef Flash accepts are rejected.
-2. **The leniency turns into strictness**: Clef is the strictest of the five
-   judges, marking *partial* many answers that miss only a secondary detail,
-   so its scores are the lowest even on Ceiling.
+2. **The leniency turns into over-strictness**: Clef is the strictest of the
+   five judges, marking *partial* many answers that miss only a secondary
+   detail, although the rubric asks only for the essential facts, so its
+   scores are the lowest even on Ceiling.
 3. **Close to Jev**: its verdicts agree most with Jev (87.1%), and its
    Japanese scores fall below English by about as much as Jev's.
 
-Clef is a usable local judge on the strict side, close to Jev, but it is three
-times slower than Nimble, and across models its scores correlate with Qwen,
+Clef handles refusals and factual errors reliably, but it reads the rubric
+more strictly than written: an answer that covers the essential facts should
+get full marks, and Clef often withholds them. It is also three times slower
+than Nimble, and across models its scores correlate with Qwen,
 Nimble and Clef Flash ($r$ = 0.81–0.85) less than any two of the other four
 judges do with each other (0.86–0.96; see
-[results/CLEF.md](results/CLEF.md)). For this
-evaluation, Nimble remains the default local judge; Clef's verdicts are kept in
-`clef/` for comparison.
+[results/CLEF.md](results/CLEF.md)). For this evaluation, Nimble remains the
+default local judge: it grades no refusal *correct*, and it is less strict
+than Clef on answers that cover the essential facts. Clef's verdicts are kept
+in `clef/` for comparison.

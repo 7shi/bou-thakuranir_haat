@@ -135,8 +135,8 @@ Segment ∪ Line (VECTOR-HYBRID), 英語 / 日本語:
 ### Clef によるローカル判定 (Clef as a Local Judge) — [CLEF.md](CLEF.md)
 
 * **Clef Flash の大型版:** Cloudflare の [Clef](https://ollama.com/library/clef) は Qwen 3.8 27B をファインチューニングした27Bのモデルで、[judge-clef.py](judge-clef.py) から同じ [ollama_systemone.py](ollama_systemone.py) で動かします。入力トークン数は Clef Flash と同じですが、時間は約3倍かかります（1問あたり約1.84秒）。
-* **最も厳しい判定:** 日英計1,500問のうち correct は 914件（60.9%）、partial は 423件（28.2%）で、correct は5つの判定の中で最少です（Jev は 947件）。手法×言語の30セル中29セルで qwen より低いスコアになり、その主な原因は、模範解答の副次的な要素が抜けた回答を *partial* とすることです。判定は Jev と最もよく一致します（87.1%）。
-* **回答拒否の問題は解消:** GraphRAG global の定型の「回答できません」60件はすべて *incorrect* となり、Clef Flash が見逃した事実の誤りも *incorrect* とします。ただし速度が3倍遅く、判定が厳しい側に振れるため、ローカルの判定モデルの標準は引き続き Nimble とします。
+* **最も厳しい判定:** 日英計1,500問のうち correct は 914件（60.9%）、partial は 423件（28.2%）で、correct は5つの判定の中で最少です（Jev は 947件）。手法×言語の30セル中29セルで qwen より低いスコアになり、その主な原因は、模範解答の副次的な要素が抜けた回答を *partial* とすることです。ルーブリックが求めているのは本質的な事実だけなので、これは減点のし過ぎです。判定は Jev と最もよく一致します（87.1%）。
+* **回答拒否の問題は解消:** GraphRAG global の定型の「回答できません」60件はすべて *incorrect* となり、Clef Flash が見逃した事実の誤りも *incorrect* とします。ただし速度が3倍遅く、本質的な事実を押さえた回答にも満点を出さないことが多いため、ローカルの判定モデルの標準は引き続き Nimble とします。
 
 ### OpenAI Decisions による判定 (OpenAI Decisions as the Judge) — [OPENAI.md](OPENAI.md)
 
@@ -149,6 +149,12 @@ Segment ∪ Line (VECTOR-HYBRID), 英語 / 日本語:
 * **同じモデル、1語の返答:** `gpt-6-luna` を OpenAI の通常の API で推論なしに使い、判定の1語だけを返させます（[judge-ternary.py](judge-ternary.py)）。構造化出力も理由も確率も使いません。ルーブリックと入力は Decisions 版と同じで、その判定と 91.1% の問題で一致します。全判定モデルの組み合わせで最高です。
 * **Decisions より遅い:** 1問あたり出力 5 トークン、推論 0 トークンですが、約1.41秒かかり、Decisions API の約5倍です。日英計1,500問は無料枠に収まりました。
 * **incorrect が多い:** correct は 968件（64.5%）で Decisions（1,000）より少なく、incorrect は全判定モデルで最多の 189件です。日本語での下がり幅も最大です（−0.045、Ceiling は英語 0.950 → 日本語 0.920）。
+
+### 判定モデルの選択 (Choosing the Judge) — [MODELS.md](MODELS.md)
+
+* **ルーブリックが求めること:** *correct* の条件は本質的な事実を押さえることで、模範解答の全要素の列挙は求めていません。そのため、十分な品質の回答には満点を出し、誤りや回答拒否には出さず、そのうえでモデル間に差が付く判定が望ましいと考えます。
+* **7つの判定の比較:** Jev・OpenAI・Ternary は厳しい側でよく一致します（モデル別 Ceiling スコアの相関 0.96〜0.97）。ローカルの判定では Nimble が最も釣り合いが取れています。qwen は頭打ちになり（日英とも100点が13モデル）、Clef は副次的な要素に厳しすぎ、Clef Flash は誤りや回答拒否を *correct* にします。
+* **結論:** 当面は `jev-1.14.0` で判定を続け、そのスコアは保守的な順位として読みます。ローカルの判定が必要になった場合の候補は Nimble です。
 
 ### 模範解答 (Gold Answers) — [gold-check/README.md](gold-check/README.md) & [LESSONS.md](LESSONS.md)
 

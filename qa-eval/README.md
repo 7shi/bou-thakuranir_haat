@@ -161,8 +161,8 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 ### Clef as a Local Judge — [CLEF.md](CLEF.md)
 
 * **The Larger Sibling of Clef Flash:** Cloudflare's [Clef](https://ollama.com/library/clef) is a 27B model fine-tuned from Qwen 3.8 27B, run through the same [ollama_systemone.py](ollama_systemone.py) by [judge-clef.py](judge-clef.py). The input tokens are identical to Clef Flash's, but it takes about three times as long (~1.84 s per decision).
-* **The Strictest Judge:** 914 correct (60.9%) and 423 partial (28.2%) of the 1,500 questions, the fewest *correct* of the five judges (Jev 947); it scores below Qwen in 29 of the 30 method × language cells, mostly by marking *partial* the answers that miss a secondary detail of the gold answer. Its verdicts agree most with Jev (87.1%).
-* **Refusals Fixed:** All 60 of GraphRAG global's fixed "unable to answer" replies are *incorrect*, and factual errors that Clef Flash accepts are rejected. Being three times slower and swinging to the strict side, it does not replace Nimble as the default local judge.
+* **The Strictest Judge:** 914 correct (60.9%) and 423 partial (28.2%) of the 1,500 questions, the fewest *correct* of the five judges (Jev 947); it scores below Qwen in 29 of the 30 method × language cells, mostly by marking *partial* the answers that miss a secondary detail of the gold answer, although the rubric asks only for the essential facts. Its verdicts agree most with Jev (87.1%).
+* **Refusals Fixed:** All 60 of GraphRAG global's fixed "unable to answer" replies are *incorrect*, and factual errors that Clef Flash accepts are rejected. Being three times slower and withholding full marks from answers that cover the essential facts, it does not replace Nimble as the default local judge.
 
 ### OpenAI Decisions as the Judge — [OPENAI.md](OPENAI.md)
 
@@ -175,6 +175,12 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 * **Same Model, Plain Reply:** `gpt-6-luna` through the ordinary OpenAI API, with reasoning off, replies with the verdict word only ([judge-ternary.py](judge-ternary.py)): no structured output, no reason, no probabilities. It uses the Decisions judge's rubric and input, and agrees with those verdicts on 91.1% of questions, the highest of all judge pairs.
 * **Slower Than Decisions:** 5 output tokens and no reasoning tokens per request, but ~1.41 s per decision, about five times the Decisions API; the 1,500 questions fit in the free tier.
 * **Stricter at the Bottom:** 968 correct (64.5%), fewer than Decisions (1,000), the most *incorrect* verdicts of all judges (189), and the largest Japanese drop (−0.045; Ceiling 0.950 EN → 0.920 JA).
+
+### Choosing the Judge — [MODELS.md](MODELS.md)
+
+* **What the Rubric Wants:** *Correct* asks for the essential facts, not every element of the gold answer, so a good answer should get full marks, while errors and refusals never should, and the scores should still separate the models.
+* **Seven Judges Compared:** Jev, OpenAI and Ternary agree closely ($r$ 0.96–0.97 on the per-model Ceiling scores) on the strict side; among the local judges, Nimble is the best balance, Qwen saturates (13 models at 100% in both languages), Clef is too strict on secondary details, and Clef Flash grades errors and refusals *correct*.
+* **Decision:** Grading continues with `jev-1.14.0` for now, reading its scores as a conservative ranking; Nimble is the candidate if a local judge is needed.
 
 ### Gold Answers — [gold-check/README.md](gold-check/README.md) & [LESSONS.md](LESSONS.md)
 
