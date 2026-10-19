@@ -132,6 +132,12 @@ Segment ∪ Line (VECTOR-HYBRID), 英語 / 日本語:
 * **最も甘い判定:** 日英計1,500問のうち correct は 1,216件（81.1%）で、qwen（1,137）より多くなります。手法×言語の30セル中28セルで qwen 以上のスコアになり、その主な原因は、Nimble が *partial* とする複数要素の回答を *correct* とすることです（その逆の21件に対して145件）。
 * **回答拒否を incorrect にしないことがある:** ルーブリックで明示しているにもかかわらず、GraphRAG global の定型の「回答できません」60件のうち10件を *correct* と判定します。Jev と Nimble は60件すべてを *incorrect* としています。日本語の GraphRAG global は 0.450 まで上がります（Nimble は 0.210）。ローカルの判定モデルとしては Nimble のほうが適しています。
 
+### Clef によるローカル判定 (Clef as a Local Judge) — [CLEF.md](CLEF.md)
+
+* **Clef Flash の大型版:** Cloudflare の [Clef](https://ollama.com/library/clef) は Qwen 3.8 27B をファインチューニングした27Bのモデルで、[judge-clef.py](judge-clef.py) から同じ [ollama_systemone.py](ollama_systemone.py) で動かします。入力トークン数は Clef Flash と同じですが、時間は約3倍かかります（1問あたり約1.84秒）。
+* **最も厳しい判定:** 日英計1,500問のうち correct は 914件（60.9%）、partial は 423件（28.2%）で、correct は5つの判定の中で最少です（Jev は 947件）。手法×言語の30セル中29セルで qwen より低いスコアになり、その主な原因は、模範解答の副次的な要素が抜けた回答を *partial* とすることです。判定は Jev と最もよく一致します（87.1%）。
+* **回答拒否の問題は解消:** GraphRAG global の定型の「回答できません」60件はすべて *incorrect* となり、Clef Flash が見逃した事実の誤りも *incorrect* とします。ただし速度が3倍遅く、判定が厳しい側に振れるため、ローカルの判定モデルの標準は引き続き Nimble とします。
+
 ### OpenAI Decisions による判定 (OpenAI Decisions as the Judge) — [OPENAI.md](OPENAI.md)
 
 * **同じルーブリック、別の API:** OpenAI の Decisions API (`gpt-6-luna`) に、Jev と同じ Choice の質問を投げます（[judge-openai.py](judge-openai.py)）。判定は確率で返り、出力トークンは 0 です。1問あたり約0.28秒で、日英計1,500問の費用は $0.08 です。

@@ -158,6 +158,12 @@ Segment ∪ Line (VECTOR-HYBRID), en / ja:
 * **The Most Lenient Judge:** 1,216 correct (81.1%) of the 1,500 questions, more than Qwen (1,137); it scores 28 of the 30 method × language cells at or above Qwen, mostly by accepting as *correct* the multi-part answers that Nimble marks *partial* (145 vs. 21 the other way).
 * **Refusals Not Always Incorrect:** Against an explicit rule of the rubric, it grades 10 of GraphRAG global's 60 fixed "unable to answer" replies *correct*, where Jev and Nimble grade all 60 *incorrect*; Japanese GraphRAG global rises to 0.450 (Nimble 0.210). Nimble remains the better local judge.
 
+### Clef as a Local Judge — [CLEF.md](CLEF.md)
+
+* **The Larger Sibling of Clef Flash:** Cloudflare's [Clef](https://ollama.com/library/clef) is a 27B model fine-tuned from Qwen 3.8 27B, run through the same [ollama_systemone.py](ollama_systemone.py) by [judge-clef.py](judge-clef.py). The input tokens are identical to Clef Flash's, but it takes about three times as long (~1.84 s per decision).
+* **The Strictest Judge:** 914 correct (60.9%) and 423 partial (28.2%) of the 1,500 questions, the fewest *correct* of the five judges (Jev 947); it scores below Qwen in 29 of the 30 method × language cells, mostly by marking *partial* the answers that miss a secondary detail of the gold answer. Its verdicts agree most with Jev (87.1%).
+* **Refusals Fixed:** All 60 of GraphRAG global's fixed "unable to answer" replies are *incorrect*, and factual errors that Clef Flash accepts are rejected. Being three times slower and swinging to the strict side, it does not replace Nimble as the default local judge.
+
 ### OpenAI Decisions as the Judge — [OPENAI.md](OPENAI.md)
 
 * **Same Rubric, Different API:** OpenAI's Decisions API (`gpt-6-luna`) answers the same Choice question as Jev ([judge-openai.py](judge-openai.py)), returning probabilities with zero output tokens: ~0.28 s per decision and $0.08 for all 1,500 questions (EN + JA).

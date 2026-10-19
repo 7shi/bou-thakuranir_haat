@@ -200,4 +200,5 @@ but its verdicts are the most lenient of the four judges compared here:
    expectation E and the weighted score diverge.
 
 For this evaluation, Nimble remains the better local judge; Clef Flash's
-verdicts are kept in `clef-flash/` for comparison.
+verdicts are kept in `clef-flash/` for comparison. The larger Clef is compared
+in [CLEF.md](CLEF.md).
