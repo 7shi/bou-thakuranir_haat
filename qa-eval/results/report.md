@@ -69,6 +69,7 @@ as "_").
 | `openrouter_deepseek_deepseek-v4.1-flash-1017` | ceiling | 93 (44/5/1) | 89 (39/11/0) |
 | `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 89 (39/11/0) | 82 (32/18/0) |
 | `openrouter_minimax_minimax-m2.7_free` | ceiling | 87 (37/13/0) | 82 (32/18/0) |
+| `openrouter_minimax_minimax-m3.1-flash_free` | ceiling | 89 (39/11/0) | 81 (31/19/0) |
 | `openrouter_minimax_minimax-m3_free` | ceiling | 96 (46/4/0) | 91 (41/9/0) |
 | `openrouter_nvidia_nemotron-3-super-120b-a12b_free` | ceiling | 86 (36/14/0) | 85 (35/15/0) |
 | `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | 94 (44/6/0) | 91 (41/9/0) |
@@ -144,6 +145,7 @@ language). A question absent from every column of a row was graded
 | `openrouter_deepseek_deepseek-v4.1-flash-1017` | ceiling | 6, 29, 34, 36, 37 | 17 | 23, 26, 27, 29, 30, 34, 36, 37, 46, 47, 48 | — |
 | `openrouter_inclusionai_ling-3.0-flash-fin_free` | ceiling | 30, 31, 32, 33, 34, 35, 36, 38, 46, 49, 50 | — | 26, 27, 30, 31, 32, 33, 35, 36, 37, 38, 39, 40, 41, 44, 46, 47, 49, 50 | — |
 | `openrouter_minimax_minimax-m2.7_free` | ceiling | 6, 28, 29, 30, 31, 32, 34, 37, 41, 46, 48, 49, 50 | — | 26, 28, 29, 30, 31, 32, 34, 36, 37, 39, 40, 41, 42, 43, 44, 46, 47, 49 | — |
+| `openrouter_minimax_minimax-m3.1-flash_free` | ceiling | 30, 31, 32, 34, 35, 37, 40, 42, 46, 47, 50 | — | 3, 5, 26, 27, 29, 30, 34, 35, 36, 37, 38, 39, 41, 42, 43, 44, 46, 47, 48 | — |
 | `openrouter_minimax_minimax-m3_free` | ceiling | 28, 37, 47, 48 | — | 26, 27, 31, 32, 34, 37, 42, 46, 50 | — |
 | `openrouter_nvidia_nemotron-3-super-120b-a12b_free` | ceiling | 6, 26, 27, 28, 30, 31, 34, 36, 37, 40, 42, 46, 49, 50 | — | 18, 27, 29, 30, 31, 33, 34, 35, 36, 37, 40, 46, 47, 48, 49 | — |
 | `openrouter_nvidia_nemotron-3-ultra-550b-a55b_free` | ceiling | 29, 31, 32, 34, 42, 46 | — | 26, 29, 34, 36, 37, 40, 43, 44, 46 | — |

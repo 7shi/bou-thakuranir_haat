@@ -146,6 +146,9 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `opencode:cat-jam-free` | 66 (25/16/9) | 64 (25/14/11) |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (48/2/0) | 96 (46/4/0) |
 | `openrouter:stealth/space-bunny-alpha` | 88 (38/12/0) | 80 (30/20/0) |
+| `openrouter:minimax/minimax-m3.1-flash:free` | 89 (39/11/0) | 81 (31/19/0) |
+| `openrouter:minimax/minimax-m3:free` | 96 (46/4/0) | 91 (41/9/0) |
+| `openrouter:minimax/minimax-m2.7:free` | 87 (37/13/0) | 82 (32/18/0) |
 | `openrouter:apodex/apodex-1.1-mini:free` | 92 (42/8/0) | 88 (38/12/0) |
 | `openrouter:poolside/laguna-xs-2.1:free` | 79 (30/19/1) | 64 (21/22/7) |
 | `openrouter:poolside/laguna-s-2.1:free` | 80 (31/18/1) | 64 (21/22/7) |
@@ -153,8 +156,6 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `openrouter:deepseek/deepseek-v4.1-flash` | 94 (44/6/0) | 87 (38/11/1) |
 | `openrouter:deepseek/deepseek-v4.1-flash-1017` | 93 (44/5/1) | 89 (39/11/0) |
 | `openrouter:inclusionai/ling-3.0-flash-fin:free` | 89 (39/11/0) | 82 (32/18/0) |
-| `openrouter:minimax/minimax-m3:free` | 96 (46/4/0) | 91 (41/9/0) |
-| `openrouter:minimax/minimax-m2.7:free` | 87 (37/13/0) | 82 (32/18/0) |
 | `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 94 (44/6/0) | 91 (41/9/0) |
 | `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 86 (36/14/0) | 85 (35/15/0) |
 | `openrouter:nvidia/nemotron-3.5-lightning:free` | 85 (35/15/0) | 77 (29/19/2) |
@@ -184,7 +185,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   `poolside/laguna-*-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 61 of the 63 models score lower in
+* **Japanese costs almost every model.** 62 of the 64 models score lower in
   Japanese; only `sarashina3-nano` (4 points) and `gemini-3.8-flash` (1 point)
   score higher.
   The largest English-to-Japanese gaps are the 18 points of
@@ -213,6 +214,10 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   scores 96/95 against qwen3.8's 97/91, 1 point lower in English and 4 points
   higher in Japanese, and above the two quantized 27B models in both
   languages.
+* **`openrouter:stealth/space-bunny-alpha` is the pre-release of
+  `openrouter:minimax/minimax-m3.1-flash:free`.** The release scores 89/81
+  against the alpha's 88/80, 1 point higher in both languages, within the
+  grading noise.
 * **Three models needed `NO_THINK=1` to produce a usable ceiling run.**
   `ollama:gemma4:12b-it-qat` stays on task in English without it (the English
   row above), but in Japanese its thinking trace sometimes loses track of the
