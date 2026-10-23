@@ -1,0 +1,50 @@
+{"question_id": 1, "expanded": ["3"], "answer": "三回転んだ。", "usage": {"input_tokens": 1474, "output_tokens": 100, "total_tokens": 1574}}
+{"question_id": 2, "expanded": ["4"], "answer": "ベハーグの旋律", "usage": {"input_tokens": 3851, "output_tokens": 451, "total_tokens": 4302}}
+{"question_id": 3, "expanded": ["8"], "answer": "王妃は、ビバの左右の腕にそれぞれ、太い金の腕輪を八本と、巨大なダイヤモンドの腕飾りを一本ずつ、無理やり着けさせた。", "usage": {"input_tokens": 2600, "output_tokens": 791, "total_tokens": 3391}}
+{"question_id": 4, "expanded": ["11"], "answer": "屋上からおよそ七十ハット下の運河までであり、布の綱は船のある方角の屋上にある小さな柱に結びつけられている。", "usage": {"input_tokens": 4297, "output_tokens": 342, "total_tokens": 4639}}
+{"question_id": 5, "expanded": ["21"], "answer": "ハヌマーンプラサード・テワリ", "usage": {"input_tokens": 3519, "output_tokens": 150, "total_tokens": 3669}}
+{"question_id": 6, "expanded": ["6"], "answer": "シタールをかき鳴らして弦を五本も切ってしまったこと、そしてミズラーブを奪い取って返さなかったこと。", "usage": {"input_tokens": 3568, "output_tokens": 1319, "total_tokens": 4887}}
+{"question_id": 7, "expanded": ["7"], "answer": "タバコを一服", "usage": {"input_tokens": 3726, "output_tokens": 1430, "total_tokens": 5156}}
+{"question_id": 8, "expanded": ["14"], "answer": "乾いた根っこ", "usage": {"input_tokens": 1710, "output_tokens": 158, "total_tokens": 1868}}
+{"question_id": 9, "expanded": ["25"], "answer": "インコを連れてきて吊るした。", "usage": {"input_tokens": 3267, "output_tokens": 105, "total_tokens": 3372}}
+{"question_id": 10, "expanded": ["31"], "answer": "ウダヤディティヤの剣、骨、頭蓋骨", "usage": {"input_tokens": 4084, "output_tokens": 463, "total_tokens": 4547}}
+{"question_id": 11, "expanded": ["1"], "answer": "十六歳。", "usage": {"input_tokens": 4619, "output_tokens": 165, "total_tokens": 4784}}
+{"question_id": 12, "expanded": ["9"], "answer": "ニカシャ様", "usage": {"input_tokens": 3193, "output_tokens": 159, "total_tokens": 3352}}
+{"question_id": 13, "expanded": ["19"], "answer": "機織り職人", "usage": {"input_tokens": 3571, "output_tokens": 826, "total_tokens": 4397}}
+{"question_id": 14, "expanded": ["22"], "answer": "鍋釜を売って返済した。", "usage": {"input_tokens": 1688, "output_tokens": 110, "total_tokens": 1798}}
+{"question_id": 15, "expanded": ["27"], "answer": "タージベ・タージ・ナウベ・ナウ", "usage": {"input_tokens": 2523, "output_tokens": 177, "total_tokens": 2700}}
+{"question_id": 16, "expanded": ["2"], "answer": "ブリグ", "usage": {"input_tokens": 2979, "output_tokens": 1335, "total_tokens": 4314}}
+{"question_id": 17, "expanded": ["17"], "answer": "五日間", "usage": {"input_tokens": 2338, "output_tokens": 166, "total_tokens": 2504}}
+{"question_id": 18, "expanded": ["24"], "answer": "青いままのバナナを二本", "usage": {"input_tokens": 2052, "output_tokens": 156, "total_tokens": 2208}}
+{"question_id": 19, "expanded": ["34"], "answer": "大おじ様の名を冠した巡礼者用の宿と寺を建立したいと述べている。", "usage": {"input_tokens": 1903, "output_tokens": 250, "total_tokens": 2153}}
+{"question_id": 20, "expanded": ["37"], "answer": "あやつの頭を剃り、酸っぱい乳を注いで都から追い出してやらねば、このラムモハンの名が廃ります！", "usage": {"input_tokens": 1445, "output_tokens": 224, "total_tokens": 1669}}
+{"question_id": 21, "expanded": ["5"], "answer": "先日、預けた手紙を失くしてしまったこと、そしてウメシュ・ライのもとへ行くよう命じたのに、人を遣わして済ませたこと。", "usage": {"input_tokens": 3608, "output_tokens": 327, "total_tokens": 3935}}
+{"question_id": 22, "expanded": ["11"], "answer": "衣服（上着）", "usage": {"input_tokens": 4282, "output_tokens": 183, "total_tokens": 4465}}
+{"question_id": 23, "expanded": ["15"], "answer": "「我が子を卑い仕事に就かせれば、子の叔父上の面目を潰すことになる」と悟ったからです。", "usage": {"input_tokens": 3067, "output_tokens": 1830, "total_tokens": 4897}}
+{"question_id": 24, "expanded": ["26"], "answer": "老いたナヤンチャンドに", "usage": {"input_tokens": 1673, "output_tokens": 171, "total_tokens": 1844}}
+{"question_id": 25, "expanded": ["33"], "answer": "「大おじ様、お気をつけください！」", "usage": {"input_tokens": 5988, "output_tokens": 481, "total_tokens": 6469}}
+{"question_id": 26, "expanded": ["11", "29"], "answer": "ラーマチャンドラ・ライが脱出した夜は、ウダヤディティヤが閉ざされた扉に力任せに蹴りつけ、シタラムが応じ、王太子が扉を開けさせた。このときウダヤディティヤとシタラムは、ウダヤディティヤが脱出を試みる側、シタラムが警備する側という関係だった。しかしウダヤディティヤ自身が牢獄から脱出した夜は、シタラムが火事を知らせてウダヤディティヤを助け出し、一緒に脱出した。つまり関係性は逆転し、シタラムがウダヤディティヤを助ける側となった。", "usage": {"input_tokens": 6841, "output_tokens": 8018, "total_tokens": 14859}}
+{"question_id": 27, "expanded": ["2", "4", "33"], "answer": "最初の計画は、プラタパディティヤがバサンタ・ライをジョソールへ向かう途中のシムルタリの宿で殺害するよう二人のパターン人に命じたことだったが、失敗に終わった。最終的には、アブドゥルが剣でバサンタ・ライを殺した。", "usage": {"input_tokens": 12613, "output_tokens": 6669, "total_tokens": 19282}}
+{"question_id": 28, "expanded": ["9", "37"], "answer": "ビバの奥御殿と王宮の門での女装", "usage": {"input_tokens": 4539, "output_tokens": 21335, "total_tokens": 25874}}
+{"question_id": 29, "expanded": ["16", "17"], "answer": "密かに給金を送っていたこと", "usage": {"input_tokens": 4339, "output_tokens": 268, "total_tokens": 4607}}
+{"question_id": 30, "expanded": ["23", "24", "36"], "answer": "ビバがラムモハンにチャンドラドウィープへ行くことを拒んだため、王はその拒否を受けて怒り、ビバを迎えずに結婚を進め、ビバはチャンドラドウィープに到着する頃にはすでに結婚していたため、悲劇的な結末に至った。", "usage": {"input_tokens": 5895, "output_tokens": 1701, "total_tokens": 7596}}
+{"question_id": 31, "expanded": ["21", "22", "23"], "answer": "偽の嘆願書に王太子の印章を押すために使われた指輪が、その嘘の嘆願書を用いてウダヤディティヤの投獄を正当化する証拠として使われた。", "usage": {"input_tokens": 7594, "output_tokens": 3323, "total_tokens": 10917}}
+{"question_id": 32, "expanded": ["11", "15", "16"], "answer": "ラーマチャンドラ・ライの真夜中の脱出によって、ウダイヤディティヤがシタラムやバーガヴァタの窮状を救おうと秘密で給金を渡したことが王の耳に届き、その結果として王はスルマを追放するよう命令した。", "usage": {"input_tokens": 9266, "output_tokens": 3864, "total_tokens": 13130}}
+{"question_id": 33, "expanded": ["27", "28"], "answer": "この歌は喪失と虚無感、孤独といった感情的な意味合いを持つ。バサンタ・ライは、シタールを失い、ひとりでベランダに座る孤独な状況で歌い、また、カーン・サーヘブが来た際に、その孤独を伝えるために同じ歌を歌う対照的な状況で、この歌を歌う。", "usage": {"input_tokens": 5322, "output_tokens": 4344, "total_tokens": 9666}}
+{"question_id": 34, "expanded": ["30", "31", "33"], "answer": "ルクミニーが阻止できなかったため、ウダヤディティヤは脱獄を成功させ、バサンタ・ライも連れて逃亡した。その後、バサンタ・ライは王の処刑命令により殺害された。", "usage": {"input_tokens": 11829, "output_tokens": 7860, "total_tokens": 19689}}
+{"question_id": 35, "expanded": ["8", "19"], "answer": "最初、プラタパディティヤはラーマチャンドラを王の部屋で大臣と共に座らせ、深々とお辞儀をし、静かに問い、大臣に調査をさせて丁重に迎えた。一方、後にラーマチャンドラは自身の宮廷でプラタパディティヤを侮辱し、誇張して扱い、屈辱的な場面を作った。つまり、最初は敬意と謙虚な迎え方だったのに対し、後では屈辱と軽蔑・誇示的な扱いになった。", "usage": {"input_tokens": 6076, "output_tokens": 1832, "total_tokens": 7908}}
+{"question_id": 36, "expanded": ["1", "17", "21"], "answer": "ライガルの年上の未亡人であるルクミニーは、嵐の夜にウダヤディティヤの部屋に現れ、マンガラとして毒を調合し、スルマに毒を飲ませてジョソールで悲劇を引き起こした。", "usage": {"input_tokens": 10314, "output_tokens": 2344, "total_tokens": 12658}}
+{"question_id": 37, "expanded": ["1", "34"], "answer": "ウダヤディティヤは、マハラジャに対し自分は王にふさわしくないと認めたうえで、王国の統治を拒否すると誓い、王位の解放を求めました。これが最終的に王位の正式な放棄へ至る決断でした。", "usage": {"input_tokens": 6437, "output_tokens": 1478, "total_tokens": 7915}}
+{"question_id": 38, "expanded": ["26", "28", "32"], "answer": "手紙は途中でラムモハンに阻止され、ナヤンチャンドが王妃に渡した。その後、王妃はビバと屋敷中に「ビバを嫁ぎ先に送るよう要請する手紙がラーマチャンドラ・ライから届いた」と告げ、噂を広めてビバに事実を歪めて伝えた。", "usage": {"input_tokens": 6151, "output_tokens": 4586, "total_tokens": 10737}}
+{"question_id": 39, "expanded": ["10", "11"], "answer": "プラタパディティヤは運河を丸太で塞いだが、ラーマチャンドラ・ライは屋上からロープで船に降りて逃げたため、罠にかけられなかった。", "usage": {"input_tokens": 7519, "output_tokens": 12668, "total_tokens": 20187}}
+{"question_id": 40, "expanded": ["13", "27"], "answer": "バサンタ・ライが愛用するシタールは、彼が愛し、永遠の伴侶としてしていた存在だった。ウダヤディティヤの状況が悪化し、彼と別れを迫られると、バサンタ・ライはシタールを置いていくと言い、ビバの涙で演奏を続けられず、ついにシタールを置いていった。その後も、シタールの弦が切れて音を合わせられないという言葉とともに、ウダヤディティヤが投獄されたという知らせに直面し、彼は「私だけが、ただ一人残された」という絶望を深めた。このように、シタールとの関係が彼の愛と絆の象徴として描かれ、ウダヤディティヤの失落に対する深い絶望を反映している。", "usage": {"input_tokens": 4423, "output_tokens": 1236, "total_tokens": 5659}}
+{"question_id": 41, "expanded": ["5", "20"], "answer": "かつては圧政に対して命がけで立ち向かう勇気もあったが、スルマの死後にはプラタパディティヤを恐れ、危険をものともせず、虐げられた民のために介入しようとせず、何事にも躊躇するようになった。", "usage": {"input_tokens": 5148, "output_tokens": 1501, "total_tokens": 6649}}
+{"question_id": 42, "expanded": ["22", "23", "29"], "answer": "シタラムは偽の嘆願書を作成し、バーガヴァタと共にマハラジャの元へ届け、バーガヴァタは再び王宮での職を得た。", "usage": {"input_tokens": 6704, "output_tokens": 4926, "total_tokens": 11630}}
+{"question_id": 43, "expanded": ["11", "37"], "answer": "屋上でロープを下ろして王族のメンバーを船へ降ろし、またビバを抱き起こして駕籠や船へ連れ出しました。", "usage": {"input_tokens": 5632, "output_tokens": 3688, "total_tokens": 9320}}
+{"question_id": 44, "expanded": ["8", "36", "37"], "answer": "ジョソールでラーマチャンドラ・ライを迎える準備時、王妃はビバに八つの太い金の腕輪と巨大なダイヤモンドの腕飾り、大きな鼻飾りを着けさせ、髪型も強要した。しかしチャンドラドウィープで彼を訪れたとき、ビバは悲しみと絶望で崩れ、ヴェールが脱げ、震え、気を失い、質素な女の身なりで来ていた。装いは強制的な華やかなものから、彼女の心の崩壊した状態へと劇的に変化した。", "usage": {"input_tokens": 5316, "output_tokens": 2872, "total_tokens": 8188}}
+{"question_id": 45, "expanded": ["18", "25"], "answer": "スルマの死後に寝室にいた時期、ウダヤディティヤにとっての窓は、スルマがそこにいた場所であり、彼の帰還を待つ喪失と希望の象徴だった。しかし牢獄にいた時期、窓は解放や自由そのものの象徴に変わり、空や鳥を見ることで自由を感じ、寝床こそが牢獄だと語った。つまり、窓の象徴性は待つことや喪失から、自由や解放へと変化した。", "usage": {"input_tokens": 4635, "output_tokens": 1093, "total_tokens": 5728}}
+{"question_id": 46, "expanded": ["21", "27", "31"], "answer": "シタラムは家に金がなく、ルクミニー（マンガラ）から現金を借りて利子を取り、生計を立てていた。シタラムがルクミニーの家に来て金を借りると、マンガラは「都合の良い時に返してくれればいい」と言い、シタラムは愛情を込めて呼び名などを交わす戯れをしていた。しかし、シタラムがウダヤディティヤを投獄したことや王太子の逃亡などを受けて、ルクミニーの怒りは爆発し、シタラムは「この悪女め」と罵倒し、火をつけると脅す。ルクミニーは激怒し、シタラムを殺そうとしてボーティを手に「お前の首をはねてやる」と言うなど、金銭の戯れから命を脅かす衝突へと悪化していった。", "usage": {"input_tokens": 9962, "output_tokens": 2555, "total_tokens": 12517}}
+{"question_id": 47, "expanded": ["29", "31"], "answer": "火はまず単なる混乱の目くらましとして使われたが、シタラムは王太子が死んだという噂を流し、空の牢獄にも火を放って警護隊を混乱に陥れ、その工作を通じてウダヤディティヤの逃亡を完全に隠蔽した。", "usage": {"input_tokens": 6632, "output_tokens": 5046, "total_tokens": 11678}}
+{"question_id": 48, "expanded": ["11", "19"], "answer": "ラーマチャンドラ・ライは、ウダヤディティヤが真夜中の暗殺未遂で彼を守った行為を、自分を救うためではなく妹のビバのために行ったものとして解釈し、その行為に対する感謝や敬意を抱かなかった。", "usage": {"input_tokens": 7785, "output_tokens": 1545, "total_tokens": 9330}}
+{"question_id": 49, "expanded": ["2", "22"], "answer": "プラタパディティヤは当初、デリー皇帝を脅威として一蹴していたが、最終的に偽の嘆願書を作成して王太子を皇帝への反逆罪で告発し、投獄の手段とした。", "usage": {"input_tokens": 4593, "output_tokens": 12082, "total_tokens": 16675}}
+{"question_id": 50, "expanded": ["8", "18", "23"], "answer": "スルマが嫉妬してわざとビバの髪を結い損なったため、王妃はビバの髪の結い方のせいで装いがすっかり台無しになったと見た。", "usage": {"input_tokens": 6400, "output_tokens": 309, "total_tokens": 6709}}

@@ -121,6 +121,8 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `ollama:qwen3.6` (35B-A3B) | 89 (39/11/0) | 85 (35/15/0) |
 | `ollama:qwen3.5:9b` | 78 (30/18/2) | 72 (25/22/3) |
 | `ollama:qwen3.5:4b` | 71 (23/25/2) | 64 (21/22/7) |
+| `ollama:ornith-1.5:122b` | 95 (45/5/0) | 92 (42/8/0) |
+| `ollama:flint` | 82 (32/18/0) | 73 (27/19/4) |
 | `llama.cpp:Ternary-Bonsai-2-27B-PTQ1_0` | 91 (41/9/0) | 88 (38/12/0) |
 | `llama.cpp:Underdog-Saluki-27B-1.0-IQ2-mix` | 90 (40/10/0) | 83 (33/17/0) |
 | `llama.cpp:MAI-Code-1.1-Flash-Q2-XS` | 89 (39/11/0) | 80 (30/20/0) |
@@ -158,6 +160,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `openrouter:inclusionai/ling-3.0-flash-fin:free` | 89 (39/11/0) | 82 (32/18/0) |
 | `openrouter:nvidia/nemotron-3-ultra-550b-a55b:free` | 94 (44/6/0) | 91 (41/9/0) |
 | `openrouter:nvidia/nemotron-3-super-120b-a12b:free` | 86 (36/14/0) | 85 (35/15/0) |
+| `openrouter:nvidia/nemotron-3.5-super-vl:free` | 95 (45/5/0) | 93 (43/7/0) |
 | `openrouter:nvidia/nemotron-3.5-lightning:free` | 85 (35/15/0) | 77 (29/19/2) |
 | `openrouter:reflection/beam-1.0-501b-a23b` | 96 (46/4/0) | 89 (40/9/1) |
 | `sarashina:sarashina3-mini` | 76 (26/24/0) | 70 (25/20/5) |
@@ -175,7 +178,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
 * **No model is perfect, and the top is compressed.** The best scores are 99
   in English (`muse-spark-1.3-contributor-free`, followed by `glm-5.3`,
   `muse-spark-1.2-contributor-free` and `stealth/ox-alpha` at 98) and 97 in
-  Japanese (`muse-spark-1.3/1.2-contributor-free`). The 33 best
+  Japanese (`muse-spark-1.3/1.2-contributor-free`). The 35 best
   English models lie within 93–99, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
@@ -185,7 +188,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   `poolside/laguna-*-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 62 of the 64 models score lower in
+* **Japanese costs almost every model.** 65 of the 67 models score lower in
   Japanese; only `sarashina3-nano` (4 points) and `gemini-3.8-flash` (1 point)
   score higher.
   The largest English-to-Japanese gaps are the 18 points of

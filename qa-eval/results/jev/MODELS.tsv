@@ -35,12 +35,16 @@ ceiling-llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-llama.cpp_Ternary-Bonsai-2-27B-PTQ1_0-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-llama.cpp_Underdog-Saluki-27B-1.0-IQ2-mix-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-llama.cpp_Underdog-Saluki-27B-1.0-IQ2-mix-ja.tsv	jev-1.14.0	choice@19579e23
+ceiling-ollama_flint-en.tsv	jev-1.14.0	choice@19579e23
+ceiling-ollama_flint-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-ollama_gemma4_12b-it-qat-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-ollama_gemma4_12b-it-qat-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-ollama_gemma4_26b-a4b-it-qat-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-ollama_gemma4_26b-a4b-it-qat-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-ollama_muse-glimmer-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-ollama_muse-glimmer-ja.tsv	jev-1.14.0	choice@19579e23
+ceiling-ollama_ornith-1.5_122b-en.tsv	jev-1.14.0	choice@19579e23
+ceiling-ollama_ornith-1.5_122b-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-ollama_qwen3.5_4b-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-ollama_qwen3.5_4b-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-ollama_qwen3.5_9b-en.tsv	jev-1.14.0	choice@19579e23
@@ -109,6 +113,8 @@ ceiling-openrouter_nvidia_nemotron-3-ultra-550b-a55b_free-en.tsv	jev-1.14.0	choi
 ceiling-openrouter_nvidia_nemotron-3-ultra-550b-a55b_free-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-openrouter_nvidia_nemotron-3.5-lightning_free-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-openrouter_nvidia_nemotron-3.5-lightning_free-ja.tsv	jev-1.14.0	choice@19579e23
+ceiling-openrouter_nvidia_nemotron-3.5-super-vl_free-en.tsv	jev-1.14.0	choice@19579e23
+ceiling-openrouter_nvidia_nemotron-3.5-super-vl_free-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-openrouter_poolside_laguna-s-2.1_free-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-openrouter_poolside_laguna-s-2.1_free-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-openrouter_poolside_laguna-xs-2.1_free-en.tsv	jev-1.14.0	choice@19579e23
