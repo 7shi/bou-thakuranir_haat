@@ -3,12 +3,16 @@ ceiling-copilot_claude-haiku-4.5-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_claude-haiku-4.5-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_claude-sonnet-5-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_claude-sonnet-5-ja.tsv	jev-1.14.0	choice@19579e23
+ceiling-copilot_claude-sonnet-5.5-en.tsv	jev-1.14.0	choice@19579e23
+ceiling-copilot_claude-sonnet-5.5-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_gpt-5.6-luna-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_gpt-5.6-luna-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_grok-4.5-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_grok-4.5-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_grok-4.6-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_grok-4.6-ja.tsv	jev-1.14.0	choice@19579e23
+ceiling-copilot_grok-4.7-en.tsv	jev-1.14.0	choice@19579e23
+ceiling-copilot_grok-4.7-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_kimi-k2.7-code-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_kimi-k2.7-code-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_kimi-k3-en.tsv	jev-1.14.0	choice@19579e23
