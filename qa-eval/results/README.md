@@ -150,6 +150,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `opencode:big-pickle` | 91 (41/9/0) | 86 (36/14/0) |
 | `opencode:cat-jam-free` | 66 (25/16/9) | 64 (25/14/11) |
 | `openrouter:stealth/ox-alpha` (320B-A18B) | 98 (48/2/0) | 96 (46/4/0) |
+| `openrouter:stealth/crouton-alpha` | 94 (44/6/0) | 89 (39/11/0) |
 | `openrouter:stealth/space-bunny-alpha` | 88 (38/12/0) | 80 (30/20/0) |
 | `openrouter:minimax/minimax-m3.1-flash:free` | 89 (39/11/0) | 81 (31/19/0) |
 | `openrouter:minimax/minimax-m3:free` | 96 (46/4/0) | 91 (41/9/0) |
@@ -166,6 +167,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `openrouter:nvidia/nemotron-3.5-super-vl:free` | 95 (45/5/0) | 93 (43/7/0) |
 | `openrouter:nvidia/nemotron-3.5-lightning:free` | 85 (35/15/0) | 77 (29/19/2) |
 | `openrouter:reflection/beam-1.0-501b-a23b` | 96 (46/4/0) | 89 (40/9/1) |
+| `openrouter:xingchen-agi/xing4.0-29b-a4b:free` | 80 (32/16/2) | 68 (23/22/5) |
 | `sarashina:sarashina3-mini` | 76 (26/24/0) | 70 (25/20/5) |
 | `sarashina:sarashina3-nano` | 64 (19/26/5) | 68 (22/24/4) |
 
@@ -181,7 +183,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
 * **No model is perfect, and the top is compressed.** The best scores are 99
   in English (`muse-spark-1.3-contributor-free`, followed by `glm-5.3`,
   `muse-spark-1.2-contributor-free`, `stealth/ox-alpha` and `grok-4.7` at 98)
-  and 97 in Japanese (`muse-spark-1.3/1.2-contributor-free`). The 38 best
+  and 97 in Japanese (`muse-spark-1.3/1.2-contributor-free`). The 39 best
   English models lie within 93–99, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
@@ -191,7 +193,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   `poolside/laguna-*-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 68 of the 70 models score lower in
+* **Japanese costs almost every model.** 70 of the 72 models score lower in
   Japanese; only `sarashina3-nano` (4 points) and `gemini-3.8-flash` (1 point)
   score higher.
   The largest English-to-Japanese gaps are the 18 points of
