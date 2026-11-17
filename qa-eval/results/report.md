@@ -19,9 +19,11 @@ as "_").
 | Model | Method | English | Japanese |
 | --- | --- | --- | --- |
 | `copilot_claude-haiku-4.5` | ceiling | 88 (38/12/0) | 87 (37/13/0) |
+| `copilot_claude-haiku-5.5` | ceiling | 87 (37/13/0) | 83 (34/15/1) |
 | `copilot_claude-sonnet-5` | ceiling | 95 (45/5/0) | 86 (37/12/1) |
 | `copilot_claude-sonnet-5.5` | ceiling | 97 (47/3/0) | 93 (44/5/1) |
 | `copilot_gpt-5.6-luna` | ceiling | 92 (42/8/0) | 89 (40/9/1) |
+| `copilot_gpt-6-luna` | ceiling | 93 (43/7/0) | 91 (41/9/0) |
 | `copilot_grok-4.5` | ceiling | 94 (44/6/0) | 93 (43/7/0) |
 | `copilot_grok-4.6` | ceiling | 95 (45/5/0) | 93 (43/7/0) |
 | `copilot_grok-4.7` | ceiling | 98 (48/2/0) | 92 (42/8/0) |
@@ -107,9 +109,11 @@ language). A question absent from every column of a row was graded
 | Model | Method | en partial | en incorrect | ja partial | ja incorrect |
 | --- | --- | --- | --- | --- | --- |
 | `copilot_claude-haiku-4.5` | ceiling | 6, 22, 30, 32, 33, 34, 35, 36, 37, 38, 46, 47 | — | 5, 27, 28, 31, 32, 34, 36, 37, 40, 46, 48, 49, 50 | — |
+| `copilot_claude-haiku-5.5` | ceiling | 6, 26, 30, 31, 34, 36, 37, 39, 40, 41, 46, 47, 49 | — | 27, 31, 34, 35, 36, 37, 38, 39, 42, 43, 44, 46, 47, 48, 49 | 29 |
 | `copilot_claude-sonnet-5` | ceiling | 28, 34, 36, 44, 46 | — | 27, 28, 29, 31, 32, 37, 38, 40, 42, 43, 44, 46 | 16 |
 | `copilot_claude-sonnet-5.5` | ceiling | 34, 36, 37 | — | 34, 35, 37, 42, 44 | 29 |
 | `copilot_gpt-5.6-luna` | ceiling | 26, 31, 32, 34, 43, 46, 47, 50 | — | 31, 32, 36, 37, 38, 40, 41, 46, 48 | 29 |
+| `copilot_gpt-6-luna` | ceiling | 27, 31, 32, 34, 35, 39, 46 | — | 28, 31, 34, 35, 37, 38, 39, 46, 47 | — |
 | `copilot_grok-4.5` | ceiling | 30, 34, 35, 36, 37, 46 | — | 28, 31, 34, 35, 36, 37, 46 | — |
 | `copilot_grok-4.6` | ceiling | 32, 34, 35, 37, 46 | — | 23, 29, 31, 34, 35, 42, 46 | — |
 | `copilot_grok-4.7` | ceiling | 34, 37 | — | 29, 34, 37, 38, 40, 46, 48, 49 | — |

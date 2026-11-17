@@ -103,9 +103,11 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `copilot:grok-4.5` | 94 (44/6/0) | 93 (43/7/0) |
 | `copilot:kimi-k3` | 97 (47/3/0) | 93 (43/7/0) |
 | `copilot:kimi-k2.7-code` | 96 (46/4/0) | 92 (42/8/0) |
+| `copilot:gpt-6-luna` | 93 (43/7/0) | 91 (41/9/0) |
 | `copilot:gpt-5.6-luna` | 92 (42/8/0) | 89 (40/9/1) |
 | `copilot:claude-sonnet-5.5` | 97 (47/3/0) | 93 (44/5/1) |
 | `copilot:claude-sonnet-5` | 95 (45/5/0) | 86 (37/12/1) |
+| `copilot:claude-haiku-5.5` | 87 (37/13/0) | 83 (34/15/1) |
 | `copilot:claude-haiku-4.5` | 88 (38/12/0) | 87 (37/13/0) |
 | `copilot:mai-code-2` | 92 (42/8/0) | 90 (40/10/0) |
 | `copilot:mai-code-2-flash` | 92 (42/8/0) | 83 (34/15/1) |
@@ -187,7 +189,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
 * **No model is perfect, and the top is compressed.** The best scores are 99
   in English (`muse-spark-1.3-contributor-free`, followed by `glm-5.3`,
   `muse-spark-1.2-contributor-free`, `stealth/ox-alpha` and `grok-4.7` at 98)
-  and 97 in Japanese (`muse-spark-1.3/1.2-contributor-free`). The 41 best
+  and 97 in Japanese (`muse-spark-1.3/1.2-contributor-free`). The 42 best
   English models lie within 93–99, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
@@ -197,7 +199,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   `poolside/laguna-*-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 74 of the 76 models score lower in
+* **Japanese costs almost every model.** 76 of the 78 models score lower in
   Japanese; only `sarashina3-nano` (4 points) and `gemini-3.8-flash` (1 point)
   score higher.
   The largest English-to-Japanese gaps are the 18 points of
