@@ -19,6 +19,10 @@ ceiling-copilot_kimi-k3-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_kimi-k3-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_mai-code-1.1-flash-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-copilot_mai-code-1.1-flash-ja.tsv	jev-1.14.0	choice@19579e23
+ceiling-copilot_mai-code-2-en.tsv	jev-1.14.0	choice@19579e23
+ceiling-copilot_mai-code-2-flash-en.tsv	jev-1.14.0	choice@19579e23
+ceiling-copilot_mai-code-2-flash-ja.tsv	jev-1.14.0	choice@19579e23
+ceiling-copilot_mai-code-2-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-google_gemini-2.5-flash-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-google_gemini-2.5-flash-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-google_gemini-3-flash-preview-en.tsv	jev-1.14.0	choice@19579e23

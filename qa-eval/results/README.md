@@ -107,6 +107,8 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `copilot:claude-sonnet-5.5` | 97 (47/3/0) | 93 (44/5/1) |
 | `copilot:claude-sonnet-5` | 95 (45/5/0) | 86 (37/12/1) |
 | `copilot:claude-haiku-4.5` | 88 (38/12/0) | 87 (37/13/0) |
+| `copilot:mai-code-2` | 92 (42/8/0) | 90 (40/10/0) |
+| `copilot:mai-code-2-flash` | 92 (42/8/0) | 83 (34/15/1) |
 | `copilot:mai-code-1.1-flash` | 89 (39/11/0) | 81 (32/17/1) |
 | `google:gemini-4-argon` | 96 (46/4/0) | 91 (41/9/0) |
 | `google:gemini-4-hydrogen` | 94 (44/6/0) | 91 (41/9/0) |
@@ -195,7 +197,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   `poolside/laguna-*-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 72 of the 74 models score lower in
+* **Japanese costs almost every model.** 74 of the 76 models score lower in
   Japanese; only `sarashina3-nano` (4 points) and `gemini-3.8-flash` (1 point)
   score higher.
   The largest English-to-Japanese gaps are the 18 points of
