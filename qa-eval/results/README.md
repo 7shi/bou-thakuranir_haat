@@ -115,6 +115,7 @@ roughly by performance (not a strict mechanical sort on any single column).
 | `google:gemini-4-argon` | 96 (46/4/0) | 91 (41/9/0) |
 | `google:gemini-4-hydrogen` | 94 (44/6/0) | 91 (41/9/0) |
 | `google:gemini-4-carbon` | 93 (43/7/0) | 91 (41/9/0) |
+| `google:gemini-4-neon` | 93 (43/7/0) | 93 (43/7/0) |
 | `google:gemini-3.8-flash` | 91 (42/7/1) | 92 (43/6/1) |
 | `google:gemini-3.7-flash` | 91 (42/7/1) | 89 (40/9/1) |
 | `google:gemini-3-flash-preview` | 95 (45/5/0) | 93 (43/7/0) |
@@ -189,7 +190,7 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
 * **No model is perfect, and the top is compressed.** The best scores are 99
   in English (`muse-spark-1.3-contributor-free`, followed by `glm-5.3`,
   `muse-spark-1.2-contributor-free`, `stealth/ox-alpha` and `grok-4.7` at 98)
-  and 97 in Japanese (`muse-spark-1.3/1.2-contributor-free`). The 42 best
+  and 97 in Japanese (`muse-spark-1.3/1.2-contributor-free`). The 43 best
   English models lie within 93–99, and one
   question moves a score by 1 point (correct ↔ partial) or 2 (correct ↔
   incorrect), so neighbours there differ by one or two questions, within the
@@ -199,9 +200,9 @@ used for every other row — see [opencode/README.md](../opencode/README.md).)
   `poolside/laguna-*-2.1:free`), even with the gold chapters
   supplied. Almost every loss is a partial on a multi-chapter `cross` question
   (26–50): the answer covers some of the gold's elements and misses others.
-* **Japanese costs almost every model.** 76 of the 78 models score lower in
+* **Japanese costs almost every model.** 76 of the 79 models score lower in
   Japanese; only `sarashina3-nano` (4 points) and `gemini-3.8-flash` (1 point)
-  score higher.
+  score higher, and `gemini-4-neon` ties.
   The largest English-to-Japanese gaps are the 18 points of
   `cohere/north-mini-code:free`, then `poolside/laguna-s-2.1:free`'s 16 and
   `poolside/laguna-xs-2.1:free`'s 15.

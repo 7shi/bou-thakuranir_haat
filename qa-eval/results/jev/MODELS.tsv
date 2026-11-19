@@ -43,6 +43,8 @@ ceiling-google_gemini-4-carbon-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-google_gemini-4-carbon-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-google_gemini-4-hydrogen-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-google_gemini-4-hydrogen-ja.tsv	jev-1.14.0	choice@19579e23
+ceiling-google_gemini-4-neon-en.tsv	jev-1.14.0	choice@19579e23
+ceiling-google_gemini-4-neon-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-google_gemma-4-26b-a4b-it-en.tsv	jev-1.14.0	choice@19579e23
 ceiling-google_gemma-4-26b-a4b-it-ja.tsv	jev-1.14.0	choice@19579e23
 ceiling-llama.cpp_MAI-Code-1.1-Flash-Q2-XS-en.tsv	jev-1.14.0	choice@19579e23
